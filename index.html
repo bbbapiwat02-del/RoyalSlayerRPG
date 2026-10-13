@@ -6979,7 +6979,7 @@ async function restoreCloud(){if(!cloudUser)return false;try{const {data,error}=
  return false}catch(e){console.warn(e);return false}}
 async function signInOrSignUp(isNew){const id=((isNew?$('lni'):$('lgi'))?.value||'').trim().toLowerCase();const pw=(isNew?$('lnp'):$('lgp'))?.value||'';const err=$('lge');if(!id||!pw){if(err)err.textContent='กรุณากรอกไอดีและรหัสผ่าน';return}
  if(isNew&&(!/^[a-z0-9_]{3,16}$/.test(id)||pw.length<4||pw!==($('lnp2')?.value||''))){if(err)err.textContent='ตรวจสอบไอดี รหัสผ่านอย่างน้อย 4 ตัว และการยืนยันรหัสผ่าน';return}
- const email=id+'@wuxia-game.local';status(isNew?'กำลังสร้างบัญชีออนไลน์…':'กำลังเข้าสู่ระบบออนไลน์…');
+ const email=id+'@wuxia-game.com';status(isNew?'กำลังสร้างบัญชีออนไลน์…':'กำลังเข้าสู่ระบบออนไลน์…');
  try{let result;if(isNew)result=await db.auth.signUp({email,password:pw,options:{data:{username:id,display_name:id}}});else result=await db.auth.signInWithPassword({email,password:pw});
  if(result.error)throw result.error;
  cloudUser=result.data.user||result.data.session?.user||null;
@@ -6999,7 +6999,7 @@ async function signInOrSignUp(isNew){const id=((isNew?$('lni'):$('lgi'))?.value|
   if(!isNew&&A[oldId]){
    const oldHash=A[oldId].pw;let h=2166136261;for(const c of String(oldId+'|'+pw))h=Math.imul(h^c.charCodeAt(0),16777619);const entered=(h>>>0).toString(36);
    if(oldHash===entered){
-    const migrated=await db.auth.signUp({email:oldId+'@wuxia-game.local',password:pw,options:{data:{username:oldId,display_name:A[oldId].nm||oldId}}});
+    const migrated=await db.auth.signUp({email:oldId+'@wuxia-game.com',password:pw,options:{data:{username:oldId,display_name:A[oldId].nm||oldId}}});
     if(!migrated.error&&(migrated.data.user||migrated.data.session?.user)){
      cloudUser=migrated.data.user||migrated.data.session.user;localStorage.setItem('ml_cloud_uid',cloudUser.id);localStorage.setItem('ml_cloud_name',oldId);localStorage.setItem('ml_cur',oldId);sessionStorage.setItem('ml_go',oldId);await profile();await cloudSave(true);status('บัญชีเดิมเชื่อมออนไลน์แล้ว');location.reload();return;
     }
