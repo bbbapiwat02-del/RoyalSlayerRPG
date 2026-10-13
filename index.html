@@ -8249,7 +8249,7 @@ window.pfHsStyle=function(hero){
  const relevant=sel=>/#hero(?![\w-])/.test(sel)
   ||[...sel.matchAll(/#([A-Za-z_][\w-]*)/g)].some(m=>ids.has(m[1]))
   ||[...sel.matchAll(/\.([A-Za-z_][\w-]*)/g)].some(m=>classes.has(m[1]));
- let css='.pfhero{position:relative;width:240px;height:260px;margin:0 auto}\n';
+ let css='.pfhero{position:relative;width:240px;height:260px;margin:0 auto}\n.pfhero #pv_hs{translate:13px -44px}\n';
  for(const sh of document.styleSheets){
   let rules;try{rules=sh.cssRules}catch(e){continue}
   for(const r of rules){
