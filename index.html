@@ -870,7 +870,7 @@ function render(){
  const bp=BP();T('bpv',fmt(bp));if(_c.bpr===undefined)_c.bpr=bp;else if(bp!==_c.bpr){const dd=bp-_c.bpr;_c.bpr=bp;const u=$('bpd');u.textContent=(dd>0?'+':'−')+fmt(Math.abs(dd));u.className=dd>0?'up':'dn';anim(u,'go')}
  T('gold',fmtS(S.gold));T('diamonds',fmtS(S.diamonds));T('shopdiamonds',fmt(S.diamonds));T('trg',fmt(S.gold));T('wgg',fmt(S.gold));T('ptg',fmt(S.gold));T('pte',S.egg||0);T('gg',fmt(S.gold));T('lvt','Lv.'+S.lv);W('xpf',(S.exp/expNeed(S.lv)*100).toFixed(1)+'%');T('xpt',fmt(S.exp)+' / '+fmt(expNeed(S.lv))+'  ('+Math.min(100,S.exp/expNeed(S.lv)*100).toFixed(1)+'%)');
  bd('nv2',typeof stPts==='function'&&stPts()>0);bd('nv3',!!S.pend||S.keys>0||(S.skf||0)>0);bd('nv4',!D&&S.tk>0);bd('nv5',wingCan());bd('nv6',petCan());bd('nv7',S.sk.some(x=>!x)&&Object.keys(S.skills).some(id=>!S.sk.includes(id)));bd('nv8',S.gold>=500||S.diamonds>=12);
- DIS('open',!!S.pend||S.gold<copen());if(!$('skp').hidden){DIS('sg1',skBusy||((S.skf||0)<=0&&S.gold<skPrice()));DIS('sg10',skBusy||S.gold<skPrice()*9)}DIS('keyb',!!S.pend||S.keys<1);DIS('upc',S.chest>=MAXC||S.gold<cup());
+ DIS('open',!!S.pend||S.gold<copen());if(!$('skp').hidden){DIS('sg1',skBusy||((S.skf||0)<=0&&S.gold<skPrice()));DIS('sg10',skBusy||S.gold<skPrice()*9)}DIS('keyb',!!S.pend||S.keys<1);DIS('upc',false);
  T('stage',D?(D.bs||D.tw||D.wb?(D.tw?'🗼 ':D.wb?'🌍 ':'👹 ')+D.nm+' · ⏱'+Math.ceil(D.t)+'s':'🪙 '+DG[D.i].n+' · คลื่น '+D.w+'/'+D.n+' · ⏱'+Math.ceil(D.t)+'s · +'+fmt(D.gold)):(isBoss()?'👹 ผู้นำสำนักมาร · ':'')+Z[Math.floor((S.stage-1)/10)%Z.length]+' ด่าน '+S.stage+(isBoss()?'':'  ('+S.kills+'/5)'));
  W('hbw',Math.round(Math.max(0,hp/MHP()*100))+'%');W('mbw',Math.round(Math.max(0,mhp/mmax*100))+'%');
  T('sA',fmtS(ATK()));T('sH',fmtS(hp)+'/'+fmtS(MHP()));T('sC',(+CRIT().toFixed(1))+'%'+(CRIT()>100?'(x'+CRD().toFixed(1)+')':''));T('sS','x'+SPD().toFixed(2));
@@ -951,7 +951,7 @@ function openChest(free){
 }
 $('cico').onclick=()=>openChest(false);
 $('open').onclick=()=>openChest(false);$('keyb').onclick=()=>openChest(true);
-$('upc').onclick=()=>{const c=cup();if(S.chest<MAXC&&S.gold>=c){S.gold-=c;S.chest++;burst(50,50,'#ffd23f',20);sfx('stage');banner('📦 หีบระดับ '+S.chest+'!');renderGear()}};
+$('upc').onclick=null;
 const WID=['cs','tr','ov','dgw','wgw','ptw','gfw','skw','shopw','bsw','cvw','svw','pvw','twr'];
 function openW(id){gfOpen=id==='gfw';WID.forEach(w=>$(w).hidden=w!==id);$('arena').style.visibility='hidden';
  if(id==='cs')renderCs();else if(id==='ov'){renderGear();showPend(false);ovTab(skTab)}else if(id==='dgw')renderDg();else if(id==='wgw')renderWg();else if(id==='ptw')renderPt();else if(id==='gfw')renderGf();else if(id==='skw')renderSkw();else if(id==='shopw')renderShop();else if(id==='bsw')renderBs();else if(id==='cvw')renderCv();else if(id==='svw')renderSv();else if(id==='pvw')renderPv();else if(id==='twr')renderTw();
@@ -6992,7 +6992,7 @@ try{const DISC=[1,.95,.9,.85,.8,.75,.7,.65];
 try{SETS.forEach((s,k)=>{if(s._hard)return;s._hard=1;s.abs=Math.round(s.abs*1.2+k*2);s.hpm=+(s.hpm*(1.3+k*.06)).toFixed(2);s.dm=+(s.dm*(1.2+k*.05)).toFixed(3)})}catch(e){}
 
 /* ---------- 4) เอาการอัปเลเวลหีบอุปกรณ์ออก ---------- */
-document.head.insertAdjacentHTML('beforeend','<style>#upc{display:none!important}</style>');
+/* (ยกเลิกการซ่อนปุ่มอัปหีบ แล้วเปลี่ยนเป็นอัปด้วยการเปิดหีบ) */
 
 /* ---------- 6) ปุ่มโจมตีอัตโนมัติเล็กลง ---------- */
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -8068,6 +8068,74 @@ button.g.gx .gn{font-size:19px!important}button.g.gx .gp{font-size:13.5px!import
   const b=$('slv');if(b)b.onclick=()=>{if(S.gold<sclCost()||(S.sl||1)>=MX)return;S.gold-=sclCost();S.sl=(S.sl||1)+1;applySW();sfx('up');banner('📜 ระดับหอคัมภีร์ '+S.sl+'!');renderSk()};
  }catch(e){}};
  applySW();
+})();
+</script>
+<script>
+(function(){
+ /* จำนวนครั้งที่ต้องเปิดหีบเพื่ออัปจากระดับ L ไประดับ L+1 (ค่อยๆ เพิ่มขึ้น) */
+ const need=L=>Math.round(15*Math.pow(1.07,L-1)+5*(L-1));
+ window.chestNeed=need;
+ function setUpc(){const b=$('upc');if(!b)return;b.disabled=false;b.onclick=null;
+  b.textContent=S.chest>=MAXC?'📦 หีบระดับสูงสุดแล้ว (MAX)':'📦 อัประดับหีบ → Lv '+(S.chest+1)+'  ·  เปิดหีบแล้ว '+(S.cpr||0)+'/'+need(S.chest)+' ครั้ง'}
+ function addProg(n){
+  let rem=n;
+  while(S.chest<MAXC&&rem>0){const left=need(S.chest)-(S.cpr||0);
+   if(rem>=left){rem-=left;S.chest++;S.cpr=0;burst(50,50,'#ffd23f',20);sfx('stage');banner('📦 หีบระดับ '+S.chest+'!')}
+   else{S.cpr=(S.cpr||0)+rem;rem=0}}
+  if(S.chest>=MAXC)S.cpr=0;
+  renderGear();
+ }
+ const oOpen=openChest;
+ openChest=function(free){const p0=S.pend;oOpen.apply(this,arguments);if(S.pend&&S.pend!==p0)addProg(1)};
+ const oMulti=openMulti;
+ openMulti=function(n){const b=mcBusy;oMulti.apply(this,arguments);if(!b&&mcBusy)addProg(n)};
+ const _rgC=renderGear;
+ renderGear=function(){_rgC.apply(this,arguments);setUpc()};
+ setUpc();
+})();
+</script>
+<script>
+/* ================= คำสั่ง GM ผ่านช่องแชทโลก (ตรวจสิทธิ์ที่เซิร์ฟเวอร์ ไม่มีรหัสในไฟล์) ================= */
+(function(){
+ const form=document.querySelector('#chw form'),inp=document.querySelector('#chw input'),win=document.getElementById('chw');
+ if(!form||!inp||!win)return;
+ const HELP='คำสั่ง: gold N · dia N · keys N · tk N · egg N · skf N · stage N · chest N · lv N · hl N · sl N · heal';
+ const refresh=()=>{try{render()}catch(e){}try{renderGear()}catch(e){}try{renderShop()}catch(e){}};
+ const FIELD={gold:'gold',diamonds:'diamonds',keys:'keys',tk:'tk',egg:'egg',skf:'skf',stage:'stage',chest:'chest',lv:'lv',hl:'hl',sl:'sl'};
+ /* นำค่าที่เซิร์ฟเวอร์ยืนยันแล้วไปใช้กับเซฟในเครื่อง (การบันทึกปกติจะส่งขึ้นเซิร์ฟเวอร์เอง) */
+ function apply(field,value){
+  if(field==='heal'){try{hp=MHP()}catch(e){}return 'HP เต็ม'}
+  const k=FIELD[field];if(!k)return 'ไม่รู้จักฟิลด์';
+  S[k]=value;
+  if(field==='stage'){S.kills=0;try{spawn()}catch(e){}}
+  if(field==='chest')S.cpr=0;
+  if(field==='lv')S.exp=0;
+  if(field==='sl')try{applySW()}catch(e){}
+  return field+' = '+value;
+ }
+ async function run(cmd,args){
+  const GA=window.GameAuth;
+  if(!GA||GA.mode==='local'||!GA.ready||!(await GA.ready)||!GA.sb){banner('❌ GM: ต้องเล่นแบบออนไลน์');return}
+  let res;
+  try{res=await GA.sb.rpc('gm_command',{p_cmd:cmd,p_args:args})}catch(e){banner('❌ GM: เชื่อมต่อไม่ได้');return}
+  const {data,error}=res||{};
+  if(error){banner('❌ GM: '+(/not authorized/i.test(error.message||'')?'ไม่มีสิทธิ์':'คำสั่งไม่ถูกต้อง'));return}
+  const msg=apply(data.field,data.value);
+  refresh();
+  banner('🛠 GM: '+msg);
+ }
+ /* ดักก่อนส่งข้อความ: ถ้าเป็นคำสั่ง GM จะไม่ส่งเข้าแชทและไม่แสดงในแชท */
+ win.addEventListener('submit',e=>{
+  if(e.target!==form)return;
+  const tab=document.querySelector('#chtabs button.on');
+  if(tab&&tab.dataset.t==='d')return;
+  const t=inp.value.trim().split(/\s+/);
+  if(t[0]!=='/gm')return;
+  e.preventDefault();e.stopImmediatePropagation();inp.value='';
+  const cmd=(t[1]||'').toLowerCase();
+  if(!cmd||cmd==='help'){banner('🛠 '+HELP);return}
+  run(cmd,t.slice(2));
+ },true);
 })();
 </script>
 </body></html>
