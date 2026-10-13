@@ -7318,8 +7318,8 @@ async function openProfile(uid){if(!uid)return;P.hidden=false;const B=$('pfbd');
  if(error||!data){B.innerHTML='<div class="soemp">ยังไม่มีข้อมูลของผู้เล่นนี้<br><small>ข้อมูลจะขึ้นหลังผู้เล่นออนไลน์อย่างน้อย 1 ครั้ง</small></div>';return}
  const d=data.data||{},me=uid===c.u.id;if(!FR.friends.length&&!FR.out.length&&!FR.inc.length)await loadFriends();
  const isF=FR.friends.some(f=>f.uid===uid),isOut=FR.out.some(f=>f.uid===uid),isIn=FR.inc.some(f=>f.uid===uid);
- let av='';try{const hh=window.pfRenderHero?window.pfRenderHero(d):null;if(hh)av='<div class="pfhs">'+hh+'</div>'}catch(e){}
-  if(!av&&typeof d.hero==='string'&&d.hero)av='<div class="pfhs">'+d.hero+'</div>';if(!av)try{const base=null;if(base){const k=base.cloneNode(true);if(window.unFemNh)unFemNh(k);k.removeAttribute('style');
+ let av='';try{const hh=window.pfRenderHero?window.pfRenderHero(d):null;if(hh)av='<div class="pfhero">'+hh+'</div>'}catch(e){}
+  if(!av&&typeof d.hero==='string'&&d.hero)av='<div class="pfhero">'+d.hero+'</div>';if(!av)try{const base=null;if(base){const k=base.cloneNode(true);if(window.unFemNh)unFemNh(k);k.removeAttribute('style');
    k.querySelectorAll('.n-wg').forEach(g=>{g.innerHTML='';try{if(d.wg&&typeof wingHero==='function')g.innerHTML='<g transform="translate(4 10)">'+wingHero(d.wg,false)+'</g>'}catch(e){}});
    if(d.sex==='f'&&window.femNh)femNh(k);av=k.outerHTML}}catch(e){}
  const slot=i=>{const e=(d.eq||[])[i],nm=typeof SL!=='undefined'?SL[i].n:'';let ic='',col='#5a4a3a',tag='ว่าง';
@@ -8238,13 +8238,28 @@ window.pfPetBlock=function(pet){
 /* คัดลอกสไตล์ของฉากตัวละครให้โปรไฟล์เพื่อนแสดงออร่าและเอฟเฟคเหมือนจริง */
 window.pfHsStyle=function(hero){
  const ids=new Set([...hero.matchAll(/id="pv_([^"]+)"/g)].map(m=>m[1]));
- const map=t=>t.replace(/#hs(?![\w-])/g,'.pfhs').replace(/#([A-Za-z_][\w-]*)/g,(m,id)=>ids.has(id)?'#pv_'+id:m);
- let css='';
+ const classes=new Set();
+ for(const m of hero.matchAll(/class="([^"]+)"/g))m[1].split(/\s+/).forEach(c=>{if(c)classes.add(c)});
+ const mapSel=sel=>{
+  let t=sel.trim();
+  if(!t||/^(html|body|:root)/.test(t))return null;
+  t=t.replace(/#hero(?![\w-])/g,'.pfhero').replace(/#([A-Za-z_][\w-]*)/g,(m,id)=>ids.has(id)?'#pv_'+id:m);
+  return t.startsWith('.pfhero')?t:'.pfhero '+t;
+ };
+ const relevant=sel=>/#hero(?![\w-])/.test(sel)
+  ||[...sel.matchAll(/#([A-Za-z_][\w-]*)/g)].some(m=>ids.has(m[1]))
+  ||[...sel.matchAll(/\.([A-Za-z_][\w-]*)/g)].some(m=>classes.has(m[1]));
+ let css='.pfhero{position:relative;width:240px;height:260px;margin:0 auto}\n';
  for(const sh of document.styleSheets){
   let rules;try{rules=sh.cssRules}catch(e){continue}
   for(const r of rules){
-   if(r.type===7)css+=r.cssText+'\n';
-   else if(r.cssText&&/#hs(?![\w-])/.test(r.cssText))css+=map(r.cssText)+'\n';
+   if(r.type===7){css+=r.cssText+'\n';continue}
+   if(r.type!==1||!r.selectorText||!relevant(r.selectorText))continue;
+   const sels=r.selectorText.split(',').map(mapSel).filter(Boolean);
+   if(!sels.length)continue;
+   let decl=r.style.cssText;
+   if(/#hero(?![\w-])/.test(r.selectorText))decl=decl.split(';').filter(x=>!/^\s*animation/.test(x)).join(';');
+   css+=sels.join(',')+'{'+decl+'}\n';
   }
  }
  let el=document.getElementById('pfhs-style');
@@ -8277,7 +8292,7 @@ window.pfRenderHero=function(d){
   S.wg=d.wg||0;S.wl=d.wl||0;S.sex=d.sex||'m';
   window._wk=undefined;
   updateHero();
-  out=window.pfPrefix(hs.innerHTML);
+  const hw=document.getElementById('hero');out=window.pfPrefix(hw?hw.innerHTML:hs.innerHTML);
  }catch(e){console.error('[pfRenderHero]',e)}
  finally{
   Object.assign(S,keep);
