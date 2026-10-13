@@ -3935,13 +3935,14 @@ window.GameAuth=(function(){
   if(/Email not confirmed/i.test(m))return 'บัญชียังไม่ยืนยัน (ปิด Confirm email ใน Supabase)';if(/Password/i.test(m))return 'รหัสผ่านอย่างน้อย 6 ตัว';
   if(/rate|too many/i.test(m))return 'ลองใหม่อีกครั้งในอีกสักครู่';return 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้'};
  G.user=async()=>{await need();const {data}=await G.sb.auth.getSession();return data&&data.session?data.session.user:null};
- G.login=async(id,pw)=>{try{await need();const {error}=await G.sb.auth.signInWithPassword({email:email(id),password:pw});if(error)return{ok:false,msg:msgOf(error)};return{ok:true}}catch(e){return{ok:false,msg:msgOf(e)}}};
+ const mark=id=>{const A=getA();A[id]=Object.assign(A[id]||{},{online:1,srv:1,last:Date.now()});delete A[id].pw;setA(A)};
+ G.login=async(id,pw)=>{try{await need();const {error}=await G.sb.auth.signInWithPassword({email:email(id),password:pw});if(error)return{ok:false,msg:msgOf(error)};mark(id);return{ok:true}}catch(e){return{ok:false,msg:msgOf(e)}}};
  G.register=async(id,pw)=>{try{await need();
   const {data,error}=await G.sb.auth.signUp({email:email(id),password:pw,options:{data:{username:id}}});
   if(error)return{ok:false,msg:msgOf(error)};
   if(!data.session){const r=await G.sb.auth.signInWithPassword({email:email(id),password:pw});if(r.error)return{ok:false,msg:msgOf(r.error)}}
   const u=await G.user();if(u)await G.sb.from('saves').upsert({user_id:u.id,username:id,data:{name:'',t:Date.now()},updated_at:new Date().toISOString()});
-  return{ok:true}}catch(e){return{ok:false,msg:msgOf(e)}}};
+  mark(id);return{ok:true}}catch(e){return{ok:false,msg:msgOf(e)}}};
  let lastSave=0,pend=null,tmr=null;
  const push=async(id,json)=>{try{const u=await G.user();if(!u)return;lastSave=Date.now();
   await G.sb.from('saves').upsert({user_id:u.id,username:id,data:JSON.parse(json),updated_at:new Date().toISOString()})}catch(e){}};
