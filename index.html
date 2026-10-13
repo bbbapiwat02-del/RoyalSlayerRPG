@@ -8073,7 +8073,7 @@ button.g.gx .gn{font-size:19px!important}button.g.gx .gp{font-size:13.5px!import
 <script>
 (function(){
  /* จำนวนครั้งที่ต้องเปิดหีบเพื่ออัปจากระดับ L ไประดับ L+1 (ค่อยๆ เพิ่มขึ้น) */
- const need=L=>Math.round(15*Math.pow(1.07,L-1)+5*(L-1));
+ const need=L=>Math.round(60*Math.pow(1.12,L-1)+20*(L-1));
  window.chestNeed=need;
  function setUpc(){const b=$('upc');if(!b)return;b.disabled=false;b.onclick=null;
   b.textContent=S.chest>=MAXC?'📦 หีบระดับสูงสุดแล้ว (MAX)':'📦 อัประดับหีบ → Lv '+(S.chest+1)+'  ·  เปิดหีบแล้ว '+(S.cpr||0)+'/'+need(S.chest)+' ครั้ง'}
@@ -8095,21 +8095,22 @@ button.g.gx .gn{font-size:19px!important}button.g.gx .gp{font-size:13.5px!import
 })();
 </script>
 <script>
-/* ================= คำสั่ง GM ผ่านช่องแชทโลก (ตรวจสิทธิ์ที่เซิร์ฟเวอร์ ไม่มีรหัสในไฟล์) ================= */
+/* ================= คำสั่ง GM ผ่านช่องแชทโลก (ตรวจสิทธิ์ที่เซิร์ฟเวอร์) ================= */
 (function(){
  const form=document.querySelector('#chw form'),inp=document.querySelector('#chw input'),win=document.getElementById('chw');
  if(!form||!inp||!win)return;
- const HELP='คำสั่ง: gold N · dia N · keys N · tk N · egg N · skf N · stage N · chest N · lv N · hl N · sl N · heal';
- /* แสดงผลเฉพาะในเครื่องผู้ใช้ (ไม่ส่งออกไปแชทโลก) และบันทึกลงคอนโซลด้วย */
+ const HELP='คำสั่ง: gold N · dia N · keys N · tk N · egg N · skf N · stage N · chest N · lv N · hl N · heal · give <ไอดี|ชื่อตัวละคร|me> <gold|dia|keys|tk|egg|skf> <จำนวน>';
+ const FIELD={gold:'gold',diamonds:'diamonds',keys:'keys',tk:'tk',egg:'egg',skf:'skf',stage:'stage',chest:'chest',lv:'lv',hl:'hl',sl:'sl'};
+ const GIVE={gold:'gold',dia:'diamonds',keys:'keys',tk:'tk',egg:'egg',skf:'skf'};
+ const refresh=()=>{try{render()}catch(e){}try{renderGear()}catch(e){}try{renderShop()}catch(e){}};
+ /* แสดงผลเฉพาะในเครื่องผู้ใช้ (ไม่ส่งออกไปแชทโลก) */
  function say(msg,err){
   try{banner(msg)}catch(e){}
   const L=document.getElementById('chl');
   if(L){const d=document.createElement('div');d.className='sys';d.textContent='🛠 '+msg;L.appendChild(d);L.scrollTop=L.scrollHeight}
   (err?console.error:console.log)('[GM] '+msg);
  }
- const refresh=()=>{try{render()}catch(e){}try{renderGear()}catch(e){}try{renderShop()}catch(e){}};
- const FIELD={gold:'gold',diamonds:'diamonds',keys:'keys',tk:'tk',egg:'egg',skf:'skf',stage:'stage',chest:'chest',lv:'lv',hl:'hl',sl:'sl'};
- /* นำค่าที่เซิร์ฟเวอร์ยืนยันแล้วไปใช้กับเซฟในเครื่อง (การบันทึกปกติจะส่งขึ้นเซิร์ฟเวอร์เอง) */
+ /* นำค่าที่เซิร์ฟเวอร์ยืนยันแล้วไปใช้กับเซฟในเครื่อง */
  function apply(field,value){
   if(field==='heal'){try{hp=MHP()}catch(e){}return 'HP เต็ม'}
   const k=FIELD[field];if(!k)return 'ไม่รู้จักฟิลด์';
@@ -8120,18 +8121,47 @@ button.g.gx .gn{font-size:19px!important}button.g.gx .gp{font-size:13.5px!import
   if(field==='sl')try{applySW()}catch(e){}
   return field+' = '+value;
  }
- async function run(cmd,args){
+ async function online(){
   const GA=window.GameAuth;
-  console.log('[GM] run',cmd,args);
-  if(!GA||GA.mode==='local'||!GA.ready||!(await GA.ready)||!GA.sb){say('❌ GM: ต้องเล่นแบบออนไลน์');return}
+  if(!GA||GA.mode!=='online'||!GA.ready||!(await GA.ready)||!GA.sb)return null;
+  return GA;
+ }
+ const errMsg=m=>/not authorized/i.test(m)?'ไม่มีสิทธิ์ (บัญชีนี้ไม่ได้เป็นแอดมิน)':/player not found/i.test(m)?'ไม่พบผู้เล่นนี้':/invalid amount/i.test(m)?'จำนวนไม่ถูกต้อง':/ambiguous name/i.test(m)?'ชื่อตัวละครนี้ซ้ำกัน ใช้ไอดีแทน':'ผิดพลาด: '+m;
+ async function run(cmd,args){
+  const GA=await online();
+  if(!GA){say('❌ GM: ต้องเล่นแบบออนไลน์');return}
   let res;
   try{res=await GA.sb.rpc('gm_command',{p_cmd:cmd,p_args:args})}catch(e){say('❌ GM: เชื่อมต่อไม่ได้ '+(e&&e.message||''),true);return}
   const {data,error}=res||{};
-  if(error){const m=error.message||'';say('❌ GM: '+(/not authorized/i.test(m)?'ไม่มีสิทธิ์ (บัญชีนี้ไม่ได้เป็นแอดมิน)':'ผิดพลาด: '+m),true);return}
+  if(error){say('❌ GM: '+errMsg(error.message||''),true);return}
   const msg=apply(data.field,data.value);
   refresh();
   say('🛠 GM: '+msg);
  }
+ /* แจกของให้ผู้เล่น: เข้าคิวที่เซิร์ฟเวอร์ ผู้รับจะได้เมื่อออนไลน์ */
+ async function give(args){
+  const GA=await online();
+  if(!GA){say('❌ GM: ต้องเล่นแบบออนไลน์');return}
+  const n=args.length,amt=args[n-1],fld=args[n-2],tgt=args.slice(0,Math.max(0,n-2)).join(' ');
+  const f=GIVE[(fld||'').toLowerCase()];
+  if(!tgt||!f||!/^\d+$/.test(amt||'')){say('❌ GM: รูปแบบ /gm give <ไอดี|ชื่อตัวละคร|me> <gold|dia|keys|tk|egg|skf> <จำนวน>',true);return}
+  const {error}=await GA.sb.rpc('gm_give',{p_target:tgt,p_field:f,p_amount:Number(amt)});
+  if(error){say('❌ GM: '+errMsg(error.message||''),true);return}
+  say('🎁 ส่ง '+fld+' x'+amt+' ให้ '+tgt+' แล้ว (ผู้รับจะได้เมื่อออนไลน์)');
+  claim();
+ }
+ /* รับของที่ GM แจกให้ (ตรวจทุก 15 วินาทีขณะออนไลน์) */
+ async function claim(){
+  const GA=await online();if(!GA)return;
+  let res;try{res=await GA.sb.rpc('claim_gm_grants')}catch(e){return}
+  const list=res&&res.data;
+  if(!Array.isArray(list)||!list.length)return;
+  list.forEach(g=>{const k=FIELD[g.field];if(!k)return;S[k]=(S[k]||0)+(Number(g.amount)||0);if(k==='tk')S.tk=Math.min(99,S.tk)});
+  refresh();
+  say('🎁 ได้รับของจาก GM: '+list.map(g=>g.field+' x'+g.amount).join(', '));
+ }
+ setTimeout(claim,8000);
+ setInterval(claim,15000);
  /* ดักก่อนส่งข้อความ: ถ้าเป็นคำสั่ง GM จะไม่ส่งเข้าแชทและไม่แสดงในแชท */
  win.addEventListener('submit',e=>{
   if(e.target!==form)return;
@@ -8142,7 +8172,8 @@ button.g.gx .gn{font-size:19px!important}button.g.gx .gp{font-size:13.5px!import
   e.preventDefault();e.stopImmediatePropagation();inp.value='';
   const cmd=(t[1]||'').toLowerCase();
   if(!cmd||cmd==='help'){say('🛠 '+HELP);return}
-  run(cmd,t.slice(2)).catch(e=>say('❌ GM: '+(e&&e.message||e),true));
+  const p=(cmd==='give'||cmd==='add')?give(t.slice(2)):run(cmd,t.slice(2));
+  p.catch(e=>say('❌ GM: '+(e&&e.message||e),true));
  },true);
 })();
 </script>
