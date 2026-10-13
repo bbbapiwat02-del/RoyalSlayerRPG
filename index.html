@@ -3514,7 +3514,7 @@ function ensureWb(){let w=S.wb;if(!w||typeof w!=='object')w=S.wb={day:'',sc:0,be
  if(w.wbx==null){w.wbx=0;w.pbx=0}
  const d=dk();if(w.day!==d){
   if(w.day&&w.sc>0){const c={rank:null,sc:w.sc,day:w.day};w.claim=c;WBN.rankFor(c.day,c.sc).then(rk=>{if(w.claim===c){c.rank=rk||51;if(!$('wbw').hidden)renderWb()}})}
-  w.day=d;w.sc=0;w.att=0;w.last=null;w.R=Math.max(w.best||0,est());try{WBN.top=[];WBN.rank=null;WBN.total=0;WBN.t=0;WBN._sent=0}catch(e){}}
+  w.day=d;w.sc=0;w.att=0;w.last=null;w.best=0;w.R=est();try{WBN.top=[];WBN.rank=null;WBN.total=0;WBN.t=0;WBN._sent=0}catch(e){}}
  return w}
 function bots(day,R,fr){return [];let sd=hsh('wb'+day);const rnd=()=>(sd=(Math.imul(sd,1103515245)+12345)>>>0)/4294967296;
  const L=[];for(let i=0;i<NB;i++){const f=14*Math.pow(.915,i)*(.85+rnd()*.3),g=.15+.85*Math.pow(fr,.8);L.push({n:N1[Math.floor(rnd()*N1.length)]+N2[Math.floor(rnd()*N2.length)],lv:Math.max(1,S.lv+Math.floor((rnd()-.3)*20)),s:Math.floor(R*f*g*(.9+.2*rnd()))})}
@@ -3523,7 +3523,7 @@ function rankOf(sc,day,R,fr){return bots(day,R,fr).filter(b=>b.s>sc).length+1}
 /* ---------- อันดับออนไลน์ (Supabase) ---------- */
 const WBN={top:[],rank:null,total:0,on:false,busy:false,t:0,
  async sb(){const G=window.GameAuth;if(!G||G.mode==='local'||!G.ready||!(await G.ready))return null;const u=await G.user();return u?{sb:G.sb,u}:null},
- async refresh(force){if(this.busy||(!force&&Date.now()-this.t<15000))return;this.busy=true;this.t=Date.now();
+ async refresh(force){if(this._day&&this._day!==dk()){this.top=[];this.rank=null;this.total=0;force=true}this._day=dk();if(this.busy||(!force&&Date.now()-this.t<15000))return;this.busy=true;this.t=Date.now();
   try{const c=await this.sb();this.on=!!c;if(!c)return;const day=dk(),w=ensureWb(),nm=x=>(x&&String(x).trim())||'จอมยุทธ์';
    /* วิธีหลัก: ให้เซิร์ฟเวอร์จัดอันดับให้ (wb_board) — อันดับตรงทุกเครื่อง + ชื่อสำรองจากเซฟ */
    const rb=await c.sb.rpc('wb_board',{p_day:day});
@@ -3553,7 +3553,7 @@ WBN.live=async function(){if(this._ch)return;const c=await this.sb();if(!c)retur
     if(!$('wbw').hidden)renderWb()}
    clearTimeout(tm);tm=setTimeout(()=>this.refresh(true),1200)}).subscribe()};
 /* ระหว่างตีบอส: ส่งดาเมจขึ้นเซิร์ฟเวอร์ทุก 5 วิ เมื่อเกินสถิติวันนี้ คนอื่นจะเห็นอันดับขยับทันที */
-setInterval(()=>{try{if(!(D&&D.wb))return;const cur=Math.floor(Math.max(0,mmax-mhp)),w=ensureWb();if(cur>(w.sc||0)&&cur>(WBN._sent||0)){WBN._sent=cur;WBN.submit(cur)}}catch(e){}},5000);
+setInterval(()=>{try{if(!(D&&D.wb)||(D.wday&&D.wday!==dk()))return;const cur=Math.floor(Math.max(0,mmax-mhp)),w=ensureWb();if(cur>(w.sc||0)&&cur>(WBN._sent||0)){WBN._sent=cur;WBN.submit(cur)}}catch(e){}},5000);
 WBN.liveRank=function(cur){if(!this.on)return null;const others=this.top.filter(t=>!t.me);const n=others.filter(t=>t.s>cur).length;return others.length>=50&&n>=others.length?'50+':n+1};
 function wbRw(rk){if(rk<=1)return{st:50,dm:1000,tk:6,wbx:2,pbx:2};if(rk<=2)return{st:40,dm:800,tk:5,wbx:1,pbx:1};if(rk<=3)return{st:30,dm:600,tk:4,wbx:1,pbx:1};
  if(rk<=5)return{st:22,dm:400,tk:3,wbx:1,pbx:0};if(rk<=10)return{st:15,dm:250,tk:2,wbx:0,pbx:1};if(rk<=20)return{st:10,dm:150,tk:2,wbx:0,pbx:0};if(rk<=30)return{st:6,dm:80,tk:1,wbx:0,pbx:0};if(rk<=50)return{st:4,dm:40,tk:1,wbx:0,pbx:0};return{st:2,dm:20,tk:0,wbx:0,pbx:0}}
@@ -3608,7 +3608,7 @@ function renderWb(){const w=ensureWb(),B=boss(),box=$('wbbody'),rk=WBN.rank;WBN.
  let h=`<div class="wbh"><div class="wbe">${B.em}</div><h3>${B.nm}</h3><small>เลือดมหาศาล · ตีเบา · ตีได้ไม่จำกัด ครั้งละ ${WT} วิ<br>🏆 จัดอันดับจากดาเมจสูงสุดใน 1 รอบ · ผู้เล่นจริงทั้งเซิร์ฟเวอร์<br>⏳ ตัดอันดับ/รีเซ็ตรอบใหม่ใน <b id="wbleft">${left()}</b> (เที่ยงคืนทุกวัน)</small></div>`;
  if(w.claim)h+=w.claim.rank==null?`<div class="wbclm">🏆 ผลเมื่อวาน · ดาเมจสูงสุด ${fmt(w.claim.sc)}<br><small>กำลังตรวจสอบอันดับ…</small></div>`:`<div class="wbclm">🏆 ผลเมื่อวาน: อันดับ <b>${w.claim.rank}</b> · ดาเมจสูงสุด ${fmt(w.claim.sc)}<br><small>${rwTx(wbRw(w.claim.rank))}</small><br><button class="skill" id="wbcl" style="margin-top:6px;width:100%">🎁 รับรางวัล</button></div>`;
  h+=`<div class="wbs"><div>ดาเมจสูงสุดวันนี้<b>${fmt(w.sc)}</b></div><div>อันดับ<b>${w.sc>0&&rk?'#'+rk:'-'}</b><small style="font-size:9.5px">${WBN.on?'จาก '+WBN.total+' คน':'ออฟไลน์'}</small></div><div>ตีไปแล้ว<b>${w.att} ครั้ง</b></div></div>`;
- if(w.last)h+=`<div class="tkr"><small>ครั้งล่าสุด: ${fmt(w.last)} ดาเมจ · นับเฉพาะครั้งที่ดาเมจสูงสุดของวัน · สถิติตลอดกาล ${fmt(w.best||0)}</small></div>`;
+ if(w.last)h+=`<div class="tkr"><small>ครั้งล่าสุด: ${fmt(w.last)} ดาเมจ · นับเฉพาะครั้งที่ดาเมจสูงสุดของวัน</small></div>`;
  if(wbMsg)h+=`<div class="tkr" style="color:#ffe9a8">${wbMsg}</div>`;
  h+=`<button class="skill bz-go" id="wbgo" style="width:100%" ${D?'disabled':''}>⚔️ ท้าบอสโลก (${WT} วิ)</button>${D?'<div class="bz-why">⚔️ กำลังต่อสู้อยู่</div>':''}`;
  h+=`<div class="wbt">${['🏆 อันดับ','🎁 รางวัล','📦 กล่อง'+(w.wbx+w.pbx?' ('+(w.wbx+w.pbx)+')':'')].map((x,i)=>`<button data-t="${i}" class="${wbTab===i?'on':''}">${x}</button>`).join('')}</div>`;
@@ -3624,9 +3624,10 @@ function renderWb(){const w=ensureWb(),B=boss(),box=$('wbbody'),rk=WBN.rank;WBN.
 }
 let wq=false;
 function start(){if(D)return;if(mState==='dying'){if(!wq){wq=true;setTimeout(()=>{wq=false;start()},350)}return}
- const B=boss();ensureWb();wbMsg='';D={i:300,wb:1,nm:B.nm,em:B.em,n:1,w:1,t:WT,gold:0,mul:0,off:0,abs:Math.max(1,S.stage),hpm:1e6,dm:.08};
+ const B=boss();ensureWb();wbMsg='';D={i:300,wb:1,wday:dk(),nm:B.nm,em:B.em,n:1,w:1,t:WT,gold:0,mul:0,off:0,abs:Math.max(1,S.stage),hpm:1e6,dm:.08};
  hp=MHP();sfx('boss');spawn();closeW()}
 function wbEnd(){const d=D;if(!d)return;const w=ensureWb(),dmg=Math.max(0,Math.floor(mmax-Math.max(0,mhp)));D=null;
+ if(d.wday&&d.wday!==dk()){WBN._sent=0;banner('🌙 ข้ามเที่ยงคืนแล้ว รอบใหม่เริ่มต้น · ดาเมจรอบนี้ไม่ถูกนับ');$('wbsc').hidden=true;mState='dying';setTimeout(()=>{hp=MHP();spawn();openW('wbw')},900);return}
  WBN._sent=0;const nb=dmg>(w.sc||0);w.sc=Math.max(w.sc||0,dmg);w.att++;w.last=dmg;if(dmg>(w.best||0))w.best=dmg;if(nb)WBN.submit(w.sc);const g=Math.floor(gpk()*3);S.gold+=g;
  banner(nb?'🏆 ทำลายสถิติวันนี้! '+fmt(dmg):'🌍 ดาเมจรอบนี้ '+fmt(dmg)+' (สูงสุด '+fmt(w.sc)+')');sfx('lvl');$('wbsc').hidden=true;mState='dying';
  setTimeout(()=>{hp=MHP();spawn();openW('wbw')},900)}
@@ -4085,7 +4086,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 </style>`);
 const top=document.querySelector('.top'),L=top.children[0],R=top.children[1];
 const av=`<svg viewBox="0 0 42 42"><path d="M6 42Q8 30 21 29Q34 30 36 42Z" fill="#f2ead2"/><path d="M15 30L21 37L27 30" fill="none" stroke="#c0201a" stroke-width="2"/><path d="M9 20Q8 6 21 6Q34 6 33 20Q34 30 30 34L28 22Q21 18 14 22L12 34Q8 30 9 20Z" fill="#1a1020"/><ellipse cx="21" cy="21" rx="9" ry="10" fill="#f6d2b0"/><path d="M12 17Q21 9 30 17L30 14Q21 6 12 14Z" fill="#1a1020"/><rect x="11" y="14" width="20" height="3" rx="1.5" fill="#c0201a"/><path d="M31 15l7 -3l-4 5" fill="#c0201a"/><circle cx="21" cy="5" r="3.5" fill="#1a1020"/><rect x="18" y="3" width="6" height="2" fill="#ffd23f"/><ellipse cx="17.5" cy="22" rx="1.4" ry="1.8" fill="#1a0808"/><ellipse cx="24.5" cy="22" rx="1.4" ry="1.8" fill="#1a0808"/><circle cx="17.9" cy="21.4" r=".5" fill="#fff"/><circle cx="24.9" cy="21.4" r=".5" fill="#fff"/><path d="M19 27Q21 28.5 23 27" stroke="#a0402a" stroke-width="1" fill="none"/><ellipse cx="15" cy="25" rx="1.8" ry="1" fill="#ff9a9a" opacity=".5"/><ellipse cx="27" cy="25" rx="1.8" ry="1" fill="#ff9a9a" opacity=".5"/></svg>`;
-const keep=[...L.querySelectorAll('button')];
+window.AV_M=av;const keep=[...L.querySelectorAll('button')];
 L.className='pf';L.innerHTML=`<div class="pf-av">${av}<em class="pf-lv" id="pflv">Lv.1</em></div><div class="pf-tx"><b id="pfn">จอมยุทธ์</b><small id="pfbp"><i class="bpb">BP</i><span class="bpv">0</span></small></div>`;
 keep.forEach(b=>{b.style.display='none';L.appendChild(b)});
 L.onclick=()=>openW('cs');
@@ -4122,9 +4123,9 @@ function show(){const sv=avBox.querySelector('svg,img');if(S.avatar){if(!sv||sv.
 fi.onchange=()=>{const f=fi.files&&fi.files[0];fi.value='';if(!f)return;const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas'),z=160;c.width=c.height=z;const g=c.getContext('2d'),s=Math.min(im.width,im.height);g.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,z,z);
  try{S.avatar=c.toDataURL('image/jpeg',.82)}catch(e){banner('⚠️ ใช้รูปนี้ไม่ได้');return}show();banner('📷 เปลี่ยนรูปโปรไฟล์แล้ว');const m=$('avm');if(m)m.remove()};im.onerror=()=>banner('⚠️ เปิดรูปไม่ได้');im.src=rd.result};rd.readAsDataURL(f)};
 function menu(){const o=$('avm');if(o)o.remove();
- document.body.insertAdjacentHTML('beforeend',`<div id="avm"><div class="bx"><div class="pv">${S.avatar?`<img src="${S.avatar}">`:def}</div><b>${S.name||'จอมยุทธ์'}</b><button class="p" id="avc">📷 เลือกรูปจากเครื่อง</button>${S.avatar?'<button id="avd">↩️ ใช้รูปเริ่มต้น</button>':''}<button id="avsx">⚧ เปลี่ยนเพศเป็น${S.sex==='f'?'ชาย':'หญิง'} (💎 500)</button><button id="avs">🧙 ดูหน้าตัวละคร</button><button id="avx">ปิด</button></div></div>`);
+ document.body.insertAdjacentHTML('beforeend',`<div id="avm"><div class="bx"><div class="pv">${S.avatar?`<img src="${S.avatar}">`:def}</div><b>${S.name||'จอมยุทธ์'}</b><button class="p" id="avc">📷 เลือกรูปจากเครื่อง</button>${S.avatar?'<button id="avd">↩️ ใช้รูปเริ่มต้น</button>':''}<button id="avnm">✏️ เปลี่ยนชื่อตัวละคร (💎 300)</button><button id="avsx">⚧ เปลี่ยนเพศเป็น${S.sex==='f'?'ชาย':'หญิง'} (💎 500)</button><button id="avs">🧙 ดูหน้าตัวละคร</button><button id="avx">ปิด</button></div></div>`);
  const m=$('avm');m.onclick=e=>{if(e.target===m)m.remove()};$('avx').onclick=()=>m.remove();$('avc').onclick=()=>fi.click();
- if($('avd'))$('avd').onclick=()=>{delete S.avatar;show();m.remove()};$('avs').onclick=()=>{m.remove();openW('cs')};$('avsx').onclick=()=>{m.remove();window.sexChange&&sexChange()}}
+ if($('avd'))$('avd').onclick=()=>{delete S.avatar;show();m.remove()};$('avs').onclick=()=>{m.remove();openW('cs')};$('avsx').onclick=()=>{m.remove();window.sexChange&&sexChange()};$('avnm').onclick=()=>{m.remove();window.nameChange&&nameChange()}}
 L.onclick=null;avBox.onclick=e=>{e.stopPropagation();menu()};L.querySelector('.pf-tx').onclick=()=>openW('cs');
 show();setInterval(show,1500);
 })();
@@ -4345,7 +4346,7 @@ window.femalize=function(sv){if(!sv||sv.dataset.fem)return;sv.dataset.fem=1;cons
  const hf=q('.hf');ins(hf,`<path d="M38 34Q32 56 37 76Q42 60 43.5 42Z" fill="url(#hrg)" stroke="${OLc}" stroke-width="1.5" stroke-linejoin="round"/>`+
   [[0,-5],[4.5,-1.6],[2.8,4],[-2.8,4],[-4.5,-1.6]].map(([x,y])=>`<circle cx="${60+x}" cy="${9+y}" r="3" fill="#ff8ab8" stroke="${OLc}" stroke-width=".9"/>`).join('')+`<circle cx="60" cy="9" r="2.2" fill="#ffe066" stroke="${OLc}" stroke-width=".8"/><path d="M45 12L42 22" stroke="#f5c542" stroke-width="1.4"/><circle cx="41.6" cy="23.5" r="1.8" fill="#ff8ab8" stroke="${OLc}" stroke-width=".7"/>`);
 };
-const AVF=`<svg viewBox="0 0 42 42"><path d="M8 18Q4 34 8 42H34Q38 34 34 18Z" fill="#1a1020"/><path d="M6 42Q8 30 21 29Q34 30 36 42Z" fill="#ffe0ec"/><path d="M15 30L21 36L27 30" fill="none" stroke="#e8507a" stroke-width="2"/><path d="M9 20Q8 6 21 6Q34 6 33 20Q34 30 31 36L29 22Q21 18 13 22L11 36Q8 30 9 20Z" fill="#1a1020"/><ellipse cx="21" cy="21" rx="9" ry="10" fill="#f9dcc4"/><path d="M12 17Q21 8 30 17L30 13Q21 5 12 13Z" fill="#1a1020"/><ellipse cx="17.5" cy="22" rx="1.5" ry="2" fill="#1a0808"/><ellipse cx="24.5" cy="22" rx="1.5" ry="2" fill="#1a0808"/><path d="M15.6 20.2L14.6 19.4M26.4 20.2L27.4 19.4" stroke="#1a0808" stroke-width=".8"/><circle cx="17.9" cy="21.4" r=".5" fill="#fff"/><circle cx="24.9" cy="21.4" r=".5" fill="#fff"/><path d="M19.5 27Q21 28.2 22.5 27" stroke="#e8507a" stroke-width="1.2" fill="none"/><ellipse cx="15" cy="25" rx="1.8" ry="1" fill="#ff8a9a" opacity=".6"/><ellipse cx="27" cy="25" rx="1.8" ry="1" fill="#ff8a9a" opacity=".6"/>${[[0,-2.6],[2.4,-.8],[1.5,2],[-1.5,2],[-2.4,-.8]].map(([x,y])=>`<circle cx="${29+x}" cy="${9+y}" r="1.7" fill="#ff8ab8"/>`).join('')}<circle cx="29" cy="9" r="1.2" fill="#ffe066"/></svg>`;
+const AVF=`<svg viewBox="0 0 42 42"><path d="M8 18Q4 34 8 42H34Q38 34 34 18Z" fill="#1a1020"/><path d="M6 42Q8 30 21 29Q34 30 36 42Z" fill="#ffe0ec"/><path d="M15 30L21 36L27 30" fill="none" stroke="#e8507a" stroke-width="2"/><path d="M9 20Q8 6 21 6Q34 6 33 20Q34 30 31 36L29 22Q21 18 13 22L11 36Q8 30 9 20Z" fill="#1a1020"/><ellipse cx="21" cy="21" rx="9" ry="10" fill="#f9dcc4"/><path d="M12 17Q21 8 30 17L30 13Q21 5 12 13Z" fill="#1a1020"/><ellipse cx="17.5" cy="22" rx="1.5" ry="2" fill="#1a0808"/><ellipse cx="24.5" cy="22" rx="1.5" ry="2" fill="#1a0808"/><path d="M15.6 20.2L14.6 19.4M26.4 20.2L27.4 19.4" stroke="#1a0808" stroke-width=".8"/><circle cx="17.9" cy="21.4" r=".5" fill="#fff"/><circle cx="24.9" cy="21.4" r=".5" fill="#fff"/><path d="M19.5 27Q21 28.2 22.5 27" stroke="#e8507a" stroke-width="1.2" fill="none"/><ellipse cx="15" cy="25" rx="1.8" ry="1" fill="#ff8a9a" opacity=".6"/><ellipse cx="27" cy="25" rx="1.8" ry="1" fill="#ff8a9a" opacity=".6"/>${[[0,-2.6],[2.4,-.8],[1.5,2],[-1.5,2],[-2.4,-.8]].map(([x,y])=>`<circle cx="${29+x}" cy="${9+y}" r="1.7" fill="#ff8ab8"/>`).join('')}<circle cx="29" cy="9" r="1.2" fill="#ffe066"/></svg>`;window.AV_F=AVF;
 function applySex(){const sv=document.querySelector('#hs svg');if(S.sex==='f')femalize(sv);
  const av=document.querySelector('.pf-av');if(av&&!S.avatar){const cur=av.querySelector('svg');if(cur&&S.sex==='f'&&!cur.dataset.f){const t=document.createElement('div');t.innerHTML=AVF;const n=t.firstChild;n.dataset.f=1;cur.replaceWith(n)}}}
 window.applySex=applySex;applySex();setInterval(applySex,2000);
@@ -7171,13 +7172,13 @@ function snap(){const s={};try{
  s.eq=(S.eq||[]).map((e,i)=>e?{s:e.s,t:e.t,set:e.set,en:(S.enh&&S.enh[i])||0}:null);
  s.wg=S.wg||0;s.wl=S.wl||0;s.wgn=S.wg&&typeof WG!=='undefined'&&WG[S.wg-1]?WG[S.wg-1].n:'';
  const pt=S.pet&&typeof PT!=='undefined'?PT.find(x=>x.id===S.pet):null;s.pet=pt?{id:pt.id,n:pt.n,r:pt.r,lv:(S.pets[S.pet]||{}).lv||1,st:(S.pets[S.pet]||{}).st||0}:null;
- s.fs=S.fs&&S.fs.eq||'';
+ s.fs=S.fs&&S.fs.eq||'';s.av=window.smallAv?smallAv():null;
 }catch(e){}return s}
 let lastPub=0;
 async function publish(force){if(!force&&Date.now()-lastPub<60000)return;const c=await net();if(!c)return;lastPub=Date.now();
  const id=localStorage.getItem('ml_cur')||'';const d=snap();
  try{await c.sb.from('public_profiles').upsert({user_id:c.u.id,username:id,name:d.name,lv:d.lv,bp:d.bp,data:d,updated_at:new Date().toISOString()})}catch(e){}}
-setInterval(()=>{if(!document.getElementById('ss'))publish()},15000);
+setInterval(()=>{if(!document.getElementById('ss'))publish()},15000);window.socPublish=publish;
 addEventListener('pagehide',()=>publish(true));
 
 /* ---------- สไตล์ ---------- */
@@ -7455,6 +7456,160 @@ async function start(){if(started)return;const c=await net();if(!c){render();ret
  setInterval(()=>{if(!document.hidden)refresh()},45000)}
 const iv=setInterval(()=>{if(!document.getElementById('ss')&&!window._hold){clearInterval(iv);setTimeout(start,3000)}},700);
 window._dmDebug={refresh,onMsg,get mode(){return mode}};
+})();
+</script>
+<script>/* ================= รูปโปรไฟล์ในแชท/รายชื่อเพื่อน + เปลี่ยนชื่อตัวละคร ================= */
+(function(){
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function net(){const G=window.GameAuth;if(!G||G.mode==='local'||!G.ready||!(await G.ready))return null;const u=await G.user();return u?{sb:G.sb,u}:null}
+document.head.insertAdjacentHTML('beforeend',`<style>
+.cav{display:inline-block;flex:none;width:24px;height:24px;border-radius:50%;overflow:hidden;vertical-align:middle;margin-right:5px;border:1.5px solid #ffb02e;background:radial-gradient(circle at 40% 35%,#6a3a1a,#1a0a04);box-shadow:0 0 4px #ff8a1a66;cursor:pointer}
+.cav>svg,.cav>img{display:block;width:100%!important;height:100%!important;object-fit:cover}
+#chl>div:not(.sys){display:flex;align-items:flex-start;gap:0;padding:2px 0}
+#chl>div:not(.sys)>.cav{margin-top:1px}
+#chl>div:not(.sys)>.cbx{flex:1;min-width:0}
+#dmfr button i.cav{width:20px;height:20px;margin:0;border-width:1px;position:relative;overflow:visible}
+#dmfr button i.cav>*{border-radius:50%;overflow:hidden}
+.sorow .av.cav{width:34px;height:34px;margin:0;font-size:0;position:relative;overflow:visible}
+.sorow .av.cav>svg,.sorow .av.cav>img{border-radius:50%}
+#nmm{position:fixed;inset:0;z-index:9999;background:#000b;display:flex;align-items:center;justify-content:center;padding:20px}
+#nmm .bx{width:100%;max-width:320px;background:linear-gradient(#2a1612,#140806);border:2px solid #ffd23f;border-radius:16px;padding:16px;text-align:center;color:#f8e8d4;box-shadow:0 0 24px #ff8a1a88}
+#nmm input{width:100%;box-sizing:border-box;height:40px;margin:10px 0 4px;border-radius:10px;border:1.5px solid #c8902a;background:#000a;color:#fff;padding:0 12px;font:inherit;font-size:16px;text-align:center}
+#nmm .er{min-height:16px;font-size:11.5px;color:#ff8a8a}
+#nmm .rw{display:flex;gap:8px;margin-top:8px}#nmm button{flex:1;padding:10px;border-radius:10px;border:0;color:#fff;font:inherit;font-weight:900}
+#nmm .n{background:#4a3a34}#nmm .y{background:linear-gradient(#ffcf5a,#c8701a)}#nmm .y:disabled{filter:grayscale(1) brightness(.6)}
+</style>`);
+/* ---------- รูปโปรไฟล์ ---------- */
+const AC={};/* uid -> {av,sex,t} */
+const defAv=sex=>(sex==='f'?window.AV_F:window.AV_M)||'🧙';
+const avHTML=o=>o&&o.av?`<img src="${esc(o.av)}" alt="">`:defAv(o&&o.sex);
+let myUid=null;net().then(c=>{if(c)myUid=c.u.id});
+function mine(){return{av:S.avatar?smallAv():null,sex:S.sex}}
+/* ย่อรูปของตัวเองให้เล็ก (ส่งขึ้นเซิร์ฟเวอร์ได้เบาๆ) */
+let sm={src:null,out:null,busy:false};
+function smallAv(){const src=S.avatar;if(!src)return null;if(sm.src===src&&sm.out)return sm.out;
+ if(!sm.busy||sm.src!==src){sm.busy=true;sm.src=src;sm.out=null;const im=new Image();im.onload=()=>{try{const c=document.createElement('canvas');c.width=c.height=48;c.getContext('2d').drawImage(im,0,0,48,48);if(sm.src===src){sm.out=c.toDataURL('image/jpeg',.7);sm.busy=false;window.socPublish&&socPublish(true);paintAll()}}catch(e){sm.busy=false}};im.src=src}
+ return src}
+window.smallAv=()=>S.avatar?(sm.src===S.avatar&&sm.out)||null:null;
+let q=new Set(),qt=null;
+function want(uid){if(!uid||AC[uid]&&Date.now()-AC[uid].t<300000)return;q.add(uid);clearTimeout(qt);qt=setTimeout(fetchQ,250)}
+async function fetchQ(){const ids=[...q];q.clear();if(!ids.length)return;const c=await net();if(!c)return;
+ ids.forEach(u=>{AC[u]=AC[u]||{};AC[u].t=Date.now()});
+ try{const {data}=await c.sb.from('public_profiles').select('user_id,data').in('user_id',ids);(data||[]).forEach(r=>{const d=r.data||{};AC[r.user_id]={av:d.av||null,sex:d.sex||'m',t:Date.now()}});paintAll()}catch(e){}}
+function infoFor(uid,isMe){if(isMe||(uid&&uid===myUid))return mine();want(uid);return AC[uid]||{sex:'m'}}
+function paint(el,uid,isMe){const o=infoFor(uid,isMe),k=(o.av||'')+'|'+(o.sex||'');if(el.dataset.avk===k)return;el.dataset.avk=k;el.innerHTML=avHTML(o)}
+function decorate(){
+ /* แชทโลก */
+ document.querySelectorAll('#chl>div:not(.sys)').forEach(d=>{if(d.querySelector(':scope>.cav'))return;const b=d.querySelector('b.pname');if(!b)return;
+  const uid=b.dataset.uid||'',sp=document.createElement('span');sp.className='cav';if(uid)sp.dataset.uid=uid;sp.dataset.me=d.classList.contains('me')?1:'';
+  const bx=document.createElement('span');bx.className='cbx';while(d.firstChild)bx.appendChild(d.firstChild);d.appendChild(sp);d.appendChild(bx);paint(sp,uid,!!sp.dataset.me)});
+ /* แชทส่วนตัว (แถบเพื่อน) */
+ document.querySelectorAll('#dmfr button[data-p]>i').forEach(i=>{if(!i.classList.contains('cav')){i.classList.add('cav')}const on=i.classList.contains('on');paint(i,i.parentNode.dataset.p,false);if(on&&!i.querySelector('.odot'))i.insertAdjacentHTML('beforeend','')});
+ /* รายชื่อเพื่อน/ค้นหา */
+ document.querySelectorAll('.sorow .av[data-uid]').forEach(a=>{const dot=a.querySelector('.dot');a.classList.add('cav');const uid=a.dataset.uid,o=infoFor(uid,false),k=(o.av||'')+'|'+(o.sex||'');if(a.dataset.avk===k)return;a.dataset.avk=k;a.innerHTML=avHTML(o)+(dot?dot.outerHTML:'')})}
+function paintAll(){document.querySelectorAll('.cav').forEach(e=>{e.dataset.avk=''});decorate();
+ document.querySelectorAll('#chl .cav').forEach(sp=>paint(sp,sp.dataset.uid,!!sp.dataset.me))}
+const mo=new MutationObserver(()=>{clearTimeout(mo._t);mo._t=setTimeout(decorate,30)});
+const hook=()=>{['chl','dmfr','sobd'].forEach(id=>{const e=document.getElementById(id);if(e&&!e._avo){e._avo=1;mo.observe(e,{childList:true,subtree:true})}})};
+setInterval(hook,1000);hook();decorate();
+document.addEventListener('click',e=>{const c=e.target.closest('#chl .cav[data-uid]');if(c&&window.openProfile&&!c.dataset.me){e.stopPropagation();openProfile(c.dataset.uid)}},true);
+/* เปลี่ยนรูปของตัวเอง → อัปเดตทันที */
+let lastAv=S.avatar||'',lastSex=S.sex;setInterval(()=>{if((S.avatar||'')!==lastAv||S.sex!==lastSex){lastAv=S.avatar||'';lastSex=S.sex;smallAv();paintAll();window.socPublish&&socPublish(true)}},1500);
+if(S.avatar)smallAv();
+
+/* ---------- เปลี่ยนชื่อตัวละคร (ใช้เพชร) ---------- */
+const NC=300;
+function persist(){try{const cur=localStorage.getItem('ml_cur'),j=JSON.stringify(S);localStorage.setItem('ml1',j);if(cur){localStorage.setItem('ml_sv_'+cur,j);const A=JSON.parse(localStorage.getItem('ml_accts')||'{}');if(A[cur]){A[cur].nm=S.name;localStorage.setItem('ml_accts',JSON.stringify(A))}
+ window.GameAuth&&GameAuth.save&&GameAuth.save(cur,j,true)}}catch(e){}}
+window.nameChange=function(){const o=document.getElementById('nmm');if(o)o.remove();const has=S.diamonds||0;
+ document.body.insertAdjacentHTML('beforeend',`<div id="nmm"><div class="bx"><div style="font-size:34px">✏️</div><b style="font-size:17px">เปลี่ยนชื่อตัวละคร</b><div style="font-size:12px;color:#caa78a;margin-top:4px">ชื่อปัจจุบัน: <b style="color:#ffd23f">${esc(S.name||'จอมยุทธ์')}</b></div>
+ <input id="nmi" maxlength="14" placeholder="ชื่อใหม่ (1-14 ตัวอักษร)" autocomplete="off" value=""><div class="er" id="nme"></div>
+ <div style="font-size:12px;color:#caa78a">ค่าเปลี่ยนชื่อ 💎 ${NC} · มี 💎 ${fmt(has)}</div>
+ <div class="rw"><button class="n" id="nmn">ยกเลิก</button><button class="y" id="nmy" ${has<NC?'disabled':''}>ยืนยัน</button></div></div></div>`);
+ const M=document.getElementById('nmm'),I=document.getElementById('nmi'),E=document.getElementById('nme'),Y=document.getElementById('nmy');
+ M.onclick=e=>{if(e.target===M)M.remove()};document.getElementById('nmn').onclick=()=>M.remove();setTimeout(()=>I.focus(),50);
+ if(has<NC)E.textContent='💎 ไม่พอ (ต้องการ '+NC+')';
+ I.addEventListener('keydown',e=>{if(e.key==='Enter')Y.click()});
+ Y.onclick=async()=>{const n=(I.value||'').trim().replace(/\s+/g,' ').replace(/[<>"&]/g,'');
+  if(!n){E.textContent='⚠️ กรุณาพิมพ์ชื่อใหม่';return}if(n.length>14){E.textContent='⚠️ ยาวเกิน 14 ตัวอักษร';return}
+  if(n===(S.name||'')){E.textContent='⚠️ ชื่อเดิม';return}if((S.diamonds||0)<NC){E.textContent='💎 ไม่พอ';return}
+  Y.disabled=true;E.style.color='#caa78a';E.textContent='กำลังตรวจสอบชื่อ…';
+  const c=await net();
+  if(c){try{const {data,error}=await c.sb.from('public_profiles').select('user_id,name').ilike('name',n).limit(5);
+   if(!error&&(data||[]).some(r=>r.user_id!==c.u.id&&String(r.name||'').toLowerCase()===n.toLowerCase())){E.style.color='';E.textContent='⚠️ มีผู้เล่นใช้ชื่อนี้แล้ว';Y.disabled=false;return}}catch(e){}}
+  S.diamonds-=NC;S.name=n;try{T('pfn',n)}catch(e){}try{renderCs&&renderCs()}catch(e){}persist();window.socPublish&&socPublish(true);
+  M.remove();try{banner('✏️ เปลี่ยนชื่อเป็น "'+n+'" แล้ว!');sfx&&sfx('up')}catch(e){}};
+};
+})();
+</script>
+<script>/* ================= แท่นตีบวกแบบอลังการ ================= */
+(function(){
+if(typeof renderEnh!=='function')return;
+document.head.insertAdjacentHTML('beforeend',`<style>
+.enst.anx{height:186px!important;border:2px solid #c8902a!important;border-radius:16px!important;
+ background:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--ac) 55%,transparent) 0,transparent 55%),radial-gradient(ellipse at 50% 40%,#3a1a0a 0,#120604 70%)!important;
+ box-shadow:inset 0 0 0 1px #3a1a06,inset 0 0 30px #000c,0 0 14px color-mix(in srgb,var(--ac) 45%,transparent)!important}
+.enst.anx::before{content:"";position:absolute;inset:4px;border-radius:12px;border:1px solid #ffd23f33;pointer-events:none;z-index:6}
+.enst.anx .anv{left:50%!important;bottom:2px!important;width:210px!important;height:74px!important;margin-left:-105px!important;background:none!important;box-shadow:none!important;border-radius:0!important;z-index:3}
+.enst.anx .anv svg{width:100%;height:100%;display:block;overflow:visible;filter:drop-shadow(0 4px 6px #000)}
+.enst.anx .enit{margin-bottom:58px!important;z-index:4;filter:drop-shadow(0 0 10px var(--ac))}
+.enst.anx .enit svg{width:76px!important;height:76px!important}
+.enst.anx .enh-l{z-index:7}
+.enst.anx .hmr{z-index:8;top:4%!important}
+.ax-ray{position:absolute;left:50%;top:44%;width:240px;height:240px;margin:-120px 0 0 -120px;border-radius:50%;z-index:1;pointer-events:none;
+ background:repeating-conic-gradient(from 0deg,color-mix(in srgb,var(--ac) 40%,transparent) 0 6deg,transparent 6deg 20deg);
+ -webkit-mask:radial-gradient(circle,#000 0,#0008 35%,transparent 68%);mask:radial-gradient(circle,#000 0,#0008 35%,transparent 68%);animation:axSpin 18s linear infinite;opacity:.75}
+.ax-ring{position:absolute;left:50%;top:44%;width:118px;height:118px;margin:-59px 0 0 -59px;z-index:2;pointer-events:none;animation:axSpin 10s linear infinite}
+.ax-ring.r2{width:96px;height:96px;margin:-48px 0 0 -48px;animation-direction:reverse;animation-duration:7s;opacity:.8}
+.ax-ring svg{width:100%;height:100%;overflow:visible}
+.ax-base{position:absolute;left:50%;bottom:60px;width:150px;height:34px;margin-left:-75px;z-index:2;pointer-events:none}
+.ax-base svg{width:100%;height:100%;overflow:visible}
+.ax-base g{transform-origin:75px 17px;animation:axSpin 6s linear infinite}
+.ax-br{position:absolute;bottom:6px;width:34px;height:80px;z-index:3;pointer-events:none}
+.ax-br.l{left:10px}.ax-br.r{right:10px}
+.ax-br svg{width:100%;height:100%;overflow:visible}
+.ax-fl{position:absolute;left:50%;bottom:44px;width:22px;height:34px;margin-left:-11px;border-radius:50% 50% 45% 45%/65% 65% 35% 35%;
+ background:radial-gradient(ellipse at 50% 80%,#fff8c0 0,#ffd23f 25%,var(--ac) 55%,transparent 75%);filter:blur(.5px);transform-origin:50% 100%;animation:axFl .5s ease-in-out infinite alternate;mix-blend-mode:screen}
+.ax-fl.b{width:14px;height:24px;margin-left:-7px;animation-duration:.37s;opacity:.9;bottom:46px}
+.ax-em{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden;border-radius:14px}
+.ax-em i{position:absolute;bottom:20px;width:4px;height:4px;border-radius:50%;background:#ffd23f;box-shadow:0 0 6px 2px var(--ac);animation:axUp 3s linear infinite;opacity:0}
+@keyframes axSpin{to{transform:rotate(360deg)}}
+@keyframes axFl{from{transform:scale(1,1) skewX(-3deg)}to{transform:scale(.88,1.12) skewX(4deg)}}
+@keyframes axUp{0%{transform:translate(0,0);opacity:0}10%{opacity:1}100%{transform:translate(var(--dx),-170px);opacity:0}}
+.enst.anx.hit .ax-ring,.enst.anx.hit .ax-base g{animation-duration:.8s}
+.enst.anx.hit .ax-ray{opacity:1;filter:brightness(1.6)}
+.g-noanim .ax-ray,.g-noanim .ax-ring,.g-noanim .ax-base g,.g-noanim .ax-em i,.g-noanim .ax-fl{animation:none!important}
+</style>`);
+const ANV=`<svg viewBox="0 0 210 74"><defs>
+<linearGradient id="axI" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a8a9c"/><stop offset=".18" stop-color="#4a4a5a"/><stop offset=".7" stop-color="#22222c"/><stop offset="1" stop-color="#121218"/></linearGradient>
+<linearGradient id="axT" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5a5a6a"/><stop offset=".5" stop-color="#d8d8e8"/><stop offset="1" stop-color="#5a5a6a"/></linearGradient>
+<linearGradient id="axG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".5" stop-color="#e8a82a"/><stop offset="1" stop-color="#8a5a10"/></linearGradient>
+<radialGradient id="axH" cx=".5" cy="0" r=".7"><stop offset="0" style="stop-color:var(--ac)" stop-opacity=".9"/><stop offset="1" style="stop-color:var(--ac)" stop-opacity="0"/></radialGradient></defs>
+<path d="M22 6 Q2 6 0 14 Q18 16 36 20 L174 20 Q184 14 204 12 Q208 6 196 6Z" fill="url(#axI)" stroke="#0a0a10" stroke-width="1.5"/>
+<path d="M24 6 L196 6 Q206 7 204 11 L176 14 L34 14 Q14 12 4 13 Q8 7 24 6Z" fill="url(#axT)" opacity=".85"/>
+<ellipse cx="105" cy="7" rx="60" ry="4" fill="url(#axH)"/>
+<path d="M2 14 Q18 16 36 20 L174 20 Q186 14 204 12" fill="none" stroke="url(#axG)" stroke-width="2"/>
+<path d="M50 20 L160 20 L150 40 L60 40Z" fill="url(#axI)" stroke="#0a0a10" stroke-width="1.5"/>
+<path d="M60 40 L150 40 L172 60 L38 60Z" fill="url(#axI)" stroke="#0a0a10" stroke-width="1.5"/>
+<path d="M30 60 L180 60 L186 72 L24 72Z" fill="#1a1a22" stroke="url(#axG)" stroke-width="2"/>
+<path d="M58 22 L152 22" stroke="url(#axG)" stroke-width="2.5"/>
+<path d="M40 60 L170 60" stroke="url(#axG)" stroke-width="2.5"/>
+<g fill="none" stroke-width="1.6" stroke-linecap="round" opacity=".95" style="stroke:var(--ac);filter:drop-shadow(0 0 3px var(--ac))">
+<path d="M78 28 L84 34 L78 38 M90 27 L90 38 M86 31 L94 31 M102 27 L108 33 L102 38 L102 27 M116 28 L120 38 L124 28 M130 27 L128 38 M126 32 L134 32"><animate attributeName="opacity" values="1;.35;1" dur="2s" repeatCount="indefinite"/></path></g>
+<g transform="translate(105 50)"><path d="M-12 0 L0 -8 L12 0 L0 8Z" fill="url(#axG)" stroke="#5a3a08"/><circle r="4" style="fill:var(--ac);filter:drop-shadow(0 0 4px var(--ac))"><animate attributeName="r" values="3.4;4.6;3.4" dur="1.4s" repeatCount="indefinite"/></circle></g>
+<circle cx="64" cy="50" r="2.4" fill="url(#axG)"/><circle cx="146" cy="50" r="2.4" fill="url(#axG)"/>
+<path d="M44 66 L166 66" stroke="#ffd23f33"/></svg>`;
+const RING=(n,r)=>`<svg viewBox="-60 -60 120 120"><circle r="${r}" fill="none" style="stroke:var(--ac)" stroke-width="1.2" stroke-dasharray="3 4" opacity=".9"/><circle r="${r-6}" fill="none" stroke="#ffd23f" stroke-width=".8" opacity=".6"/>${Array.from({length:n},(_,i)=>{const a=i*360/n;return `<g transform="rotate(${a}) translate(0 ${-r+3})"><path d="M-2.5 0 L0 -4 L2.5 0 L0 4Z" fill="#ffd23f" style="filter:drop-shadow(0 0 2px var(--ac))"/></g>`}).join('')}</svg>`;
+const BASE=`<svg viewBox="0 0 150 34"><g><ellipse cx="75" cy="17" rx="72" ry="15" fill="none" stroke-width="1.6" stroke-dasharray="6 3" style="stroke:var(--ac);filter:drop-shadow(0 0 4px var(--ac))"/><ellipse cx="75" cy="17" rx="58" ry="11" fill="none" stroke="#ffd23f" stroke-width="1" opacity=".7"/></g><ellipse cx="75" cy="17" rx="68" ry="13" style="fill:var(--ac)" opacity=".18"/></svg>`;
+const BR=`<svg viewBox="0 0 34 80"><path d="M4 46 L30 46 L26 56 L8 56Z" fill="#2a2a34" stroke="#e8a82a" stroke-width="1.4"/><path d="M15 56 L19 56 L20 74 L14 74Z" fill="#1a1a22" stroke="#8a5a10"/><path d="M8 76 L26 76 L28 80 L6 80Z" fill="#2a2a34" stroke="#e8a82a"/><circle cx="17" cy="51" r="2" style="fill:var(--ac)"/></svg><div class="ax-fl"></div><div class="ax-fl b"></div>`;
+function ac(l){return l>=20?'#ff2a4a':l>=15?'#c04dff':l>=10?'#2ac8ff':l>=5?'#ff7a1a':'#ff9a3a'}
+function deco(){const st=document.getElementById('enst');if(!st)return;
+ const lv=parseInt(((st.querySelector('.enh-l')||{}).textContent||'0').replace(/\D/g,''))||0;st.style.setProperty('--ac',ac(lv));
+ if(st.classList.contains('anx')&&st.querySelector('.ax-ray'))return;st.classList.add('anx');
+ const a=st.querySelector('.anv');if(a)a.innerHTML=ANV;
+ st.insertAdjacentHTML('afterbegin',`<div class="ax-ray"></div><div class="ax-ring">${RING(8,54)}</div><div class="ax-ring r2">${RING(6,44)}</div><div class="ax-base">${BASE}</div><div class="ax-br l">${BR}</div><div class="ax-br r">${BR}</div><div class="ax-em">${Array.from({length:12},(_,i)=>`<i style="left:${8+i*7.4}%;--dx:${(i%2?1:-1)*(6+i*2)}px;animation-delay:${(i*0.27).toFixed(2)}s;animation-duration:${(2.4+(i%4)*0.4).toFixed(1)}s"></i>`).join('')}</div>`)}
+const _r=renderEnh;renderEnh=function(){const r=_r.apply(this,arguments);try{deco()}catch(e){}return r};
+setInterval(()=>{try{const w=document.getElementById('enw');if(w&&!w.hidden&&w.offsetParent!==null)deco()}catch(e){}},600);
 })();
 </script>
 </body></html>
