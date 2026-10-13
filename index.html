@@ -754,12 +754,14 @@ const SETS=[
 ];
 const EXC=SETS.map(s=>s.c),SPAL=SETS.map(s=>s.pal);
 window._hold=true;
-const CHI=['📦','🧰','🎁','🏺','💎','👑','🔮','🌌'],MAXC=40,NT=16,OB=[60,25,10,4,.9,.1,.007,.00049,3.4e-5,2.4e-6,1.7e-7];
-const TP=[['#9aa0a6','#4f565c','#e3e7ea'],['#5cc47a','#1f6b3d','#d3f7de'],['#4c8dff','#1d3f94','#d6e6ff'],['#a855f7','#5b2399','#efdcff'],['#f5b83d','#8a560a','#fff3c4'],['#ef4444','#7a0f1a','#ffd9d2'],['#ff4fb8','#7a0f55','#ffd6f0'],['#22e0ff','#0a4a7a','#d6fbff'],['#ffd400','#8a5a00','#fff7b0'],['#3dffa8','#0a6a4a','#d6ffee'],['#ffffff','#6a6a9a','#fff0ff']];OB.push(1.2e-8,8e-10,5e-11,3e-12,2e-13);TP.push(['#ff7a1a','#5a1a00','#ffd9b0'],['#7c4dff','#1e0a5a','#e3d6ff'],['#ffe08a','#7a5a10','#fffaf0'],['#00b3ff','#00245a','#d6f4ff'],['#ff4fd8','#3a0a5a','#ffffff']);
+const CHI=['📦','🧰','🎁','🏺','💎','👑','🔮','🌌'],MAXC=40,NT=16,OB=[55,21,10,5,3.36,1.5,1.1,.8,.6,.45,.35];
+const TP=[['#9aa0a6','#4f565c','#e3e7ea'],['#5cc47a','#1f6b3d','#d3f7de'],['#4c8dff','#1d3f94','#d6e6ff'],['#a855f7','#5b2399','#efdcff'],['#f5b83d','#8a560a','#fff3c4'],['#ef4444','#7a0f1a','#ffd9d2'],['#ff4fb8','#7a0f55','#ffd6f0'],['#22e0ff','#0a4a7a','#d6fbff'],['#ffd400','#8a5a00','#fff7b0'],['#3dffa8','#0a6a4a','#d6ffee'],['#ffffff','#6a6a9a','#fff0ff']];OB.push(.27,.2,.15,.12,.1);TP.push(['#ff7a1a','#5a1a00','#ffd9b0'],['#7c4dff','#1e0a5a','#e3d6ff'],['#ffe08a','#7a5a10','#fffaf0'],['#00b3ff','#00245a','#d6f4ff'],['#ff4fd8','#3a0a5a','#ffffff']);
 const RMV=(s,t)=>{const r=RM[t];if(t<=5||(s!==2&&s!==3))return r;return RM[5]*Math.pow(r/RM[5],s===2?.55:.6)};
 const spdB=()=>S.up.spd<=40?S.up.spd*.05:2+(S.up.spd-40)*.02;
 const CRD=()=>2+Math.max(0,CRIT()-100)*.02+(S.st?S.st.luk:0)*.005;
-const fmtP=x=>{const p=x*100;return p>=1?p.toFixed(1):p>=.01?p.toFixed(2):'<0.01'};
+const pctFmt=p=>{if(!(p>0))return '0';if(p>=10)return (+p.toFixed(1)).toString();if(p>=1)return (+p.toFixed(2)).toString();if(p>=1e-4){const d=Math.ceil(-Math.log10(p))+1;return (+p.toFixed(d)).toString()}
+ let e=Math.floor(Math.log10(p)),m=+(p/Math.pow(10,e)).toFixed(1);if(m>=10){m=1;e++}const SUP={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};return m+'×10'+String(e).split('').map(c=>SUP[c]).join('')};window.pctFmt=pctFmt;
+const fmtP=x=>pctFmt(x*100);
 const pt=e=>e.set!=null?NT+e.set:e.t,rcx=e=>e.set!=null?SETS[e.set].c:RC[e.t];
 function setCnt(si){let c=0;for(const e of S.eq)if(e&&e.set===si)c++;return c}
 function setBon(){const r={a:0,h:0,c:0,s:0,g:0};for(let k=0;k<SETS.length;k++){const c=setCnt(k);if(c<2)continue;const m=SETS[k].bm;
@@ -901,7 +903,8 @@ const RN=['สามัญ','ดี','หายาก','มหากาพย์
 SL=[{i:'🗡️',n:'กระบี่',b:.08,t:'โจมตี'},{i:'🥋',n:'เสื้อเกราะ',b:.08,t:'ลมปราณ'},{i:'👒',n:'หมวก',b:1.5,t:'คริ'},{i:'👟',n:'รองเท้า',b:.04,t:'ก้าว'},{i:'📿',n:'สร้อยหยก',b:.08,t:'เหรียญ'}],
 AD=['ธรรมดา','เหล็กกล้า','จันทรา','มังกร','สายฟ้า','สวรรค์','หยกวิญญาณ','เทพอมตะ','จักรพรรดิมังกร','นภาลัย','ปฐมกาล'];RN.push('โกลาหล','นิรันดร์','เทพบิดร','จักรวาล','อนันตกาล');RC.push('#ff7a1a','#7c4dff','#e8c25a','#00b3ff','#ff4fd8');RM.push(100,145,210,300,440);AD.push('โกลาหล','นิรันดร์','เทพบิดร','จักรวาล','อนันตกาล');
 const copen=()=>Math.floor(100*Math.pow(1.6,S.chest-1)),cup=()=>Math.floor(S.chest<=10?300*Math.pow(1.9,S.chest-1):300*Math.pow(1.9,9)*Math.pow(1.6,S.chest-10));
-function odds(L){L=L||S.chest;const m=1+0.3*(L-1);const w=OB.map((x,i)=>x*Math.pow(m,i));const t=w.reduce((a,b)=>a+b);return w.map(x=>x/t)}
+const OBU=t=>t<=5?1:Math.max(2,t-5);window.OBU=OBU;
+function odds(L){L=L||S.chest;const m=1+0.03*(L-1);const w=OB.map((x,i)=>L>=OBU(i)?x*Math.pow(m,i/4):0);const t=w.reduce((a,b)=>a+b);return w.map(x=>x/t)}
 function roll(){const o=odds();let r=Math.random(),t=0;for(;t<o.length-1;t++){r-=o[t];if(r<0)break}const s=Math.floor(Math.random()*5);return{s,t,v:SL[s].b*RMV(s,t)*(0.9+Math.random()*0.2)}}
 const istat=e=>SL[e.s].t+' '+(e.s===2?'+'+e.v.toFixed(1)+'%':e.s===3?'+'+e.v.toFixed(2)+'x':'+'+Math.round(e.v*100)+'%');
 const DIAMOND_PACKS=[{g:500,d:10,n:'ถุงเพชรเล็ก',i:'💎'},{g:2000,d:50,n:'หีบเพชร',i:'💎💎'},{g:5000,d:150,n:'คลังเพชรเซียน',i:'💎✨'}];
@@ -1412,8 +1415,8 @@ function dmgNum(d,k,side){
  const lab={c:'CRITICAL!',s:'🌀 สกิล',p:'🐾 สัตว์เลี้ยง'}[k]||'';
  const tx=fmtD(d);e.innerHTML=(big?`<em class="lb">${k==='c'?'Critical':'Skill'}</em>`:'')+`<b>${h?'-':''}${tx}</b>`+(big&&G.fx>0?'<u></u><span class="sk sk1">✦</span><span class="sk sk2">✦</span><span class="sk sk3">✦</span><span class="sk sk4">✦</span>':'');
  $('arena').appendChild(e);dnN++;setTimeout(()=>{e.remove();dnN--},big?1450:950)}
-const HPW=[52,28,13,5.5,1.5],HTOT=HPW.reduce((a,b)=>a+b);HPW.push(.6,.25,.1,.04,.016,.006,.0025,.001,.0004,.00015);
-const pctR=r=>HPW[r]/HPW.reduce((a,b)=>a+b)*100,pctP=x=>pctR(x.r)/PT.filter(y=>y.r===x.r).length,fp=n=>(+n.toFixed(2)).toString();
+const HPW=[45.1,25,12,6,3.5],HTOT=HPW.reduce((a,b)=>a+b);HPW.push(2.5,1.8,1.3,.9,.6,.45,.35,.25,.15,.1);
+const pctR=r=>HPW[r]/HPW.reduce((a,b)=>a+b)*100,pctP=x=>pctR(x.r)/PT.filter(y=>y.r===x.r).length,fp=n=>pctFmt(n);
 function petAura(p,R,st){const r=p.r,C=p.e,A=a=>st?'':a;
  let o=`<ellipse cx="52" cy="42" rx="${52+r*4}" ry="${38+r*3}" fill="url(#${R}o)">${A('<animate attributeName="opacity" values=".45;1;.45" dur="2.2s" repeatCount="indefinite"/>')}</ellipse><ellipse cx="52" cy="76" rx="40" ry="5" fill="#000" opacity=".3"/>`;
  if(r>=2)o+=`<circle cx="52" cy="42" r="50" fill="none" stroke="${C}" stroke-width="1.3" stroke-dasharray="4 6" opacity=".85">${A('<animateTransform attributeName="transform" type="rotate" from="0 52 42" to="360 52 42" dur="12s" repeatCount="indefinite"/>')}</circle>`;
@@ -1510,7 +1513,7 @@ const SK=[
 {id:'s14',n:'พายุกระบี่หมื่นเล่ม',i:'🌀',r:4,k:'d',m:30,h:10,cd:12,c:'#a8d0ff'},
 {id:'s15',n:'ฟ้าถล่มสวรรค์',i:'☄️',r:5,k:'d',m:60,h:1,cd:14,c:'#ff4d6a'},
 {id:'s16',n:'อวตารมังกรทอง',i:'👑',r:5,k:'b',a:1,s:.5,c2:25,t:12,cd:30,c:'#ffd23f'}];
-const SW=[44,27.5,16,8,3.2,1,.25,.05],SKMAX=30;
+const SW=[43,27,16,8.5,3.6,1.2,.5,.2],SKMAX=30;
 var skTab=1,skSel=0,skPick='',skBusy=false,_skc={};
 const skMul=o=>1+.12*((o?o.lv:1)-1);
 const skPrice=()=>Math.floor(300*Math.pow(1.12,Math.min(S.skh||0,60)));
@@ -1542,7 +1545,7 @@ function castSk(i){
 function autoSk(){for(let i=0;i<6;i++){const id=S.sk[i];if(!id||skCds[i]>0)continue;const k=SK.find(x=>x.id===id);if(!k)continue;
  if(k.k==='h'&&hp>MHP()*.65)continue;if(k.k==='b'&&BF.t>0)continue;castSk(i);skG=700;return}}
 function ovTab(n){skTab=n;$('eqp').hidden=n!==1;$('skp').hidden=n!==2;$('ot1').classList.toggle('on',n===1);$('ot2').classList.toggle('on',n===2);if(n===2)renderSk()}
-function rollSk(){let r=Math.random()*100,rr=0;for(;rr<5;rr++){r-=SW[rr];if(r<0)break}
+function rollSk(){const tot=SW.reduce((a,b)=>a+b,0);let r=Math.random()*tot,rr=0;for(;rr<SW.length-1;rr++){r-=SW[rr];if(r<0)break}
  if((S.skp||0)>=39&&rr<3){const w=[8,2.6,.4],t=w.reduce((a,b)=>a+b);let q=Math.random()*t;rr=3;for(;rr<5;rr++){q-=w[rr-3];if(q<0)break}}
  S.skp=rr>=3?0:(S.skp||0)+1;const pool=SK.filter(x=>x.r===rr);return pool[Math.floor(Math.random()*pool.length)]}
 function altarSVG(){const tg='☰☱☲☳☴☵☶☷'.split(''),st='style="stroke:var(--rc,#d9b8ff)"';
@@ -1942,7 +1945,7 @@ function renderCv(){
  $('cvl').innerHTML=`หีบระดับ <b>${cvL}</b>${cvL===S.chest?' <small>(ปัจจุบัน)</small>':''}<small style="display:block;color:var(--mut)">กด ◀ ▶ ดูโอกาสของแต่ละระดับหีบ · จิ้มไอคอนดูสถานะ</small>`;
  let h='';
  for(let t=NT-1;t>=0;t--){const rc=RC[t],nd=cvNeed(t);
-  h+=`<div class="cvr" style="--c:${rc};--ca:${rc}33"><div class="cvt"><span class="pill" style="background:${rc};${t===10?'color:#222':''}">${RN[t]}</span><b>${fmtP(o[t])}%</b><small>ชิ้นละ ${fmtP(o[t]/5)}%${nd>1?' · '+(nd<=cvL?'✅':'🔒')+' โอกาสเกิน 1% ที่หีบ Lv.'+nd:''}</small></div><div class="cvg">${[0,1,2,3,4].map(s=>`<button class="cvi" data-s="${s}" data-t="${t}">${icon(s,t,50)}</button>`).join('')}</div></div>`}
+  h+=`<div class="cvr" style="--c:${rc};--ca:${rc}33"><div class="cvt"><span class="pill" style="background:${rc};${t===10?'color:#222':''}">${RN[t]}</span><b>${fmtP(o[t])}%</b><small>${o[t]>0?`ชิ้นละ ${fmtP(o[t]/5)}%${nd>1?' · '+(nd<=cvL?'✅':'🔒')+' โอกาสเกิน 1% ที่หีบ Lv.'+nd:''}`:`🔒 ปลดล็อกที่หีบ Lv.${OBU(t)} · อัปหีบเพื่อเริ่มมีโอกาสได้`}</small></div><div class="cvg">${[0,1,2,3,4].map(s=>`<button class="cvi" data-s="${s}" data-t="${t}">${icon(s,t,50)}</button>`).join('')}</div></div>`}
  $('cvlist').innerHTML=h;
  $('cvlist').querySelectorAll('.cvi').forEach(b=>b.onclick=()=>{const s=+b.dataset.s,t=+b.dataset.t;gbCtx={L:cvL,p:odds(cvL)[t]};openGear({s,t,v:SL[s].b*RMV(s,t)},'pv')});
 }
