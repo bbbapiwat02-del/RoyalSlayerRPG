@@ -7833,6 +7833,17 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #wbbody .wbbx>div:nth-child(1){--bc:#5ac8ff}#wbbody .wbbx>div:nth-child(2){--bc:#ff9a3a}
 #wbbody .wbbx .ic{font-size:44px!important;animation:xFloat 2s ease-in-out infinite;filter:drop-shadow(0 0 10px var(--bc))}
 #wbbody .wbbx>div::after{content:"";position:absolute;top:0;bottom:0;width:35%;left:-60%;background:linear-gradient(100deg,transparent,#ffffff22,transparent);animation:xShine 3.2s ease-in-out infinite;pointer-events:none}
+#wbbody .wbs.wbs2{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:10px 0 8px}
+#wbbody .wbs2>.ws{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:1px;padding:8px 4px 7px;text-align:center;min-height:0}
+#wbbody .wbs2 .wi{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;background:radial-gradient(circle at 40% 35%,#8a4ad9,#2a0a4a);border:1.5px solid #e0b0ff;box-shadow:0 0 8px #b04aff88;margin-bottom:3px}
+#wbbody .wbs2 .wl{font-size:10.5px;color:#d8b8ee;line-height:1.2;white-space:nowrap}
+#wbbody .wbs2 .wv{display:block;font-size:18px!important;line-height:1.25;white-space:nowrap}
+#wbbody .wbs2 .wsb{font-size:9.5px;color:#a88ac8;line-height:1.2;white-space:nowrap}
+#wbbody .wlast{display:flex;flex-direction:column;align-items:center;gap:2px;margin:0 0 10px}
+#wbbody .wlast .wlp{padding:4px 14px;border-radius:12px;background:linear-gradient(#2a1240,#140820);border:1px solid #8a5ac8;font-size:12px;color:#e8d0ff}
+#wbbody .wlast .wlp b{color:#ffe066;font-size:13.5px}
+#wbbody .wlast small{font-size:9.5px;color:#a88ac8}
+#wbbody .wbh.wbx{margin-bottom:2px}
 /* ---------- เปิดกล่อง ---------- */
 #wbrv{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--rc) 35%,#000c),#000e 70%);animation:rvIn .25s ease-out}
 @keyframes rvIn{from{opacity:0}}
@@ -7880,7 +7891,10 @@ window.wbDeco=function(box,B){const h=box.querySelector('.wbh');if(!h)return;h.c
  const art=safeArt(()=>window.mkDragon?mkDragon(di):'');
  const stars=Array.from({length:18},(_,i)=>`<i style="left:${(i*53)%100}%;top:${(i*37)%100}%;animation-delay:${(i*.3).toFixed(1)}s"></i>`).join('');
  h.insertAdjacentHTML('afterbegin',`<div class="wbx-bg"><div class="wbx-au"></div>${stars}</div><div class="wbx-st"><div class="xray"></div><div class="xrg">${RING(12,62,'#e0b0ff','#ffd23f')}</div><div class="xrg b">${RING(6,50,'#ffd23f','#c77dff')}</div><div class="xart">${art||'<span style="font-size:80px">'+(B.em||'🐉')+'</span>'}</div></div>`);
- const s=box.querySelectorAll('.wbs>div');['💥','🏆','⚔️'].forEach((ic,i)=>{if(s[i]&&!s[i].dataset.ic){s[i].dataset.ic=1;s[i].insertAdjacentHTML('afterbegin',`<span style="position:absolute;right:4px;top:2px;font-size:14px;opacity:.35">${ic}</span>`)}})};
+ const ws=box.querySelector('.wbs');if(ws&&!ws.classList.contains('wbs2')){ws.classList.add('wbs2');
+  const IC=['💥','🏆','⚔️'];ws.innerHTML=[...ws.children].map((d,i)=>{const lb=(d.firstChild&&d.firstChild.nodeType===3?d.firstChild.textContent:'').trim(),v=(d.querySelector('b')||{}).textContent||'',sm=(d.querySelector('small')||{}).textContent||'';
+   return `<div class="ws"><span class="wi">${IC[i]||'✦'}</span><span class="wl">${esc(lb)}</span><b class="wv">${esc(v)}</b><small class="wsb">${esc(sm)||'&nbsp;'}</small></div>`}).join('')}
+ box.querySelectorAll('.tkr').forEach(t=>{const x=t.textContent;if(/ครั้งล่าสุด/.test(x)&&!t.classList.contains('wlast')){const m=x.match(/ครั้งล่าสุด:\s*([\d,]+)/);t.classList.add('wlast');t.innerHTML=`<span class="wlp">⚔️ ครั้งล่าสุด <b>${m?m[1]:'-'}</b> ดาเมจ</span><small>นับเฉพาะครั้งที่ดาเมจสูงสุดของวัน</small>`}})};
 /* ---------- โชว์ของจากกล่อง ---------- */
 window.wbReveal=function(o){const old=document.getElementById('wbrv');if(old)old.remove();
  let rc='#5ac8ff',chest='🎁',item='',rar='',title='',desc='',bp=o.bp>0?`<div class="bp">⚡ BP +${fmt(Math.round(o.bp))}</div>`:'';
@@ -7915,7 +7929,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 .fxw>.pnl::-webkit-scrollbar{width:5px}.fxw>.pnl::-webkit-scrollbar-thumb{border-radius:3px;background:linear-gradient(#ffe066,#c8701a)}.fxw>.pnl::-webkit-scrollbar-track{background:#0006}
 /* ----- ป้ายชื่อหน้าต่าง ----- */
 .fxw .cst{position:relative;padding:7px 30px!important;margin-bottom:12px!important;border-radius:6px!important;border:2px solid #ffd23f!important;
- background:linear-gradient(#6a1808,#3a0804 55%,#1e0402)!important;color:#ffe9a8!important;font-weight:900!important;letter-spacing:.3px;animation:thGlow 2.6s ease-in-out infinite;
+ background:linear-gradient(#6a1808,#3a0804 55%,#1e0402)!important;color:#ffe9a8!important;font-weight:900!important;letter-spacing:.3px;
  box-shadow:0 0 0 2px #3a0a02,0 0 0 3.5px #c8902a,0 0 20px #ff5a1a,inset 0 1px 0 #ffffff40,inset 0 -6px 10px #0008!important}
 .fxw .cst::before,.fxw .cst::after{content:"";position:absolute;top:50%;width:46px;height:26px;margin-top:-13px;background:url("data:image/svg+xml,${WING}") center/contain no-repeat;filter:drop-shadow(0 0 5px #ffb02e)}
 .fxw .cst::before{left:-40px}.fxw .cst::after{right:-40px;transform:scaleX(-1)}
@@ -7929,16 +7943,14 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 /* ----- การ์ดรายการ ----- */
 .fxw :is(.strw,.dgc,.shoprow,.od,.stsum,.icard,.dgc.lk){position:relative;overflow:hidden;border-color:#a8702a!important;
  background:linear-gradient(#ffd23f,#ffd23f) left top / 12px 2px no-repeat,linear-gradient(#ffd23f,#ffd23f) left top / 2px 12px no-repeat,linear-gradient(#ffd23f,#ffd23f) right top / 12px 2px no-repeat,linear-gradient(#ffd23f,#ffd23f) right top / 2px 12px no-repeat,linear-gradient(#ffd23f,#ffd23f) left bottom / 12px 2px no-repeat,linear-gradient(#ffd23f,#ffd23f) left bottom / 2px 12px no-repeat,linear-gradient(#ffd23f,#ffd23f) right bottom / 12px 2px no-repeat,linear-gradient(#ffd23f,#ffd23f) right bottom / 2px 12px no-repeat,linear-gradient(160deg,#3e1e12 0,#1e0c08 55%,#120604)!important;box-shadow:inset 0 1px 0 #ffd23f30,inset 0 0 14px #000a,0 2px 6px #0009!important}
-.fxw :is(.strw,.dgc,.shoprow)::after{content:"";position:absolute;top:0;bottom:0;width:30%;left:-70%;background:linear-gradient(100deg,transparent,#ffe9a812,transparent);animation:thShine 5s ease-in-out infinite;pointer-events:none}
 .fxw .dgc.lk{filter:saturate(.6) brightness(.85)}
 .fxw .stpt{background:linear-gradient(160deg,#5a1a7a,#1e0a2a)!important;border-color:#e0b0ff!important;box-shadow:0 0 14px #c77dff77,inset 0 1px 0 #ffffff2a!important}
 .fxw .icard{border-width:2px!important}
 /* ----- ช่องไอเทม/สกิล ----- */
 .fxw :is(.wgc,.skc){border-color:#7a4a20!important;background:linear-gradient(#e8a82a,#e8a82a) left top / 7px 2px no-repeat,linear-gradient(#e8a82a,#e8a82a) left top / 2px 7px no-repeat,linear-gradient(#e8a82a,#e8a82a) right top / 7px 2px no-repeat,linear-gradient(#e8a82a,#e8a82a) right top / 2px 7px no-repeat,linear-gradient(#e8a82a,#e8a82a) left bottom / 7px 2px no-repeat,linear-gradient(#e8a82a,#e8a82a) left bottom / 2px 7px no-repeat,linear-gradient(#e8a82a,#e8a82a) right bottom / 7px 2px no-repeat,linear-gradient(#e8a82a,#e8a82a) right bottom / 2px 7px no-repeat,radial-gradient(circle at 50% 28%,#ffffff12,transparent 60%),linear-gradient(#3a2014,#140806)!important;box-shadow:inset 0 1px 0 #ffd23f26,inset 0 0 10px #000b,0 2px 4px #0008!important}
-.fxw :is(.wgc,.skc).on{border-color:#ffd23f!important;animation:thPulse 1.8s ease-in-out infinite}
+.fxw :is(.wgc,.skc).on{border-color:#ffd23f!important;box-shadow:0 0 0 1px #ffd23f,0 0 12px #ffb02e,inset 0 0 12px #ff8a1a55!important}
 /* ----- ปุ่มหลัก ----- */
 .fxw .skill{background:linear-gradient(#e8402a,#a8180c 55%,#6a0a04)!important;border:2px solid #ffd23f!important;box-shadow:0 3px 0 #3a0602,0 0 12px #ff5a1a88,inset 0 1px 0 #ffffff55!important;text-shadow:0 1px 2px #3a0000}
-.fxw .skill:not(:disabled)::after{content:"";position:absolute;top:0;bottom:0;width:28%;left:-70%;background:linear-gradient(100deg,transparent,#fff6,transparent);animation:thShine 3s ease-in-out infinite;pointer-events:none}
 .fxw .skill:disabled{filter:grayscale(.7) brightness(.7)}
 .fxw .auto{border:1.5px solid #a8702a!important;background:linear-gradient(#3a2014,#1a0a06)!important;color:#ffe9c8!important;box-shadow:inset 0 1px 0 #ffd23f26,0 2px 0 #0008!important}
 /* ----- ประกายลอยในหน้าต่าง ----- */
@@ -7947,9 +7959,19 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 .g-noanim .thsp i,.g-noanim .fxw .cst,.g-noanim .fxw :is(.strw,.dgc,.shoprow)::after,.g-noanim .fxw .skill::after{animation:none!important}
 .g-nofx .thsp{display:none}
 </style>`);
-function spark(){document.querySelectorAll('.fxw .cst').forEach(c=>{const n=c.nextElementSibling;if(!n||!n.classList.contains('thdv'))c.insertAdjacentHTML('afterend','<div class="thdv"><b></b><i></i><b></b></div>')});document.querySelectorAll('.fxw').forEach(w=>{if(w.querySelector(':scope>.thsp'))return;
- w.insertAdjacentHTML('beforeend','<div class="thsp">'+Array.from({length:9},(_,i)=>`<i style="left:${6+i*11}%;animation-delay:${(i*.8).toFixed(1)}s;animation-duration:${(6+i%4*1.3).toFixed(1)}s"></i>`).join('')+'</div>')})}
-spark();setInterval(spark,1000);
+function spark(){document.querySelectorAll('.fxw .cst').forEach(c=>{const n=c.nextElementSibling;if(!n||!n.classList.contains('thdv'))c.insertAdjacentHTML('afterend','<div class="thdv"><b></b><i></i><b></b></div>')});}
+spark();setInterval(spark,1500);
 })();
 </script>
+<script>document.head.insertAdjacentHTML('beforeend',`<style>
+/* ปุ่มสุ่มกล่อง: ตัวหนังสือชัด */
+.gx .gn{background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:26px!important;filter:none!important;
+ text-shadow:-1.5px -1.5px 0 #3a0a00,1.5px -1.5px 0 #3a0a00,-1.5px 1.5px 0 #3a0a00,1.5px 1.5px 0 #3a0a00,0 2px 0 #3a0a00,0 0 8px #000a!important}
+.gx .gsh,.gx .gsp{display:none!important}
+.gx .gp{font-size:13.5px!important;color:#fff!important;background:#000b!important;border-color:#ffe9a0aa!important;text-shadow:0 1px 1px #000}
+.gx .gtg{font-size:10px!important;padding:1px 10px!important;color:#5a0a00!important}
+.gx .gt{color:#fff!important;text-shadow:0 1px 2px #000,0 0 4px #000!important}
+#ov .auto{color:#fff!important;text-shadow:0 1px 2px #000}
+button.g.gx .gn{font-size:19px!important}button.g.gx .gp{font-size:13.5px!important}button.g.gx .gtg{font-size:10px!important}
+</style>`)</script>
 </body></html>
