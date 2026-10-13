@@ -7326,12 +7326,12 @@ async function openProfile(uid){if(!uid)return;P.hidden=false;const B=$('pfbd');
   return `<div class="sl" style="--c:${col}"><div class="fr ${e?'':'emp'}">${ic}</div><em>${esc(tag)}</em>${e&&e.en?`<span class="en">+${e.en}</span>`:''}<small>${esc(nm)}</small></div>`};
  const NIc=k=>{try{return (typeof NI!=='undefined'&&NI[k])?NI[k].replace('<svg ','<svg width="40" height="42" '):''}catch(e){return ''}};
  const wingSl=`<div class="sl" style="--c:${d.wg?'#7ad8ff':'#5a4a3a'}"><div class="fr ${d.wg?'':'emp'}">${NIc('wing')||'🪽'}</div><em>${d.wg?esc(d.wgn||'ปีก'):'ไม่มีปีก'}</em>${d.wg?`<span class="en">★${d.wl||0}</span>`:''}<small>ปีก</small></div>`;
- let petIc='';try{const pp=d.pet&&typeof PT!=='undefined'?PT.find(x=>x.id===d.pet.id):null;petIc=pp&&typeof petSVG==='function'?petSVG(pp,46,d.pet.st||0):''}catch(e){}
+ let petIc='';try{const pp=d.pet&&typeof PT!=='undefined'?PT.find(x=>x.id===d.pet.id):null;petIc=pp&&typeof petSVG==='function'?petSVG(pp,46,false):''}catch(e){}
  const petSl=`<div class="sl" style="--c:${d.pet?(typeof PRC!=='undefined'&&PRC[d.pet.r])||'#ffb02e':'#5a4a3a'}"><div class="fr ${d.pet?'':'emp'}">${petIc||NIc('pet')||'🐾'}</div><em>${d.pet?esc(d.pet.n):'ไม่มี'}</em>${d.pet?`<span class="en">Lv${d.pet.lv}</span>`:''}<small>สัตว์เลี้ยง</small></div>`;
  const st=d.st||{},S6=[['💪','STR','str'],['🌪️','AGI','agi'],['🛡️','VIT','vit'],['🔮','INT','int'],['🎯','DEX','dex'],['🍀','LUK','luk']];
  const fashBox=(x,list,ic,lab)=>{const o=x&&list?list.find(q=>q.id===x.id):null;return `<div><i>${ic}</i>${lab}<b>${o?esc(o.n):'ไม่ได้สวม'}</b>${o?`<small>★${x.st||0}</small>`:''}</div>`};
  B.innerHTML=`<div class="pfx"><div class="pft"><b>${esc(d.name||data.name)}</b><small>ไอดี ${esc(data.username||'-')} · Lv.${d.lv||data.lv} · ด่าน ${d.stage||1} · <span style="color:${online(data.updated_at)?'#8aff9a':'#998'}">● ${online(data.updated_at)?'ออนไลน์':ago(data.updated_at)}</span></small><span class="bp">⚡ BP ${fmtN(d.bp||data.bp||0)}</span></div>
-  <div class="grid"><div class="col">${[2,1,3].map(slot).join('')}</div><div class="hero">${av}</div><div class="col">${[0,4].map(slot).join('')}${petSl}</div></div>
+  <div class="grid"><div class="col">${[2,1,3].map(slot).join('')}</div><div class="hero">${av}</div><div class="col">${[0,4].map(slot).join('')}</div></div>${window.pfPetBlock?window.pfPetBlock(d.pet):''}
   <div class="grid" style="grid-template-columns:1fr;justify-items:center;margin-top:-4px">${wingSl}</div>
   <div class="pfh">👘 แฟชั่นที่สวมใส่</div><div class="stats" style="grid-template-columns:1fr 1fr">${fashBox(d.fsx,typeof FS!=='undefined'?FS:null,'👘','ชุดแฟชั่น')}${fashBox(d.wsx,typeof WSK!=='undefined'?WSK:null,'🗡️','อาวุธแฟชั่น')}</div><div class="pfh">📊 ค่าพลัง</div><div class="stats"><div><i>⚔️</i>โจมตี<b>${fmtN(d.atk||0)}</b></div><div><i>❤️</i>HP<b>${fmtN(d.hp||0)}</b></div><div><i>🎯</i>คริ<b>${d.crit||0}%</b></div><div><i>💨</i>ความเร็ว<b>x${d.spd||1}</b></div><div><i>🛡️</i>กันกาย<b>${d.def||0}%</b></div><div><i>✨</i>กันเวท<b>${d.mdef||0}%</b></div></div>
   <div class="pfh">💠 สเตตัส</div><div class="stats st6">${S6.map(([i,l,k])=>`<div><i>${i}</i>${l}<b>${fmtN(st[k]||0)}</b></div>`).join('')}</div>
@@ -8207,5 +8207,32 @@ window.heroSnap=function(){
  return h.length>300000?null:h;
 };
 </script>
+<script>
+/* โปรไฟล์เพื่อน: สัตว์เลี้ยงใหญ่ขึ้น มีออร่า/เอฟเฟคขยับเหมือนในฉากจริง */
+let _pfPetCss=false;
+function pfEnsurePetCss(){
+ if(_pfPetCss)return;_pfPetCss=true;
+ let css='';
+ for(const sh of document.styleSheets){
+  let rules;try{rules=sh.cssRules}catch(e){continue}
+  for(const r of rules){
+   if(r.selectorText&&/#pet\.pr\d/.test(r.selectorText))css+=r.cssText.replace(/#pet/g,'.pfpet')+'\n';
+   else if(r.type===7&&/^(pg|pspin)$/.test(r.name))css+=r.cssText+'\n';
+  }
+ }
+ const st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
+}
+window.pfPetBlock=function(pet){
+ const head='<div class="pfh">🐲 สัตว์เลี้ยง</div>';
+ if(!pet||typeof PT==='undefined')return head+'<div class="stats"><div>ไม่มีสัตว์เลี้ยง</div></div>';
+ const pp=PT.find(x=>x.id===pet.id);if(!pp)return head;
+ try{pfEnsurePetCss()}catch(e){}
+ const t=Math.min(4,pp.r);
+ let svg='';try{svg=petSVG(pp,120,false)}catch(e){}
+ return `${head}<div style="text-align:center;font-weight:800;color:${PRC[pp.r]}">${pp.n} · Lv.${pet.lv||1}${pet.st?' ★'+pet.st:''}</div>`+
+  `<div class="pfpet pr${t} pr${pp.r}" style="--pc:${pp.e};position:relative;height:150px;margin:6px auto 8px;display:flex;align-items:flex-end;justify-content:center;overflow:visible">${svg}</div>`;
+};
+</script>
 </body></html>
+
 
