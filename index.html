@@ -7318,7 +7318,7 @@ async function openProfile(uid){if(!uid)return;P.hidden=false;const B=$('pfbd');
  if(error||!data){B.innerHTML='<div class="soemp">ยังไม่มีข้อมูลของผู้เล่นนี้<br><small>ข้อมูลจะขึ้นหลังผู้เล่นออนไลน์อย่างน้อย 1 ครั้ง</small></div>';return}
  const d=data.data||{},me=uid===c.u.id;if(!FR.friends.length&&!FR.out.length&&!FR.inc.length)await loadFriends();
  const isF=FR.friends.some(f=>f.uid===uid),isOut=FR.out.some(f=>f.uid===uid),isIn=FR.inc.some(f=>f.uid===uid);
- let av='';try{const hh=window.pfRenderHero?window.pfRenderHero(d):null;if(hh)av='<div class="pfhero">'+hh+'</div>'}catch(e){}
+ let av='';try{const hh=window.pfRenderHero?window.pfRenderHero(d):null;const bx=window._pfHeroBox||{};if(hh)av='<div class="pfhero" style="width:'+(bx.w||'240px')+';height:'+(bx.h||'260px')+';font-size:'+(bx.fs||'16px')+'">'+hh+'</div>'}catch(e){}
   if(!av&&typeof d.hero==='string'&&d.hero)av='<div class="pfhero">'+d.hero+'</div>';if(!av)try{const base=null;if(base){const k=base.cloneNode(true);if(window.unFemNh)unFemNh(k);k.removeAttribute('style');
    k.querySelectorAll('.n-wg').forEach(g=>{g.innerHTML='';try{if(d.wg&&typeof wingHero==='function')g.innerHTML='<g transform="translate(4 10)">'+wingHero(d.wg,false)+'</g>'}catch(e){}});
    if(d.sex==='f'&&window.femNh)femNh(k);av=k.outerHTML}}catch(e){}
@@ -8258,7 +8258,7 @@ window.pfHsStyle=function(hero){
    const sels=r.selectorText.split(',').map(mapSel).filter(Boolean);
    if(!sels.length)continue;
    let decl=r.style.cssText;
-   if(/#hero(?![\w-])/.test(r.selectorText))decl=decl.split(';').filter(x=>!/^\s*animation/.test(x)).join(';');
+   if(/#hero(?![\w-])/.test(r.selectorText))decl=decl.split(';').filter(x=>!/^\s*(animation|left|right|top|bottom|position|z-index|transform\s*:)/.test(x)).join(';');
    css+=sels.join(',')+'{'+decl+'}\n';
   }
  }
@@ -8293,6 +8293,7 @@ window.pfRenderHero=function(d){
   window._wk=undefined;
   updateHero();
   const hw=document.getElementById('hero');out=window.pfPrefix(hw?hw.innerHTML:hs.innerHTML);
+  if(hw){const cs=getComputedStyle(hw);window._pfHeroBox={w:cs.width,h:cs.height,fs:cs.fontSize}}
  }catch(e){console.error('[pfRenderHero]',e)}
  finally{
   Object.assign(S,keep);
