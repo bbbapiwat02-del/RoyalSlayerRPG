@@ -852,7 +852,7 @@ function kill(){if(D){dgKill();return}
  if(S.kills>=need){S.kills=0;S.stage++;sfx('stage');banner(need===1?'🏆 ปราบผู้นำสำนักมาร! +🔑':'ด่าน '+S.stage+' ✨');if(need===1){S.keys++;S.tk=Math.min(9,(S.tk||0)+1);burst(50,50,'#ffd23f',30);shake();renderGear()}}
  mState='dying';deathAnim();setTimeout(spawn,720);
 }
-function die(){clr(HS);if(D){dgEnd(false);return}S.kills=0;hp=MHP();spawn();banner('💀 พ่ายแพ้! ฟื้นพลังแล้วสู้ใหม่ (ด่านไม่ลด)');$('msg').textContent=''}
+function die(){clr(HS);if(D){dgEnd(false);return}S.kills=0;hp=MHP();spawn();$('msg').textContent=''}
 $('auto').onclick=()=>{S.auto=!S.auto;$('auto').textContent=(S.auto?'🔁 ออโต้ เปิด':'ออโต้ ปิด')};
 $('auto').textContent=(S.auto?'🔁 ออโต้ เปิด':'ออโต้ ปิด');
 const ups=$('ups');
@@ -961,7 +961,7 @@ document.querySelectorAll('.wc').forEach(b=>b.onclick=closeW);$('cl').onclick=cl
 renderGear();
 const expNeed=l=>Math.floor(20*Math.pow(1.3,l-1));
 function gainExp(x){S.exp+=x;let up=0;while(S.exp>=expNeed(S.lv)){S.exp-=expNeed(S.lv);S.lv++;up++}
- if(up){sfx('lvl');hp=MHP();burst(20,50,'#7dd3fc',30);burst(20,50,'#ffd23f',20);fx('ring');shake();banner('🎉 เลเวล '+S.lv+'!');fl('LEVEL UP!','c','h');anim($('hero'),'lvl');setTimeout(()=>$('hero').classList.remove('lvl'),950)}}
+ if(up){sfx('lvl');hp=MHP();burst(20,50,'#7dd3fc',30);burst(20,50,'#ffd23f',20);fx('ring');shake();window.lvFx&&lvFx(S.lv);anim($('hero'),'lvl');setTimeout(()=>$('hero').classList.remove('lvl'),950)}}
 function heroSwing(){
  const dur=Math.max(220,Math.min(420,1000/SPD()*0.9)),gap=MW.offsetLeft-HW.offsetLeft-HW.offsetWidth,adv=Math.max(30,gap-35);
  const c=Math.random()*100<CRIT(),d=Math.floor(ATK()*(c?CRD():1)*(0.9+Math.random()*0.2));
@@ -7963,6 +7963,64 @@ function spark(){document.querySelectorAll('.fxw .cst').forEach(c=>{const n=c.ne
 spark();setInterval(spark,1500);
 })();
 </script>
+<script>/* ================= เอฟเฟกต์เลเวลอัป: LEVEL UP ตัวใหญ่ + ออร่าปีกกระพือ แล้วจางหายช้าๆ ================= */
+(function(){
+document.head.insertAdjacentHTML('beforeend',`<style>
+#lvfx,#lvtx{position:absolute;width:240px;height:260px;margin-left:-120px;pointer-events:none;animation:lvOut 4s ease-in forwards}
+#lvfx{z-index:var(--lvz,1)}#lvtx{z-index:9;height:0}
+@keyframes lvOut{0%,55%{opacity:1}100%{opacity:0}}
+#lvfx .pl{position:absolute;left:50%;bottom:6px;width:70px;height:230px;margin-left:-35px;border-radius:50% 50% 8px 8px/20% 20% 8px 8px;background:linear-gradient(to top,#fff6c0ee,#ffd23f99 35%,#ffb02e33 75%,transparent);filter:blur(3px);transform-origin:50% 100%;animation:lvPl .6s ease-out}
+@keyframes lvPl{from{transform:scaleY(0);opacity:0}}
+#lvfx .rg{position:absolute;left:50%;bottom:0;width:150px;height:34px;margin-left:-75px;border-radius:50%;border:3px solid #ffe066;box-shadow:0 0 18px #ffb02e,inset 0 0 14px #ffd23f;animation:lvRg 1s ease-out}
+@keyframes lvRg{from{transform:scale(.2);opacity:0}}
+#lvfx .wg{position:absolute;bottom:54px;width:120px;height:132px;opacity:.82;filter:drop-shadow(0 0 10px #ffd23f) drop-shadow(0 0 22px #ffb02e)}
+#lvfx .wg.l{right:50%;margin-right:-6px;transform-origin:100% 70%;animation:lvIn .5s ease-out,lvFL .42s ease-in-out .1s 9 alternate}
+#lvfx .wg.r{left:50%;margin-left:-6px;transform-origin:0 70%;animation:lvIn .5s ease-out,lvFR .42s ease-in-out .1s 9 alternate}
+#lvfx .wg svg{width:100%;height:100%;overflow:visible}
+@keyframes lvIn{from{opacity:0;transform:scale(.3)}}
+@keyframes lvFL{from{transform:rotate(8deg) scaleX(1)}to{transform:rotate(-14deg) scaleX(.82)}}
+@keyframes lvFR{from{transform:rotate(-8deg) scaleX(1)}to{transform:rotate(14deg) scaleX(.82)}}
+#lvtx .tx{position:absolute;left:50%;top:-18px;transform:translateX(-50%);text-align:center;white-space:nowrap;animation:lvTx 4s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes lvTx{0%{transform:translateX(-50%) scale(.2);opacity:0}12%{transform:translateX(-50%) scale(1.15);opacity:1}20%{transform:translateX(-50%) scale(1)}100%{transform:translateX(-50%) translateY(-26px) scale(1)}}
+#lvtx .tx b{display:block;font-size:40px;font-weight:900;font-style:italic;letter-spacing:1px;line-height:1;background:linear-gradient(#fffbe0,#ffe066 40%,#ff9a1a 75%,#c8501a);-webkit-background-clip:text;background-clip:text;color:transparent;
+ filter:drop-shadow(0 2px 0 #6a1a00) drop-shadow(0 0 2px #3a0a00) drop-shadow(0 0 12px #ffb02e)}
+#lvtx .tx span{display:inline-block;margin-top:4px;padding:1px 14px;border-radius:12px;font-size:16px;font-weight:900;color:#fff;background:linear-gradient(#ff8a2a,#c8301a);border:2px solid #fff3b0;box-shadow:0 0 12px #ff8a1a;text-shadow:0 1px 1px #3a0000}
+#lvfx .sp i{position:absolute;bottom:20px;width:5px;height:5px;border-radius:50%;background:#fff8d0;box-shadow:0 0 8px 2px #ffd23f;animation:lvSp 1.8s ease-out forwards}
+@keyframes lvSp{from{transform:translate(0,0);opacity:1}to{transform:translate(var(--x),-190px);opacity:0}}
+.g-noanim #lvfx .wg{animation:lvIn .5s ease-out!important}
+</style>`);
+const W=`<svg viewBox="0 0 120 132"><defs><linearGradient id="lvwg" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffbe0"/><stop offset=".5" stop-color="#ffe066"/><stop offset="1" stop-color="#ff9a1a" stop-opacity=".55"/></linearGradient></defs>
+<g fill="url(#lvwg)" stroke="#fff8d0" stroke-width="1.2" stroke-linejoin="round" opacity=".95">
+<path d="M118 80C96 52 70 30 30 8C40 22 48 34 52 44C36 36 20 32 4 34C20 44 32 54 40 62C26 62 14 66 6 74C22 78 36 82 46 88C36 92 26 100 20 112C40 104 60 100 78 100C80 112 86 122 96 130C100 112 108 96 118 80Z"/>
+<path d="M118 82C104 70 88 62 70 58M118 84C100 82 84 84 66 90M116 86C104 96 96 106 92 120" fill="none" stroke="#fff" stroke-opacity=".7"/></g></svg>`;
+function place(el,tx){try{const A=$('arena'),h=(HS.querySelector('svg.nh')||HS.querySelector('svg')).getBoundingClientRect(),a=A.getBoundingClientRect();
+ let x=h.left+h.width*.48-a.left-A.clientLeft;if(tx)x=Math.max(118,Math.min(A.clientWidth-118,x));
+ el.style.left=x.toFixed(1)+'px';el.style.top=(h.bottom-a.top-A.clientTop-258).toFixed(1)+'px'}catch(e){}}
+window.lvFx=function(lv){const A=$('arena');if(!A)return;['lvfx','lvtx'].forEach(i=>{const o=document.getElementById(i);if(o)o.remove()});
+ const el=document.createElement('div');el.id='lvfx';
+ el.innerHTML=`<div class="pl"></div><div class="wg l">${W}</div><div class="wg r"><div style="width:100%;height:100%;transform:scaleX(-1)">${W}</div></div><div class="rg"></div><div class="sp">${Array.from({length:12},(_,i)=>`<i style="left:${20+i*5.5}%;--x:${((i%2?1:-1)*(10+i*4))}px;animation-delay:${(i*.07).toFixed(2)}s"></i>`).join('')}</div>`;
+ const tx=document.createElement('div');tx.id='lvtx';tx.innerHTML=`<div class="tx"><b>LEVEL UP</b><span>Lv.${lv}</span></div>`;
+ const H=$('hero');let z=1;try{z=Math.max(0,(parseInt(getComputedStyle(H).zIndex)||1)-1)}catch(e){}el.style.setProperty('--lvz',z);
+ if(H&&H.parentNode===A)A.insertBefore(el,H);else A.appendChild(el);A.appendChild(tx);place(el);place(tx,1);
+ const t0=Date.now();(function loop(){if(!el.isConnected)return;place(el);place(tx,1);if(Date.now()-t0<4000)requestAnimationFrame(loop)})();
+ setTimeout(()=>{el.remove();tx.remove()},4100)};
+})();
+</script>
+<script>document.head.insertAdjacentHTML('beforeend',`<style>
+/* ปุ่มสุ่มอุปกรณ์/สกิล แบบหรู (ไม่มีเคลื่อนไหว) */
+#ov :is(#open,#open10,#open50,#keyb,#sg1,#sg10,#sg50){position:relative;overflow:visible!important;border-radius:14px!important;border:2px solid transparent!important;color:#fff!important;font-weight:900!important;letter-spacing:.2px;
+ text-shadow:-1px -1px 0 #0008,1px -1px 0 #0008,-1px 1px 0 #0008,1px 1px 0 #0008,0 2px 3px #000a!important;padding:11px 8px 10px!important;-webkit-text-fill-color:#ffeec0!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;line-height:1.25!important;animation:none!important}
+#ov :is(#open,#open10,#open50,#keyb,#sg1,#sg10,#sg50)::after{content:"";position:absolute;inset:4px;border-radius:10px;border:1px solid #ffffff38;pointer-events:none;background:none!important;animation:none!important;left:4px!important;width:auto!important}
+#ov :is(#open,#sg1){font-size:17px!important;background:linear-gradient(#fff3b0,#fff3b0) left 5px top 5px / 9px 2px no-repeat,linear-gradient(#fff3b0,#fff3b0) left 5px top 5px / 2px 9px no-repeat,linear-gradient(#fff3b0,#fff3b0) right 5px top 5px / 9px 2px no-repeat,linear-gradient(#fff3b0,#fff3b0) right 5px top 5px / 2px 9px no-repeat,linear-gradient(#fff3b0,#fff3b0) left 5px bottom 5px / 9px 2px no-repeat,linear-gradient(#fff3b0,#fff3b0) left 5px bottom 5px / 2px 9px no-repeat,linear-gradient(#fff3b0,#fff3b0) right 5px bottom 5px / 9px 2px no-repeat,linear-gradient(#fff3b0,#fff3b0) right 5px bottom 5px / 2px 9px no-repeat,radial-gradient(120% 60% at 50% -10%,#ffe9a830,transparent 55%) padding-box,linear-gradient(170deg,#d8401e,#8a1408 55%,#2a0402) padding-box,linear-gradient(160deg,#fff8d0,#e8a82a 40%,#7a4a08 60%,#ffe9a0) border-box!important;box-shadow:0 4px 0 #2a0402,0 0 12px #ff5a1a77,inset 0 -10px 16px #0007,inset 0 0 0 1px #3a0a02!important}
+#ov :is(#open10,#sg10){font-size:15px!important;background:linear-gradient(#fff3b0,#fff3b0) left 5px top 5px / 9px 2px no-repeat,linear-gradient(#fff3b0,#fff3b0) left 5px top 5px / 2px 9px no-repeat,linear-gradient(#fff3b0,#fff3b0) right 5px top 5px / 9px 2px no-repeat,linear-gradient(#fff3b0,#fff3b0) right 5px top 5px / 2px 9px no-repeat,linear-gradient(#fff3b0,#fff3b0) left 5px bottom 5px / 9px 2px no-repeat,linear-gradient(#fff3b0,#fff3b0) left 5px bottom 5px / 2px 9px no-repeat,linear-gradient(#fff3b0,#fff3b0) right 5px bottom 5px / 9px 2px no-repeat,linear-gradient(#fff3b0,#fff3b0) right 5px bottom 5px / 2px 9px no-repeat,radial-gradient(120% 60% at 50% -10%,#ffe9a830,transparent 55%) padding-box,linear-gradient(170deg,#7a3418,#3e1208 55%,#160602) padding-box,linear-gradient(160deg,#fff8d0,#e8a82a 40%,#7a4a08 60%,#ffe9a0) border-box!important;box-shadow:0 4px 0 #120402,0 0 12px #c8702a55,inset 0 -10px 16px #0007,inset 0 0 0 1px #3a0a02!important}
+#ov :is(#open50,#sg50){font-size:15px!important;background:linear-gradient(#fff3b0,#fff3b0) left 5px top 5px / 9px 2px no-repeat,linear-gradient(#fff3b0,#fff3b0) left 5px top 5px / 2px 9px no-repeat,linear-gradient(#fff3b0,#fff3b0) right 5px top 5px / 9px 2px no-repeat,linear-gradient(#fff3b0,#fff3b0) right 5px top 5px / 2px 9px no-repeat,linear-gradient(#fff3b0,#fff3b0) left 5px bottom 5px / 9px 2px no-repeat,linear-gradient(#fff3b0,#fff3b0) left 5px bottom 5px / 2px 9px no-repeat,linear-gradient(#fff3b0,#fff3b0) right 5px bottom 5px / 9px 2px no-repeat,linear-gradient(#fff3b0,#fff3b0) right 5px bottom 5px / 2px 9px no-repeat,radial-gradient(120% 60% at 50% -10%,#ffe9a830,transparent 55%) padding-box,linear-gradient(170deg,#e8b44a,#a8601a 55%,#3a1604) padding-box,linear-gradient(160deg,#fff8d0,#e8a82a 40%,#7a4a08 60%,#ffe9a0) border-box!important;box-shadow:0 4px 0 #2a1002,0 0 12px #ffb02e77,inset 0 -10px 16px #0007,inset 0 0 0 1px #3a0a02!important}
+#ov #keyb{font-size:16px!important;background:linear-gradient(#fff3b0,#fff3b0) left 5px top 5px / 9px 2px no-repeat,linear-gradient(#fff3b0,#fff3b0) left 5px top 5px / 2px 9px no-repeat,linear-gradient(#fff3b0,#fff3b0) right 5px top 5px / 9px 2px no-repeat,linear-gradient(#fff3b0,#fff3b0) right 5px top 5px / 2px 9px no-repeat,linear-gradient(#fff3b0,#fff3b0) left 5px bottom 5px / 9px 2px no-repeat,linear-gradient(#fff3b0,#fff3b0) left 5px bottom 5px / 2px 9px no-repeat,linear-gradient(#fff3b0,#fff3b0) right 5px bottom 5px / 9px 2px no-repeat,linear-gradient(#fff3b0,#fff3b0) right 5px bottom 5px / 2px 9px no-repeat,radial-gradient(120% 60% at 50% -10%,#ffe9a830,transparent 55%) padding-box,linear-gradient(170deg,#5a3a18,#2e1a0a 55%,#120804) padding-box,linear-gradient(160deg,#fff8d0,#e8a82a 40%,#7a4a08 60%,#ffe9a0) border-box!important;box-shadow:0 4px 0 #0a0402,0 0 10px #c8902a55,inset 0 -10px 16px #0007,inset 0 0 0 1px #3a0a02!important}
+#ov :is(#open50,#sg50)::before{content:"คุ้มสุด";position:absolute;top:-9px;right:10px;z-index:2;padding:1px 9px;border-radius:8px;font-size:10px;font-weight:900;color:#6a0a00;-webkit-text-fill-color:#6a0a00;text-shadow:none;background:linear-gradient(#fff8d0,#ffd23f);border:1px solid #7a4a08;box-shadow:0 2px 4px #0008}
+#ov :is(#open10,#open50,#sg1,#sg10,#sg50) small{display:block;width:fit-content;margin:5px auto 0;padding:1px 10px;border-radius:9px;background:linear-gradient(#1a0604,#000);border:1px solid #c8902a;font-size:12px!important;font-weight:800;color:#ffd96a!important;-webkit-text-fill-color:#ffd96a!important;text-shadow:0 1px 1px #000!important;opacity:1!important}
+#ov :is(#open,#open10,#open50,#keyb,#sg1,#sg10,#sg50):disabled{filter:grayscale(.75) brightness(.7)}
+#ov :is(#open,#open10,#open50,#keyb,#sg1,#sg10,#sg50):active{transform:translateY(3px);box-shadow:0 1px 0 #000a!important}
+#ov .row{gap:8px!important;margin-top:9px!important}
+</style>`)</script>
 <script>document.head.insertAdjacentHTML('beforeend',`<style>
 /* ปุ่มสุ่มกล่อง: ตัวหนังสือชัด */
 .gx .gn{background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:26px!important;filter:none!important;
