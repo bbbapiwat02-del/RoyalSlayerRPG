@@ -7170,11 +7170,12 @@ function snap(){const s={};try{
  s.st=Object.assign({},S.st||{});
  s.eq=(S.eq||[]).map((e,i)=>e?{s:e.s,t:e.t,set:e.set,en:(S.enh&&S.enh[i])||0}:null);
  s.wg=S.wg||0;s.wl=S.wl||0;s.wgn=S.wg&&typeof WG!=='undefined'&&WG[S.wg-1]?WG[S.wg-1].n:'';
- const pt=S.pet&&typeof PT!=='undefined'?PT.find(x=>x.id===S.pet):null;s.pet=pt?{n:pt.n,r:pt.r,lv:(S.pets[S.pet]||{}).lv||1}:null;
+ const pt=S.pet&&typeof PT!=='undefined'?PT.find(x=>x.id===S.pet):null;s.pet=pt?{id:pt.id,n:pt.n,r:pt.r,lv:(S.pets[S.pet]||{}).lv||1,st:(S.pets[S.pet]||{}).st||0}:null;
  s.fs=S.fs&&S.fs.eq||'';
 }catch(e){}return s}
 let lastPub=0;
-async function publish(force){if(!force&&Date.now()-lastPub<60000)return;const id=localStorage.getItem('ml_cur')||'';if(!id||window._kicked)return;const c=await net();if(!c)return;lastPub=Date.now();const d=snap();
+async function publish(force){if(!force&&Date.now()-lastPub<60000)return;const c=await net();if(!c)return;lastPub=Date.now();
+ const id=localStorage.getItem('ml_cur')||'';const d=snap();
  try{await c.sb.from('public_profiles').upsert({user_id:c.u.id,username:id,name:d.name,lv:d.lv,bp:d.bp,data:d,updated_at:new Date().toISOString()})}catch(e){}}
 setInterval(()=>{if(!document.getElementById('ss'))publish()},15000);
 addEventListener('pagehide',()=>publish(true));
@@ -7184,43 +7185,59 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 .socb{position:absolute;right:8px;z-index:7;width:50px;padding:0;border:0;background:none;color:#fff;font:inherit;display:flex;flex-direction:column;align-items:center;gap:1px}
 .socb i{position:relative;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:22px;background:radial-gradient(circle at 40% 35%,#6a3a1a,#1a0a04);border:2px solid #ffd23f;box-shadow:0 0 8px #ff8a1a88,0 3px 6px #000a}
 .socb small{font-size:9.5px;font-weight:900;color:#ffe9c8;text-shadow:0 1px 3px #000,0 0 6px #000;white-space:nowrap}
-.socb em{position:absolute;right:-4px;top:-4px;min-width:17px;height:17px;padding:0 3px;border-radius:9px;background:#e5252d;border:1.5px solid #fff;font-style:normal;font-size:9.5px;font-weight:900;line-height:14px;text-align:center}
-.socb em:empty{display:none}
+.socb em,.sotb em,.chtb em{position:absolute;right:-4px;top:-5px;min-width:16px;height:16px;padding:0 3px;border-radius:9px;background:#e5252d;border:1.5px solid #fff;font-style:normal;font-size:9px;font-weight:900;line-height:13px;text-align:center;color:#fff}
+.socb em:empty,.chtb em:empty{display:none}
 .socb:active i{transform:scale(.92)}
-#sow,#pfw{position:fixed;inset:0;z-index:980;display:flex;align-items:center;justify-content:center;background:#000a;padding:12px;animation:psF .2s}
+#sow,#pfw{position:fixed;inset:0;z-index:980;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,#0008,#000c);padding:14px;animation:psF .2s}
 #sow[hidden],#pfw[hidden]{display:none}
-.sobx{width:min(380px,100%);max-height:86vh;display:flex;flex-direction:column;border-radius:16px;background:linear-gradient(#2a1612,#120806);border:2px solid #e8b040;box-shadow:0 0 22px #ff8a2a66,0 10px 26px #000c;color:#ffe9c8;overflow:hidden}
-.sohd{display:flex;align-items:center;gap:8px;padding:10px 12px;background:linear-gradient(#6a2a0a,#3a1004);border-bottom:2px solid #e8b040;font-weight:900;font-size:15px}
-.sohd button{margin-left:auto;background:none;border:0;color:#ffe9c8;font-size:18px;padding:0 4px}
-.sotb{display:flex;gap:4px;padding:8px 10px 0}.sotb button{flex:1;padding:7px 2px;border-radius:9px;border:1px solid #6a3a24;background:#1a1014;color:#ffe9c8;font:inherit;font-weight:800;font-size:12px;position:relative}
-.sotb button.on{background:#c8501a;border-color:#ffd23f}.sotb button em{position:absolute;right:4px;top:-5px;min-width:15px;height:15px;border-radius:8px;background:#e5252d;font-style:normal;font-size:9px;line-height:15px}
-.sobd{flex:1;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:6px}
-.sorow{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:10px;background:#1a1014;border:1px solid #3a2420;font-size:12.5px}
-.sorow .nm{flex:1;min-width:0;cursor:pointer}.sorow .nm b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sorow .nm small{color:#caa78a;font-size:10.5px}
-.sorow .dot{width:9px;height:9px;border-radius:50%;background:#666;flex:none}.sorow .dot.on{background:#3aff6a;box-shadow:0 0 6px #3aff6a}
-.sobtn{padding:6px 10px;border-radius:9px;border:1px solid #fff3b0;background:linear-gradient(#ffb02e,#c8501a);color:#fff;font:inherit;font-weight:900;font-size:11.5px;white-space:nowrap}
-.sobtn.g{background:#2a1410;border-color:#8a560a;color:#ffd9a0}.sobtn.r{background:linear-gradient(#ff6a5a,#a01a1a)}
-.soin{display:flex;gap:6px}.soin input,.soin textarea,.sof input,.sof textarea,.sof select{flex:1;min-width:0;padding:8px 10px;border-radius:10px;border:1.5px solid #8a560a;background:#0d0508;color:#fff;font:inherit;font-size:13px}
-.sof{display:flex;flex-direction:column;gap:6px}.sof textarea{min-height:90px;resize:vertical}
+.sobx{position:relative;width:min(330px,100%);max-height:74vh;display:flex;flex-direction:column;border-radius:18px;background:linear-gradient(180deg,#3a1a10 0,#1e0c08 60%,#140806);border:2px solid #f2c85a;box-shadow:0 0 0 2px #4a1e06,0 0 0 4px #c8902a55,0 0 26px #ff8a2a55,0 12px 28px #000d;color:#ffe9c8;overflow:hidden;animation:soPop .28s cubic-bezier(.2,1.3,.4,1)}
+@keyframes soPop{from{transform:scale(.85);opacity:0}}
+.sobx::before{content:"";position:absolute;inset:5px;border:1px solid #f2c85a33;border-radius:14px;pointer-events:none}
+.sohd{position:relative;display:flex;align-items:center;justify-content:center;padding:9px 12px;background:linear-gradient(#8a3a10,#4a1606);border-bottom:2px solid #f2c85a;font-weight:900;font-size:14.5px;letter-spacing:.5px;text-shadow:0 2px 0 #2a0800,0 0 8px #ff8a2a}
+.sohd button{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:#2a0e06;border:1.5px solid #f2c85a;color:#ffe9c8;font-size:13px;line-height:1;padding:0}
+.sotb{display:flex;gap:4px;padding:8px 10px 2px}.sotb button{flex:1;padding:6px 2px;border-radius:20px;border:1px solid #6a3a24;background:#1a0e0a;color:#e8d0b0;font:inherit;font-weight:800;font-size:11.5px;position:relative}
+.sotb button.on{background:linear-gradient(#ffb02e,#c8501a);border-color:#fff3b0;color:#fff;text-shadow:0 1px 1px #5a1200}
+.sobd{flex:1;overflow:auto;padding:8px 10px 10px;display:flex;flex-direction:column;gap:6px}
+.sorow{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:12px;background:linear-gradient(90deg,#2a1610,#180c08);border:1px solid #5a3420;font-size:12.5px;box-shadow:inset 0 1px 0 #ffffff10}
+.sorow .av{width:32px;height:32px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;background:radial-gradient(circle at 40% 35%,#ffe6a8,#c8701a 60%,#5a2a04);border:1.5px solid #ffd23f;position:relative}
+.sorow .av .dot{position:absolute;right:-1px;bottom:-1px;width:10px;height:10px;border-radius:50%;background:#666;border:1.5px solid #1a0a04}.sorow .av .dot.on{background:#3aff6a;box-shadow:0 0 6px #3aff6a}
+.sorow .nm{flex:1;min-width:0;cursor:pointer}.sorow .nm b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff3d0}.sorow .nm small{color:#caa78a;font-size:10.5px}
+.sobtn{padding:6px 10px;border-radius:10px;border:1px solid #fff3b0;background:linear-gradient(#ffb02e,#c8501a);color:#fff;font:inherit;font-weight:900;font-size:11.5px;white-space:nowrap;box-shadow:0 2px 0 #6a2a04}
+.sobtn.g{background:#2a1410;border-color:#8a560a;color:#ffd9a0;box-shadow:none}.sobtn.r{background:linear-gradient(#ff6a5a,#a01a1a)}.sobtn.b{background:linear-gradient(#5ac8ff,#1a6ad8)}
+.soin{display:flex;gap:6px}.soin input,.sof input,.sof textarea,.sof select{flex:1;min-width:0;padding:8px 10px;border-radius:10px;border:1.5px solid #8a560a;background:#0d0508;color:#fff;font:inherit;font-size:13px}
+.sof{display:flex;flex-direction:column;gap:6px}.sof textarea{min-height:84px;resize:vertical}
 .somsg{font-size:11.5px;text-align:center;color:#ffd9a0;min-height:14px}
-.soemp{text-align:center;color:#a88a70;font-size:12px;padding:16px 0}
+.soemp{text-align:center;color:#a88a70;font-size:12px;padding:18px 0}
 .mlrow.unread{border-color:#ffd23f;box-shadow:0 0 6px #ffd23f55}.mlrow.unread b::before{content:"● ";color:#ff5a3a}
 .mlread{padding:10px;border-radius:10px;background:#1a1014;border:1px solid #3a2420;white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.6}
-.pfhd{display:flex;gap:10px;align-items:center}.pfav{width:92px;height:100px;flex:none;border-radius:12px;background:radial-gradient(circle at 50% 70%,#5a2a14,#1a0804);overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
-.pfav svg{width:110px!important;height:120px!important;position:relative!important;display:block!important;margin-bottom:-8px;transform:none!important}
-.pfhd b{font-size:17px;color:#ffd23f}.pfhd small{display:block;color:#caa78a;font-size:11.5px;line-height:1.6}
-.pfst{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}.pfst div{background:#1a1014;border:1px solid #3a2420;border-radius:9px;padding:5px 8px;font-size:11.5px;display:flex;justify-content:space-between}.pfst b{color:#ffe066}
-.pfeq{display:flex;flex-direction:column;gap:4px}.pfeq div{display:flex;align-items:center;gap:7px;background:#1a1014;border:1px solid #3a2420;border-radius:9px;padding:5px 8px;font-size:12px}.pfeq i{font-style:normal;font-size:17px}
-.pfh{font-size:12px;font-weight:900;color:#e8c070;margin-top:4px}
-.pfbt{display:flex;gap:6px;margin-top:4px}.pfbt .sobtn{flex:1;padding:9px}
+.pfh{font-size:11.5px;font-weight:900;color:#f2c85a;margin-top:2px;display:flex;align-items:center;gap:6px}.pfh::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,#f2c85a66,transparent)}
+.pfbt{display:flex;gap:6px;margin-top:2px}.pfbt .sobtn{flex:1;padding:8px}
+/* หน้าข้อมูลผู้เล่น (แบบหน้าตัวละครย่อ) */
+.pfx .pft{text-align:center;padding:2px 0 4px}.pfx .pft b{font-size:16px;color:#ffd23f;text-shadow:0 0 8px #ff8a1a}.pfx .pft small{display:block;color:#caa78a;font-size:10.5px}
+.pfx .bp{display:inline-block;margin-top:3px;padding:2px 12px;border-radius:12px;background:linear-gradient(#3a1a08,#1a0804);border:1.5px solid #f2c85a;color:#ffe066;font-weight:900;font-size:12.5px}
+.pfx .grid{display:grid;grid-template-columns:64px 1fr 64px;gap:4px;align-items:center}
+.pfx .col{display:flex;flex-direction:column;gap:6px;align-items:center}
+.pfx .sl{position:relative;width:58px;display:flex;flex-direction:column;align-items:center}
+.pfx .sl .fr{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(circle at 50% 30%,#ffffff26,#00000070 78%),linear-gradient(160deg,var(--c),#1a1410);border:2px solid var(--c);box-shadow:0 0 8px var(--c)}
+.pfx .sl .fr svg{width:44px!important;height:44px!important}
+.pfx .sl .fr.emp{filter:grayscale(1) brightness(.5)}
+.pfx .sl em{margin-top:-7px;z-index:1;padding:0 6px;border-radius:7px;font-style:normal;font-size:8.5px;font-weight:900;line-height:13px;background:var(--c);color:#fff;text-shadow:0 1px 1px #000;max-width:58px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.pfx .sl .en{position:absolute;right:-2px;top:-4px;padding:0 4px;border-radius:7px;background:#e8501a;border:1px solid #fff3b0;font-size:9px;font-weight:900;line-height:13px}
+.pfx .sl small{font-size:9px;color:#caa78a}
+.pfx .hero{position:relative;height:170px;display:flex;align-items:flex-end;justify-content:center}
+.pfx .hero::before{content:"";position:absolute;left:10%;right:10%;bottom:6px;height:26px;border-radius:50%;background:radial-gradient(ellipse,#ffb02e66,transparent 70%);border:1.5px solid #ffd23f55}
+.pfx .hero svg{position:relative!important;width:150px!important;height:162px!important;transform:none!important;overflow:visible!important}
+.pfx .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.pfx .stats div{display:flex;flex-direction:column;align-items:center;padding:4px 2px;border-radius:10px;background:linear-gradient(#2a1610,#160a06);border:1px solid #5a3420;font-size:9.5px;color:#caa78a}
+.pfx .stats div i{font-style:normal;font-size:15px;line-height:1.1}.pfx .stats div b{font-size:11.5px;color:#ffe066}
+.pfx .st6 div b{color:#9adfff}
 </style>`);
-
 /* ---------- ปุ่มด้านขวา (ใต้ปุ่มตั้งค่า) ---------- */
 const mkBtn=(id,ic,lb)=>{const b=document.createElement('button');b.className='socb';b.id=id;b.innerHTML=`<i>${ic}<em></em></i><small>${lb}</small>`;A.appendChild(b);return b};
 const bF=mkBtn('socf','👥','เพื่อน'),bM=mkBtn('socm','✉️','จดหมาย');
 function posBtns(){const g=$('gbtn');let top=150;if(g){const ar=A.getBoundingClientRect(),gr=g.getBoundingClientRect();if(gr.height)top=Math.round(gr.bottom-ar.top+14)}
- bF.style.top=top+'px';bM.style.top=(top+66)+'px';const bb=$('bbar'),hide=!!(bb&&!bb.hidden);bF.style.display=bM.style.display=hide?'none':''}
-setInterval(posBtns,400);setTimeout(posBtns,100);
+ bF.style.top=top+'px';bM.style.top=(top+66)+'px'}
+setInterval(posBtns,700);setTimeout(posBtns,100);
 
 /* ---------- หน้าต่างโซเชียล ---------- */
 const W=document.createElement('div');W.id='sow';W.hidden=true;W.innerHTML='<div class="sobx"><div class="sohd"><span id="sottl"></span><button aria-label="ปิด">✕</button></div><div class="sotb" id="sotb"></div><div class="sobd" id="sobd"></div></div>';document.body.appendChild(W);
@@ -7237,16 +7254,27 @@ async function loadFriends(){const c=await net();if(!c)return false;const {data,
  FR.friends.sort((a,b)=>(online(b.at)?1:0)-(online(a.at)?1:0)||b.bp-a.bp);incCount=FR.inc.length;badges();return true}
 async function renderF(){TB.innerHTML=[['list','👥 เพื่อน ('+FR.friends.length+')'],['req','📨 คำขอ'+(FR.inc.length?'<em>'+FR.inc.length+'</em>':'')],['add','➕ เพิ่มเพื่อน']].map(([k,t])=>`<button data-k="${k}" class="${ftab===k?'on':''}">${t}</button>`).join('');
  TB.querySelectorAll('button').forEach(b=>b.onclick=()=>{ftab=b.dataset.k;renderF()});
- if(ftab==='list'){BD.innerHTML=FR.friends.length?FR.friends.map(f=>`<div class="sorow"><span class="dot ${online(f.at)?'on':''}"></span><span class="nm" data-uid="${f.uid}"><b>${esc(f.name)}</b><small>Lv.${f.lv||1} · BP ${fmtN(f.bp||0)} · ${online(f.at)?'ออนไลน์':'ออฟไลน์'}</small></span><button class="sobtn" data-mail="${f.uid}" data-n="${esc(f.name)}">✉️</button><button class="sobtn g" data-del="${f.uid}">✕</button></div>`).join(''):'<div class="soemp">ยังไม่มีเพื่อน · กด "➕ เพิ่มเพื่อน" หรือกดชื่อผู้เล่นในแชท/อันดับบอสโลก</div>'}
+ if(ftab==='list'){BD.innerHTML=FR.friends.length?FR.friends.map(f=>`<div class="sorow"><span class="av" data-uid="${f.uid}">🧙<span class="dot ${online(f.at)?'on':''}"></span></span><span class="nm" data-uid="${f.uid}"><b>${esc(f.name)}</b><small>Lv.${f.lv||1} · BP ${fmtN(f.bp||0)} · ${online(f.at)?'ออนไลน์':'ออฟไลน์'}</small></span><button class="sobtn b" data-dm="${f.uid}">💬</button><button class="sobtn" data-mail="${f.uid}" data-n="${esc(f.name)}">✉️</button><button class="sobtn g" data-del="${f.uid}">✕</button></div>`).join(''):'<div class="soemp">ยังไม่มีเพื่อน · กด "➕ เพิ่มเพื่อน" หรือกดชื่อผู้เล่นในแชท/อันดับบอสโลก</div>'}
  else if(ftab==='req'){BD.innerHTML=(FR.inc.length?'<div class="pfh">คำขอเป็นเพื่อนที่ได้รับ</div>'+FR.inc.map(f=>`<div class="sorow"><span class="nm" data-uid="${f.uid}"><b>${esc(f.name)}</b><small>Lv.${f.lv||1} · BP ${fmtN(f.bp||0)}</small></span><button class="sobtn" data-acc="${f.uid}">ยอมรับ</button><button class="sobtn g" data-rej="${f.uid}">ปฏิเสธ</button></div>`).join(''):'<div class="soemp">ไม่มีคำขอใหม่</div>')+
   (FR.out.length?'<div class="pfh">คำขอที่ส่งไปแล้ว (รอตอบรับ)</div>'+FR.out.map(f=>`<div class="sorow"><span class="nm" data-uid="${f.uid}"><b>${esc(f.name)}</b><small>รอตอบรับ</small></span><button class="sobtn g" data-del="${f.uid}">ยกเลิก</button></div>`).join(''):'')}
- else{BD.innerHTML='<div class="pfh">เพิ่มเพื่อนด้วยไอดีผู้เล่น</div><div class="soin"><input id="soadd" maxlength="16" placeholder="ไอดีของเพื่อน เช่น dragon01" autocomplete="off"><button class="sobtn" id="soaddb">ส่งคำขอ</button></div><div class="somsg" id="soam"></div><div class="tkr" style="font-size:11px;color:#caa78a;text-align:center">ไอดีของคุณ: <b style="color:#ffd23f">'+esc(localStorage.getItem('ml_cur')||'-')+'</b> · ให้เพื่อนใช้ไอดีนี้แอดคุณ</div>';
-  const go=async()=>{const v=($('soadd').value||'').trim().toLowerCase();if(!v)return;$('soam').textContent='กำลังส่ง…';const r=await frReq({username:v});$('soam').textContent=r};
+ else{BD.innerHTML='<div class="pfh">ค้นหาเพื่อนด้วยชื่อตัวละคร</div><div class="soin"><input id="soadd" maxlength="16" placeholder="พิมพ์ชื่อตัวละครของเพื่อน" autocomplete="off"><button class="sobtn" id="soaddb">🔍 ค้นหา</button></div><div class="somsg" id="soam"></div><div id="sores"></div><div class="tkr" style="font-size:11px;color:#caa78a;text-align:center;margin-top:6px">ชื่อของคุณ: <b style="color:#ffd23f">'+esc(S.name||'-')+'</b> · ให้เพื่อนค้นหาด้วยชื่อนี้</div>';
+  const go=async()=>{const v=($('soadd').value||'').trim().replace(/[%_,()\\*]/g,'');if(!v){$('soam').textContent='พิมพ์ชื่อก่อน';return}
+   const c=await net();if(!c){$('soam').textContent='⚠️ ต้องเล่นแบบออนไลน์';return}
+   $('soam').textContent='กำลังค้นหา…';$('sores').innerHTML='';
+   const {data,error}=await c.sb.from('public_profiles').select('user_id,username,name,lv,bp,updated_at').ilike('name','%'+v+'%').order('bp',{ascending:false}).limit(20);
+   if(error){$('soam').textContent='ค้นหาไม่สำเร็จ ลองใหม่';return}
+   const rows=(data||[]).filter(r=>r.user_id!==c.u.id).sort((a,b)=>((b.name||'').toLowerCase()===v.toLowerCase())-((a.name||'').toLowerCase()===v.toLowerCase()));
+   if(!rows.length){$('soam').textContent='ไม่พบผู้เล่นชื่อ "'+v+'"';return}
+   $('soam').textContent='พบ '+rows.length+' คน';
+   const isF=u=>FR.friends.some(f=>f.uid===u),isO=u=>FR.out.some(f=>f.uid===u),isI=u=>FR.inc.some(f=>f.uid===u);
+   $('sores').innerHTML=rows.map(r=>`<div class="sorow"><span class="av" data-uid="${r.user_id}">🧙<span class="dot ${online(r.updated_at)?'on':''}"></span></span><span class="nm" data-uid="${r.user_id}"><b>${esc(r.name||'จอมยุทธ์')}</b><small>Lv.${r.lv||1} · BP ${fmtN(r.bp||0)} · ${online(r.updated_at)?'ออนไลน์':'ออฟไลน์'}</small></span>${isF(r.user_id)?'<button class="sobtn g" disabled>✓ เพื่อน</button>':isO(r.user_id)?'<button class="sobtn g" disabled>⏳ รอตอบ</button>':isI(r.user_id)?`<button class="sobtn" data-acc="${r.user_id}">ยอมรับ</button>`:`<button class="sobtn" data-addu="${r.user_id}">➕ แอด</button>`}</div>`).join('');
+   bindRows();
+   $('sores').querySelectorAll('[data-addu]').forEach(b=>b.onclick=async e=>{e.stopPropagation();b.disabled=true;b.textContent='…';const m=await frReq({uid:b.dataset.addu});$('soam').textContent=m;await loadFriends();b.textContent=FR.friends.some(f=>f.uid===b.dataset.addu)?'✓ เพื่อน':'⏳ รอตอบ';b.className='sobtn g'})};
   $('soaddb').onclick=go;$('soadd').addEventListener('keydown',e=>{if(e.key==='Enter')go()})}
  bindRows()}
 async function frReq(o){const c=await net();if(!c)return '⚠️ ต้องออนไลน์';const {data,error}=await c.sb.rpc('fr_request',{p_username:o.username||null,p_uid:o.uid||null});
- if(error)return '⚠️ '+(/not found/i.test(error.message)?'ไม่พบไอดีนี้':/self/i.test(error.message)?'แอดตัวเองไม่ได้':/already/i.test(error.message)?'เป็นเพื่อนกันอยู่แล้ว':'ส่งไม่สำเร็จ');
- await loadFriends();if(!W.hidden&&mode==='f')renderF();return data==='accepted'?'🤝 เป็นเพื่อนกันแล้ว!':'✅ ส่งคำขอเป็นเพื่อนแล้ว'}
+ if(error)return '⚠️ '+(/not found/i.test(error.message)?'ไม่พบผู้เล่นนี้':/self/i.test(error.message)?'แอดตัวเองไม่ได้':/already/i.test(error.message)?'เป็นเพื่อนกันอยู่แล้ว':'ส่งไม่สำเร็จ');
+ await loadFriends();if(!W.hidden&&mode==='f'&&ftab!=='add')renderF();return data==='accepted'?'🤝 เป็นเพื่อนกันแล้ว!':'✅ ส่งคำขอเป็นเพื่อนแล้ว'}
 async function frResp(uid,acc){const c=await net();if(!c)return;await c.sb.rpc('fr_respond',{p_from:uid,p_accept:acc});await loadFriends();renderF();if(acc)toast('🤝 เป็นเพื่อนกันแล้ว!')}
 async function frDel(uid){if(!confirm('ลบเพื่อน / ยกเลิกคำขอนี้?'))return;const c=await net();if(!c)return;await c.sb.rpc('fr_remove',{p_friend:uid});await loadFriends();renderF()}
 
@@ -7272,35 +7300,43 @@ async function readMail(id){const m=ML.find(x=>x.id===id);if(!m)return;
  bindRows();
  if(!m.mine&&!m.read){const c=await net();if(c){await c.sb.from('mails').update({read:true}).eq('id',m.id);m.read=true;unreadMail=ML.filter(x=>!x.mine&&!x.read).length;badges()}}}
 
-/* ---------- ดูข้อมูลผู้เล่น ---------- */
+/* ---------- ดูข้อมูลผู้เล่น (แบบหน้าตัวละครย่อ · ไม่แสดงสกิล) ---------- */
 async function openProfile(uid){if(!uid)return;P.hidden=false;const B=$('pfbd');B.innerHTML='<div class="soemp">กำลังโหลด…</div>';
  const c=await net();if(!c){B.innerHTML='<div class="soemp">⚠️ ต้องเชื่อมต่อออนไลน์</div>';return}
  if(uid===c.u.id)await publish(true);
  const {data,error}=await c.sb.from('public_profiles').select('user_id,username,name,lv,bp,data,updated_at').eq('user_id',uid).maybeSingle();
  if(error||!data){B.innerHTML='<div class="soemp">ยังไม่มีข้อมูลของผู้เล่นนี้<br><small>ข้อมูลจะขึ้นหลังผู้เล่นออนไลน์อย่างน้อย 1 ครั้ง</small></div>';return}
- const d=data.data||{},me=uid===c.u.id;if(!FR.friends.length&&!FR.out.length)await loadFriends();
+ const d=data.data||{},me=uid===c.u.id;if(!FR.friends.length&&!FR.out.length&&!FR.inc.length)await loadFriends();
  const isF=FR.friends.some(f=>f.uid===uid),isOut=FR.out.some(f=>f.uid===uid),isIn=FR.inc.some(f=>f.uid===uid);
- let av='';try{const base=document.querySelector('#hs svg.nh');if(base){const k=base.cloneNode(true);if(window.unFemNh)unFemNh(k);k.querySelectorAll('.n-wg').forEach(g=>g.innerHTML='');k.removeAttribute('style');if(d.sex==='f'&&window.femNh)femNh(k);av=k.outerHTML}}catch(e){}
- const eq=(d.eq||[]).map((e,i)=>{const sl=typeof SL!=='undefined'?SL[i]:{i:'❔',n:'ช่อง '+(i+1)};if(!e)return `<div><i>${sl.i}</i><span style="color:#776">${sl.n} · ว่าง</span></div>`;
-  const nm=(e.set!=null&&typeof SETS!=='undefined'&&SETS[e.set]&&SETS[e.set].pn)?SETS[e.set].pn[i]:(RN[e.t]||'')+' '+sl.n;
-  return `<div><i>${sl.i}</i><span style="flex:1;color:${RC[e.t]||'#fff'};font-weight:800">${esc(nm)}</span>${e.en?`<b style="color:#ffb347">+${e.en}</b>`:''}<small style="color:#caa78a">${esc(RN[e.t]||'')}</small></div>`}).join('');
- const st=d.st||{},stl=['str','agi','vit','int','dex','luk'].map(k=>`<div>${k.toUpperCase()}<b>${fmtN(st[k]||0)}</b></div>`).join('');
- B.innerHTML=`<div class="pfhd"><div class="pfav">${av}</div><div><b>${esc(d.name||data.name)}</b><small>ไอดี: ${esc(data.username||'-')}<br>Lv.${d.lv||data.lv} · ด่าน ${d.stage||1} · ${d.sex==='f'?'♀ หญิง':'♂ ชาย'}<br>⚡ BP <span style="color:#ffe066;font-weight:900">${fmtN(d.bp||data.bp||0)}</span><br><span style="color:${online(data.updated_at)?'#8aff9a':'#998'}">● ${online(data.updated_at)?'ออนไลน์':'ออนไลน์ล่าสุด '+ago(data.updated_at)}</span></small></div></div>
-  <div class="pfh">📊 ค่าพลัง</div><div class="pfst"><div>⚔️ พลังโจมตี<b>${fmtN(d.atk||0)}</b></div><div>❤️ HP<b>${fmtN(d.hp||0)}</b></div><div>🎯 คริติคอล<b>${d.crit||0}%</b></div><div>💨 ความเร็ว<b>x${d.spd||1}</b></div><div>🛡️ กันกายภาพ<b>${d.def||0}%</b></div><div>✨ กันเวท<b>${d.mdef||0}%</b></div></div>
-  <div class="pfh">💪 สเตตัส</div><div class="pfst" style="grid-template-columns:repeat(3,1fr)">${stl}</div>
-  <div class="pfh">🗡️ อุปกรณ์</div><div class="pfeq">${eq}</div>
-  <div class="pfh">🪽 ปีก & 🐾 สัตว์เลี้ยง</div><div class="pfeq"><div><i>🪽</i><span style="flex:1">${d.wg?esc(d.wgn||('ปีกขั้น '+d.wg)):'ยังไม่มีปีก'}</span>${d.wg?`<b style="color:#ffd23f">★${d.wl||0}</b>`:''}</div><div><i>🐾</i><span style="flex:1">${d.pet?esc(d.pet.n):'ยังไม่มีสัตว์เลี้ยง'}</span>${d.pet?`<b style="color:#ffd23f">Lv.${d.pet.lv}</b>`:''}</div></div>
-  ${me?'':`<div class="pfbt">${isF?`<button class="sobtn" id="pfml">✉️ ส่งจดหมาย</button><button class="sobtn g" id="pfdel">ลบเพื่อน</button>`:isIn?`<button class="sobtn" id="pfacc">🤝 ยอมรับคำขอ</button>`:isOut?`<button class="sobtn g" disabled>⏳ ส่งคำขอแล้ว</button>`:`<button class="sobtn" id="pfadd">➕ แอดเพื่อน</button>`}</div><div class="somsg" id="pfmsg"></div>`}`;
+ let av='';try{const base=document.querySelector('#hs svg.nh');if(base){const k=base.cloneNode(true);if(window.unFemNh)unFemNh(k);k.removeAttribute('style');
+   k.querySelectorAll('.n-wg').forEach(g=>{g.innerHTML='';try{if(d.wg&&typeof wingHero==='function')g.innerHTML='<g transform="translate(4 10)">'+wingHero(d.wg,false)+'</g>'}catch(e){}});
+   if(d.sex==='f'&&window.femNh)femNh(k);av=k.outerHTML}}catch(e){}
+ const slot=i=>{const e=(d.eq||[])[i],nm=typeof SL!=='undefined'?SL[i].n:'';let ic='',col='#5a4a3a',tag='ว่าง';
+  try{if(e){ic=gic(i,e,44);col=rcx(e);tag=e.set!=null?'เทพเจ้า':RN[e.t]}else ic=icon(i,0,44)}catch(_){ic='❔'}
+  return `<div class="sl" style="--c:${col}"><div class="fr ${e?'':'emp'}">${ic}</div><em>${esc(tag)}</em>${e&&e.en?`<span class="en">+${e.en}</span>`:''}<small>${esc(nm)}</small></div>`};
+ const NIc=k=>{try{return (typeof NI!=='undefined'&&NI[k])?NI[k].replace('<svg ','<svg width="40" height="42" '):''}catch(e){return ''}};
+ const wingSl=`<div class="sl" style="--c:${d.wg?'#7ad8ff':'#5a4a3a'}"><div class="fr ${d.wg?'':'emp'}">${NIc('wing')||'🪽'}</div><em>${d.wg?esc(d.wgn||'ปีก'):'ไม่มีปีก'}</em>${d.wg?`<span class="en">★${d.wl||0}</span>`:''}<small>ปีก</small></div>`;
+ let petIc='';try{const pp=d.pet&&typeof PT!=='undefined'?PT.find(x=>x.id===d.pet.id):null;petIc=pp&&typeof petSVG==='function'?petSVG(pp,46,d.pet.st||0):''}catch(e){}
+ const petSl=`<div class="sl" style="--c:${d.pet?(typeof PRC!=='undefined'&&PRC[d.pet.r])||'#ffb02e':'#5a4a3a'}"><div class="fr ${d.pet?'':'emp'}">${petIc||NIc('pet')||'🐾'}</div><em>${d.pet?esc(d.pet.n):'ไม่มี'}</em>${d.pet?`<span class="en">Lv${d.pet.lv}</span>`:''}<small>สัตว์เลี้ยง</small></div>`;
+ const st=d.st||{},S6=[['💪','STR','str'],['🌪️','AGI','agi'],['🛡️','VIT','vit'],['🔮','INT','int'],['🎯','DEX','dex'],['🍀','LUK','luk']];
+ B.innerHTML=`<div class="pfx"><div class="pft"><b>${esc(d.name||data.name)}</b><small>ไอดี ${esc(data.username||'-')} · Lv.${d.lv||data.lv} · ด่าน ${d.stage||1} · <span style="color:${online(data.updated_at)?'#8aff9a':'#998'}">● ${online(data.updated_at)?'ออนไลน์':ago(data.updated_at)}</span></small><span class="bp">⚡ BP ${fmtN(d.bp||data.bp||0)}</span></div>
+  <div class="grid"><div class="col">${[2,1,3].map(slot).join('')}</div><div class="hero">${av}</div><div class="col">${[0,4].map(slot).join('')}${petSl}</div></div>
+  <div class="grid" style="grid-template-columns:1fr;justify-items:center;margin-top:-4px">${wingSl}</div>
+  <div class="pfh">📊 ค่าพลัง</div><div class="stats"><div><i>⚔️</i>โจมตี<b>${fmtN(d.atk||0)}</b></div><div><i>❤️</i>HP<b>${fmtN(d.hp||0)}</b></div><div><i>🎯</i>คริ<b>${d.crit||0}%</b></div><div><i>💨</i>ความเร็ว<b>x${d.spd||1}</b></div><div><i>🛡️</i>กันกาย<b>${d.def||0}%</b></div><div><i>✨</i>กันเวท<b>${d.mdef||0}%</b></div></div>
+  <div class="pfh">💠 สเตตัส</div><div class="stats st6">${S6.map(([i,l,k])=>`<div><i>${i}</i>${l}<b>${fmtN(st[k]||0)}</b></div>`).join('')}</div>
+  ${me?'':`<div class="pfbt">${isF?`<button class="sobtn b" id="pfdm">💬 คุยส่วนตัว</button><button class="sobtn" id="pfml">✉️ จดหมาย</button><button class="sobtn g" id="pfdel">ลบ</button>`:isIn?`<button class="sobtn" id="pfacc">🤝 ยอมรับคำขอ</button>`:isOut?`<button class="sobtn g" disabled>⏳ ส่งคำขอแล้ว</button>`:`<button class="sobtn" id="pfadd">➕ แอดเพื่อน</button>`}</div><div class="somsg" id="pfmsg"></div>`}</div>`;
  if($('pfadd'))$('pfadd').onclick=async()=>{$('pfmsg').textContent='กำลังส่ง…';$('pfmsg').textContent=await frReq({uid});setTimeout(()=>openProfile(uid),900)};
  if($('pfacc'))$('pfacc').onclick=async()=>{await frResp(uid,true);openProfile(uid)};
  if($('pfdel'))$('pfdel').onclick=async()=>{await frDel(uid);openProfile(uid)};
- if($('pfml'))$('pfml').onclick=async()=>{P.hidden=true;await openSoc('m');mtab='new';renderM(uid)}}
+ if($('pfml'))$('pfml').onclick=async()=>{P.hidden=true;await openSoc('m');mtab='new';renderM(uid)};
+ if($('pfdm'))$('pfdm').onclick=()=>{P.hidden=true;W.hidden=true;window.openDM&&openDM(uid)}}
 window.openProfile=openProfile;
 
 function bindRows(){BD.querySelectorAll('[data-uid]').forEach(e=>e.onclick=()=>openProfile(e.dataset.uid));
  BD.querySelectorAll('[data-acc]').forEach(e=>e.onclick=()=>frResp(e.dataset.acc,true));
  BD.querySelectorAll('[data-rej]').forEach(e=>e.onclick=()=>frResp(e.dataset.rej,false));
  BD.querySelectorAll('[data-del]').forEach(e=>e.onclick=()=>frDel(e.dataset.del));
+ BD.querySelectorAll('[data-dm]').forEach(e=>e.onclick=()=>{W.hidden=true;window.openDM&&openDM(e.dataset.dm)});
  BD.querySelectorAll('[data-mail]').forEach(e=>e.onclick=()=>{mode='m';mtab='new';$('sottl').textContent='✉️ จดหมาย';renderM(e.dataset.mail)})}
 async function openSoc(m){mode=m;W.hidden=false;$('sottl').textContent=m==='f'?'👥 เพื่อน':'✉️ จดหมาย';TB.innerHTML='';BD.innerHTML='<div class="soemp">กำลังโหลด…</div>';
  const c=await net();if(!c){offline();return}
@@ -7322,6 +7358,103 @@ async function startRT(){if(rt)return;const c=await net();if(!c)return;rt=true;p
   .subscribe();
  setInterval(()=>{if(!document.hidden){loadFriends();loadMail()}},60000)}
 const iv=setInterval(()=>{if(!document.getElementById('ss')&&!window._hold){clearInterval(iv);setTimeout(startRT,2500)}},700);
+})();
+</script>
+<script>/* ================= แชทส่วนตัวกับเพื่อน (อยู่ในหน้าต่างแชทโลก) ================= */
+(function(){
+const w=document.getElementById('chw'),cb=document.getElementById('chb'),tk=document.getElementById('chtk');if(!w||!cb)return;
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function net(){const G=window.GameAuth;if(!G||G.mode==='local'||!G.ready||!(await G.ready))return null;const u=await G.user();return u?{sb:G.sb,u}:null}
+document.head.insertAdjacentHTML('beforeend',`<style>
+#chtabs{display:flex;gap:4px;padding:4px 6px;background:#1a0a04;border-bottom:1px solid #c8902a55}
+#chtabs button{flex:1;height:24px;border-radius:12px;border:1px solid #c8902a77;background:#0008;color:#e8d3a8;font:inherit;font-size:11.5px;font-weight:800;position:relative}
+#chtabs button.on{background:linear-gradient(#ffcf5a,#c8701a);color:#2a1004;border-color:#fff3b0}
+#chtabs em,#chb .dmb{position:absolute;top:-5px;right:-3px;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:#ff2d55;color:#fff;font-size:9.5px;font-style:normal;line-height:15px;font-weight:900;box-shadow:0 0 0 1.5px #fff}
+#chtabs em:empty,#chb .dmb:empty{display:none}
+#chb .dmb{left:-4px;right:auto;background:#a44dff}
+#dmv{flex:1;display:flex;flex-direction:column;min-height:0}#dmv[hidden]{display:none}
+#dmfr{display:flex;gap:5px;overflow-x:auto;padding:5px 6px;border-bottom:1px solid #c8902a33;scrollbar-width:none}
+#dmfr::-webkit-scrollbar{display:none}
+#dmfr button{flex:none;position:relative;display:flex;align-items:center;gap:4px;height:26px;padding:0 9px 0 4px;border-radius:13px;border:1px solid #c8902a66;background:#0009;color:#f2e6d0;font:inherit;font-size:11px;font-weight:700;max-width:110px}
+#dmfr button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#dmfr button i{font-style:normal;width:19px;height:19px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#6a3a1a,#1a0a04);border:1px solid #ffd23f;display:flex;align-items:center;justify-content:center;font-size:11px;position:relative}
+#dmfr button i.on::after{content:'';position:absolute;right:-2px;bottom:-2px;width:7px;height:7px;border-radius:50%;background:#3dff6a;box-shadow:0 0 0 1.5px #1a0a04}
+#dmfr button.on{background:linear-gradient(#7a3a10,#3a1606);border-color:#ffd23f;color:#ffe9a8}
+#dmfr button em{position:absolute;top:-4px;right:-3px;min-width:14px;height:14px;padding:0 3px;border-radius:7px;background:#ff2d55;color:#fff;font-size:9px;font-style:normal;line-height:14px;font-weight:900}
+#dml{flex:1;overflow-y:auto;padding:6px 8px;display:flex;flex-direction:column;gap:4px}
+#dml .bb{max-width:78%;padding:5px 9px;border-radius:12px 12px 12px 3px;background:#3a2412;border:1px solid #c8902a55;color:#f2e6d0;font-size:12.5px;line-height:1.4;word-break:break-word;align-self:flex-start}
+#dml .bb.me{align-self:flex-end;border-radius:12px 12px 3px 12px;background:linear-gradient(#2a5a8a,#173a5e);border-color:#7ad8ff66}
+#dml .bb small{display:block;font-size:9px;opacity:.6;margin-top:1px;text-align:right}
+#dml .emp{margin:auto;text-align:center;color:#c8a878;font-size:11.5px;line-height:1.6}
+#dmhd{display:flex;align-items:center;gap:6px;padding:3px 8px;font-size:11px;color:#ffe9a8;background:#0006}
+#dmhd b{cursor:pointer;text-decoration:underline dotted}#dmhd small{color:#a88;margin-left:auto}
+</style>`);
+/* แท็บ */
+const head=w.querySelector('.ch-h'),L=document.getElementById('chl'),form=w.querySelector('form'),inp=form.querySelector('input');
+head.insertAdjacentHTML('afterend','<div id="chtabs"><button data-t="w" class="on">🌍 แชทโลก</button><button data-t="d">💬 ส่วนตัว<em id="dmtb"></em></button></div>');
+L.insertAdjacentHTML('afterend','<div id="dmv" hidden><div id="dmfr"></div><div id="dmhd"></div><div id="dml"></div></div>');
+cb.insertAdjacentHTML('beforeend','<span class="dmb" id="dmcb"></span>');
+const T=document.getElementById('chtabs'),V=document.getElementById('dmv'),FRB=document.getElementById('dmfr'),HD=document.getElementById('dmhd'),ML=document.getElementById('dml');
+const ttl=head.firstChild;
+let mode='w',peer=null,friends=[],msgs=[],me=null,sb=null,seen={},lastSend=0,started=false;
+const SK=()=>'ml_dmseen_'+(me||'');
+function loadSeen(){try{seen=JSON.parse(localStorage.getItem(SK())||'{}')}catch(e){seen={}}}
+function saveSeen(){try{localStorage.setItem(SK(),JSON.stringify(seen))}catch(e){}}
+const online=t=>t&&Date.now()-new Date(t).getTime()<180000;
+const unreadOf=u=>msgs.filter(m=>m.from_id===u&&m.to_id===me&&m.id>(seen[u]||0)).length;
+function totalUnread(){return friends.reduce((a,f)=>a+unreadOf(f.uid),0)}
+function badges(){const n=totalUnread(),s=n?(n>99?'99+':String(n)):'';document.getElementById('dmtb').textContent=s;document.getElementById('dmcb').textContent=s}
+function setMode(m){mode=m;T.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.t===m));
+ L.hidden=m!=='w';L.style.display=m==='w'?'':'none';V.hidden=m!=='d';
+ if(ttl&&ttl.nodeType===3)ttl.textContent=m==='w'?'💬 แชทโลก':'💌 แชทส่วนตัว';
+ if(m==='d'&&!peer&&friends.length)peer=(friends.find(f=>unreadOf(f.uid))||friends[0]).uid;
+ inp.placeholder=m==='w'?'พิมพ์ข้อความ...':(peer?'ส่งถึง '+((friends.find(f=>f.uid===peer)||{}).name||'เพื่อน')+'...':'เลือกเพื่อนก่อน');
+ if(m==='d')render()}
+T.querySelectorAll('button').forEach(b=>b.onclick=e=>{e.stopPropagation();setMode(b.dataset.t);if(b.dataset.t==='d')refresh()});
+const tm=t=>{try{const d=new Date(t);return d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})}catch(e){return''}};
+function render(){
+ if(!me){FRB.innerHTML='';HD.innerHTML='';ML.innerHTML='<div class="emp">💌 แชทส่วนตัวใช้ได้เมื่อเล่นแบบออนไลน์</div>';return}
+ if(!friends.length){FRB.innerHTML='';HD.innerHTML='';ML.innerHTML='<div class="emp">ยังไม่มีเพื่อน<br>กดชื่อผู้เล่นในแชทโลกแล้วกด ➕ แอดเพื่อน</div>';return}
+ FRB.innerHTML=friends.map(f=>{const n=unreadOf(f.uid);return `<button data-p="${esc(f.uid)}" class="${f.uid===peer?'on':''}"><i class="${online(f.at)?'on':''}">🧙</i><span>${esc(f.name)}</span>${n?`<em>${n}</em>`:''}</button>`}).join('');
+ FRB.querySelectorAll('button').forEach(b=>b.onclick=e=>{e.stopPropagation();peer=b.dataset.p;setMode('d')});
+ const f=friends.find(x=>x.uid===peer);
+ if(!f){HD.innerHTML='';ML.innerHTML='<div class="emp">เลือกเพื่อนด้านบนเพื่อเริ่มคุย</div>';return}
+ HD.innerHTML=`💬 คุยกับ <b data-uid="${esc(f.uid)}">${esc(f.name)}</b> <span>Lv.${f.lv||1}</span><small>${online(f.at)?'🟢 ออนไลน์':'⚪ ออฟไลน์'}</small>`;
+ const conv=msgs.filter(m=>(m.from_id===peer&&m.to_id===me)||(m.from_id===me&&m.to_id===peer)).sort((a,b)=>a.id-b.id).slice(-60);
+ ML.innerHTML=conv.length?conv.map(m=>`<div class="bb ${m.from_id===me?'me':''}">${esc(m.text)}<small>${tm(m.created_at)}</small></div>`).join(''):`<div class="emp">เริ่มบทสนทนากับ ${esc(f.name)} ได้เลย 👋</div>`;
+ ML.scrollTop=ML.scrollHeight;
+ if(!w.hidden){const mx=conv.reduce((a,m)=>m.from_id===peer?Math.max(a,m.id):a,0);if(mx>(seen[peer]||0)){seen[peer]=mx;saveSeen()}}
+ badges();
+ FRB.querySelectorAll('button').forEach(b=>{if(b.dataset.p===peer){const e=b.querySelector('em');if(e)e.remove()}})}
+HD.addEventListener('click',e=>{const t=e.target.closest('[data-uid]');if(t&&window.openProfile){e.stopPropagation();openProfile(t.dataset.uid)}});
+async function loadFriends(){if(!sb)return;try{const {data}=await sb.rpc('fr_list');friends=(data||[]).filter(r=>r.kind==='friend').map(r=>({uid:r.uid,name:r.name||r.username||'จอมยุทธ์',lv:r.lv,at:r.updated_at}));
+ friends.sort((a,b)=>(online(b.at)?1:0)-(online(a.at)?1:0))}catch(e){}}
+async function loadMsgs(){if(!sb)return;try{const {data}=await sb.from('dm_messages').select('id,from_id,to_id,from_name,text,created_at').or(`from_id.eq.${me},to_id.eq.${me}`).order('id',{ascending:false}).limit(300);if(data)msgs=data}catch(e){}}
+async function refresh(){if(!sb)return;await Promise.all([loadFriends(),loadMsgs()]);badges();if(mode==='d')setMode('d')}
+function ticker(name,text){if(!tk||!w.hidden&&mode==='d')return;tk.innerHTML=`💌 <b>${esc(name)}</b>: ${esc(text).slice(0,40)}`;tk.classList.add('on');clearTimeout(tk._t);tk._t=setTimeout(()=>tk.classList.remove('on'),4000)}
+function onMsg(r){if(!r||msgs.some(m=>m.id===r.id))return;msgs.unshift(r);
+ if(!friends.some(f=>f.uid===r.from_id))loadFriends().then(()=>{badges();if(mode==='d'&&!w.hidden)render()});
+ if(mode==='d'&&!w.hidden&&peer===r.from_id)render();else{badges();if(mode==='d'&&!w.hidden)render();ticker(r.from_name||'เพื่อน',r.text)}}
+/* ส่งข้อความ: ดักก่อนตัวส่งของแชทโลก */
+w.addEventListener('submit',async e=>{if(mode!=='d')return;e.preventDefault();e.stopPropagation();
+ const t=inp.value.trim().slice(0,200);if(!t)return;if(!me){render();return}
+ if(!peer){ML.innerHTML='<div class="emp">เลือกเพื่อนก่อนส่งข้อความ</div>';return}
+ if(Date.now()-lastSend<800)return;lastSend=Date.now();inp.value='';
+ const row={from_id:me,to_id:peer,from_name:(S.name||'จอมยุทธ์').slice(0,16),text:t};
+ const tmp=Object.assign({id:1e15+Date.now(),created_at:new Date().toISOString(),_tmp:1},row);msgs.unshift(tmp);render();
+ const {error}=await sb.from('dm_messages').insert(row);
+ if(error){msgs=msgs.filter(m=>m!==tmp);render();ML.insertAdjacentHTML('beforeend','<div class="emp" style="margin:4px auto;color:#ff8a8a">ส่งไม่สำเร็จ (ต้องเป็นเพื่อนกันก่อน)</div>');return}
+ await loadMsgs();render()},true);
+/* เปิดคุยจากหน้าเพื่อน/โปรไฟล์ */
+window.openDM=async function(uid){w.hidden=false;try{cb.querySelector('em').textContent=''}catch(e){}
+ peer=uid;setMode('d');if(!friends.some(f=>f.uid===uid))await refresh();setMode('d');setTimeout(()=>inp.focus(),50)};
+/* เวลาเปิดหน้าต่างแชท ให้รีเฟรชถ้าอยู่แท็บส่วนตัว */
+cb.addEventListener('click',()=>{setTimeout(()=>{if(!w.hidden&&mode==='d')render()},0)});
+async function start(){if(started)return;const c=await net();if(!c){render();return}started=true;sb=c.sb;me=c.u.id;loadSeen();await refresh();
+ try{sb.channel('dm_'+me).on('postgres_changes',{event:'INSERT',schema:'public',table:'dm_messages',filter:'to_id=eq.'+me},p=>onMsg(p.new)).subscribe()}catch(e){}
+ setInterval(()=>{if(!document.hidden)refresh()},45000)}
+const iv=setInterval(()=>{if(!document.getElementById('ss')&&!window._hold){clearInterval(iv);setTimeout(start,3000)}},700);
+window._dmDebug={refresh,onMsg,get mode(){return mode}};
 })();
 </script>
 </body></html>
