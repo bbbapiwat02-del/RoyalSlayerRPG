@@ -7338,7 +7338,8 @@ const fashBox=(x,list,ic,lab)=>{const o=x&&list?list.find(q=>q.id===x.id):null;r
   <div class="pfh">👘 แฟชั่นที่สวมใส่</div><div class="stats" style="grid-template-columns:1fr 1fr">${fashBox(d.fsx,typeof FS!=='undefined'?FS:null,'👘','ชุดแฟชั่น')}${fashBox(d.wsx,typeof WSK!=='undefined'?WSK:null,'🗡️','อาวุธแฟชั่น')}</div><div class="pfh">📊 ค่าพลัง</div><div class="stats"><div><i>⚔️</i>โจมตี<b>${fmtN(d.atk||0)}</b></div><div><i>❤️</i>HP<b>${fmtN(d.hp||0)}</b></div><div><i>🎯</i>คริ<b>${d.crit||0}%</b></div><div><i>💨</i>ความเร็ว<b>x${d.spd||1}</b></div><div><i>🛡️</i>กันกาย<b>${d.def||0}%</b></div><div><i>✨</i>กันเวท<b>${d.mdef||0}%</b></div></div>
   <div class="pfh">💠 สเตตัส</div><div class="stats st6">${S6.map(([i,l,k])=>`<div><i>${i}</i>${l}<b>${fmtN(st[k]||0)}</b></div>`).join('')}</div>
   ${me?'':`<div class="pfbt">${isF?`<button class="sobtn b" id="pfdm">💬 คุยส่วนตัว</button><button class="sobtn" id="pfml">✉️ จดหมาย</button><button class="sobtn g" id="pfdel">ลบ</button>`:isIn?`<button class="sobtn" id="pfacc">🤝 ยอมรับคำขอ</button>`:isOut?`<button class="sobtn g" disabled>⏳ ส่งคำขอแล้ว</button>`:`<button class="sobtn" id="pfadd">➕ แอดเพื่อน</button>`}</div><div class="somsg" id="pfmsg"></div>`}</div>`;
- if($('pfadd'))$('pfadd').onclick=async()=>{$('pfmsg').textContent='กำลังส่ง…';$('pfmsg').textContent=await frReq({uid});setTimeout(()=>openProfile(uid),900)};
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{try{window.pfAlign&&pfAlign()}catch(e){}}));
+  if($('pfadd'))$('pfadd').onclick=async()=>{$('pfmsg').textContent='กำลังส่ง…';$('pfmsg').textContent=await frReq({uid});setTimeout(()=>openProfile(uid),900)};
  if($('pfacc'))$('pfacc').onclick=async()=>{await frResp(uid,true);openProfile(uid)};
  if($('pfdel'))$('pfdel').onclick=async()=>{await frDel(uid);openProfile(uid)};
  if($('pfml'))$('pfml').onclick=async()=>{P.hidden=true;await openSoc('m');mtab='new';renderM(uid)};
@@ -8249,7 +8250,7 @@ window.pfHsStyle=function(hero){
  const relevant=sel=>/#hero(?![\w-])/.test(sel)
   ||[...sel.matchAll(/#([A-Za-z_][\w-]*)/g)].some(m=>ids.has(m[1]))
   ||[...sel.matchAll(/\.([A-Za-z_][\w-]*)/g)].some(m=>classes.has(m[1]));
- let css='.pfhero{position:relative;width:240px;height:260px;margin:0 auto}\n.pfhero #pv_hs{translate:13px -44px}\n';
+ let css='.pfhero{position:relative;width:240px;height:260px;margin:0 auto}\n.pfhero #pv_hs{translate:22px -52px}\n';
  for(const sh of document.styleSheets){
   let rules;try{rules=sh.cssRules}catch(e){continue}
   for(const r of rules){
@@ -8302,6 +8303,28 @@ window.pfRenderHero=function(d){
  }
  window._pfLastHero=out;
  return out;
+};
+</script>
+<script>
+/* จัดออร่าให้ตรงตัวละคร: วัดตำแหน่งขาของตัวละครจริง แล้วเลื่อนชั้นออร่าให้กึ่งกลางอยู่ใต้เท้า */
+window.pfAlign=function(){
+ const box=document.querySelector('#pfbd .pfhero');if(!box)return;
+ const body=box.querySelector('#pv_hs');if(!body)return;
+ const legs=[...body.querySelectorAll('.leg')];
+ const src=legs.length?legs:[body.querySelector('svg')];
+ const br=src.filter(Boolean).map(e=>e.getBoundingClientRect()).filter(r=>r.width>0&&r.height>0);
+ if(!br.length)return;
+ const bB=Math.max(...br.map(r=>r.bottom));
+ const cx=(Math.min(...br.map(r=>r.left))+Math.max(...br.map(r=>r.right)))/2;
+ const layers=['#pv_fsau','#pv_wsau','.enaura','.hglow'].map(q=>box.querySelector(q)).filter(Boolean);
+ if(!layers.length)return;
+ layers.forEach(e=>e.style.translate='0px 0px');
+ const ar=layers.map(e=>e.getBoundingClientRect()).filter(r=>r.width>0&&r.height>0);
+ if(!ar.length)return;
+ const ax=(Math.min(...ar.map(r=>r.left))+Math.max(...ar.map(r=>r.right)))/2;
+ const ay=(Math.min(...ar.map(r=>r.top))+Math.max(...ar.map(r=>r.bottom)))/2;
+ const dx=cx-ax,dy=bB-ay;
+ layers.forEach(e=>{e.style.translate=dx.toFixed(1)+'px '+dy.toFixed(1)+'px'});
 };
 </script>
 </body></html>
