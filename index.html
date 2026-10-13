@@ -8310,21 +8310,23 @@ window.pfRenderHero=function(d){
 window.pfAlign=function(){
  const box=document.querySelector('#pfbd .pfhero');if(!box)return;
  const body=box.querySelector('#pv_hs');if(!body)return;
- const legs=[...body.querySelectorAll('.leg')];
- const src=legs.length?legs:[body.querySelector('svg')];
- const br=src.filter(Boolean).map(e=>e.getBoundingClientRect()).filter(r=>r.width>0&&r.height>0);
- if(!br.length)return;
- const bB=Math.max(...br.map(r=>r.bottom));
- const cx=(Math.min(...br.map(r=>r.left))+Math.max(...br.map(r=>r.right)))/2;
- const layers=['#pv_fsau','#pv_wsau','.enaura','.hglow'].map(q=>box.querySelector(q)).filter(Boolean);
- if(!layers.length)return;
- layers.forEach(e=>e.style.translate='0px 0px');
- const ar=layers.map(e=>e.getBoundingClientRect()).filter(r=>r.width>0&&r.height>0);
- if(!ar.length)return;
- const ax=(Math.min(...ar.map(r=>r.left))+Math.max(...ar.map(r=>r.right)))/2;
- const ay=(Math.min(...ar.map(r=>r.top))+Math.max(...ar.map(r=>r.bottom)))/2;
- const dx=cx-ax,dy=bB-ay;
- layers.forEach(e=>{e.style.translate=dx.toFixed(1)+'px '+dy.toFixed(1)+'px'});
+ const sv=body.querySelector('svg.nh')||body.querySelector('svg');if(!sv)return;
+ const sr=sv.getBoundingClientRect();if(!sr.width||!sr.height)return;
+ /* จุดกึ่งกลางใต้เท้า: กลางตัวละครในแนวนอน และใกล้ฐานล่างของตัว */
+ const cx=(sr.left+sr.right)/2;
+ const cy=sr.bottom-sr.height*0.06;
+ const ringSel=['#pv_fsau','#pv_wsau','.enaura'];
+ const allSel=[...ringSel,'.hglow'];
+ const all=allSel.map(q=>box.querySelector(q)).filter(Boolean);
+ if(!all.length)return;
+ all.forEach(e=>{e.style.translate='0px 0px'});
+ const ring=ringSel.map(q=>box.querySelector(q)).filter(Boolean).map(e=>e.getBoundingClientRect()).filter(r=>r.width>0&&r.height>0);
+ const ref=ring.length?ring:all.map(e=>e.getBoundingClientRect()).filter(r=>r.width>0&&r.height>0);
+ if(!ref.length)return;
+ const ax=(Math.min(...ref.map(r=>r.left))+Math.max(...ref.map(r=>r.right)))/2;
+ const ay=(Math.min(...ref.map(r=>r.top))+Math.max(...ref.map(r=>r.bottom)))/2;
+ const dx=cx-ax,dy=cy-ay;
+ all.forEach(e=>{e.style.translate=dx.toFixed(1)+'px '+dy.toFixed(1)+'px'});
 };
 </script>
 </body></html>
