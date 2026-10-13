@@ -1371,7 +1371,7 @@ function eggSVG(c){return `<svg class="egg" id="eggs" viewBox="0 0 60 80" width=
 function stageHTML(c,inner){return `<div class="beam"></div><div class="plat"></div><div class="plat2"></div>`+Array.from({length:9},(_,i)=>`<i class="mt" style="left:${14+i*9}%;animation-delay:${(i*.37).toFixed(2)}s;animation-duration:${(2.4+i%3*.7).toFixed(1)}s"></i>`).join('')+`<div class="pbig">${inner}</div>`}
 function hatch(){
  if(hatching)return;const free=(S.egg||0)>0,c=eggCost();if(!free&&S.gold<c)return;
- hatching=true;if(free)S.egg--;else S.gold-=c;S.hc=(S.hc||0)+1;
+ hatching=true;if(free)S.egg--;else S.gold-=c;S.hc=(S.hc||0)+1;S.hpr=(S.hpr||0)+1;
  let r=0,rr=hRoll();if((S.pity||0)>=29)rr=Math.random()<.786?3:4;S.pity=rr>=3?0:(S.pity||0)+1;S.pm=(S.pm||0)+1;if(S.pm>=100&&rr<5)rr=PMR();if(rr>=5)S.pm=0;
  const pool=PT.filter(x=>x.r===rr),p=pool[Math.floor(Math.random()*pool.length)],rc=PRC[rr],dupe=!!S.pets[p.id];
  $('pst').style.setProperty('--c0','#f5b83d');$('pst').innerHTML=stageHTML('#f5b83d',eggSVG(rc));$('pti').innerHTML='';
@@ -2000,7 +2000,7 @@ function eggTotal(n){let e=S.egg||0,hc=S.hc||0,t=0;for(let i=0;i<n;i++){if(e>0)e
 function hatchMulti(n){
  if(hatching)return;const tot=eggTotal(n);if(S.gold<tot)return;hatching=true;
  const res=[];
- for(let i=0;i<n;i++){const free=(S.egg||0)>0,c=eggCost();if(free)S.egg--;else S.gold-=c;S.hc=(S.hc||0)+1;
+ for(let i=0;i<n;i++){const free=(S.egg||0)>0,c=eggCost();if(free)S.egg--;else S.gold-=c;S.hc=(S.hc||0)+1;S.hpr=(S.hpr||0)+1;
   let r=0,rr=hRoll();if((S.pity||0)>=29)rr=Math.random()<.786?3:4;S.pity=rr>=3?0:(S.pity||0)+1;S.pm=(S.pm||0)+1;if(S.pm>=100&&rr<5)rr=PMR();if(rr>=5)S.pm=0;
   const pool=PT.filter(x=>x.r===rr),p=pool[Math.floor(Math.random()*pool.length)],dupe=!!S.pets[p.id];
   if(dupe)S.pets[p.id].sh=(S.pets[p.id].sh||0)+1;else{S.pets[p.id]={lv:1,st:0,sh:0};if(!S.pet)S.pet=p.id}
@@ -3005,7 +3005,7 @@ const _rshE=renderShop;renderShop=function(){_rshE();const b=document.querySelec
 
 /* ================= สกิลใหม่ + ระดับสกิลใหม่ (เซียน/อมตะ) ================= */
 
-rollSk=function(){let r=Math.random()*100,rr=0;for(;rr<SW.length-1;rr++){r-=SW[rr];if(r<0)break}while(rr>0&&SW[rr]===0)rr--;
+rollSk=function(){S.spr=(S.spr||0)+1;let r=Math.random()*100,rr=0;for(;rr<SW.length-1;rr++){r-=SW[rr];if(r<0)break}while(rr>0&&SW[rr]===0)rr--;
  if((S.skp||0)>=39&&rr<3){const t=SW.slice(3).reduce((a,b)=>a+b);let q=Math.random()*t;rr=3;for(;rr<SW.length-1;rr++){q-=SW[rr];if(q<0)break}while(rr>3&&SW[rr]===0)rr--}
  S.skp=rr>=3?0:(S.skp||0)+1;let pool=SK.filter(x=>x.r===rr);if(!pool.length)pool=SK.filter(x=>x.r<=rr);return pool[Math.floor(Math.random()*pool.length)]};
 renderSv=function(){
@@ -8040,14 +8040,13 @@ button.g.gx .gn{font-size:19px!important}button.g.gx .gp{font-size:13.5px!import
 </style>`)</script>
 <script>
 (function(){
- const hcost=()=>Math.floor(400*Math.pow(1.35,(S.hl||1)-1));
+ const need=L=>Math.round(60*Math.pow(1.12,L-1)+20*(L-1));
  const prev=renderPt;
  renderPt=function(){prev.apply(this,arguments);try{
   const box=$('podds');if(!box)return;
-  const L=S.hl||1,MX=40,c=hcost();
+  const L=S.hl||1,MX=40,h=S.hpr||0,nd=need(L);
   const nxt=[];for(let t=2;t<HPW.length&&nxt.length<2;t++)if(HBU(t)>L)nxt.push(`🔒 ${PRN[t]||'ระดับ'+t} ปลดล็อกที่ระดับฟัก Lv.${HBU(t)}`);
-  box.insertAdjacentHTML('beforeend',`<div class="icard" style="margin-top:6px;text-align:center"><b>🔮 ระดับการฟัก Lv.${L}/${MX}</b><br><small>ยิ่งระดับสูง ระดับสัตว์หายากยิ่งมีโอกาสมากขึ้น (เหมือนระดับหีบอุปกรณ์)</small>${nxt.map(x=>'<br><small>'+x+'</small>').join('')}<button class="up" id="hlv" style="justify-content:center;font-weight:700;margin-top:6px" ${L>=MX||S.gold<c?'disabled':''}>⬆️ อัประดับการฟัก ${L>=MX?'MAX':'🪙 '+fmt(c)}</button></div>`);
-  const b=$('hlv');if(b)b.onclick=()=>{if(S.gold<hcost()||(S.hl||1)>=MX)return;S.gold-=hcost();S.hl=(S.hl||1)+1;sfx('up');banner('🔮 ระดับการฟัก '+S.hl+'!');renderPt()};
+  box.insertAdjacentHTML('beforeend',`<div class="icard" style="margin-top:6px;text-align:center"><b>🔮 ระดับการฟัก Lv.${L}/${MX}</b><br><small>ยิ่งระดับสูง ระดับสัตว์หายากยิ่งมีโอกาสมากขึ้น (เหมือนระดับหีบ)</small>${nxt.map(x=>'<br><small>'+x+'</small>').join('')}<div class="up" style="justify-content:center;font-weight:700;margin-top:6px">${L>=MX?'MAX':'🥚 ความคืบหน้า → Lv '+(L+1)+' · ฟักแล้ว '+h+'/'+nd+' ครั้ง'}</div></div>`);
  }catch(e){}};
 })();
 </script>
@@ -8062,11 +8061,9 @@ button.g.gx .gn{font-size:19px!important}button.g.gx .gp{font-size:13.5px!import
  const oRoll=rollSk;rollSk=function(){applySW();return oRoll.apply(this,arguments)};
  const oSk=renderSk;renderSk=function(){applySW();oSk.apply(this,arguments);try{
   const box=$('sodds');if(!box)return;
-  const L=S.sl||1,MX=40,c=sclCost();
+  const L=S.sl||1,MX=40,need=L2=>Math.round(60*Math.pow(1.12,L2-1)+20*(L2-1)),nd=need(L);
   const nxt=[];for(let t=0;t<SW.length&&nxt.length<2;t++)if(SKBU[t]>L)nxt.push(`🔒 ${RN[t]||'ระดับ'+t} ปลดล็อกที่ระดับหอ Lv.${SKBU[t]}`);
-  box.insertAdjacentHTML('beforeend',`<div class="icard" style="margin-top:6px;text-align:center"><b>📜 ระดับหอคัมภีร์ Lv.${L}/${MX}</b><br><small>ยิ่งระดับสูง ระดับสกิลหายากยิ่งมีโอกาสมากขึ้น (เหมือนระดับหีบอุปกรณ์)</small>${nxt.map(x=>'<br><small>'+x+'</small>').join('')}<button class="up" id="slv" style="justify-content:center;font-weight:700;margin-top:6px" ${L>=MX||S.gold<c?'disabled':''}>⬆️ อัประดับหอคัมภีร์ ${L>=MX?'MAX':'🪙 '+fmt(c)}</button></div>`);
-  const b=$('slv');if(b)b.onclick=()=>{if(S.gold<sclCost()||(S.sl||1)>=MX)return;S.gold-=sclCost();S.sl=(S.sl||1)+1;applySW();sfx('up');banner('📜 ระดับหอคัมภีร์ '+S.sl+'!');renderSk()};
- }catch(e){}};
+  box.insertAdjacentHTML('beforeend',`<div class="icard" style="margin-top:6px;text-align:center"><b>📜 ระดับหอคัมภีร์ Lv.${L}/${MX}</b><br><small>ยิ่งระดับสูง ระดับสกิลหายากยิ่งมีโอกาสมากขึ้น (เหมือนระดับหีบ)</small>${nxt.map(x=>'<br><small>'+x+'</small>').join('')}<div class="up" style="justify-content:center;font-weight:700;margin-top:6px">${L>=MX?'MAX':'📜 ความคืบหน้า → Lv '+(L+1)+' · สุ่มแล้ว '+(S.spr||0)+'/'+nd+' ครั้ง'}</div></div>`); }catch(e){}};
  applySW();
 })();
 </script>
@@ -8118,7 +8115,8 @@ button.g.gx .gn{font-size:19px!important}button.g.gx .gp{font-size:13.5px!import
   if(field==='stage'){S.kills=0;try{spawn()}catch(e){}}
   if(field==='chest')S.cpr=0;
   if(field==='lv')S.exp=0;
-  if(field==='sl')try{applySW()}catch(e){}
+  if(field==='hl')S.hpr=0;
+  if(field==='sl'){S.spr=0;try{window.applySW&&window.applySW()}catch(e){}}
   return field+' = '+value;
  }
  async function online(){
@@ -8175,6 +8173,21 @@ button.g.gx .gn{font-size:19px!important}button.g.gx .gp{font-size:13.5px!import
   const p=(cmd==='give'||cmd==='add')?give(t.slice(2)):run(cmd,t.slice(2));
   p.catch(e=>say('❌ GM: '+(e&&e.message||e),true));
  },true);
+})();
+</script>
+<script>
+/* ระดับการฟักและระดับหอคัมภีร์ อัปด้วยจำนวนครั้งที่ทำ (ไม่ใช้เหรียญ) */
+(function(){
+ const need=L=>Math.round(60*Math.pow(1.12,L-1)+20*(L-1));
+ let last='';
+ setInterval(()=>{
+  while((S.hl||1)<40&&(S.hpr||0)>=need(S.hl||1)){S.hpr-=need(S.hl||1);S.hl=(S.hl||1)+1;try{banner('🔮 ระดับการฟัก Lv.'+S.hl+'!')}catch(e){}}
+  if((S.hl||1)>=40)S.hpr=0;
+  while((S.sl||1)<40&&(S.spr||0)>=need(S.sl||1)){S.spr-=need(S.sl||1);S.sl=(S.sl||1)+1;try{window.applySW&&window.applySW();banner('📜 ระดับหอคัมภีร์ Lv.'+S.sl+'!')}catch(e){}}
+  if((S.sl||1)>=40)S.spr=0;
+  const k=[S.hl,S.hpr,S.sl,S.spr].join('|');
+  if(k!==last){last=k;const pw=$('ptw'),sw=$('skw');if(pw&&!pw.hidden){try{renderPt()}catch(e){}}if(sw&&!sw.hidden){try{renderSk()}catch(e){}}}
+ },400);
 })();
 </script>
 </body></html>
