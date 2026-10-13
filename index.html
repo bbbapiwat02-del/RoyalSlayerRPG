@@ -8100,6 +8100,13 @@ button.g.gx .gn{font-size:19px!important}button.g.gx .gp{font-size:13.5px!import
  const form=document.querySelector('#chw form'),inp=document.querySelector('#chw input'),win=document.getElementById('chw');
  if(!form||!inp||!win)return;
  const HELP='คำสั่ง: gold N · dia N · keys N · tk N · egg N · skf N · stage N · chest N · lv N · hl N · sl N · heal';
+ /* แสดงผลเฉพาะในเครื่องผู้ใช้ (ไม่ส่งออกไปแชทโลก) และบันทึกลงคอนโซลด้วย */
+ function say(msg,err){
+  try{banner(msg)}catch(e){}
+  const L=document.getElementById('chl');
+  if(L){const d=document.createElement('div');d.className='sys';d.textContent='🛠 '+msg;L.appendChild(d);L.scrollTop=L.scrollHeight}
+  (err?console.error:console.log)('[GM] '+msg);
+ }
  const refresh=()=>{try{render()}catch(e){}try{renderGear()}catch(e){}try{renderShop()}catch(e){}};
  const FIELD={gold:'gold',diamonds:'diamonds',keys:'keys',tk:'tk',egg:'egg',skf:'skf',stage:'stage',chest:'chest',lv:'lv',hl:'hl',sl:'sl'};
  /* นำค่าที่เซิร์ฟเวอร์ยืนยันแล้วไปใช้กับเซฟในเครื่อง (การบันทึกปกติจะส่งขึ้นเซิร์ฟเวอร์เอง) */
@@ -8115,14 +8122,15 @@ button.g.gx .gn{font-size:19px!important}button.g.gx .gp{font-size:13.5px!import
  }
  async function run(cmd,args){
   const GA=window.GameAuth;
-  if(!GA||GA.mode==='local'||!GA.ready||!(await GA.ready)||!GA.sb){banner('❌ GM: ต้องเล่นแบบออนไลน์');return}
+  console.log('[GM] run',cmd,args);
+  if(!GA||GA.mode==='local'||!GA.ready||!(await GA.ready)||!GA.sb){say('❌ GM: ต้องเล่นแบบออนไลน์');return}
   let res;
-  try{res=await GA.sb.rpc('gm_command',{p_cmd:cmd,p_args:args})}catch(e){banner('❌ GM: เชื่อมต่อไม่ได้');return}
+  try{res=await GA.sb.rpc('gm_command',{p_cmd:cmd,p_args:args})}catch(e){say('❌ GM: เชื่อมต่อไม่ได้ '+(e&&e.message||''),true);return}
   const {data,error}=res||{};
-  if(error){banner('❌ GM: '+(/not authorized/i.test(error.message||'')?'ไม่มีสิทธิ์':'คำสั่งไม่ถูกต้อง'));return}
+  if(error){const m=error.message||'';say('❌ GM: '+(/not authorized/i.test(m)?'ไม่มีสิทธิ์ (บัญชีนี้ไม่ได้เป็นแอดมิน)':'ผิดพลาด: '+m),true);return}
   const msg=apply(data.field,data.value);
   refresh();
-  banner('🛠 GM: '+msg);
+  say('🛠 GM: '+msg);
  }
  /* ดักก่อนส่งข้อความ: ถ้าเป็นคำสั่ง GM จะไม่ส่งเข้าแชทและไม่แสดงในแชท */
  win.addEventListener('submit',e=>{
@@ -8133,8 +8141,8 @@ button.g.gx .gn{font-size:19px!important}button.g.gx .gp{font-size:13.5px!import
   if(t[0]!=='/gm')return;
   e.preventDefault();e.stopImmediatePropagation();inp.value='';
   const cmd=(t[1]||'').toLowerCase();
-  if(!cmd||cmd==='help'){banner('🛠 '+HELP);return}
-  run(cmd,t.slice(2));
+  if(!cmd||cmd==='help'){say('🛠 '+HELP);return}
+  run(cmd,t.slice(2)).catch(e=>say('❌ GM: '+(e&&e.message||e),true));
  },true);
 })();
 </script>
