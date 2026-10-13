@@ -7318,7 +7318,7 @@ async function openProfile(uid){if(!uid)return;P.hidden=false;const B=$('pfbd');
  if(error||!data){B.innerHTML='<div class="soemp">ยังไม่มีข้อมูลของผู้เล่นนี้<br><small>ข้อมูลจะขึ้นหลังผู้เล่นออนไลน์อย่างน้อย 1 ครั้ง</small></div>';return}
  const d=data.data||{},me=uid===c.u.id;if(!FR.friends.length&&!FR.out.length&&!FR.inc.length)await loadFriends();
  const isF=FR.friends.some(f=>f.uid===uid),isOut=FR.out.some(f=>f.uid===uid),isIn=FR.inc.some(f=>f.uid===uid);
- let av=(typeof d.hero==='string'&&d.hero)?d.hero:'';if(!av)try{const base=null;if(base){const k=base.cloneNode(true);if(window.unFemNh)unFemNh(k);k.removeAttribute('style');
+ let av=(typeof d.hero==='string'&&d.hero)?'<div class="pfhs">'+d.hero+'</div>':'';if(!av)try{const base=null;if(base){const k=base.cloneNode(true);if(window.unFemNh)unFemNh(k);k.removeAttribute('style');
    k.querySelectorAll('.n-wg').forEach(g=>{g.innerHTML='';try{if(d.wg&&typeof wingHero==='function')g.innerHTML='<g transform="translate(4 10)">'+wingHero(d.wg,false)+'</g>'}catch(e){}});
    if(d.sex==='f'&&window.femNh)femNh(k);av=k.outerHTML}}catch(e){}
  const slot=i=>{const e=(d.eq||[])[i],nm=typeof SL!=='undefined'?SL[i].n:'';let ic='',col='#5a4a3a',tag='ว่าง';
@@ -7329,10 +7329,11 @@ async function openProfile(uid){if(!uid)return;P.hidden=false;const B=$('pfbd');
  let petIc='';try{const pp=d.pet&&typeof PT!=='undefined'?PT.find(x=>x.id===d.pet.id):null;petIc=pp&&typeof petSVG==='function'?petSVG(pp,46,false):''}catch(e){}
  const petSl=`<div class="sl" style="--c:${d.pet?(typeof PRC!=='undefined'&&PRC[d.pet.r])||'#ffb02e':'#5a4a3a'}"><div class="fr ${d.pet?'':'emp'}">${petIc||NIc('pet')||'🐾'}</div><em>${d.pet?esc(d.pet.n):'ไม่มี'}</em>${d.pet?`<span class="en">Lv${d.pet.lv}</span>`:''}<small>สัตว์เลี้ยง</small></div>`;
  const st=d.st||{},S6=[['💪','STR','str'],['🌪️','AGI','agi'],['🛡️','VIT','vit'],['🔮','INT','int'],['🎯','DEX','dex'],['🍀','LUK','luk']];
- const fashBox=(x,list,ic,lab)=>{const o=x&&list?list.find(q=>q.id===x.id):null;return `<div><i>${ic}</i>${lab}<b>${o?esc(o.n):'ไม่ได้สวม'}</b>${o?`<small>★${x.st||0}</small>`:''}</div>`};
+ try{window.pfHsStyle&&window.pfHsStyle(typeof d.hero==='string'?d.hero:'')}catch(e){}
+const fashBox=(x,list,ic,lab)=>{const o=x&&list?list.find(q=>q.id===x.id):null;return `<div><i>${ic}</i>${lab}<b>${o?esc(o.n):'ไม่ได้สวม'}</b>${o?`<small>★${x.st||0}</small>`:''}</div>`};
  B.innerHTML=`<div class="pfx"><div class="pft"><b>${esc(d.name||data.name)}</b><small>ไอดี ${esc(data.username||'-')} · Lv.${d.lv||data.lv} · ด่าน ${d.stage||1} · <span style="color:${online(data.updated_at)?'#8aff9a':'#998'}">● ${online(data.updated_at)?'ออนไลน์':ago(data.updated_at)}</span></small><span class="bp">⚡ BP ${fmtN(d.bp||data.bp||0)}</span></div>
-  <div class="grid"><div class="col">${[2,1,3].map(slot).join('')}</div><div class="hero">${av}</div><div class="col">${[0,4].map(slot).join('')}</div></div>${window.pfPetBlock?window.pfPetBlock(d.pet):''}
-  <div class="grid" style="grid-template-columns:1fr;justify-items:center;margin-top:-4px">${wingSl}</div>
+  <div class="grid"><div class="col">${[2,1,3].map(slot).join('')}</div><div class="hero">${av}</div><div class="col">${[0,4].map(slot).join('')}${wingSl}</div></div>${window.pfPetBlock?window.pfPetBlock(d.pet):''}
+  
   <div class="pfh">👘 แฟชั่นที่สวมใส่</div><div class="stats" style="grid-template-columns:1fr 1fr">${fashBox(d.fsx,typeof FS!=='undefined'?FS:null,'👘','ชุดแฟชั่น')}${fashBox(d.wsx,typeof WSK!=='undefined'?WSK:null,'🗡️','อาวุธแฟชั่น')}</div><div class="pfh">📊 ค่าพลัง</div><div class="stats"><div><i>⚔️</i>โจมตี<b>${fmtN(d.atk||0)}</b></div><div><i>❤️</i>HP<b>${fmtN(d.hp||0)}</b></div><div><i>🎯</i>คริ<b>${d.crit||0}%</b></div><div><i>💨</i>ความเร็ว<b>x${d.spd||1}</b></div><div><i>🛡️</i>กันกาย<b>${d.def||0}%</b></div><div><i>✨</i>กันเวท<b>${d.mdef||0}%</b></div></div>
   <div class="pfh">💠 สเตตัส</div><div class="stats st6">${S6.map(([i,l,k])=>`<div><i>${i}</i>${l}<b>${fmtN(st[k]||0)}</b></div>`).join('')}</div>
   ${me?'':`<div class="pfbt">${isF?`<button class="sobtn b" id="pfdm">💬 คุยส่วนตัว</button><button class="sobtn" id="pfml">✉️ จดหมาย</button><button class="sobtn g" id="pfdel">ลบ</button>`:isIn?`<button class="sobtn" id="pfacc">🤝 ยอมรับคำขอ</button>`:isOut?`<button class="sobtn g" disabled>⏳ ส่งคำขอแล้ว</button>`:`<button class="sobtn" id="pfadd">➕ แอดเพื่อน</button>`}</div><div class="somsg" id="pfmsg"></div>`}</div>`;
@@ -8194,9 +8195,8 @@ button.g.gx .gn{font-size:19px!important}button.g.gx .gp{font-size:13.5px!import
 <script>
 /* สแนปชอตตัวละครจริง (รวมชุด อาวุธ ออร่า เอฟเฟคแฟชั่น) สำหรับโชว์ในโปรไฟล์เพื่อน */
 window.heroSnap=function(){
- const sv=document.querySelector('#hs svg.nh');if(!sv)return null;
- const c=sv.cloneNode(true);c.removeAttribute('style');
- let h=c.outerHTML;
+ const hs=document.getElementById('hs');if(!hs)return null;
+ let h=hs.innerHTML;
  const ids=[...new Set([...h.matchAll(/(?<=\s)id="([^"]+)"/g)].map(m=>m[1]))];
  ids.forEach(id=>{
   const e=id.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
@@ -8204,7 +8204,7 @@ window.heroSnap=function(){
      .replace(new RegExp('url\\(#'+e+'\\)','g'),'url(#pv_'+id+')')
      .replace(new RegExp('href="#'+e+'"','g'),'href="#pv_'+id+'"');
  });
- return h.length>300000?null:h;
+ return h.length>400000?null:h;
 };
 </script>
 <script>
@@ -8231,6 +8231,24 @@ window.pfPetBlock=function(pet){
  let svg='';try{svg=petSVG(pp,120,false)}catch(e){}
  return `${head}<div style="text-align:center;font-weight:800;color:${PRC[pp.r]}">${pp.n} · Lv.${pet.lv||1}${pet.st?' ★'+pet.st:''}</div>`+
   `<div class="pfpet pr${t} pr${pp.r}" style="--pc:${pp.e};position:relative;height:150px;margin:6px auto 8px;display:flex;align-items:flex-end;justify-content:center;overflow:visible">${svg}</div>`;
+};
+</script>
+<script>
+/* คัดลอกสไตล์ของฉากตัวละครให้โปรไฟล์เพื่อนแสดงออร่าและเอฟเฟคเหมือนจริง */
+window.pfHsStyle=function(hero){
+ const ids=new Set([...hero.matchAll(/id="pv_([^"]+)"/g)].map(m=>m[1]));
+ const map=t=>t.replace(/#hs(?![\w-])/g,'.pfhs').replace(/#([A-Za-z_][\w-]*)/g,(m,id)=>ids.has(id)?'#pv_'+id:m);
+ let css='';
+ for(const sh of document.styleSheets){
+  let rules;try{rules=sh.cssRules}catch(e){continue}
+  for(const r of rules){
+   if(r.type===7)css+=r.cssText+'\n';
+   else if(r.cssText&&/#hs(?![\w-])/.test(r.cssText))css+=map(r.cssText)+'\n';
+  }
+ }
+ let el=document.getElementById('pfhs-style');
+ if(!el){el=document.createElement('style');el.id='pfhs-style';document.head.appendChild(el)}
+ el.textContent=css;
 };
 </script>
 </body></html>
