@@ -7082,10 +7082,10 @@ fixCards();new MutationObserver(fixCards).observe(document.body,{childList:true}
 (function(){
 const SS=sessionStorage,LS=localStorage,sid=Math.random().toString(36).slice(2)+Date.now().toString(36);let kicked=false,claimed=false;
 window._gameSid=sid;
+/* ถูกเตะ: หยุดเฉพาะแท็บนี้ ไม่ลบข้อมูลล็อกอินที่ใช้ร่วมกันในเครื่อง (กันแท็บใหม่หลุดตาม) */
 function kick(){if(kicked)return;kicked=true;window._kicked=true;window._hold=true;
- try{LS.removeItem('ml_cur');SS.removeItem('ml_go');SS.setItem('ml_kick','1')}catch(e){}
- const done=()=>{location.reload();setTimeout(()=>{location.href=location.href},500)};
- try{const GA=window.GameAuth;if(GA&&GA.sb)Promise.race([GA.sb.auth.signOut({scope:'local'}),new Promise(r=>setTimeout(r,1500))]).then(done,done);else done()}catch(e){done()}}
+ try{SS.removeItem('ml_go');SS.setItem('ml_kick','1')}catch(e){}
+ location.reload();setTimeout(()=>{location.href=location.href},500)}
 window.gameKick=kick;
 /* กันไม่ให้เครื่องที่ถูกเตะเซฟทับ */
 const GA=window.GameAuth;if(GA){const _s=GA.save;GA.save=function(){if(kicked)return Promise.resolve();return _s.apply(this,arguments)}}
