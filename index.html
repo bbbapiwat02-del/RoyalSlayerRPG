@@ -3503,7 +3503,7 @@ const _w=fdWrap;fdWrap=function(){const r=_w.apply(this,arguments);st();return r
 (function(){
 const WBB=[{nm:'มังกรโลกันตร์อัคคี',em:'🐉'},{nm:'มังกรเหมันต์นิรันดร์',em:'🐉'},{nm:'มังกรอสนีทมิฬ',em:'🐉'},{nm:'มังกรพิษนรกันต์',em:'🐉'},{nm:'มังกรเงามรณะ',em:'🐉'},{nm:'มังกรโลหิตอสูร',em:'🐉'},{nm:'มังกรจักรพรรดิทองคำ',em:'🐉'}];
 const WT=60,NB=49;
-const dk=(d)=>{d=d||new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
+const dk=()=>new Date(Date.now()+7*36e5).toISOString().slice(0,10); /* วันตามเวลาไทย (UTC+7) ให้ทุกเครื่องตรงกัน */
 const dfrac=()=>{const n=new Date(),s=new Date(n.getFullYear(),n.getMonth(),n.getDate());return Math.min(1,(n-s)/864e5)};
 const est=()=>Math.floor(15*Math.pow(1.21,Math.max(1,S.stage)-1)*28);
 const hsh=s=>{let h=2166136261;for(const c of s)h=Math.imul(h^c.charCodeAt(0),16777619);return h>>>0};
@@ -3512,13 +3512,27 @@ const N2=['เทียนหลง','อู๋จี้','ฟงหยุน','
 function ensureWb(){let w=S.wb;if(!w||typeof w!=='object')w=S.wb={day:'',sc:0,best:0,R:0,att:0,claim:null,last:null};
  if(w.wbx==null){w.wbx=0;w.pbx=0}
  const d=dk();if(w.day!==d){
-  if(w.day&&w.sc>0){const rk=rankOf(w.sc,w.day,w.R,1);w.claim={rank:rk,sc:w.sc,day:w.day}}
+  if(w.day&&w.sc>0){const c={rank:null,sc:w.sc,day:w.day};w.claim=c;WBN.rankFor(c.day,c.sc).then(rk=>{if(w.claim===c){c.rank=rk||51;if(!$('wbw').hidden)renderWb()}})}
   w.day=d;w.sc=0;w.att=0;w.last=null;w.R=Math.max(w.best||0,est())}
  return w}
-function bots(day,R,fr){let sd=hsh('wb'+day);const rnd=()=>(sd=(Math.imul(sd,1103515245)+12345)>>>0)/4294967296;
+function bots(day,R,fr){return [];let sd=hsh('wb'+day);const rnd=()=>(sd=(Math.imul(sd,1103515245)+12345)>>>0)/4294967296;
  const L=[];for(let i=0;i<NB;i++){const f=14*Math.pow(.915,i)*(.85+rnd()*.3),g=.15+.85*Math.pow(fr,.8);L.push({n:N1[Math.floor(rnd()*N1.length)]+N2[Math.floor(rnd()*N2.length)],lv:Math.max(1,S.lv+Math.floor((rnd()-.3)*20)),s:Math.floor(R*f*g*(.9+.2*rnd()))})}
  return L.sort((a,b)=>b.s-a.s)}
 function rankOf(sc,day,R,fr){return bots(day,R,fr).filter(b=>b.s>sc).length+1}
+/* ---------- อันดับออนไลน์ (Supabase) ---------- */
+const WBN={top:[],rank:null,total:0,on:false,busy:false,t:0,
+ async sb(){const G=window.GameAuth;if(!G||G.mode==='local'||!G.ready||!(await G.ready))return null;const u=await G.user();return u?{sb:G.sb,u}:null},
+ async refresh(force){if(this.busy||(!force&&Date.now()-this.t<15000))return;this.busy=true;this.t=Date.now();
+  try{const c=await this.sb();this.on=!!c;if(!c)return;const day=dk(),w=ensureWb();
+   const {data}=await c.sb.from('wb_scores').select('user_id,name,lv,score').eq('day',day).order('score',{ascending:false}).limit(50);
+   this.top=(data||[]).map(r=>({n:r.name,lv:r.lv,s:+r.score,me:r.user_id===c.u.id}));
+   const r1=await c.sb.from('wb_scores').select('user_id',{count:'exact',head:true}).eq('day',day).gt('score',w.sc||0);
+   const r2=await c.sb.from('wb_scores').select('user_id',{count:'exact',head:true}).eq('day',day);
+   this.rank=w.sc>0?(r1.count||0)+1:null;this.total=r2.count||0;
+   if(!$('wbw').hidden)renderWb()}catch(e){}finally{this.busy=false}},
+ async submit(sc){try{const c=await this.sb();if(!c)return;await c.sb.rpc('wb_submit',{p_day:dk(),p_name:(S.name||'จอมยุทธ์').slice(0,16),p_lv:S.lv||1,p_score:Math.floor(sc)});this.refresh(true)}catch(e){}},
+ async rankFor(day,sc){try{const c=await this.sb();if(!c)return 51;const r=await c.sb.from('wb_scores').select('user_id',{count:'exact',head:true}).eq('day',day).gt('score',sc);return (r.count||0)+1}catch(e){return null}}};
+window.WBN=WBN;
 function wbRw(rk){if(rk<=1)return{st:50,dm:1000,tk:6,wbx:2,pbx:2};if(rk<=2)return{st:40,dm:800,tk:5,wbx:1,pbx:1};if(rk<=3)return{st:30,dm:600,tk:4,wbx:1,pbx:1};
  if(rk<=5)return{st:22,dm:400,tk:3,wbx:1,pbx:0};if(rk<=10)return{st:15,dm:250,tk:2,wbx:0,pbx:1};if(rk<=20)return{st:10,dm:150,tk:2,wbx:0,pbx:0};if(rk<=30)return{st:6,dm:80,tk:1,wbx:0,pbx:0};if(rk<=50)return{st:4,dm:40,tk:1,wbx:0,pbx:0};return{st:2,dm:20,tk:0,wbx:0,pbx:0}}
 const rwTx=x=>[x.st?'💠 หินตีบวก '+x.st:'',x.dm?'💎 '+x.dm:'',x.tk?'🎫 ตั๋ว '+x.tk:'',x.wbx?'🪽 กล่องปีกเทพ '+x.wbx:'',x.pbx?'🐲 กล่องสัตว์เทพ '+x.pbx:''].filter(Boolean).join(' · ');
@@ -3555,7 +3569,7 @@ win.innerHTML='<div class="pnl"><button class="wc">✕</button><div class="cst">
 $('twr').parentElement.insertBefore(win,$('twr').nextSibling);WID.push('wbw');win.querySelector('.wc').onclick=closeW;
 win.addEventListener('pointerdown',e=>{if(e.target===win)closeW()});
 if(typeof fdWrap==='function')fdWrap(win.querySelector('.pnl'));
-function left(){const n=new Date(),e=new Date(n.getFullYear(),n.getMonth(),n.getDate()+1),s=Math.max(0,Math.floor((e-n)/1000));return Math.floor(s/3600)+' ชม. '+Math.floor(s%3600/60)+' นาที'}
+function left(){const t=Date.now()+7*36e5,s=Math.max(0,Math.floor((864e5-t%864e5)/1000));return Math.floor(s/3600)+' ชม. '+Math.floor(s%3600/60)+' นาที'}
 function claim(){const w=ensureWb(),c=w.claim;if(!c)return;const x=wbRw(c.rank);addStone(x.st);S.diamonds=(S.diamonds||0)+x.dm;S.tk=(S.tk||0)+x.tk;w.wbx+=x.wbx;w.pbx+=x.pbx;w.claim=null;sfx('lvl');banner('🎁 รับรางวัลอันดับ '+c.rank+' แล้ว!');wbMsg='🎁 ได้รับ: '+rwTx(x);renderWb()}
 function openWing(){const w=ensureWb();if(w.wbx<1)return;w.wbx--;const b0=BP();let m;
  if(S.wg===0){S.wg=1;S.wl=0;m='🪽 ได้รับปีกแรก: '+WG[0].n+'!'}
@@ -3567,16 +3581,19 @@ function openPet(){const w=ensureWb();if(w.pbx<1)return;w.pbx--;const W=[40,28,1
  const pool=PT.filter(q=>q.r===rr),p=pool[Math.floor(Math.random()*pool.length)];if(!p){wbMsg='-';return}const dupe=!!S.pets[p.id],b0=BP();
  if(dupe)S.pets[p.id].sh=(S.pets[p.id].sh||0)+1;else{S.pets[p.id]={lv:1,st:0,sh:0};if(!S.pet)S.pet=p.id}
  _pvk='';sfx('reveal',Math.min(5,rr));updatePet();wbMsg=(dupe?'♻️ ซ้ำ! เศษวิญญาณ +1 · ':'🎉 ได้สัตว์เลี้ยงใหม่! ')+'<b style="color:'+PRC[rr]+'">['+PRN[rr]+'] '+p.n+'</b>';bpToast(BP()-b0,$('wbbody'));renderWb()}
-function renderWb(){const w=ensureWb(),B=boss(),fr=dfrac(),L=bots(w.day,w.R,fr),rk=L.filter(b=>b.s>w.sc).length+1,box=$('wbbody');
- let h=`<div class="wbh"><div class="wbe">${B.em}</div><h3>${B.nm}</h3><small>เลือดมหาศาล · ตีเบา · ตีได้ไม่จำกัด ครั้งละ ${WT} วิ<br>⏳ ตัดอันดับ/รีเซ็ตใน ${left()}</small></div>`;
- if(w.claim)h+=`<div class="wbclm">🏆 ผลเมื่อวาน: อันดับ <b>${w.claim.rank}</b> · ดาเมจ ${fmt(w.claim.sc)}<br><small>${rwTx(wbRw(w.claim.rank))}</small><br><button class="skill" id="wbcl" style="margin-top:6px;width:100%">🎁 รับรางวัล</button></div>`;
- h+=`<div class="wbs"><div>ดาเมจวันนี้<b>${fmt(w.sc)}</b></div><div>อันดับ<b>${w.sc>0?'#'+rk:'-'}</b></div><div>ตีไปแล้ว<b>${w.att} ครั้ง</b></div></div>`;
- if(w.last)h+=`<div class="tkr"><small>ครั้งล่าสุด: ${fmt(w.last)} ดาเมจ · ดีสุด ${fmt(w.best||0)}</small></div>`;
+function renderWb(){const w=ensureWb(),B=boss(),box=$('wbbody'),rk=WBN.rank;WBN.refresh();
+ if(w.claim&&w.claim.rank==null&&!w.claim._q){w.claim._q=1;WBN.rankFor(w.claim.day,w.claim.sc).then(r=>{w.claim.rank=r||51;delete w.claim._q;renderWb()})}
+ let h=`<div class="wbh"><div class="wbe">${B.em}</div><h3>${B.nm}</h3><small>เลือดมหาศาล · ตีเบา · ตีได้ไม่จำกัด ครั้งละ ${WT} วิ<br>🏆 จัดอันดับจากดาเมจสูงสุดใน 1 รอบ · ผู้เล่นจริงทั้งเซิร์ฟเวอร์<br>⏳ ตัดอันดับ/รีเซ็ตใน ${left()}</small></div>`;
+ if(w.claim)h+=w.claim.rank==null?`<div class="wbclm">🏆 ผลเมื่อวาน · ดาเมจสูงสุด ${fmt(w.claim.sc)}<br><small>กำลังตรวจสอบอันดับ…</small></div>`:`<div class="wbclm">🏆 ผลเมื่อวาน: อันดับ <b>${w.claim.rank}</b> · ดาเมจสูงสุด ${fmt(w.claim.sc)}<br><small>${rwTx(wbRw(w.claim.rank))}</small><br><button class="skill" id="wbcl" style="margin-top:6px;width:100%">🎁 รับรางวัล</button></div>`;
+ h+=`<div class="wbs"><div>ดาเมจสูงสุดวันนี้<b>${fmt(w.sc)}</b></div><div>อันดับ<b>${w.sc>0&&rk?'#'+rk:'-'}</b><small style="font-size:9.5px">${WBN.on?'จาก '+WBN.total+' คน':'ออฟไลน์'}</small></div><div>ตีไปแล้ว<b>${w.att} ครั้ง</b></div></div>`;
+ if(w.last)h+=`<div class="tkr"><small>ครั้งล่าสุด: ${fmt(w.last)} ดาเมจ · นับเฉพาะครั้งที่ดาเมจสูงสุดของวัน · สถิติตลอดกาล ${fmt(w.best||0)}</small></div>`;
  if(wbMsg)h+=`<div class="tkr" style="color:#ffe9a8">${wbMsg}</div>`;
  h+=`<button class="skill bz-go" id="wbgo" style="width:100%" ${D?'disabled':''}>⚔️ ท้าบอสโลก (${WT} วิ)</button>${D?'<div class="bz-why">⚔️ กำลังต่อสู้อยู่</div>':''}`;
  h+=`<div class="wbt">${['🏆 อันดับ','🎁 รางวัล','📦 กล่อง'+(w.wbx+w.pbx?' ('+(w.wbx+w.pbx)+')':'')].map((x,i)=>`<button data-t="${i}" class="${wbTab===i?'on':''}">${x}</button>`).join('')}</div>`;
- if(wbTab===0){const all=L.map(b=>({...b,me:0}));all.push({n:'คุณ',lv:S.lv,s:w.sc,me:1});all.sort((a,b)=>b.s-a.s||(b.me-a.me));
-  h+='<div class="wbl">'+all.slice(0,50).map((b,i)=>`<div class="wbr ${b.me?'me':''} ${i<3?'t'+(i+1):''}"><b class="k">${i<3?['🥇','🥈','🥉'][i]:i+1}</b><span>${b.n}<small>Lv.${b.lv}</small></span><i>${fmt(b.s)}</i></div>`).join('')+(rk>50?`<div class="wbr me"><b class="k">${rk}</b><span>คุณ<small>Lv.${S.lv}</small></span><i>${fmt(w.sc)}</i></div>`:'')+'</div>';}
+ if(wbTab===0){const all=WBN.on?WBN.top.slice():(w.sc>0?[{n:S.name||'คุณ',lv:S.lv,s:w.sc,me:1}]:[]);const inTop=all.some(b=>b.me);
+  h+='<div class="wbl">'+(all.length?all.map((b,i)=>`<div class="wbr ${b.me?'me':''} ${i<3?'t'+(i+1):''}"><b class="k">${i<3?['🥇','🥈','🥉'][i]:i+1}</b><span>${b.me?'⭐ ':''}${String(b.n).replace(/[<>&]/g,'')}<small>Lv.${b.lv}</small></span><i>${fmt(b.s)}</i></div>`).join(''):'<div class="tkr"><small>ยังไม่มีใครตีบอสวันนี้ — เป็นคนแรกเลย!</small></div>')+
+   (WBN.on&&!inTop&&w.sc>0&&rk?`<div class="wbr me"><b class="k">${rk}</b><span>⭐ ${S.name||'คุณ'}<small>Lv.${S.lv}</small></span><i>${fmt(w.sc)}</i></div>`:'')+
+   (WBN.on?'':'<div class="tkr"><small>⚠️ ออฟไลน์ — อันดับจะแสดงเมื่อเชื่อมต่อเซิร์ฟเวอร์</small></div>')+'</div>';}
  else if(wbTab===1){h+='<div class="wbl">'+[['🥇 อันดับ 1',1],['🥈 อันดับ 2',2],['🥉 อันดับ 3',3],['อันดับ 4-5',4],['อันดับ 6-10',6],['อันดับ 11-20',11],['อันดับ 21-30',21],['อันดับ 31-50',31],['51 ขึ้นไป (ร่วมตี)',51]].map(([n,k])=>`<div class="wbrw"><b>${n}</b>${rwTx(wbRw(k))}</div>`).join('')+'<div class="tkr"><small>รับรางวัลได้หลังเที่ยงคืน (ต้องตีอย่างน้อย 1 ครั้ง)</small></div></div>'}
  else h+=`<div class="wbbx"><div><div class="ic">🪽</div><b>กล่องปีกเทพ</b><br><small>มี ${w.wbx}</small><br><small style="color:#caa78a">วิวัฒนาการฟรี / ดาวปีก</small><button class="skill" id="wbow" style="width:100%;margin-top:6px" ${w.wbx?'':'disabled'}>เปิด</button></div><div><div class="ic">🐲</div><b>กล่องสัตว์เทพ</b><br><small>มี ${w.pbx}</small><br><small style="color:#caa78a">สัตว์ระดับเทพขึ้นไป</small><button class="skill" id="wbop" style="width:100%;margin-top:6px" ${w.pbx?'':'disabled'}>เปิด</button></div></div>`;
  box.innerHTML=h;
@@ -3588,8 +3605,8 @@ function start(){if(D)return;if(mState==='dying'){if(!wq){wq=true;setTimeout(()=
  const B=boss();ensureWb();wbMsg='';D={i:300,wb:1,nm:B.nm,em:B.em,n:1,w:1,t:WT,gold:0,mul:0,off:0,abs:Math.max(1,S.stage),hpm:1e6,dm:.08};
  hp=MHP();sfx('boss');spawn();closeW()}
 function wbEnd(){const d=D;if(!d)return;const w=ensureWb(),dmg=Math.max(0,Math.floor(mmax-Math.max(0,mhp)));D=null;
- w.sc+=dmg;w.att++;w.last=dmg;if(dmg>(w.best||0))w.best=dmg;const g=Math.floor(gpk()*3);S.gold+=g;
- banner('🌍 ดาเมจรอบนี้ '+fmt(dmg)+'!');sfx('lvl');$('wbsc').hidden=true;mState='dying';
+ const nb=dmg>(w.sc||0);w.sc=Math.max(w.sc||0,dmg);w.att++;w.last=dmg;if(dmg>(w.best||0))w.best=dmg;if(nb)WBN.submit(w.sc);const g=Math.floor(gpk()*3);S.gold+=g;
+ banner(nb?'🏆 ทำลายสถิติวันนี้! '+fmt(dmg):'🌍 ดาเมจรอบนี้ '+fmt(dmg)+' (สูงสุด '+fmt(w.sc)+')');sfx('lvl');$('wbsc').hidden=true;mState='dying';
  setTimeout(()=>{hp=MHP();spawn();openW('wbw')},900)}
 const _sp=spawn;spawn=function(){_sp();if(D&&D.wb){mmax=mhp=Math.floor(mmax*D.hpm);$('ms').textContent=D.em}};
 const _dk=dgKill,_de=dgEnd;
@@ -3598,7 +3615,7 @@ dgEnd=function(w){if(D&&D.wb){wbEnd();return}_de(w)};
 const _ow=openW;openW=function(id){_ow(id);if(id==='wbw')renderWb()};
 $('wbb').onclick=()=>{wbTab=0;openW('wbw')};
 setInterval(()=>{const w=ensureWb(),b=$('wbb');b.classList.toggle('clm',!!w.claim);
- T('wbbn',w.claim?'':w.sc>0?rankOf(w.sc,w.day,w.R,dfrac()):'-');
+ T('wbbn',w.claim?'':w.sc>0&&WBN.rank?WBN.rank:'-');if(!D)WBN.refresh();
  const s=$('wbsc');if(D&&D.wb){s.hidden=false;s.innerHTML='💥 '+fmt(Math.max(0,mmax-mhp))+'<small>ดาเมจรอบนี้ · ⏱'+Math.ceil(D.t)+'s</small>'}else s.hidden=true;
  if(!$('wbw').hidden&&!D&&_c.wbk!==dk()+w.sc+'|'+Math.floor(Date.now()/60000)){_c.wbk=dk()+w.sc+'|'+Math.floor(Date.now()/60000);renderWb()}},500);
 })();
@@ -7041,11 +7058,13 @@ window.femNh=femNh;window.unFemNh=unFemNh;
 const sync=()=>{const sv=document.querySelector('#hs svg.nh');if(!sv)return;if(S.sex==='f')femNh(sv);else unFemNh(sv)};
 sync();setInterval(sync,1000);
 /* หน้าสร้างตัวละคร: ทั้งสองการ์ดใช้ท่าเดียวกัน */
-const _cc=window.charCreate;window.charCreate=function(){const r=_cc.apply(this,arguments);try{
- const base=document.querySelector('#hs svg.nh');if(base){
+function fixCards(){try{const base=document.querySelector('#hs svg.nh');if(!base||!document.getElementById('ccw'))return;
   const mk=f=>{const k=base.cloneNode(true);unFemNh(k);k.querySelectorAll('.n-wg').forEach(g=>g.innerHTML='');k.removeAttribute('width');k.removeAttribute('height');
-   k.style.cssText='display:block;position:relative;width:110px;height:120px;margin:auto;overflow:visible;transform:none';if(f)femNh(k);return k};
-  [['.ccc.m .pv',false],['.ccc.f .pv',true]].forEach(([s,f])=>{const b=document.querySelector('#ccw '+s);if(!b)return;b.innerHTML='';b.appendChild(mk(f))})}}catch(e){}return r};
+   k.style.cssText='display:block;position:relative;width:110px;height:120px;margin:auto;overflow:visible;transform:none';if(f)femNh(k);k.dataset.cc=1;return k};
+  [['.ccc.m .pv',false],['.ccc.f .pv',true]].forEach(([s,f])=>{const b=document.querySelector('#ccw '+s);if(!b)return;const o=b.querySelector('svg');if(o&&o.dataset.cc)return;b.innerHTML='';b.appendChild(mk(f))})}catch(e){}}
+const _cc=window.charCreate;window.charCreate=function(){const r=_cc.apply(this,arguments);fixCards();return r};
+/* กรณีหน้าสร้างตัวละครเปิดขึ้นก่อนสคริปต์นี้โหลด */
+fixCards();new MutationObserver(fixCards).observe(document.body,{childList:true});
 })();
 
 /* ================= ล็อกอินซ้อน: เครื่องเก่าเด้งกลับหน้าล็อกอินพร้อมแจ้งเตือน ================= */
