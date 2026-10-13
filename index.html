@@ -7179,7 +7179,7 @@ function snap(){const s={};try{
  s.eq=(S.eq||[]).map((e,i)=>e?{s:e.s,t:e.t,set:e.set,en:(S.enh&&S.enh[i])||0}:null);
  s.wg=S.wg||0;s.wl=S.wl||0;s.wgn=S.wg&&typeof WG!=='undefined'&&WG[S.wg-1]?WG[S.wg-1].n:'';
  const pt=S.pet&&typeof PT!=='undefined'?PT.find(x=>x.id===S.pet):null;s.pet=pt?{id:pt.id,n:pt.n,r:pt.r,lv:(S.pets[S.pet]||{}).lv||1,st:(S.pets[S.pet]||{}).st||0}:null;
- s.fs=S.fs&&S.fs.eq||'';s.av=window.smallAv?smallAv():null;
+ s.fs=S.fs&&S.fs.eq||'';s.av=window.smallAv?smallAv():null;s.fsx=(S.fs&&S.fs.eq)?{id:S.fs.eq,st:((S.fs.own||{})[S.fs.eq]||{}).st||0}:null;s.wsx=(S.ws&&S.ws.eq)?{id:S.ws.eq,st:((S.ws.own||{})[S.ws.eq]||{}).st||0}:null;s.hero=window.heroSnap?window.heroSnap():null;
 }catch(e){}return s}
 let lastPub=0;
 async function publish(force){if(!force&&Date.now()-lastPub<60000)return;const c=await net();if(!c)return;lastPub=Date.now();
@@ -7318,7 +7318,7 @@ async function openProfile(uid){if(!uid)return;P.hidden=false;const B=$('pfbd');
  if(error||!data){B.innerHTML='<div class="soemp">ยังไม่มีข้อมูลของผู้เล่นนี้<br><small>ข้อมูลจะขึ้นหลังผู้เล่นออนไลน์อย่างน้อย 1 ครั้ง</small></div>';return}
  const d=data.data||{},me=uid===c.u.id;if(!FR.friends.length&&!FR.out.length&&!FR.inc.length)await loadFriends();
  const isF=FR.friends.some(f=>f.uid===uid),isOut=FR.out.some(f=>f.uid===uid),isIn=FR.inc.some(f=>f.uid===uid);
- let av='';try{const base=document.querySelector('#hs svg.nh');if(base){const k=base.cloneNode(true);if(window.unFemNh)unFemNh(k);k.removeAttribute('style');
+ let av=(typeof d.hero==='string'&&d.hero)?d.hero:'';if(!av)try{const base=null;if(base){const k=base.cloneNode(true);if(window.unFemNh)unFemNh(k);k.removeAttribute('style');
    k.querySelectorAll('.n-wg').forEach(g=>{g.innerHTML='';try{if(d.wg&&typeof wingHero==='function')g.innerHTML='<g transform="translate(4 10)">'+wingHero(d.wg,false)+'</g>'}catch(e){}});
    if(d.sex==='f'&&window.femNh)femNh(k);av=k.outerHTML}}catch(e){}
  const slot=i=>{const e=(d.eq||[])[i],nm=typeof SL!=='undefined'?SL[i].n:'';let ic='',col='#5a4a3a',tag='ว่าง';
@@ -7329,10 +7329,11 @@ async function openProfile(uid){if(!uid)return;P.hidden=false;const B=$('pfbd');
  let petIc='';try{const pp=d.pet&&typeof PT!=='undefined'?PT.find(x=>x.id===d.pet.id):null;petIc=pp&&typeof petSVG==='function'?petSVG(pp,46,d.pet.st||0):''}catch(e){}
  const petSl=`<div class="sl" style="--c:${d.pet?(typeof PRC!=='undefined'&&PRC[d.pet.r])||'#ffb02e':'#5a4a3a'}"><div class="fr ${d.pet?'':'emp'}">${petIc||NIc('pet')||'🐾'}</div><em>${d.pet?esc(d.pet.n):'ไม่มี'}</em>${d.pet?`<span class="en">Lv${d.pet.lv}</span>`:''}<small>สัตว์เลี้ยง</small></div>`;
  const st=d.st||{},S6=[['💪','STR','str'],['🌪️','AGI','agi'],['🛡️','VIT','vit'],['🔮','INT','int'],['🎯','DEX','dex'],['🍀','LUK','luk']];
+ const fashBox=(x,list,ic,lab)=>{const o=x&&list?list.find(q=>q.id===x.id):null;return `<div><i>${ic}</i>${lab}<b>${o?esc(o.n):'ไม่ได้สวม'}</b>${o?`<small>★${x.st||0}</small>`:''}</div>`};
  B.innerHTML=`<div class="pfx"><div class="pft"><b>${esc(d.name||data.name)}</b><small>ไอดี ${esc(data.username||'-')} · Lv.${d.lv||data.lv} · ด่าน ${d.stage||1} · <span style="color:${online(data.updated_at)?'#8aff9a':'#998'}">● ${online(data.updated_at)?'ออนไลน์':ago(data.updated_at)}</span></small><span class="bp">⚡ BP ${fmtN(d.bp||data.bp||0)}</span></div>
   <div class="grid"><div class="col">${[2,1,3].map(slot).join('')}</div><div class="hero">${av}</div><div class="col">${[0,4].map(slot).join('')}${petSl}</div></div>
   <div class="grid" style="grid-template-columns:1fr;justify-items:center;margin-top:-4px">${wingSl}</div>
-  <div class="pfh">📊 ค่าพลัง</div><div class="stats"><div><i>⚔️</i>โจมตี<b>${fmtN(d.atk||0)}</b></div><div><i>❤️</i>HP<b>${fmtN(d.hp||0)}</b></div><div><i>🎯</i>คริ<b>${d.crit||0}%</b></div><div><i>💨</i>ความเร็ว<b>x${d.spd||1}</b></div><div><i>🛡️</i>กันกาย<b>${d.def||0}%</b></div><div><i>✨</i>กันเวท<b>${d.mdef||0}%</b></div></div>
+  <div class="pfh">👘 แฟชั่นที่สวมใส่</div><div class="stats" style="grid-template-columns:1fr 1fr">${fashBox(d.fsx,typeof FS!=='undefined'?FS:null,'👘','ชุดแฟชั่น')}${fashBox(d.wsx,typeof WSK!=='undefined'?WSK:null,'🗡️','อาวุธแฟชั่น')}</div><div class="pfh">📊 ค่าพลัง</div><div class="stats"><div><i>⚔️</i>โจมตี<b>${fmtN(d.atk||0)}</b></div><div><i>❤️</i>HP<b>${fmtN(d.hp||0)}</b></div><div><i>🎯</i>คริ<b>${d.crit||0}%</b></div><div><i>💨</i>ความเร็ว<b>x${d.spd||1}</b></div><div><i>🛡️</i>กันกาย<b>${d.def||0}%</b></div><div><i>✨</i>กันเวท<b>${d.mdef||0}%</b></div></div>
   <div class="pfh">💠 สเตตัส</div><div class="stats st6">${S6.map(([i,l,k])=>`<div><i>${i}</i>${l}<b>${fmtN(st[k]||0)}</b></div>`).join('')}</div>
   ${me?'':`<div class="pfbt">${isF?`<button class="sobtn b" id="pfdm">💬 คุยส่วนตัว</button><button class="sobtn" id="pfml">✉️ จดหมาย</button><button class="sobtn g" id="pfdel">ลบ</button>`:isIn?`<button class="sobtn" id="pfacc">🤝 ยอมรับคำขอ</button>`:isOut?`<button class="sobtn g" disabled>⏳ ส่งคำขอแล้ว</button>`:`<button class="sobtn" id="pfadd">➕ แอดเพื่อน</button>`}</div><div class="somsg" id="pfmsg"></div>`}</div>`;
  if($('pfadd'))$('pfadd').onclick=async()=>{$('pfmsg').textContent='กำลังส่ง…';$('pfmsg').textContent=await frReq({uid});setTimeout(()=>openProfile(uid),900)};
@@ -8190,4 +8191,21 @@ button.g.gx .gn{font-size:19px!important}button.g.gx .gp{font-size:13.5px!import
  },400);
 })();
 </script>
+<script>
+/* สแนปชอตตัวละครจริง (รวมชุด อาวุธ ออร่า เอฟเฟคแฟชั่น) สำหรับโชว์ในโปรไฟล์เพื่อน */
+window.heroSnap=function(){
+ const sv=document.querySelector('#hs svg.nh');if(!sv)return null;
+ const c=sv.cloneNode(true);c.removeAttribute('style');
+ let h=c.outerHTML;
+ const ids=[...new Set([...h.matchAll(/(?<=\s)id="([^"]+)"/g)].map(m=>m[1]))];
+ ids.forEach(id=>{
+  const e=id.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  h=h.replace(new RegExp('(?<=\\s)id="'+e+'"','g'),'id="pv_'+id+'"')
+     .replace(new RegExp('url\\(#'+e+'\\)','g'),'url(#pv_'+id+')')
+     .replace(new RegExp('href="#'+e+'"','g'),'href="#pv_'+id+'"');
+ });
+ return h.length>300000?null:h;
+};
+</script>
 </body></html>
+
