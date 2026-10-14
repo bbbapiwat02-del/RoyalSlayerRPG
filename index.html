@@ -901,7 +901,7 @@ $('rs').onclick=()=>{if(confirm('รีเซ็ตเกมทั้งหม�
 const RN=['สามัญ','ดี','หายาก','มหากาพย์','ตำนาน','เทพ','เซียน','อมตะ','จักรพรรดิ','สวรรค์','ปฐมกาล'],RC=['#9a9a8a','#4caf50','#3d8bfd','#a855f7','#f59e0b','#ef4444','#ff4fb8','#22e0ff','#ffd400','#3dffa8','#ffffff'],RM=[1,1.8,3,5,8,12,17,24,34,48,70],
 SL=[{i:'🗡️',n:'กระบี่',b:.08,t:'โจมตี'},{i:'🥋',n:'เสื้อเกราะ',b:.08,t:'ลมปราณ'},{i:'👒',n:'หมวก',b:1.5,t:'คริ'},{i:'👟',n:'รองเท้า',b:.04,t:'ก้าว'},{i:'📿',n:'สร้อยหยก',b:.08,t:'เหรียญ'}],
 AD=['ธรรมดา','เหล็กกล้า','จันทรา','มังกร','สายฟ้า','สวรรค์','หยกวิญญาณ','เทพอมตะ','จักรพรรดิมังกร','นภาลัย','ปฐมกาล'];RN.push('โกลาหล','นิรันดร์','เทพบิดร','จักรวาล','อนันตกาล','เทพอสูร','เทวาธิราช','สุริยัน','อสงไขย');RC.push('#ff7a1a','#7c4dff','#e8c25a','#00b3ff','#ff4fd8','#ff2e63','#b6ff3d','#00d9c0','#ffffff');RM.push(100,145,210,300,440,640,930,1350,2000);AD.push('โกลาหล','นิรันดร์','เทพบิดร','จักรวาล','อนันตกาล','เทพอสูร','เทวาธิราช','สุริยัน','อสงไขย');
-const copen=()=>{const L=Math.min(Math.max(1,S.lv||1),200);return Math.floor(150*Math.pow(1.15,Math.min(L,60)-1)*Math.pow(1.05,Math.max(0,L-60)))};
+const CHEST_PRICE=10000,copen=()=>CHEST_PRICE;
 const OBU=t=>t<=0?1:10*t;window.OBU=OBU;
 function odds(L){L=L||S.lv;const m=1+0.03*(L-1);const w=OB.map((x,i)=>L>=OBU(i)?x*Math.pow(m,i/4):0);const t=w.reduce((a,b)=>a+b);return w.map(x=>x/t)}
 function roll(){const o=odds();let r=Math.random(),t=0;for(;t<o.length-1;t++){r-=o[t];if(r<0)break}const s=Math.floor(Math.random()*5);return{s,t,v:SL[s].b*RMV(s,t)*(0.9+Math.random()*0.2)}}
@@ -1353,9 +1353,9 @@ function petArt(p,R,st){
  return defs+aura+b+petExtra(p,R,st)}
 function petSVG(p,sz,st,sil){return `<svg viewBox="-4 -8 124 92" width="${sz}" height="${Math.round(sz*.74)}" style="overflow:visible${sil?';filter:brightness(0) opacity(.55)':''}">${petArt(p,rnd('p'),st)}</svg>`}
 const PRC=[RC[0],RC[2],RC[3],RC[4],RC[5]];PRC.push('#ff4fb8','#22e0ff','#ffd400','#3dffa8','#ff7a1a','#7c4dff','#e8c25a','#00b3ff','#ff3d3d','#ff4fd8');
-const eggCost=()=>Math.floor(750*Math.pow(1.22,Math.min(S.hc||0,40)));
+const eggCost=()=>30;
 const petLvCost=id=>{const o=S.pets[id],p=PT.find(x=>x.id===id);return Math.floor(120*Math.pow(1.32,o.lv-1)*(1+p.r*.6))};
-function petCan(){if((S.egg||0)>0||S.gold>=eggCost())return true;const o=S.pets[S.pet];return !!(o&&o.lv<30&&S.gold>=petLvCost(S.pet))}
+function petCan(){if((S.egg||0)>0||(S.diamonds||0)>=eggCost())return true;const o=S.pets[S.pet];return !!(o&&o.lv<30&&S.gold>=petLvCost(S.pet))}
 var petCd=1500,_pk='',hatching=false,ppv='';
 function updatePet(){const k=S.pet||'';if(_pk===k)return;_pk=k;const pe=$('pet');if(!k){pe.style.display='none';$('ps').innerHTML='';return}const p=PT.find(x=>x.id===k),sz=72+6*Math.min(6,p.r);pe.style.display='block';pe.style.width=sz+'px';pe.style.height=Math.round(sz*.74)+'px';pe.style.setProperty('--pc',p.e);pe.className='ch pr'+Math.min(4,p.r)+' pr'+p.r;$('ps').innerHTML=petSVG(p,sz,false)}
 function petAtk(){
@@ -1367,8 +1367,8 @@ function petAtk(){
 function eggSVG(c){return `<svg class="egg" id="eggs" viewBox="0 0 60 80" width="130" height="173" style="overflow:visible;filter:drop-shadow(0 0 14px ${c})"><defs><linearGradient id="eg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".5" stop-color="#f5b83d"/><stop offset="1" stop-color="#8a560a"/></linearGradient></defs><path d="M30 4Q54 20 54 48Q54 76 30 76Q6 76 6 48Q6 20 30 4Z" fill="url(#eg1)" stroke="#6b430a" stroke-width="1.5"/><path d="M8 40Q18 34 30 40T52 40M7 54Q18 48 30 54T53 54" stroke="#b3261e" stroke-width="2.4" fill="none"/><circle cx="30" cy="28" r="5" fill="#b3261e" stroke="#ffe9a8"/><path d="M26 24L34 32M34 24L26 32" stroke="#ffe9a8" stroke-width="1.2"/></svg>`}
 function stageHTML(c,inner){return `<div class="beam"></div><div class="plat"></div><div class="plat2"></div>`+Array.from({length:9},(_,i)=>`<i class="mt" style="left:${14+i*9}%;animation-delay:${(i*.37).toFixed(2)}s;animation-duration:${(2.4+i%3*.7).toFixed(1)}s"></i>`).join('')+`<div class="pbig">${inner}</div>`}
 function hatch(){
- if(hatching)return;const free=(S.egg||0)>0,c=eggCost();if(!free&&S.gold<c)return;
- hatching=true;if(free)S.egg--;else S.gold-=c;S.hc=(S.hc||0)+1;S.hpr=(S.hpr||0)+1;
+ if(hatching)return;const free=(S.egg||0)>0,c=eggCost();if(!free&&(S.diamonds||0)<c)return;
+ hatching=true;if(free)S.egg--;else S.diamonds-=c;S.hc=(S.hc||0)+1;S.hpr=(S.hpr||0)+1;
  let r=0,rr=hRoll();if((S.pity||0)>=29)rr=Math.random()<.786?3:4;S.pity=rr>=3?0:(S.pity||0)+1;S.pm=(S.pm||0)+1;if(S.pm>=100&&rr<5){const _q=PMR();if(_q>=0)rr=_q}if(rr>=5)S.pm=0;
  const pool=PT.filter(x=>x.r===rr),p=pool[Math.floor(Math.random()*pool.length)],rc=PRC[rr],dupe=!!S.pets[p.id];
  $('pst').style.setProperty('--c0','#f5b83d');$('pst').innerHTML=stageHTML('#f5b83d',eggSVG(rc));$('pti').innerHTML='';
@@ -1392,7 +1392,7 @@ function renderPt(){
  const rows=[['⚔️','พลังโจมตี','a',v=>'+'+Math.round(v*100)+'%'],['🧘','ลมปราณ','h',v=>'+'+Math.round(v*100)+'%'],['💨','ความเร็ว','s',v=>'+'+v.toFixed(2)+'x'],['🎯','คริติคอล','c',v=>'+'+v.toFixed(1)+'%'],['🪙','เหรียญ','g',v=>'+'+Math.round(v*100)+'%'],['🛡️','กันกายภาพ','df',v=>'+'+Math.round(v*100)+'%'],['✨','กันเวท','md',v=>'+'+Math.round(v*100)+'%']];
  const grid=rows.filter(r=>B[r[2]]>0.0005).map(r=>`<div><span>${r[0]} ${r[1]}</span><b>${r[3](B[r[2]])}</b></div>`).join('');
  const old=S.pet;S.pet=ppv;const had=S.pets[ppv];if(!had)S.pets[ppv]={lv:1,st:0,sh:0};_pvk='';const withP=BP();if(!had)delete S.pets[ppv];S.pet=old;_pvk='';const gain=withP-BP();
- let btn=`<button class="up" id="phatch" style="justify-content:center;font-weight:700">🥚 ฟักไข่ ${(S.egg||0)>0?'ฟรี ('+S.egg+')':'🪙 '+fmt(eggCost())}</button><div class="mrow"><button class="up" id="phatch10" ${S.gold<eggTotal(10)?'disabled':''} style="justify-content:center;font-weight:700">🥚 ฟัก x10<small>🪙 ${fmt(eggTotal(10))}</small></button><button class="up" id="phatch50" ${S.gold<eggTotal(50)?'disabled':''} style="justify-content:center;font-weight:700">🥚 ฟัก x50<small>🪙 ${fmt(eggTotal(50))}</small></button></div>`;
+ let btn=`<button class="up" id="phatch" style="justify-content:center;font-weight:700">🥚 ฟักไข่ ${(S.egg||0)>0?'ฟรี ('+S.egg+')':'💎 '+fmt(eggCost())}</button><div class="mrow"><button class="up" id="phatch10" ${(S.diamonds||0)<eggTotal(10)?'disabled':''} style="justify-content:center;font-weight:700">🥚 ฟัก x10<small>💎 ${fmt(eggTotal(10))} · ลด 10%</small></button><button class="up" id="phatch50" ${(S.diamonds||0)<eggTotal(50)?'disabled':''} style="justify-content:center;font-weight:700">🥚 ฟัก x50<small>💎 ${fmt(eggTotal(50))} · ลด 20%</small></button></div>`;
  if(own){const act=S.pet===ppv;
   if(!act)btn+=`<button class="up" id="pset" style="justify-content:center;font-weight:700">✅ ตั้งเป็นตัวสู้</button>`;
   btn+=`<button class="up" id="plv" ${o.lv>=30||S.gold<petLvCost(ppv)?'disabled':''} style="justify-content:center;font-weight:700">⬆️ อัปเลเวล (${o.lv}/30) ${o.lv>=30?'MAX':'🪙 '+fmt(petLvCost(ppv))}</button>`;
@@ -1530,7 +1530,7 @@ const SK=[
 const SW=[43,27,16,8.5,3.6,1.2,.5,.2],SKMAX=30;
 var skTab=1,skSel=0,skPick='',skBusy=false,_skc={};
 const skMul=o=>1+.12*((o?o.lv:1)-1);
-const skPrice=()=>Math.floor(450*Math.pow(1.12,Math.min(S.skh||0,60)));
+const skPrice=()=>Math.floor(1350*Math.pow(1.12,Math.min(S.skh||0,60)));
 function skPlate(k,sz,lk){return `<div class="skp ${lk?'lk':''}" style="--c:${RC[k.r]};width:${sz}px;height:${sz}px;font-size:${Math.round(sz*.56)}px"><i>${k.i}</i></div>`}
 function skDesc(k,o){const L=skMul(o);
  if(k.k==='d')return `ดาเมจรวม ${fmt(ATK()*k.m*L)} (x${(k.m*L).toFixed(1)} พลังโจมตี${k.h>1?' · '+k.h+' ครั้ง':''})`;
@@ -2026,13 +2026,13 @@ function openMulti(n){
  $('stg').style.setProperty('--rc',rc);$('card').innerHTML='';$('itm').className='';
  sfx('rattle');anim($('cico'),'shk');renderGear();
  setTimeout(()=>{
-  sfx('reveal',best.t);anim($('rays'),'on');sburst(rc,16+best.t*6);shock(rc,best.t);if(best.t>=2)anim($('stg'),'bump');
+  sfx('reveal',best.t);anim($('rays'),'on');sburst(rc,Math.min(n>10?12:24,16+best.t*6));shock(rc,Math.min(best.t,6));if(best.t>=2)anim($('stg'),'bump');
   $('itm').innerHTML=icon(best.s,best.t,100);$('itm').style.filter=`drop-shadow(0 0 16px ${rc})`;anim($('itm'),'pop');
   setTimeout(()=>{
    const sorted=items.slice().sort((a,b)=>b.t-a.t||b.v-a.v),b1=BP(),db=b1-b0;
-   $('card').innerHTML=`<div class="icard" style="border-color:${rc};box-shadow:0 0 14px ${rc};text-align:center"><b>🎁 เปิดหีบ x${n} · ใช้ 🪙 ${fmt(c)}</b><div class="mrp">${pillsOf(cnt,RN,RC)}</div><div class="mrg">${sorted.map((x,i)=>`<button class="mri ${kept.has(x)?'kp':''}" data-i="${i}" style="--c:${RC[x.t]}">${icon(x.s,x.t,n>10?34:40)}</button>`).join('')}</div><div class="bpr">⚡ BP ${fmt(b0)} → <b>${fmt(b1)}</b> <b style="color:${db>=0?'#2ea043':'#e5534b'}">${db>=0?'▲ +':'▼ −'}${fmt(Math.abs(db))}</b></div><small>⭐ ดีที่สุด [${RN[best.t]}] ${SL[best.s].n}${AD[best.t]} · สวมใส่ใหม่ ${eqd} ช่อง (✔ = ชิ้นที่สวมให้) · ชิ้นที่เหลือทิ้งไป${lockedSet?' · ข้ามช่องที่สวมชุดเซตเทพไว้ '+lockedSet+' ช่อง':''}<br>จิ้มไอคอนเพื่อดูสถานะ</small></div>`;
-   $('card').querySelectorAll('.mri').forEach(b=>b.onclick=()=>{const it=sorted[+b.dataset.i];openGear(it,S.eq[it.s]===it?'eq':'rl')});
-   updateHero();renderGear();mcBusy=false;$('card').scrollIntoView({behavior:'smooth',block:'center'})},800);
+   $('card').innerHTML=`<div class="icard" style="border-color:${rc};box-shadow:0 0 14px ${rc};text-align:center"><b>🎁 เปิดหีบ x${n} · ใช้ 🪙 ${fmt(c)}</b><div class="mrp">${pillsOf(cnt,RN,RC)}</div><div class="mrg" id="mrgE"></div><div class="bpr">⚡ BP ${fmt(b0)} → <b>${fmt(b1)}</b> <b style="color:${db>=0?'#2ea043':'#e5534b'}">${db>=0?'▲ +':'▼ −'}${fmt(Math.abs(db))}</b></div><small>⭐ ดีที่สุด [${RN[best.t]}] ${SL[best.s].n}${AD[best.t]} · สวมใส่ใหม่ ${eqd} ช่อง (✔ = ชิ้นที่สวมให้) · ชิ้นที่เหลือทิ้งไป${lockedSet?' · ข้ามช่องที่สวมชุดเซตเทพไว้ '+lockedSet+' ช่อง':''}<br>จิ้มไอคอนเพื่อดูสถานะ</small></div>`;
+   {const _h=sorted.map((x,i)=>`<button class="mri ${kept.has(x)?'kp':''}" data-i="${i}" style="--c:${RC[x.t]}">${iconLite(x.s,x.t,n>10?34:40)}</button>`).join('');const _m=$('mrgE');_m.onclick=e=>{const b=e.target.closest('.mri');if(!b)return;const it=sorted[+b.dataset.i];openGear(it,S.eq[it.s]===it?'eq':'rl')};appendChunked(_m,_h,()=>$('card').scrollIntoView({behavior:'smooth',block:'center'}))}
+   updateHero();renderGear();mcBusy=false},800);
  },700);
 }
 $('open10').onclick=()=>openMulti(10);$('open50').onclick=()=>openMulti(50);
@@ -2041,16 +2041,16 @@ renderGear=function(){_rg2();const c=copen();$('open10').innerHTML=`🎁 เป�
 renderGear();
 
 /* ---------- สัตว์เลี้ยง ---------- */
-function eggTotal(n){let e=S.egg||0,hc=S.hc||0,t=0;for(let i=0;i<n;i++){if(e>0)e--;else t+=Math.floor(500*Math.pow(1.22,Math.min(hc,40)));hc++}return t}
+function eggTotal(n){const paid=Math.max(0,n-(S.egg||0));return Math.floor(paid*eggCost()*(BATP[n]/n))}
 function hatchMulti(n){
- if(hatching)return;const tot=eggTotal(n);if(S.gold<tot)return;hatching=true;
+ if(hatching)return;const tot=eggTotal(n);if((S.diamonds||0)<tot)return;hatching=true;S.diamonds-=tot;
  const res=[];
- for(let i=0;i<n;i++){const free=(S.egg||0)>0,c=eggCost();if(free)S.egg--;else S.gold-=c;S.hc=(S.hc||0)+1;S.hpr=(S.hpr||0)+1;
+ for(let i=0;i<n;i++){if((S.egg||0)>0)S.egg--;S.hc=(S.hc||0)+1;S.hpr=(S.hpr||0)+1;
   let r=0,rr=hRoll();if((S.pity||0)>=29)rr=Math.random()<.786?3:4;S.pity=rr>=3?0:(S.pity||0)+1;S.pm=(S.pm||0)+1;if(S.pm>=100&&rr<5){const _q=PMR();if(_q>=0)rr=_q}if(rr>=5)S.pm=0;
   const pool=PT.filter(x=>x.r===rr),p=pool[Math.floor(Math.random()*pool.length)],dupe=!!S.pets[p.id];
   if(dupe)S.pets[p.id].sh=(S.pets[p.id].sh||0)+1;else{S.pets[p.id]={lv:1,st:0,sh:0};if(!S.pet)S.pet=p.id}
   res.push({p,rr,dupe})}
- const best=res.reduce((a,b)=>b.rr>a.rr?b:a),rc=PRC[best.rr],cnt=Array(5).fill(0);res.forEach(x=>cnt[x.rr]++);
+ const best=res.reduce((a,b)=>b.rr>a.rr?b:a),rc=PRC[best.rr],cnt=Array(PRN.length).fill(0);res.forEach(x=>cnt[x.rr]++);
  $('pst').style.setProperty('--c0','#f5b83d');$('pst').innerHTML=stageHTML('#f5b83d',eggSVG(rc));$('pti').innerHTML='';
  sfx('rattle');const eg=$('eggs');if(eg)eg.animate([{transform:'rotate(0)'},{transform:'rotate(-8deg)'},{transform:'rotate(8deg)'},{transform:'rotate(-12deg) scale(1.05)'},{transform:'rotate(12deg) scale(1.08)'},{transform:'rotate(0) scale(1.2)'}],{duration:1400,easing:'ease-in-out'});
  setTimeout(()=>{
@@ -2059,8 +2059,8 @@ function hatchMulti(n){
   if(best.rr>=3)for(let i=1;i<=2;i++)setTimeout(()=>wfx(rc,$('pst')),i*320);
   const nw=res.filter(x=>!x.dupe).length,seen={};
   const cells=res.slice().sort((a,b)=>b.rr-a.rr).map(x=>{const first=!x.dupe&&!seen[x.p.id];if(first)seen[x.p.id]=1;return `<button class="mri" data-i="${x.p.id}" style="--c:${PRC[x.rr]}">${petSVG(x.p,40,true,false)}${first?'<i class="nw">NEW</i>':''}</button>`}).join('');
-  $('pti').insertAdjacentHTML('afterbegin',`<div class="icard" style="border-color:${rc};box-shadow:0 0 14px ${rc};text-align:center;margin-top:6px"><b style="color:${rc}">🥚 ฟักไข่ x${n} เสร็จแล้ว!</b><div class="mrp">${pillsOf(cnt,PRN,PRC)}</div><div class="mrg">${cells}</div><small>🎉 สัตว์เลี้ยงใหม่ ${new Set(res.filter(x=>!x.dupe).map(x=>x.p.id)).size} ตัว · ♻️ ได้เศษวิญญาณ ${res.length-new Set(res.filter(x=>!x.dupe).map(x=>x.p.id)).size} ชิ้น · ดีที่สุด: ${best.p.n} (${PRN[best.rr]})<br>จิ้มที่ตัวเพื่อดูสถานะ</small></div>`);
-  $('pti').querySelectorAll('.mri').forEach(b=>b.onclick=()=>{ppv=b.dataset.i;renderPt()});$('pti').scrollIntoView({behavior:'smooth',block:'center'});
+  $('pti').insertAdjacentHTML('afterbegin',`<div class="icard" style="border-color:${rc};box-shadow:0 0 14px ${rc};text-align:center;margin-top:6px"><b style="color:${rc}">🥚 ฟักไข่ x${n} เสร็จแล้ว!</b><div class="mrp">${pillsOf(cnt,PRN,PRC)}</div><div class="mrg" id="mrgP"></div><small>🎉 สัตว์เลี้ยงใหม่ ${new Set(res.filter(x=>!x.dupe).map(x=>x.p.id)).size} ตัว · ♻️ ได้เศษวิญญาณ ${res.length-new Set(res.filter(x=>!x.dupe).map(x=>x.p.id)).size} ชิ้น · ดีที่สุด: ${best.p.n} (${PRN[best.rr]})<br>จิ้มที่ตัวเพื่อดูสถานะ</small></div>`);
+  {const _m=$('mrgP');_m.onclick=e=>{const b=e.target.closest('.mri');if(b){ppv=b.dataset.i;renderPt()}};appendChunked(_m,cells,()=>$('pti').scrollIntoView({behavior:'smooth',block:'center'}))}
  },1450);
 }
 
@@ -2084,9 +2084,10 @@ skPull=function(n){
    const nt=(k,i)=>notes[i]==='new'?(auto.includes(k.id)?'🆕 ติดตั้งแล้ว':'🆕 ใหม่!'):notes[i]==='up'?'⬆️ Lv.'+S.skills[k.id].lv:'🪙 '+fmt(+notes[i].slice(1));
    if(n===1){const k=res[0],c=RC[k.r];$('scard').innerHTML=`<div class="rcard" style="--c:${c}">${notes[0]==='new'?'<span class="rtag">NEW</span>':''}<div class="rpl">${skPlate(k,76)}</div><b class="rname" style="color:${c}">${k.n}</b><span class="pill" style="background:${c}">${RN[k.r]}</span><div class="rst">${nt(k,0)}</div><small>${skDesc(k,S.skills[k.id])}</small><small>⏱️ ${k.cd} วินาที · เลเวล ${S.skills[k.id].lv}/${SKMAX}</small></div>`}
    else{const nw=notes.filter(x=>x==='new').length,up=notes.filter(x=>x==='up').length,cnt=Array(6).fill(0);res.forEach(k=>cnt[k.r]++);
-    const grid=n>10?`<div class="sg50">${res.map((k,i)=>`<div class="c5" title="${k.n}">${skPlate(k,36)}${notes[i]==='new'?'<i class="nw">NEW</i>':notes[i]==='up'?'<i class="nw lv">▲</i>':''}</div>`).join('')}</div>`:`<div class="sg10">${res.map((k,i)=>`<div class="fc ${i===bi?'best':''}" style="--i:${i};--c:${RC[k.r]}">${i===bi?'<em class="crown">👑</em>':''}${skPlate(k,44)}<span>${nt(k,i)}</span></div>`).join('')}</div>`;
+    const grid=n>10?`<div class="sg50" id="sg50h"></div>`:`<div class="sg10">${res.map((k,i)=>`<div class="fc ${i===bi?'best':''}" style="--i:${i};--c:${RC[k.r]}">${i===bi?'<em class="crown">👑</em>':''}${skPlate(k,44)}<span>${nt(k,i)}</span></div>`).join('')}</div>`;
     $('scard').innerHTML=`<div class="rcard" style="--c:${rc}"><b>📜 สุ่ม x${n} · ใช้ 🪙 ${fmt(cost)}</b><div class="mrp">${pillsOf(cnt,RN,RC)}</div>${grid}<small style="margin-top:8px">🆕 สกิลใหม่ ${nw} · ⬆️ เลเวลอัป ${up}${gsum?' · 🪙 แปลงสกิลเกินเลเวล +'+fmt(gsum):''}${auto.length?' · ติดตั้งอัตโนมัติ '+auto.length+' ช่อง':''} · ดีที่สุด: ${RN[best.r]}</small></div>`;
-    res.forEach((k,i)=>{if(k.r>=3&&i<14)setTimeout(()=>sfx('reveal',k.r),i*120+300)})}
+    if(n>10)appendChunked($('sg50h'),res.map((k,i)=>`<div class="c5" title="${k.n}">${skPlate(k,36)}${notes[i]==='new'?'<i class="nw">NEW</i>':notes[i]==='up'?'<i class="nw lv">▲</i>':''}</div>`).join(''));
+    res.forEach((k,i)=>{if(k.r>=3&&i<(n>10?5:14))setTimeout(()=>sfx('reveal',k.r),i*120+300)})}
    skBusy=false;renderSk();$('scard').scrollIntoView({behavior:'smooth',block:'center'})},800)},1100);
 };
 $('sg50').onclick=()=>skPull(50);
@@ -2094,7 +2095,7 @@ const _rsk=renderSk;renderSk=function(){_rsk();const p=skPrice();$('sg50').inner
 
 setInterval(()=>{const c=copen();DIS('open10',!!S.pend||mcBusy||S.gold<Math.floor(c*9));DIS('open50',!!S.pend||mcBusy||S.gold<Math.floor(c*40));
  if(!$('skp').hidden)DIS('sg50',skBusy||S.gold<Math.floor(skPrice()*40));
- const b10=$('phatch10'),b50=$('phatch50');if(b10)b10.disabled=hatching||S.gold<eggTotal(10);if(b50)b50.disabled=hatching||S.gold<eggTotal(50)},400);
+ const b10=$('phatch10'),b50=$('phatch50');if(b10)b10.disabled=hatching||(S.diamonds||0)<eggTotal(10);if(b50)b50.disabled=hatching||(S.diamonds||0)<eggTotal(50)},400);
 
 /* ================= ดูรายการสุ่ม: สกิล / สัตว์เลี้ยง (จิ้มดูสถานะได้) ================= */
 const SKKIND={d:'โจมตี',c:'ติดคริติคอล',t:'สตั้น',x:'คอมโบ',h:'ฟื้นฟู',b:'บัพ'};
@@ -8387,6 +8388,32 @@ window.pfAlign=function(){
  gainExp=function(x){const l0=S.lv;og.apply(this,arguments);if(S.lv>l0){for(let l=l0+1;l<=S.lv;l++)if(l%10===0&&l/10<RN.length){try{banner('🔓 ปลดล็อกอุปกรณ์ระดับ '+RN[l/10]+'!')}catch(e){}}try{renderGear()}catch(e){}}};
  renderGear();
 })();
+</script>
+<script>
+/* ไอคอนแบบเบา (ไม่มีชั้นเอฟเฟคซ้อน/แอนิเมชัน) สำหรับตารางผลสุ่มหลายชิ้น */
+function iconLite(s,t,sz){
+ const h=icon(s,t,sz);
+ if(s>4||t==null)return h;
+ const m=h.match(/<svg[\s\S]*<\/svg>/);
+ if(!m)return h;
+ return `<span class="ga lite" style="--z:${sz}px;--c:${RC[t]};--c2:${(typeof TP!=='undefined'&&TP[t])?TP[t][2]:RC[t]}">${m[0]}</span>`;
+}
+/* ใส่ผลทีละชุด (8 ชิ้นต่อเฟรม) กันเครื่องค้าง/ภาพกระพริบตอนสุ่ม 50 ครั้ง */
+function appendChunked(host,html,after){
+ if(!host)return;
+ const t=document.createElement('template');t.innerHTML=html;
+ const kids=[...t.content.children];let i=0;
+ const step=()=>{
+  if(!host.isConnected)return;
+  const f=document.createDocumentFragment();
+  for(let k=0;k<8&&i<kids.length;k++,i++)f.appendChild(kids[i]);
+  host.appendChild(f);
+  if(i<kids.length)requestAnimationFrame(step);
+  else{try{host.querySelectorAll('svg').forEach(v=>v.pauseAnimations&&v.pauseAnimations())}catch(e){}if(after)after()}
+ };
+ requestAnimationFrame(step);
+}
+document.head.insertAdjacentHTML('beforeend','<style>.mrg *,.sg50 *{animation:none!important}.mri,.c5{contain:layout paint style}.ga.lite{position:relative;display:inline-block;width:var(--z);height:var(--z)}.ga.lite>svg{width:100%;height:100%;filter:none!important}</style>');
 </script>
 </body></html>
 
