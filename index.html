@@ -901,7 +901,7 @@ $('rs').onclick=()=>{if(confirm('รีเซ็ตเกมทั้งหม�
 const RN=['สามัญ','ดี','หายาก','มหากาพย์','ตำนาน','เทพ','เซียน','อมตะ','จักรพรรดิ','สวรรค์','ปฐมกาล'],RC=['#9a9a8a','#4caf50','#3d8bfd','#a855f7','#f59e0b','#ef4444','#ff4fb8','#22e0ff','#ffd400','#3dffa8','#ffffff'],RM=[1,1.8,3,5,8,12,17,24,34,48,70],
 SL=[{i:'🗡️',n:'กระบี่',b:.08,t:'โจมตี'},{i:'🥋',n:'เสื้อเกราะ',b:.08,t:'ลมปราณ'},{i:'👒',n:'หมวก',b:1.5,t:'คริ'},{i:'👟',n:'รองเท้า',b:.04,t:'ก้าว'},{i:'📿',n:'สร้อยหยก',b:.08,t:'เหรียญ'}],
 AD=['ธรรมดา','เหล็กกล้า','จันทรา','มังกร','สายฟ้า','สวรรค์','หยกวิญญาณ','เทพอมตะ','จักรพรรดิมังกร','นภาลัย','ปฐมกาล'];RN.push('โกลาหล','นิรันดร์','เทพบิดร','จักรวาล','อนันตกาล','เทพอสูร','เทวาธิราช','สุริยัน','อสงไขย');RC.push('#ff7a1a','#7c4dff','#e8c25a','#00b3ff','#ff4fd8','#ff2e63','#b6ff3d','#00d9c0','#ffffff');RM.push(100,145,210,300,440,640,930,1350,2000);AD.push('โกลาหล','นิรันดร์','เทพบิดร','จักรวาล','อนันตกาล','เทพอสูร','เทวาธิราช','สุริยัน','อสงไขย');
-const copen=()=>Math.floor(150*Math.pow(1.15,Math.max(0,S.lv-1)));
+const copen=()=>{const L=Math.min(Math.max(1,S.lv||1),200);return Math.floor(150*Math.pow(1.15,Math.min(L,60)-1)*Math.pow(1.05,Math.max(0,L-60)))};
 const OBU=t=>t<=0?1:10*t;window.OBU=OBU;
 function odds(L){L=L||S.lv;const m=1+0.03*(L-1);const w=OB.map((x,i)=>L>=OBU(i)?x*Math.pow(m,i/4):0);const t=w.reduce((a,b)=>a+b);return w.map(x=>x/t)}
 function roll(){const o=odds();let r=Math.random(),t=0;for(;t<o.length-1;t++){r-=o[t];if(r<0)break}const s=Math.floor(Math.random()*5);return{s,t,v:SL[s].b*RMV(s,t)*(0.9+Math.random()*0.2)}}
@@ -1369,7 +1369,7 @@ function stageHTML(c,inner){return `<div class="beam"></div><div class="plat"></
 function hatch(){
  if(hatching)return;const free=(S.egg||0)>0,c=eggCost();if(!free&&S.gold<c)return;
  hatching=true;if(free)S.egg--;else S.gold-=c;S.hc=(S.hc||0)+1;S.hpr=(S.hpr||0)+1;
- let r=0,rr=hRoll();if((S.pity||0)>=29)rr=Math.random()<.786?3:4;S.pity=rr>=3?0:(S.pity||0)+1;S.pm=(S.pm||0)+1;if(S.pm>=100&&rr<5)rr=PMR();if(rr>=5)S.pm=0;
+ let r=0,rr=hRoll();if((S.pity||0)>=29)rr=Math.random()<.786?3:4;S.pity=rr>=3?0:(S.pity||0)+1;S.pm=(S.pm||0)+1;if(S.pm>=100&&rr<5){const _q=PMR();if(_q>=0)rr=_q}if(rr>=5)S.pm=0;
  const pool=PT.filter(x=>x.r===rr),p=pool[Math.floor(Math.random()*pool.length)],rc=PRC[rr],dupe=!!S.pets[p.id];
  $('pst').style.setProperty('--c0','#f5b83d');$('pst').innerHTML=stageHTML('#f5b83d',eggSVG(rc));$('pti').innerHTML='';
  sfx('rattle');const eg=$('eggs');
@@ -1414,9 +1414,11 @@ function dmgNum(d,k,side){
  $('arena').appendChild(e);dnN++;setTimeout(()=>{e.remove();dnN--},big?1450:950)}
 const HPW=[45.1,25,12,6,3.5],HTOT=HPW.reduce((a,b)=>a+b);HPW.push(2.5,1.8,1.3,.9,.6,.45,.35,.25,.15,.1);
 function HBU(t){return t<=1?1:1+3*(t-1)}
-function hodds(L){const m=1+0.03*(L-1);const w=HPW.map((x,i)=>L>=HBU(i)?x*Math.pow(m,i/4):0);const t=w.reduce((a,b)=>a+b,0);return w.map(x=>x/t)}
-function hRoll(){const w=hodds(S.hl||1);let r=Math.random(),i=0;for(;i<w.length-1;i++){r-=w[i];if(r<0)break}while(i>0&&w[i]===0)i--;return i}
-const pctR=r=>hodds(S.hl||1)[r]*100,pctP=x=>pctR(x.r)/PT.filter(y=>y.r===x.r).length,fp=n=>pctFmt(n);
+const pUnl=i=>(S.hl||1)>=HBU(i)||(S.lv||1)>=10*i;
+const pEff=()=>Math.max(S.hl||1,Math.min(40,Math.floor((S.lv||1)/4)+1));
+function hodds(L){const m=1+0.03*(L-1);const w=HPW.map((x,i)=>pUnl(i)?x*Math.pow(m,i/4):0);const t=w.reduce((a,b)=>a+b,0);return w.map(x=>x/t)}
+function hRoll(){const w=hodds(pEff());let r=Math.random(),i=0;for(;i<w.length-1;i++){r-=w[i];if(r<0)break}while(i>0&&w[i]===0)i--;return i}
+const pctR=r=>hodds(pEff())[r]*100,pctP=x=>pctR(x.r)/PT.filter(y=>y.r===x.r).length,fp=n=>pctFmt(n);
 function petAura(p,R,st){const r=p.r,C=p.e,A=a=>st?'':a;
  let o=`<ellipse cx="52" cy="42" rx="${52+r*4}" ry="${38+r*3}" fill="url(#${R}o)">${A('<animate attributeName="opacity" values=".45;1;.45" dur="2.2s" repeatCount="indefinite"/>')}</ellipse><ellipse cx="52" cy="76" rx="40" ry="5" fill="#000" opacity=".3"/>`;
  if(r>=2)o+=`<circle cx="52" cy="42" r="50" fill="none" stroke="${C}" stroke-width="1.3" stroke-dasharray="4 6" opacity=".85">${A('<animateTransform attributeName="transform" type="rotate" from="0 52 42" to="360 52 42" dur="12s" repeatCount="indefinite"/>')}</circle>`;
@@ -1437,14 +1439,14 @@ function petExtra(p,R,st){const e=p.e,fk=d=>st?'':`<animate attributeName="opaci
  case'gold':{const coin=(x,y)=>`<g transform="translate(${x} ${y})"><circle r="4.2" fill="#f5b83d" stroke="#8a560a" stroke-width=".8"/><rect x="-1.6" y="-1.6" width="3.2" height="3.2" fill="#6b3a05"/></g>`;const cs=[0,1,2,3].map(i=>coin(52+46*Math.cos(i*1.571),42+34*Math.sin(i*1.571))).join('');return `<g>${cs}${st?'':'<animateTransform attributeName="transform" type="rotate" from="0 52 42" to="360 52 42" dur="8s" repeatCount="indefinite"/>'}</g>`}
  default:return ''}}
 function pctRows(){
- const L=S.hl||1,n=HPW.length;
+ const L=pEff(),n=HPW.length;
  const max=Math.max(...Array.from({length:n},(_,i)=>pctR(i)),1);
  let out='';
  for(let r=n-1;r>=0;r--){
-  const unl=HBU(r)<=L,p=pctR(r),list=PT.filter(x=>x.r===r),c=PRC[r]||'#888';
+  const unl=pUnl(r),p=pctR(r),list=PT.filter(x=>x.r===r),c=PRC[r]||'#888';
   const name=PRN[r]||('ระดับ '+r);
-  const val=unl?fp(p)+'%':'🔒 Lv.'+HBU(r);
-  const sub=unl?(list.length?'ตัวละ '+fp(p/list.length)+'% · '+list.map(x=>x.n).join(' / '):'ยังไม่มีตัวในระดับนี้'):'ปลดล็อกที่ระดับฟัก Lv.'+HBU(r);
+  const val=unl?fp(p)+'%':'🔒 Lv.'+HBU(r)+'/'+(10*r);
+  const sub=unl?(list.length?'ตัวละ '+fp(p/list.length)+'% · '+list.map(x=>x.n).join(' / '):'ยังไม่มีตัวในระดับนี้'):'ปลดล็อกที่ระดับฟัก Lv.'+HBU(r)+' หรือเลเวลตัวละคร '+(10*r);
   out+=`<div class="or" style="${unl?'':'opacity:.5'}"><span class="pill" style="background:${c}">${name}</span><div class="bar"><i style="width:${unl?Math.max(4,p/max*100):0}%;background:${c}"></i></div><b>${val}</b><small>${sub}</small></div>`;
  }
  return out;
@@ -2044,7 +2046,7 @@ function hatchMulti(n){
  if(hatching)return;const tot=eggTotal(n);if(S.gold<tot)return;hatching=true;
  const res=[];
  for(let i=0;i<n;i++){const free=(S.egg||0)>0,c=eggCost();if(free)S.egg--;else S.gold-=c;S.hc=(S.hc||0)+1;S.hpr=(S.hpr||0)+1;
-  let r=0,rr=hRoll();if((S.pity||0)>=29)rr=Math.random()<.786?3:4;S.pity=rr>=3?0:(S.pity||0)+1;S.pm=(S.pm||0)+1;if(S.pm>=100&&rr<5)rr=PMR();if(rr>=5)S.pm=0;
+  let r=0,rr=hRoll();if((S.pity||0)>=29)rr=Math.random()<.786?3:4;S.pity=rr>=3?0:(S.pity||0)+1;S.pm=(S.pm||0)+1;if(S.pm>=100&&rr<5){const _q=PMR();if(_q>=0)rr=_q}if(rr>=5)S.pm=0;
   const pool=PT.filter(x=>x.r===rr),p=pool[Math.floor(Math.random()*pool.length)],dupe=!!S.pets[p.id];
   if(dupe)S.pets[p.id].sh=(S.pets[p.id].sh||0)+1;else{S.pets[p.id]={lv:1,st:0,sh:0};if(!S.pet)S.pet=p.id}
   res.push({p,rr,dupe})}
@@ -3138,7 +3140,7 @@ const _csE=castSk;castSk=function(i){const id=S.sk[i],k=id&&SK.find(x=>x.id===id
 
 
 
-function PMR(){const w=hodds(S.hl||1).slice(5),t=w.reduce((a,b)=>a+b);if(t<=0)return 4;let q=Math.random()*t,r=5;for(;r<HPW.length-1;r++){q-=w[r-5];if(q<0)break}while(r>5&&w[r-5]===0)r--;return r}
+function PMR(){const w=hodds(pEff()).slice(5),t=w.reduce((a,b)=>a+b);if(!(t>0))return -1;let q=Math.random()*t,r=5;for(;r<HPW.length-1;r++){q-=w[r-5];if(q<0)break}while(r>5&&w[r-5]===0)r--;return r}
 
 document.head.insertAdjacentHTML('beforeend',`<style>#pet.pr7::after,#pet.pr10::after,#pet.pr13::after{width:130px;height:130px;margin-left:-65px;bottom:-60px;border-style:solid;border-width:3px}#pet.pr14 #ps svg,#pet.pr13 #ps svg{animation:gahue 6s linear infinite}</style>`);
 const _paA=petAura;petAura=function(p,R,st){const r=p.r,C=p.e,A=a=>st?'':a;let o=_paA(p,R,st);if(r<5)return o;
@@ -7280,7 +7282,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 .pfx .sl small{font-size:9px;color:#caa78a}
 .pfx .hero{position:relative;height:170px;display:flex;align-items:flex-end;justify-content:center}
 .pfx .hero::before{content:"";position:absolute;left:10%;right:10%;bottom:6px;height:26px;border-radius:50%;background:radial-gradient(ellipse,#ffb02e66,transparent 70%);border:1.5px solid #ffd23f55}
-.pfx .hero svg{position:relative!important;width:150px!important;height:162px!important;transform:none!important;overflow:visible!important}
+.pfx .hero>svg{position:relative!important;width:150px!important;height:162px!important;transform:none!important;overflow:visible!important}
+.pfx .hero{overflow:visible}.pfx .col{position:relative;z-index:2}
 .pfx .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
 .pfx .stats div{display:flex;flex-direction:column;align-items:center;padding:4px 2px;border-radius:10px;background:linear-gradient(#2a1610,#160a06);border:1px solid #5a3420;font-size:9.5px;color:#caa78a}
 .pfx .stats div i{font-style:normal;font-size:15px;line-height:1.1}.pfx .stats div b{font-size:11.5px;color:#ffe066}
@@ -7364,7 +7367,7 @@ async function openProfile(uid){if(!uid)return;P.hidden=false;const B=$('pfbd');
  if(error||!data){B.innerHTML='<div class="soemp">ยังไม่มีข้อมูลของผู้เล่นนี้<br><small>ข้อมูลจะขึ้นหลังผู้เล่นออนไลน์อย่างน้อย 1 ครั้ง</small></div>';return}
  const d=data.data||{},me=uid===c.u.id;if(!FR.friends.length&&!FR.out.length&&!FR.inc.length)await loadFriends();
  const isF=FR.friends.some(f=>f.uid===uid),isOut=FR.out.some(f=>f.uid===uid),isIn=FR.inc.some(f=>f.uid===uid);
- let av='';try{const hh=window.pfRenderHero?window.pfRenderHero(d):null;const bx=window._pfHeroBox||{};if(hh)av='<div class="pfhero" style="width:'+(bx.w||'240px')+';height:'+(bx.h||'260px')+';font-size:'+(bx.fs||'16px')+'">'+hh+'</div>'}catch(e){}
+ let av='';try{const hh=window.pfRenderHero?window.pfRenderHero(d):null;if(hh)av='<div class="pfhero '+(window._pfHeroCls||'')+'" style="width:150px;height:162px">'+hh+'</div>'}catch(e){}
   if(!av&&typeof d.hero==='string'&&d.hero)av='<div class="pfhero">'+d.hero+'</div>';if(!av)try{const base=null;if(base){const k=base.cloneNode(true);if(window.unFemNh)unFemNh(k);k.removeAttribute('style');
    k.querySelectorAll('.n-wg').forEach(g=>{g.innerHTML='';try{if(d.wg&&typeof wingHero==='function')g.innerHTML='<g transform="translate(4 10)">'+wingHero(d.wg,false)+'</g>'}catch(e){}});
    if(d.sex==='f'&&window.femNh)femNh(k);av=k.outerHTML}}catch(e){}
@@ -8095,7 +8098,7 @@ button.g.gx .gn{font-size:19px!important}button.g.gx .gp{font-size:13.5px!import
  renderPt=function(){prev.apply(this,arguments);try{
   const box=$('podds');if(!box)return;
   const L=S.hl||1,MX=40,h=S.hpr||0,nd=need(L);
-  const nxt=[];for(let t=2;t<HPW.length&&nxt.length<2;t++)if(HBU(t)>L)nxt.push(`🔒 ${PRN[t]||'ระดับ'+t} ปลดล็อกที่ระดับฟัก Lv.${HBU(t)}`);
+  const nxt=[];for(let t=2;t<HPW.length&&nxt.length<2;t++)if(!pUnl(t))nxt.push(`🔒 ${PRN[t]||'ระดับ'+t} ปลดล็อกที่ระดับฟัก Lv.${HBU(t)} หรือเลเวลตัวละคร ${10*t}`);
   box.insertAdjacentHTML('beforeend',`<div class="icard" style="margin-top:6px;text-align:center"><b>🔮 ระดับการฟัก Lv.${L}/${MX}</b><br><small>ยิ่งระดับสูง ระดับสัตว์หายากยิ่งมีโอกาสมากขึ้น (เหมือนระดับหีบ)</small>${nxt.map(x=>'<br><small>'+x+'</small>').join('')}<div class="up" style="justify-content:center;font-weight:700;margin-top:6px">${L>=MX?'MAX':'🥚 ความคืบหน้า → Lv '+(L+1)+' · ฟักแล้ว '+h+'/'+nd+' ครั้ง'}</div></div>`);
  }catch(e){}};
 })();
@@ -8272,7 +8275,7 @@ window.pfHsStyle=function(hero){
  const relevant=sel=>/#hero(?![\w-])/.test(sel)
   ||[...sel.matchAll(/#([A-Za-z_][\w-]*)/g)].some(m=>ids.has(m[1]))
   ||[...sel.matchAll(/\.([A-Za-z_][\w-]*)/g)].some(m=>classes.has(m[1]));
- let css='.pfhero{position:relative;width:240px;height:260px;margin:0 auto}\n.pfhero #pv_hs{translate:2px -52px}\n';
+ let css='.pfhero{position:relative;width:150px;height:162px;flex:none}\n.pfhero .spr{position:absolute;inset:0}\n.pfhero #pv_hs>svg{position:absolute;left:0;bottom:0;width:150px;height:162px;overflow:visible}\n';
  for(const sh of document.styleSheets){
   let rules;try{rules=sh.cssRules}catch(e){continue}
   for(const r of rules){
@@ -8315,13 +8318,15 @@ window.pfRenderHero=function(d){
   S.wg=d.wg||0;S.wl=d.wl||0;S.sex=d.sex||'m';
   window._wk=undefined;
   updateHero();
+  try{window.nhFs&&window.nhFs(document.querySelector('#hs svg.nh'))}catch(e){}
   const hw=document.getElementById('hero');out=window.pfPrefix(hw?hw.innerHTML:hs.innerHTML);
-  if(hw){const cs=getComputedStyle(hw);window._pfHeroBox={w:cs.width,h:cs.height,fs:cs.fontSize}}
+  window._pfHeroCls=hw?hw.className.replace(/\b(ch|atk|lvl|hit|bobbing)\b/g,'').trim():'';
  }catch(e){console.error('[pfRenderHero]',e)}
  finally{
   Object.assign(S,keep);
   window._wk=undefined;
   try{updateHero()}catch(e){}
+  try{window.nhFs&&window.nhFs(document.querySelector('#hs svg.nh'))}catch(e){}
  }
  window._pfLastHero=out;
  return out;
@@ -8330,29 +8335,19 @@ window.pfRenderHero=function(d){
 <script>
 /* จัดออร่าให้ตรงตัวละคร: วัดตำแหน่งขาของตัวละครจริง แล้วเลื่อนชั้นออร่าให้กึ่งกลางอยู่ใต้เท้า */
 window.pfAlign=function(){
- const box=document.querySelector('#pfbd .pfhero');if(!box)return;
- const body=box.querySelector('#pv_hs');if(!body)return;
- const sv=body.querySelector('svg.nh')||body.querySelector('svg');if(!sv)return;
- const sr=sv.getBoundingClientRect();if(!sr.width||!sr.height)return;
- /* ตำแหน่งอ้างอิง: ออร่าพื้นอยู่ใต้เท้า (กึ่งกลางแนวนอน, ใกล้ฐานล่าง) ออร่าตีบวกอยู่รอบตัว (กึ่งกลางทั้งตัว) */
- const baseX=(sr.left+sr.right)/2, baseY=sr.bottom-sr.height*0.06;
- const bodyX=(sr.left+sr.right)/2, bodyY=(sr.top+sr.bottom)/2;
- const targets=[
-  {q:'#pv_fsau',x:baseX,y:baseY},
-  {q:'#pv_wsau',x:baseX,y:baseY},
-  {q:'.hglow',x:baseX,y:baseY},
-  {q:'.enaura',x:bodyX,y:bodyY}
- ];
- const items=targets.map(t=>({t,el:box.querySelector(t.q)})).filter(o=>o.el);
- if(!items.length)return;
- items.forEach(o=>{o.el.style.translate='0px 0px'});
- items.forEach(o=>{
-  const r=o.el.getBoundingClientRect();
-  if(!r.width||!r.height)return;
-  const cx=(r.left+r.right)/2,cy=(r.top+r.bottom)/2;
-  o.el.style.translate=(o.t.x-cx).toFixed(1)+'px '+(o.t.y-cy).toFixed(1)+'px';
- });
-};
+ const hero=document.querySelector('#pfbd .pfx .hero');const w=hero&&hero.querySelector('.pfhero');if(!w)return;
+ w.style.translate='0px 0px';
+ const au=w.querySelector('.enaura');if(au)au.style.translate='0px 0px';
+ const T=w.querySelector('#pv_hs .n-body')||w.querySelector('#pv_hs .body')||w.querySelector('#pv_hs svg');
+ if(!T)return;
+ const hr=hero.getBoundingClientRect(),tr=T.getBoundingClientRect();
+ if(!tr.width||!hr.width)return;
+ /* 1) ย้ายตัวละครทั้งชุด ให้ลำตัวอยู่กึ่งกลางวงกลมใต้เท้า */
+ const dx=(hr.left+hr.right)/2-(tr.left+tr.right)/2;
+ w.style.translate=dx.toFixed(1)+'px 0px';
+ /* 2) ออร่าตีบวก: จัดกึ่งกลางแนวนอนให้ตรงลำตัว (แนวตั้งคงตามฉากหลักที่ฐานอยู่ที่เท้า) */
+ if(au){const ar=au.getBoundingClientRect(),t2=T.getBoundingClientRect();
+  if(ar.width){const d2=(t2.left+t2.right)/2-(ar.left+ar.right)/2;au.style.translate=d2.toFixed(1)+'px 0px'}}};
 </script>
 <script>
 /* เปิดหีบ 1 ครั้ง: ถ้าของที่ได้ดีกว่าของที่สวมอยู่ในช่องนั้น ให้สวมใส่ให้อัตโนมัติ */
