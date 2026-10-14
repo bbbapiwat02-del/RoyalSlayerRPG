@@ -731,7 +731,6 @@ body{display:flex;flex-direction:column;height:calc(100dvh - env(safe-area-inset
 <div id="stg"><div id="rays"></div><div id="cico">📦</div><div id="itm"></div></div>
 <div id="card"></div>
 <div class="row"><button class="skill" id="open"></button><button class="auto" id="keyb"></button></div><div class="row"><button class="auto" id="open10"></button><button class="auto" id="open50"></button></div>
-<button class="up" id="upc" style="justify-content:center;font-weight:700"></button>
 </div>
 <div id="skp" hidden>
 <div class="od" id="sodds"></div>
@@ -754,8 +753,8 @@ const SETS=[
 ];
 const EXC=SETS.map(s=>s.c),SPAL=SETS.map(s=>s.pal);
 window._hold=true;
-const CHI=['📦','🧰','🎁','🏺','💎','👑','🔮','🌌'],MAXC=40,NT=16,OB=[55,21,10,5,3.36,1.5,1.1,.8,.6,.45,.35];
-const TP=[['#9aa0a6','#4f565c','#e3e7ea'],['#5cc47a','#1f6b3d','#d3f7de'],['#4c8dff','#1d3f94','#d6e6ff'],['#a855f7','#5b2399','#efdcff'],['#f5b83d','#8a560a','#fff3c4'],['#ef4444','#7a0f1a','#ffd9d2'],['#ff4fb8','#7a0f55','#ffd6f0'],['#22e0ff','#0a4a7a','#d6fbff'],['#ffd400','#8a5a00','#fff7b0'],['#3dffa8','#0a6a4a','#d6ffee'],['#ffffff','#6a6a9a','#fff0ff']];OB.push(.27,.2,.15,.12,.1);TP.push(['#ff7a1a','#5a1a00','#ffd9b0'],['#7c4dff','#1e0a5a','#e3d6ff'],['#ffe08a','#7a5a10','#fffaf0'],['#00b3ff','#00245a','#d6f4ff'],['#ff4fd8','#3a0a5a','#ffffff']);
+const CHI=['📦','🧰','🎁','🏺','💎','👑','🔮','🌌'],MAXC=200,NT=20,OB=[55,21,10,5,3.36,1.5,1.1,.8,.6,.45,.35];
+const TP=[['#9aa0a6','#4f565c','#e3e7ea'],['#5cc47a','#1f6b3d','#d3f7de'],['#4c8dff','#1d3f94','#d6e6ff'],['#a855f7','#5b2399','#efdcff'],['#f5b83d','#8a560a','#fff3c4'],['#ef4444','#7a0f1a','#ffd9d2'],['#ff4fb8','#7a0f55','#ffd6f0'],['#22e0ff','#0a4a7a','#d6fbff'],['#ffd400','#8a5a00','#fff7b0'],['#3dffa8','#0a6a4a','#d6ffee'],['#ffffff','#6a6a9a','#fff0ff']];OB.push(.27,.2,.15,.12,.1,.08,.065,.05,.04);TP.push(['#ff7a1a','#5a1a00','#ffd9b0'],['#7c4dff','#1e0a5a','#e3d6ff'],['#ffe08a','#7a5a10','#fffaf0'],['#00b3ff','#00245a','#d6f4ff'],['#ff4fd8','#3a0a5a','#ffffff'],['#ff2e63','#4a0014','#ffd0dc'],['#b6ff3d','#2f5a00','#f2ffd6'],['#00d9c0','#00403a','#d0fff8'],['#ffffff','#2a1a5a','#fff0ff']);
 const RMV=(s,t)=>{const r=RM[t];if(t<=5||(s!==2&&s!==3))return r;return RM[5]*Math.pow(r/RM[5],s===2?.55:.6)};
 const spdB=()=>S.up.spd<=40?S.up.spd*.05:2+(S.up.spd-40)*.02;
 const CRD=()=>2+Math.max(0,CRIT()-100)*.02+(S.st?S.st.luk:0)*.005;
@@ -870,7 +869,7 @@ function render(){
  const bp=BP();T('bpv',fmt(bp));if(_c.bpr===undefined)_c.bpr=bp;else if(bp!==_c.bpr){const dd=bp-_c.bpr;_c.bpr=bp;const u=$('bpd');u.textContent=(dd>0?'+':'−')+fmt(Math.abs(dd));u.className=dd>0?'up':'dn';anim(u,'go')}
  T('gold',fmtS(S.gold));T('diamonds',fmtS(S.diamonds));T('shopdiamonds',fmt(S.diamonds));T('trg',fmt(S.gold));T('wgg',fmt(S.gold));T('ptg',fmt(S.gold));T('pte',S.egg||0);T('gg',fmt(S.gold));T('lvt','Lv.'+S.lv);W('xpf',(S.exp/expNeed(S.lv)*100).toFixed(1)+'%');T('xpt',fmt(S.exp)+' / '+fmt(expNeed(S.lv))+'  ('+Math.min(100,S.exp/expNeed(S.lv)*100).toFixed(1)+'%)');
  bd('nv2',typeof stPts==='function'&&stPts()>0);bd('nv3',!!S.pend||S.keys>0||(S.skf||0)>0);bd('nv4',!D&&S.tk>0);bd('nv5',wingCan());bd('nv6',petCan());bd('nv7',S.sk.some(x=>!x)&&Object.keys(S.skills).some(id=>!S.sk.includes(id)));bd('nv8',S.gold>=500||S.diamonds>=12);
- DIS('open',!!S.pend||S.gold<copen());if(!$('skp').hidden){DIS('sg1',skBusy||((S.skf||0)<=0&&S.gold<skPrice()));DIS('sg10',skBusy||S.gold<skPrice()*9)}DIS('keyb',!!S.pend||S.keys<1);DIS('upc',false);
+ DIS('open',!!S.pend||S.gold<copen());if(!$('skp').hidden){DIS('sg1',skBusy||((S.skf||0)<=0&&S.gold<skPrice()));DIS('sg10',skBusy||S.gold<skPrice()*9)}DIS('keyb',!!S.pend||S.keys<1);
  T('stage',D?(D.bs||D.tw||D.wb?(D.tw?'🗼 ':D.wb?'🌍 ':'👹 ')+D.nm+' · ⏱'+Math.ceil(D.t)+'s':'🪙 '+DG[D.i].n+' · คลื่น '+D.w+'/'+D.n+' · ⏱'+Math.ceil(D.t)+'s · +'+fmt(D.gold)):(isBoss()?'👹 ผู้นำสำนักมาร · ':'')+Z[Math.floor((S.stage-1)/10)%Z.length]+' ด่าน '+S.stage+(isBoss()?'':'  ('+S.kills+'/5)'));
  W('hbw',Math.round(Math.max(0,hp/MHP()*100))+'%');W('mbw',Math.round(Math.max(0,mhp/mmax*100))+'%');
  T('sA',fmtS(ATK()));T('sH',fmtS(hp)+'/'+fmtS(MHP()));T('sC',(+CRIT().toFixed(1))+'%'+(CRIT()>100?'(x'+CRD().toFixed(1)+')':''));T('sS','x'+SPD().toFixed(2));
@@ -901,10 +900,10 @@ setInterval(()=>{S.t=Date.now();try{localStorage.setItem('ml1',JSON.stringify(S)
 $('rs').onclick=()=>{if(confirm('รีเซ็ตเกมทั้งหมด?')){try{localStorage.removeItem('ml1')}catch(e){}S={gold:0,diamonds:0,stage:1,kills:0,up:{atk:0,hp:0,spd:0,crit:0},t:Date.now(),auto:false,chest:1,keys:0,eq:[null,null,null,null,null],pend:null,lv:1,exp:0,tk:3,tkT:Date.now(),wg:0,wl:0,pets:{},pet:'',egg:1,hc:0,sk:[null,null,null,null,null,null],skills:{},skf:3,skh:0,skp:0};hp=MHP();spawn();renderGear();initSk()}};
 const RN=['สามัญ','ดี','หายาก','มหากาพย์','ตำนาน','เทพ','เซียน','อมตะ','จักรพรรดิ','สวรรค์','ปฐมกาล'],RC=['#9a9a8a','#4caf50','#3d8bfd','#a855f7','#f59e0b','#ef4444','#ff4fb8','#22e0ff','#ffd400','#3dffa8','#ffffff'],RM=[1,1.8,3,5,8,12,17,24,34,48,70],
 SL=[{i:'🗡️',n:'กระบี่',b:.08,t:'โจมตี'},{i:'🥋',n:'เสื้อเกราะ',b:.08,t:'ลมปราณ'},{i:'👒',n:'หมวก',b:1.5,t:'คริ'},{i:'👟',n:'รองเท้า',b:.04,t:'ก้าว'},{i:'📿',n:'สร้อยหยก',b:.08,t:'เหรียญ'}],
-AD=['ธรรมดา','เหล็กกล้า','จันทรา','มังกร','สายฟ้า','สวรรค์','หยกวิญญาณ','เทพอมตะ','จักรพรรดิมังกร','นภาลัย','ปฐมกาล'];RN.push('โกลาหล','นิรันดร์','เทพบิดร','จักรวาล','อนันตกาล');RC.push('#ff7a1a','#7c4dff','#e8c25a','#00b3ff','#ff4fd8');RM.push(100,145,210,300,440);AD.push('โกลาหล','นิรันดร์','เทพบิดร','จักรวาล','อนันตกาล');
-const copen=()=>Math.floor(100*Math.pow(1.6,S.chest-1)),cup=()=>Math.floor(S.chest<=10?300*Math.pow(1.9,S.chest-1):300*Math.pow(1.9,9)*Math.pow(1.6,S.chest-10));
-const OBU=t=>t<=5?1:Math.max(2,t-5);window.OBU=OBU;
-function odds(L){L=L||S.chest;const m=1+0.03*(L-1);const w=OB.map((x,i)=>L>=OBU(i)?x*Math.pow(m,i/4):0);const t=w.reduce((a,b)=>a+b);return w.map(x=>x/t)}
+AD=['ธรรมดา','เหล็กกล้า','จันทรา','มังกร','สายฟ้า','สวรรค์','หยกวิญญาณ','เทพอมตะ','จักรพรรดิมังกร','นภาลัย','ปฐมกาล'];RN.push('โกลาหล','นิรันดร์','เทพบิดร','จักรวาล','อนันตกาล','เทพอสูร','เทวาธิราช','สุริยัน','อสงไขย');RC.push('#ff7a1a','#7c4dff','#e8c25a','#00b3ff','#ff4fd8','#ff2e63','#b6ff3d','#00d9c0','#ffffff');RM.push(100,145,210,300,440,640,930,1350,2000);AD.push('โกลาหล','นิรันดร์','เทพบิดร','จักรวาล','อนันตกาล','เทพอสูร','เทวาธิราช','สุริยัน','อสงไขย');
+const copen=()=>Math.floor(150*Math.pow(1.15,Math.max(0,S.lv-1)));
+const OBU=t=>t<=0?1:10*t;window.OBU=OBU;
+function odds(L){L=L||S.lv;const m=1+0.03*(L-1);const w=OB.map((x,i)=>L>=OBU(i)?x*Math.pow(m,i/4):0);const t=w.reduce((a,b)=>a+b);return w.map(x=>x/t)}
 function roll(){const o=odds();let r=Math.random(),t=0;for(;t<o.length-1;t++){r-=o[t];if(r<0)break}const s=Math.floor(Math.random()*5);return{s,t,v:SL[s].b*RMV(s,t)*(0.9+Math.random()*0.2)}}
 const istat=e=>SL[e.s].t+' '+(e.s===2?'+'+e.v.toFixed(1)+'%':e.s===3?'+'+e.v.toFixed(2)+'x':'+'+Math.round(e.v*100)+'%');
 const DIAMOND_PACKS=[{g:500,d:10,n:'ถุงเพชรเล็ก',i:'💎'},{g:2000,d:50,n:'หีบเพชร',i:'💎💎'},{g:5000,d:150,n:'คลังเพชรเซียน',i:'💎✨'}];
@@ -917,11 +916,10 @@ function renderShop(){
  $('diamonditems').querySelectorAll('[data-item]').forEach(b=>b.onclick=()=>{const p=DIAMOND_ITEMS.find(x=>x.id===b.dataset.item);if(!p||S.diamonds<p.c)return;S.diamonds-=p.c;if(p.id==='key')S.keys++;else if(p.id==='ticket')S.tk=Math.min(99,(S.tk||0)+1);else if(p.id==='egg')S.egg=(S.egg||0)+1;else if(p.id==='skill')S.skf=(S.skf||0)+1;$('shopmsg').textContent=`ซื้อ${p.n}สำเร็จ!`;sfx('equip');renderShop();render()});
 }
 function renderGear(){updateHero();
- $('cico').textContent=CHI[Math.min(CHI.length-1,Math.floor((S.chest-1)/4))];
- $('clv').textContent='หีบระดับ '+S.chest+(S.chest>=MAXC?' (MAX)':'');
+ $('cico').textContent=CHI[Math.min(CHI.length-1,Math.floor((S.lv-1)/25))];
+ $('clv').textContent='หีบอุปกรณ์ · เลเวล '+S.lv;
  const o=odds();$('codds').innerHTML=RN.map((n,i)=>`<span style="background:${RC[i]}">${n} ${fmtP(o[i])}%</span>`).join('');
  $('open').textContent='🎁 เปิดหีบ 🪙 '+fmt(copen());$('keyb').textContent='🔑 x'+S.keys;
- $('upc').textContent=S.chest>=MAXC?'หีบระดับสูงสุดแล้ว':'⬆️ อัปเกรดหีบ → Lv '+(S.chest+1)+'  🪙 '+fmt(cup());
 }
 const sellv=it=>0;
 function sburst(col,n){n=G.fx===0?0:G.fx===1?Math.min(n,10):Math.min(n,G.fx>=3?34:24);const g=$('stg');for(let i=0;i<n;i++){const a=Math.random()*6.28,r=60+Math.random()*100,e=document.createElement('div');e.className='sp';e.textContent=Math.random()<.5?'✦':'●';e.style.cssText=`color:${col};--dx:${Math.cos(a)*r}px;--dy:${Math.sin(a)*r-30}px;font-size:${10+Math.random()*16}px`;g.appendChild(e);setTimeout(()=>e.remove(),1000)}}
@@ -951,7 +949,6 @@ function openChest(free){
 }
 $('cico').onclick=()=>openChest(false);
 $('open').onclick=()=>openChest(false);$('keyb').onclick=()=>openChest(true);
-$('upc').onclick=null;
 const WID=['cs','tr','ov','dgw','wgw','ptw','gfw','skw','shopw','bsw','cvw','svw','pvw','twr'];
 function openW(id){gfOpen=id==='gfw';WID.forEach(w=>$(w).hidden=w!==id);$('arena').style.visibility='hidden';
  if(id==='cs')renderCs();else if(id==='ov'){renderGear();showPend(false);ovTab(skTab)}else if(id==='dgw')renderDg();else if(id==='wgw')renderWg();else if(id==='ptw')renderPt();else if(id==='gfw')renderGf();else if(id==='skw')renderSkw();else if(id==='shopw')renderShop();else if(id==='bsw')renderBs();else if(id==='cvw')renderCv();else if(id==='svw')renderSv();else if(id==='pvw')renderPv();else if(id==='twr')renderTw();
@@ -1232,7 +1229,7 @@ function renderCs(){
  +r('🏔️','ด่านปัจจุบัน',S.stage,Z[Math.floor((S.stage-1)/10)%Z.length])
  +r('🐲','สัตว์เลี้ยง',S.pet?PT.find(x=>x.id===S.pet).n:'ยังไม่มี',S.pet&&S.pets[S.pet]?'Lv.'+S.pets[S.pet].lv+' ★'+S.pets[S.pet].st:'ไปที่ไอคอนสัตว์เลี้ยง')
  +r('🪽','ปีก',S.wg?WG[S.wg-1].n:'ยังไม่มี',S.wg?'★'+S.wl+'/10':'ไปที่ไอคอนปีก')
- +r('📦','ระดับหีบ','Lv.'+S.chest+'/'+MAXC,'')
+ +r('📦','อุปกรณ์ที่ปลดล็อก',RN[Math.min(RN.length-1,Math.floor(S.lv/10))],'เลเวล '+S.lv)
  +r('🎫','ตั๋ว / 🔑 กุญแจ',S.tk+' / '+S.keys,'')
  +r('✨','โบนัสชุดเต็ม',mt>=1?'ออร่า '+RN[mt]:E.every(Boolean)?'ยังไม่ถึงระดับดี':'สวมไม่ครบ '+E.filter(Boolean).length+'/5','ครบ 5 ช่อง ระดับดีขึ้นไป');
 }
@@ -1356,7 +1353,7 @@ function petArt(p,R,st){
  return defs+aura+b+petExtra(p,R,st)}
 function petSVG(p,sz,st,sil){return `<svg viewBox="-4 -8 124 92" width="${sz}" height="${Math.round(sz*.74)}" style="overflow:visible${sil?';filter:brightness(0) opacity(.55)':''}">${petArt(p,rnd('p'),st)}</svg>`}
 const PRC=[RC[0],RC[2],RC[3],RC[4],RC[5]];PRC.push('#ff4fb8','#22e0ff','#ffd400','#3dffa8','#ff7a1a','#7c4dff','#e8c25a','#00b3ff','#ff3d3d','#ff4fd8');
-const eggCost=()=>Math.floor(500*Math.pow(1.22,Math.min(S.hc||0,40)));
+const eggCost=()=>Math.floor(750*Math.pow(1.22,Math.min(S.hc||0,40)));
 const petLvCost=id=>{const o=S.pets[id],p=PT.find(x=>x.id===id);return Math.floor(120*Math.pow(1.32,o.lv-1)*(1+p.r*.6))};
 function petCan(){if((S.egg||0)>0||S.gold>=eggCost())return true;const o=S.pets[S.pet];return !!(o&&o.lv<30&&S.gold>=petLvCost(S.pet))}
 var petCd=1500,_pk='',hatching=false,ppv='';
@@ -1439,7 +1436,19 @@ function petExtra(p,R,st){const e=p.e,fk=d=>st?'':`<animate attributeName="opaci
  case'azure':return `<ellipse cx="14" cy="70" rx="14" ry="4" fill="#fff" opacity=".35"/><path class="zap" d="M100 4L96 12L101 14L96 24" fill="none" stroke="#fff" stroke-width="1.4"/>`;
  case'gold':{const coin=(x,y)=>`<g transform="translate(${x} ${y})"><circle r="4.2" fill="#f5b83d" stroke="#8a560a" stroke-width=".8"/><rect x="-1.6" y="-1.6" width="3.2" height="3.2" fill="#6b3a05"/></g>`;const cs=[0,1,2,3].map(i=>coin(52+46*Math.cos(i*1.571),42+34*Math.sin(i*1.571))).join('');return `<g>${cs}${st?'':'<animateTransform attributeName="transform" type="rotate" from="0 52 42" to="360 52 42" dur="8s" repeatCount="indefinite"/>'}</g>`}
  default:return ''}}
-function pctRows(){const c=r=>PRC[r];return [4,3,2,1,0].map(r=>{const n=PT.filter(x=>x.r===r);return `<div class="or"><span class="pill" style="background:${c(r)}">${PRN[r]}</span><div class="bar"><i style="width:${Math.max(4,pctR(r)/Math.max(1,...[0,1,2,3,4].map(pctR))*100)}%;background:${c(r)}"></i></div><b>${fp(pctR(r))}%</b><small>ตัวละ ${fp(pctR(r)/n.length)}% · ${n.map(x=>x.n).join(' / ')}</small></div>`}).join('')}
+function pctRows(){
+ const L=S.hl||1,n=HPW.length;
+ const max=Math.max(...Array.from({length:n},(_,i)=>pctR(i)),1);
+ let out='';
+ for(let r=n-1;r>=0;r--){
+  const unl=HBU(r)<=L,p=pctR(r),list=PT.filter(x=>x.r===r),c=PRC[r]||'#888';
+  const name=PRN[r]||('ระดับ '+r);
+  const val=unl?fp(p)+'%':'🔒 Lv.'+HBU(r);
+  const sub=unl?(list.length?'ตัวละ '+fp(p/list.length)+'% · '+list.map(x=>x.n).join(' / '):'ยังไม่มีตัวในระดับนี้'):'ปลดล็อกที่ระดับฟัก Lv.'+HBU(r);
+  out+=`<div class="or" style="${unl?'':'opacity:.5'}"><span class="pill" style="background:${c}">${name}</span><div class="bar"><i style="width:${unl?Math.max(4,p/max*100):0}%;background:${c}"></i></div><b>${val}</b><small>${sub}</small></div>`;
+ }
+ return out;
+}
 var fpsV=0,_f=0,_ft=0,fpsRun=false,_low=0,_lastAuto=Date.now();
 function gMatch(){for(let i=0;i<GP.length;i++){const v=GP[i].v;if(Object.keys(v).every(k=>G[k]===v[k]))return i}return GP.length}
 function gSvg(){document.querySelectorAll('svg').forEach(v=>{try{G.anim>=2?v.unpauseAnimations():v.pauseAnimations()}catch(e){}})}
@@ -1519,7 +1528,7 @@ const SK=[
 const SW=[43,27,16,8.5,3.6,1.2,.5,.2],SKMAX=30;
 var skTab=1,skSel=0,skPick='',skBusy=false,_skc={};
 const skMul=o=>1+.12*((o?o.lv:1)-1);
-const skPrice=()=>Math.floor(300*Math.pow(1.12,Math.min(S.skh||0,60)));
+const skPrice=()=>Math.floor(450*Math.pow(1.12,Math.min(S.skh||0,60)));
 function skPlate(k,sz,lk){return `<div class="skp ${lk?'lk':''}" style="--c:${RC[k.r]};width:${sz}px;height:${sz}px;font-size:${Math.round(sz*.56)}px"><i>${k.i}</i></div>`}
 function skDesc(k,o){const L=skMul(o);
  if(k.k==='d')return `ดาเมจรวม ${fmt(ATK()*k.m*L)} (x${(k.m*L).toFixed(1)} พลังโจมตี${k.h>1?' · '+k.h+' ครั้ง':''})`;
@@ -1658,8 +1667,8 @@ const bonusHtml=(si,cnt)=>bonusLines(si).map(([n,t])=>`<div class="bz-bn ${cnt>=
 
 /* ===== ไอคอนอุปกรณ์เทพ วาดใหม่ทั้งชิ้น (ใหญ่ ละเอียด ลายเฉพาะเซต) ===== */
 let _gzu=0;const RBW='<stop offset="0" stop-color="#ffc2ea"/><stop offset=".3" stop-color="#fff2a6"/><stop offset=".55" stop-color="#a6ffd8"/><stop offset=".8" stop-color="#a9c6ff"/><stop offset="1" stop-color="#d9a8ff"/>';
-const TK=[3,3,2,1,0,0,1,0,2,1,0];TK.push(1,2,0,1,2);
-const tierTh=t=>({pal:TP[t],c:RC[t],c2:TP[t][2],K:TK[t],x:t,rb:t===10||t===15});
+const TK=[3,3,2,1,0,0,1,0,2,1,0];TK.push(1,2,0,1,2,3,2,1,0);
+const tierTh=t=>({pal:TP[t],c:RC[t],c2:TP[t][2],K:TK[t],x:t,rb:t===10||t===15||t===19});
 function gearArt(s,th,sz){
  const [m,d,a]=th.pal,c=th.c,c2=th.c2,u='zq'+(_gzu++),K=th.K,X=th.x||0,
  M=`url(#${u}m)`,B=`url(#${u}b)`,G=`url(#${u}g)`,E=`url(#${u}e)`,
@@ -1689,17 +1698,51 @@ function gearArt(s,th,sz){
   const rg=K===3?'':K===0?[0,1,2,3,4,5].map(i=>`<path d="M32 36L35 27L29 27Z" transform="rotate(${i*60} 32 48)" fill="${c2}" stroke="${c}" stroke-width=".6"/>`).join(''):K===1?[0,1,2,3,4,5,6,7].map(i=>`<path d="M32 33L34.5 27L29.5 27Z" transform="rotate(${i*45} 32 48)" fill="#fff" stroke="${c}" stroke-width=".6"/>`).join(''):[0,1,2,3].map(i=>`<circle cx="32" cy="35" r="2.2" transform="rotate(${i*90+45} 32 48)" fill="${E}" stroke="${G}"/>`).join('');
   b=`<path d="M8 4Q32 56 56 4" fill="none" stroke="${G}" stroke-width="2.8" stroke-linecap="round"/>${[[14,15],[20,26],[26,33],[38,33],[44,26],[50,15]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3" fill="${E}" stroke="${G}"/>`).join('')}<path d="M29 33H35V38H29Z" fill="${G}" ${S}/>${rg}<circle cx="32" cy="48" r="13.5" fill="${G}" stroke="${d}" stroke-width="1.4"/><circle cx="32" cy="48" r="10" fill="${M}" stroke="${d}"/>${gem(32,48,6.8)}`;
  }
+ let hi='';
+ if(X>=12){
+  if(s===0){
+   hi+=`<g transform="rotate(45 32 32)"><path d="M32 -3L40 9L37 40H27L24 9Z" fill="none" stroke="${c2}" stroke-width="2.2" opacity=".55"/></g>`;
+   if(X>=14)hi+=`<path d="M10 30L-2 22L8 38ZM54 30L66 22L56 38Z" fill="${G}" stroke="${d}" stroke-width=".8"/>`;
+   if(X>=16)hi+=`<g transform="rotate(45 32 32)">${fl(32,-1,20,4.5,c2)}${fl(32,-1,13,8,c)}</g>`;
+  }else if(s===1){
+   hi+=`<path d="M6 18L-6 4L11 11ZM58 18L70 4L53 11Z" fill="${G}" stroke="${d}" stroke-width=".9"/>`;
+   if(X>=14)hi+=`<path d="M17 58L9 70L22 64ZM47 58L55 70L42 64Z" fill="${G}" stroke="${d}" stroke-width=".9"/>`;
+   if(X>=16)hi+=`<path d="M32 58L25 71L32 67L39 71Z" fill="${E}" stroke="${G}" stroke-width=".9"/><path d="M20 10L32 -2L44 10" fill="none" stroke="${c2}" stroke-width="2"/>`;
+  }else if(s===2){
+   hi+=`<path d="M32 12Q16 -8 34 -17Q33 -6 42 -10Q41 2 32 12Z" fill="${c2}" stroke="${c}" stroke-width=".9"/>`;
+   if(X>=14)hi+=`<path d="M14 18L2 -2L20 10ZM50 18L62 -2L44 10Z" fill="${G}" stroke="${d}" stroke-width=".9"/>`;
+   if(X>=16)hi+=`<path d="M32 -17L28 -28L33 -23L37 -30L36 -17Z" fill="${E}" stroke="${G}" stroke-width=".8"/>`;
+  }else if(s===3){
+   hi+=`<path d="M19 28Q2 22 -5 4Q9 10 14 12Q4 14 8 22Q14 20 21 24Z" fill="${c2}" stroke="${c}" stroke-width=".9"/>`;
+   if(X>=14)hi+=`<path d="M19 36Q0 34 -8 16Q8 22 12 24Q2 28 8 33Z" fill="${a}" stroke="${c}" stroke-width=".8" opacity=".9"/>`;
+   if(X>=16)hi+=`<path d="M58 54L70 60L58 62Z" fill="${G}" stroke="${d}" stroke-width=".8"/>`;
+  }else{
+   hi+=gem(7,4,3)+gem(57,4,3);
+   if(X>=14)hi+=`<path d="M19 50Q2 46 -3 30Q8 36 14 38Q5 42 9 47Z" fill="${c2}" stroke="${c}" stroke-width=".8"/>`+mir(`<path d="M19 50Q2 46 -3 30Q8 36 14 38Q5 42 9 47Z" fill="${c2}" stroke="${c}" stroke-width=".8"/>`);
+   if(X>=16)hi+=gem(32,-3,3.4)+gem(18,0,2.4)+gem(46,0,2.4);
+  }
+ }
+ b+=hi;
  let bk='';
  if(X>=10)bk+=`<path d="M32 -10L37 24L74 32L37 40L32 74L27 40L-10 32L27 24Z" fill="${c2}" opacity=".35"/>`;
  if(X>=9)bk+=`<circle cx="32" cy="32" r="35" fill="none" stroke="${c2}" stroke-width="1.2" stroke-dasharray="2 4" opacity=".8"/>`;
  if(X>=8){const wg2=`<path d="M30 14Q8 2 -7 17Q4 19 6 26Q-3 28 1 37Q12 35 14 41Q9 45 16 49Q28 41 30 30Z" fill="url(#${u}w)" stroke="${c2}" stroke-width=".7" opacity=".9"/>`;bk+=wg2+mir(wg2)}
  if(X>=6)bk+=[[-3,6],[67,6],[-3,58],[67,58]].map(([x,y])=>`<path d="M${x} ${y-4.5}L${x+3} ${y}L${x} ${y+4.5}L${x-3} ${y}Z" fill="${c2}" stroke="#fff" stroke-width=".6"/>`).join('');
+ if(X>=11){let r='';for(let i=0;i<8;i++)r+=`<path d="M32 -18L35 22L29 22Z" transform="rotate(${i*45} 32 32)" fill="${c2}" opacity=".28"/>`;bk=r+bk}
+ if(X>=12)bk+=`<circle cx="32" cy="32" r="42" fill="none" stroke="${c}" stroke-width="1" stroke-dasharray="1 5" opacity=".75"/>`+[0,90,180,270].map(an=>`<circle cx="32" cy="-10" r="2.4" transform="rotate(${an} 32 32)" fill="${E}" stroke="${G}" stroke-width=".8"/>`).join('');
+ if(X>=13)bk+=`<circle cx="32" cy="32" r="38.5" fill="none" stroke="${c2}" stroke-width="1.6" opacity=".55"/>`+Array.from({length:12},(_,i)=>`<path d="M32 -7V-3" transform="rotate(${i*30} 32 32)" stroke="${c2}" stroke-width="1.6"/>`).join('');
+ if(X>=14){const w3=`<path d="M30 20Q10 6 -4 20Q6 21 8 28Q0 31 4 38Q13 36 15 41Q11 44 17 48Q27 40 30 31Z" fill="url(#${u}w)" stroke="${c2}" stroke-width=".7" opacity=".75"/>`;bk+=`<g transform="translate(0 -13)">${w3}${mir(w3)}</g>`}
+ if(X>=15)bk+=bolt(-9,0,18)+bolt(71,0,18)+bolt(-6,42,16)+bolt(68,42,16);
+ if(X>=16){let sp='';[-26,-13,0,13,26].forEach((dx,i)=>{const h=i===2?20:14-Math.abs(dx)*.2;sp+=`<path d="M${32+dx-4} -3L${32+dx} ${-3-h}L${32+dx+4} -3Z" fill="${G}" stroke="${d}" stroke-width=".8"/>`});bk+=sp}
+ if(X>=17)bk+=`<path d="M32 -14L38 22L78 32L38 42L32 78L26 42L-14 32L26 22Z" fill="${c}" opacity=".22" transform="rotate(45 32 32)"/>`;
+ if(X>=18){const cu=`<path d="M-6 56Q-16 34 -4 16Q-7 30 4 36Q0 47 9 54Z" fill="${c2}" stroke="${c}" stroke-width=".8" opacity=".85"/>`;bk+=cu+mir(cu)}
+ if(X>=19)bk+=`<path d="M32 -20L40 6L66 -2L50 22L74 38L46 40L50 68L32 50L14 68L18 40L-10 38L14 22L-2 -2L24 6Z" fill="none" stroke="${c2}" stroke-width="1.4" opacity=".85"/><circle cx="32" cy="32" r="46" fill="none" stroke="#fff" stroke-width="1" opacity=".5"/>`;
  b=bk+b;
  return `<svg viewBox="-5 -5 74 74" width="${sz}" height="${sz}" style="overflow:visible;filter:drop-shadow(0 0 5px ${c}) drop-shadow(0 3px 2px #000a)">${defs}${b}</svg>`}
 
 const gzArt=(s,si,sz)=>gearArt(s,{pal:SETS[si].pal,c:SETS[si].c,c2:SETS[si].c2,K:si,x:SETS[si].bt},sz);
 const gaLay=t=>{let h='';if(t>=2)h+='<i class="ga-g"></i>';if(t>=6)h+='<i class="ga-ry"></i>';if(t>=3)h+='<i class="ga-r"></i>';if(t>=5)h+='<i class="ga-r2"></i>';
- const sp=t<4?0:t<5?2:t<6?3:4,od=t<7?0:Math.min(6,t-5);const P=[[4,8],[84,44],[34,92],[70,2],[10,60]];
+ const sp=t<4?0:t<5?2:t<6?3:t<12?4:5,od=t<7?0:Math.min(10,t-5);const P=[[4,8],[84,44],[34,92],[70,2],[10,60]];
  for(let i=0;i<sp;i++)h+=`<b class="gz-s" style="left:${P[i][0]}%;top:${P[i][1]}%;animation-delay:${(i*.45).toFixed(2)}s">✦</b>`;
  for(let i=0;i<od;i++)h+=`<b class="ga-o" style="animation-delay:-${(i*3/od).toFixed(2)}s"></b>`;return h};
 const _icon0=icon;icon=function(s,t,sz){if(s>4||t==null||!TP[t])return _icon0(s,t,sz);return `<span class="ga ga${t}" style="--z:${sz}px;--c:${RC[t]};--c2:${TP[t][2]}">${gaLay(t)}${gearArt(s,tierTh(t),sz)}</span>`};
@@ -1718,7 +1761,7 @@ function gbody(it,mode){
  else{const d=bpWith(s,it)-b0;bp=`<b style="color:${d>=0?'#2ea043':'#e5534b'}">⚡ ถ้าสวมใส่ BP ${d>=0?'▲ +':'▼ −'}${fmt(Math.abs(d))}</b>`}
  const q=st?it.q:Math.round(it.v/(SL[s].b*RMV(s,it.t))*100);
  let rows;
- if(mode==='pv')rows=`<div><span>🎁 โอกาสออก (หีบ Lv.${gbCtx.L})</span><b style="color:#e8590c">${fmtP(gbCtx.p)}% ทั้งระดับ</b></div><div><span>เฉพาะชิ้นนี้</span><b>${fmtP(gbCtx.p/5)}% ต่อการเปิด 1 ครั้ง</b></div><div><span>ช่วงค่าสถานะ</span><b>${istat({...it,v:it.v*.9})} ~ ${istat({...it,v:it.v*1.1})}</b></div><div><span>คุณภาพที่สุ่มได้</span><b>90–110%</b></div><div><span>ตัวคูณระดับ</span><b>x${RM[it.t]}${it.t>5&&(s===2||s===3)?' (ลดทอนสำหรับคริ/ความเร็ว)':''}</b></div>`;
+ if(mode==='pv')rows=`<div><span>🎁 โอกาสออก (เลเวล ${gbCtx.L})</span><b style="color:#e8590c">${fmtP(gbCtx.p)}% ทั้งระดับ</b></div><div><span>เฉพาะชิ้นนี้</span><b>${fmtP(gbCtx.p/5)}% ต่อการเปิด 1 ครั้ง</b></div><div><span>ช่วงค่าสถานะ</span><b>${istat({...it,v:it.v*.9})} ~ ${istat({...it,v:it.v*1.1})}</b></div><div><span>คุณภาพที่สุ่มได้</span><b>90–110%</b></div><div><span>ตัวคูณระดับ</span><b>x${RM[it.t]}${it.t>5&&(s===2||s===3)?' (ลดทอนสำหรับคริ/ความเร็ว)':''}</b></div>`;
  else if(mode==='lock')rows=`<div><span>🎁 อัตราดรอป</span><b style="color:#e8590c">${pcs(st.p)} / ชนะบอส 1 ครั้ง</b></div><div><span>บอสที่ดรอป</span><b>${st.em} ${st.boss}</b></div><div><span>ช่วงคุณภาพ</span><b>92–108%</b></div><div><span>การันตี</span><b>ชนะครั้งที่ ${st.pity+1} ถ้ายังไม่ดรอป</b></div>`;
  else{rows=`<div><span>คุณภาพ</span><b>${q}%</b></div><div><span>${st?'ตัวคูณเซต':'ตัวคูณระดับ'}</span><b>x${st?(RM[st.bt]*st.pw).toFixed(1):RM[it.t]}</b></div>`;
   if(st)rows+=`<div><span>🎁 ดรอปจาก</span><b>${st.em} ${st.boss} (${pcs(st.p)})</b></div>`;}
@@ -1945,19 +1988,19 @@ let cvL=1;
 function cvNeed(t){for(let L=1;L<=MAXC;L++)if(odds(L)[t]>=.01)return L;return 0}
 function renderCv(){
  cvL=Math.max(1,Math.min(MAXC,cvL));const o=odds(cvL);
- $('cvl').innerHTML=`หีบระดับ <b>${cvL}</b>${cvL===S.chest?' <small>(ปัจจุบัน)</small>':''}<small style="display:block;color:var(--mut)">กด ◀ ▶ ดูโอกาสของแต่ละระดับหีบ · จิ้มไอคอนดูสถานะ</small>`;
+ $('cvl').innerHTML=`เลเวล <b>${cvL}</b>${cvL===S.lv?' <small>(ปัจจุบัน)</small>':''}<small style="display:block;color:var(--mut)">กด ◀ ▶ ดูโอกาสของแต่ละเลเวล · จิ้มไอคอนดูสถานะ</small>`;
  let h='';
  for(let t=NT-1;t>=0;t--){const rc=RC[t],nd=cvNeed(t);
-  h+=`<div class="cvr" style="--c:${rc};--ca:${rc}33"><div class="cvt"><span class="pill" style="background:${rc};${t===10?'color:#222':''}">${RN[t]}</span><b>${fmtP(o[t])}%</b><small>${o[t]>0?`ชิ้นละ ${fmtP(o[t]/5)}%${nd>1?' · '+(nd<=cvL?'✅':'🔒')+' โอกาสเกิน 1% ที่หีบ Lv.'+nd:''}`:`🔒 ปลดล็อกที่หีบ Lv.${OBU(t)} · อัปหีบเพื่อเริ่มมีโอกาสได้`}</small></div><div class="cvg">${[0,1,2,3,4].map(s=>`<button class="cvi" data-s="${s}" data-t="${t}">${icon(s,t,50)}</button>`).join('')}</div></div>`}
+  h+=`<div class="cvr" style="--c:${rc};--ca:${rc}33"><div class="cvt"><span class="pill" style="background:${rc};${t===10?'color:#222':''}">${RN[t]}</span><b>${fmtP(o[t])}%</b><small>${o[t]>0?`ชิ้นละ ${fmtP(o[t]/5)}%${nd>1?' · '+(nd<=cvL?'✅':'🔒')+' โอกาสเกิน 1% ที่เลเวล '+nd:''}`:`🔒 ปลดล็อกที่เลเวล ${OBU(t)}`}</small></div><div class="cvg">${[0,1,2,3,4].map(s=>`<button class="cvi" data-s="${s}" data-t="${t}">${icon(s,t,50)}</button>`).join('')}</div></div>`}
  $('cvlist').innerHTML=h;
  $('cvlist').querySelectorAll('.cvi').forEach(b=>b.onclick=()=>{const s=+b.dataset.s,t=+b.dataset.t;gbCtx={L:cvL,p:odds(cvL)[t]};openGear({s,t,v:SL[s].b*RMV(s,t)},'pv')});
 }
-$('cview').onclick=()=>{cvL=S.chest;openW('cvw')};
+$('cview').onclick=()=>{cvL=Math.min(MAXC,S.lv);openW('cvw')};
 $('cvm').onclick=()=>{cvL--;renderCv()};$('cvp').onclick=()=>{cvL++;renderCv()};$('cvb').onclick=()=>openW('ov');
 const _rg=renderGear;
-renderGear=function(){_rg();const L=S.chest,ci=Math.min(NT-1,Math.floor((L-1)/3)),col=RC[ci];
- $('cico').style.filter=`drop-shadow(0 0 ${6+L*.7}px ${col}) drop-shadow(0 0 ${L*.3}px #fff)`;
- if(L<MAXC){const a=odds(L),b=odds(L+1),s=x=>x.slice(5).reduce((p,q)=>p+q,0);$('codds').insertAdjacentHTML('beforeend',`<div style="width:100%;font-size:11px;color:var(--mut);margin-top:2px">🔼 ระดับเทพขึ้นไป ${fmtP(s(a))}% → หีบ Lv.${L+1}: <b style="color:#2ea043">${fmtP(s(b))}%</b></div>`)}};
+renderGear=function(){_rg();const L=S.lv,Lc=Math.min(L,40),ci=Math.min(NT-1,Math.floor(L/10)),col=RC[ci];
+ $('cico').style.filter=`drop-shadow(0 0 ${6+Lc*.7}px ${col}) drop-shadow(0 0 ${Lc*.3}px #fff)`;
+ if(L<MAXC){const a=odds(L),b=odds(L+1),s=x=>x.slice(5).reduce((p,q)=>p+q,0);$('codds').insertAdjacentHTML('beforeend',`<div style="width:100%;font-size:11px;color:var(--mut);margin-top:2px">🔼 ระดับเทพขึ้นไป ${fmtP(s(a))}% → เลเวล ${L+1}: <b style="color:#2ea043">${fmtP(s(b))}%</b></div>`)}};
 renderGear();
 
 /* ================= สุ่มหลายครั้ง x10 / x50 (อุปกรณ์ · สัตว์เลี้ยง · สกิล) ================= */
@@ -2441,7 +2484,7 @@ function chestSVG(ci){
 <rect x="7" y="45" width="106" height="7" rx="2.5" fill="url(#chT)" ${S}/>${orn}${crown}</g>
 <g clip-path="url(#chC)"><rect class="shn" x="-24" y="0" width="16" height="110" fill="#fff" opacity=".28"/></g>${sp}</svg>`}
 let _chk='';
-const _rgC=renderGear;renderGear=function(){_rgC();const ci=Math.min(NT-1,Math.floor((S.chest-1)/3));$('stg').style.setProperty('--cc',RC[ci]);
+const _rgC=renderGear;renderGear=function(){_rgC();const ci=Math.min(NT-1,Math.floor(S.lv/10));$('stg').style.setProperty('--cc',RC[ci]);
  if(_chk!==ci||!$('cico').querySelector('svg')){_chk=ci;$('cico').innerHTML=chestSVG(ci)}};
 renderGear();
 
@@ -2937,7 +2980,10 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 .ga15>svg{animation:gahue 4s linear infinite}
 .ga15 .ga-g{background:conic-gradient(#ff6b6b,#ffd93d,#6bff95,#4dd2ff,#b36bff,#ff6b6b);-webkit-mask:radial-gradient(circle,#000 25%,transparent 68%);mask:radial-gradient(circle,#000 25%,transparent 68%);opacity:.8;animation:gzr 3s linear infinite}
 .ga15 .ga-r{background:conic-gradient(#ff6b6b,#ffd93d,#6bff95,#4dd2ff,#b36bff,#ff6b6b)}
-.ga11 .ga-g,.ga12 .ga-g,.ga13 .ga-g,.ga14 .ga-g{opacity:.75}
+.ga11 .ga-g,.ga12 .ga-g,.ga13 .ga-g,.ga14 .ga-g,.ga16 .ga-g,.ga17 .ga-g,.ga18 .ga-g{opacity:.8}
+.ga19>svg{animation:gahue 3.2s linear infinite}
+.ga19 .ga-g{background:conic-gradient(#ff6b6b,#ffd93d,#6bff95,#4dd2ff,#b36bff,#ff6b6b);-webkit-mask:radial-gradient(circle,#000 25%,transparent 68%);mask:radial-gradient(circle,#000 25%,transparent 68%);opacity:.9;animation:gzr 2.4s linear infinite}
+.ga19 .ga-r{background:conic-gradient(#ff6b6b,#ffd93d,#6bff95,#4dd2ff,#b36bff,#ff6b6b)}
 .sk2.r6 .sk2-r,.sk2.r7 .sk2-r{display:block}
 .sk2.r6::after,.sk2.r7::after{content:"";position:absolute;inset:-6%;border-radius:50%;box-shadow:0 0 calc(var(--z)*.35) var(--c);opacity:.7;animation:gzg 1.6s ease-in-out infinite;pointer-events:none}
 .sk2.r7 .sk2-r{background:conic-gradient(#ff6b6b,#ffd93d,#6bff95,#4dd2ff,#b36bff,#ff6b6b)}
@@ -8072,35 +8118,11 @@ button.g.gx .gn{font-size:19px!important}button.g.gx .gp{font-size:13.5px!import
 })();
 </script>
 <script>
-(function(){
- /* จำนวนครั้งที่ต้องเปิดหีบเพื่ออัปจากระดับ L ไประดับ L+1 (ค่อยๆ เพิ่มขึ้น) */
- const need=L=>Math.round(60*Math.pow(1.12,L-1)+20*(L-1));
- window.chestNeed=need;
- function setUpc(){const b=$('upc');if(!b)return;b.disabled=false;b.onclick=null;
-  b.textContent=S.chest>=MAXC?'📦 หีบระดับสูงสุดแล้ว (MAX)':'📦 อัประดับหีบ → Lv '+(S.chest+1)+'  ·  เปิดหีบแล้ว '+(S.cpr||0)+'/'+need(S.chest)+' ครั้ง'}
- function addProg(n){
-  let rem=n;
-  while(S.chest<MAXC&&rem>0){const left=need(S.chest)-(S.cpr||0);
-   if(rem>=left){rem-=left;S.chest++;S.cpr=0;burst(50,50,'#ffd23f',20);sfx('stage');banner('📦 หีบระดับ '+S.chest+'!')}
-   else{S.cpr=(S.cpr||0)+rem;rem=0}}
-  if(S.chest>=MAXC)S.cpr=0;
-  renderGear();
- }
- const oOpen=openChest;
- openChest=function(free){const p0=S.pend;oOpen.apply(this,arguments);if(S.pend&&S.pend!==p0)addProg(1)};
- const oMulti=openMulti;
- openMulti=function(n){const b=mcBusy;oMulti.apply(this,arguments);if(!b&&mcBusy)addProg(n)};
- const _rgC=renderGear;
- renderGear=function(){_rgC.apply(this,arguments);setUpc()};
- setUpc();
-})();
-</script>
-<script>
 /* ================= คำสั่ง GM ผ่านช่องแชทโลก (ตรวจสิทธิ์ที่เซิร์ฟเวอร์) ================= */
 (function(){
  const form=document.querySelector('#chw form'),inp=document.querySelector('#chw input'),win=document.getElementById('chw');
  if(!form||!inp||!win)return;
- const HELP='คำสั่ง: gold N · dia N · keys N · tk N · egg N · skf N · stage N · chest N · lv N · hl N · heal · give <ไอดี|ชื่อตัวละคร|me> <gold|dia|keys|tk|egg|skf> <จำนวน>';
+ const HELP='คำสั่ง: gold N · dia N · keys N · tk N · egg N · skf N · stage N · lv N · hl N · heal · give <ไอดี|ชื่อตัวละคร|me> <gold|dia|keys|tk|egg|skf> <จำนวน>';
  const FIELD={gold:'gold',diamonds:'diamonds',keys:'keys',tk:'tk',egg:'egg',skf:'skf',stage:'stage',chest:'chest',lv:'lv',hl:'hl',sl:'sl'};
  const GIVE={gold:'gold',dia:'diamonds',keys:'keys',tk:'tk',egg:'egg',skf:'skf'};
  const refresh=()=>{try{render()}catch(e){}try{renderGear()}catch(e){}try{renderShop()}catch(e){}};
@@ -8354,6 +8376,21 @@ window.pfAlign=function(){
   prevOpen.apply(this,arguments);
   if(S.pend&&S.pend!==p0)autoEq(S.pend);
  };
+})();
+</script>
+<script>
+/* หน้าหีบ: โชว์เปอร์เซ็นเฉพาะระดับที่ปลดล็อกแล้ว + บอกระดับถัดไป */
+(function(){
+ const prev=renderGear;
+ renderGear=function(){prev.apply(this,arguments);try{
+  const L=S.lv,o=odds(L),box=$('codds');if(!box)return;
+  [...box.children].filter(c=>c.tagName==='SPAN').forEach((c,i)=>{if(!(o[i]>0))c.remove()});
+  let nx=-1;for(let t=0;t<RN.length;t++)if(OBU(t)>L){nx=t;break}
+  box.insertAdjacentHTML('beforeend',nx>=0?`<div style="width:100%;font-size:11px;color:var(--mut);margin-top:2px">🔒 ระดับถัดไป <b style="color:${RC[nx]}">${RN[nx]}</b> ปลดล็อกที่เลเวล ${OBU(nx)} (ทุก 10 เลเวลปลดล็อก 1 ระดับ)</div>`:'<div style="width:100%;font-size:11px;color:var(--mut);margin-top:2px">✅ ปลดล็อกครบทุกระดับแล้ว</div>');
+ }catch(e){}};
+ const og=gainExp;
+ gainExp=function(x){const l0=S.lv;og.apply(this,arguments);if(S.lv>l0){for(let l=l0+1;l<=S.lv;l++)if(l%10===0&&l/10<RN.length){try{banner('🔓 ปลดล็อกอุปกรณ์ระดับ '+RN[l/10]+'!')}catch(e){}}try{renderGear()}catch(e){}}};
+ renderGear();
 })();
 </script>
 </body></html>
