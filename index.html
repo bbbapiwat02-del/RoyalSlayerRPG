@@ -8250,7 +8250,7 @@ window.pfHsStyle=function(hero){
  const relevant=sel=>/#hero(?![\w-])/.test(sel)
   ||[...sel.matchAll(/#([A-Za-z_][\w-]*)/g)].some(m=>ids.has(m[1]))
   ||[...sel.matchAll(/\.([A-Za-z_][\w-]*)/g)].some(m=>classes.has(m[1]));
- let css='.pfhero{position:relative;width:240px;height:260px;margin:0 auto}\n.pfhero #pv_hs{translate:22px -52px}\n';
+ let css='.pfhero{position:relative;width:240px;height:260px;margin:0 auto}\n.pfhero #pv_hs{translate:2px -52px}\n';
  for(const sh of document.styleSheets){
   let rules;try{rules=sh.cssRules}catch(e){continue}
   for(const r of rules){
@@ -8328,6 +8328,30 @@ window.pfAlign=function(){
  const dx=cx-ax,dy=cy-ay;
  all.forEach(e=>{e.style.translate=dx.toFixed(1)+'px '+dy.toFixed(1)+'px'});
 };
+</script>
+<script>
+/* เปิดหีบ 1 ครั้ง: ถ้าของที่ได้ดีกว่าของที่สวมอยู่ในช่องนั้น ให้สวมใส่ให้อัตโนมัติ */
+(function(){
+ const autoEq=it=>{
+  if(!it)return;
+  const cur=S.eq[it.s];
+  if(cur&&cur.set!=null)return;
+  if(cur&&it.v<=cur.v)return;
+  const b0=BP();
+  S.eq[it.s]=it;
+  try{updateHero()}catch(e){}
+  renderGear();
+  try{sfx('equip')}catch(e){}
+  try{bpToast(BP()-b0)}catch(e){}
+  setTimeout(()=>{if(S.pend===it){S.pend=null;const c=$('card');if(c)c.innerHTML='';$('itm').className='';renderGear()}},2200);
+ };
+ const prevOpen=openChest;
+ openChest=function(free){
+  const p0=S.pend;
+  prevOpen.apply(this,arguments);
+  if(S.pend&&S.pend!==p0)autoEq(S.pend);
+ };
+})();
 </script>
 </body></html>
 
