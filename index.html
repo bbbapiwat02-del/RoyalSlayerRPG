@@ -806,10 +806,10 @@ function PV(k){const o=S.pets||{},ids=Object.keys(o),q=o[S.pet],key=S.pet+'|'+id
   if(p&&q){const b=petB(p,q.lv,q.st);for(const z in b)r[z]+=b[z]}_pvv=r}
  return _pvv[k]||0}
 var GP=[{n:'ประหยัด',d:'ลื่นสุด ประหยัดแบต',v:{fx:0,bg:1,glow:0,anim:0,ifx:0,shake:1,fps:30,dn:1,wf:1,mh:1,mp:1,ma:1,mm:1,mi:1,mk:1,ff:1,fm:1}},{n:'สมดุล',d:'สวยและลื่นพอดี',v:{fx:1,bg:2,glow:1,anim:1,ifx:1,shake:2,fps:30,dn:1,wf:2,mh:2,mp:2,ma:2,mm:2,mi:1,mk:1,ff:2,fm:2}},{n:'สวยงาม',d:'เอฟเฟคครบ',v:{fx:2,bg:3,glow:2,anim:2,ifx:2,shake:2,fps:45,dn:2,wf:2,mh:2,mp:2,ma:2,mm:2,mi:2,mk:2,ff:2,fm:2}},{n:'สุดยอด',d:'อลังการเต็มพิกัด',v:{fx:3,bg:3,glow:3,anim:3,ifx:3,shake:3,fps:60,dn:3,wf:3,mh:3,mp:3,ma:3,mm:3,mi:3,mk:3,ff:3,fm:3}}];
-var GMID={fx:2,bg:2,glow:2,anim:2,ifx:2,shake:2,fps:60,auto:0,dn:2,wf:2,mh:2,mp:2,ma:2,mm:2,mi:2,mk:2,ff:2,fm:2};
-var G=Object.assign({q:1,meter:0,v4:1},GMID),gfOpen=false;
+var GMID={fx:1,bg:2,glow:1,anim:1,ifx:1,shake:2,fps:30,auto:1,dn:1,wf:2,mh:2,mp:2,ma:2,mm:2,mi:1,mk:1,ff:2,fm:2};
+var G=Object.assign({q:1,meter:0,v4:1,v5:1},GMID),gfOpen=false;
 window.gDefault=function(){Object.assign(G,GMID);try{gApply()}catch(e){try{localStorage.setItem('ml_gfx',JSON.stringify(G))}catch(_){}}};
-try{const sv=JSON.parse(localStorage.getItem('ml_gfx')||'null');if(sv){if(!sv.v4){const up=k=>{if(sv[k])sv[k]=k==='bg'?3:2};['bg','glow','anim','ifx','shake'].forEach(up);if(sv.dn===2)sv.dn=3;sv.v4=1}Object.assign(G,sv)}}catch(e){}
+try{const sv=JSON.parse(localStorage.getItem('ml_gfx')||'null');if(sv){if(!sv.v4){const up=k=>{if(sv[k])sv[k]=k==='bg'?3:2};['bg','glow','anim','ifx','shake'].forEach(up);if(sv.dn===2)sv.dn=3;sv.v4=1}if(!sv.v5){Object.assign(sv,GMID);sv.v5=1}Object.assign(G,sv)}}catch(e){}
 var BF={a:0,s:0,c:0,t:0},skCds=[0,0,0,0,0,0],skMax=[1,1,1,1,1,1],skG=0;
 function WV(k){const w=S.wg;if(!w)return 0;const t=WG[w-1];return (k==='c'?t.c2:t[k]||0)*(1+0.1*S.wl)}const ES=()=>D?(D.abs?D.abs:Math.max(1,S.stage+D.off)):S.stage;
 const clr=e=>e.getAnimations().filter(a=>!a.animationName).forEach(a=>a.cancel());
@@ -3993,7 +3993,7 @@ setInterval(()=>{if(document.hidden||!G.anim)return;const T=performance.now()/10
  for(const id in WMAP){const w=$(id);if(!w||w.hidden)continue;const l=G[WMAP[id]],tt=T*SP[l];let n=0;
   for(const s of w.querySelectorAll('svg')){if(n++>40)break;try{if(!s.animationsPaused())s.pauseAnimations();s.setCurrentTime(l?tt:0)}catch(e){}}}
  const sl=$('sslots');if(sl){const l=G.mk;for(const s of sl.querySelectorAll('svg')){try{if(!s.animationsPaused())s.pauseAnimations();s.setCurrentTime(l?T*SP[l]:0)}catch(e){}}}
-},70);
+},120);
 const _g=gApply;gApply=function(){_g.apply(this,arguments);monMv();winCls()};
 monMv();winCls();
 })();
@@ -8415,6 +8415,32 @@ function appendChunked(host,html,after){
 }
 document.head.insertAdjacentHTML('beforeend','<style>.mrg *,.sg50 *{animation:none!important}.mri,.c5{contain:layout paint style}.ga.lite{position:relative;display:inline-block;width:var(--z);height:var(--z)}.ga.lite>svg{width:100%;height:100%;filter:none!important}</style>');
 </script>
+<style id="perf-lite">
+/* ===== ลดภาระเครื่อง คงความสวย: เปลี่ยนอนิเมชันที่ต้อง repaint เป็น transform/opacity ===== */
+@keyframes glow{50%{border-color:var(--gold)}}
+@keyframes selp{50%{opacity:.8}}
+@keyframes bzp{50%{transform:scale(1.08)}}
+@keyframes bbh{50%{transform:translateX(3px)}}
+@keyframes bbr{to{border-color:#ff9aff}}
+@keyframes ssm{50%{transform:scale(1.05)}}
+@keyframes dmEy{50%{opacity:.55}}
+@keyframes botG{50%{opacity:.85}}
+@keyframes cmTb{50%{opacity:.85}}
+@keyframes xPulse{0%,100%{opacity:1}50%{opacity:.8}}
+@keyframes dlP{50%{transform:scale(1.06)}}
+@keyframes cgm{50%{transform:scale(1.15)}}
+@keyframes hbLow{50%{opacity:.7}}
+@keyframes ssg{50%{opacity:.92}}
+/* วนสีรุ้ง: เปลี่ยนสีเป็นขั้น ๆ แทนทุกเฟรม (ดูเกือบเหมือนเดิม แต่วาดน้อยลงมาก) */
+@keyframes gahue{from{filter:hue-rotate(0deg) drop-shadow(0 0 6px #fff);animation-timing-function:steps(30,end)}to{filter:hue-rotate(360deg) drop-shadow(0 0 6px #fff)}}
+/* โหมดผสมสี screen/overlay ทำให้ทั้งเลเยอร์ถูกรวมใหม่ทุกเฟรม → ใช้แบบปกติแทน (ยกเว้นลายเกรน) */
+*:not(rect){mix-blend-mode:normal!important}
+/* เบลอพื้นหลังแพง → ตัดออก */
+*{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+/* ไม่ต้องวาดสิ่งที่มองไม่เห็นตอนแท็บไม่ได้เปิด */
+body.g-hidden *,body.g-hidden *::before,body.g-hidden *::after{animation-play-state:paused!important}
+</style>
+<script>document.addEventListener('visibilitychange',()=>document.body.classList.toggle('g-hidden',document.hidden));</script>
 </body></html>
 
 
