@@ -8312,21 +8312,24 @@ window.pfAlign=function(){
  const body=box.querySelector('#pv_hs');if(!body)return;
  const sv=body.querySelector('svg.nh')||body.querySelector('svg');if(!sv)return;
  const sr=sv.getBoundingClientRect();if(!sr.width||!sr.height)return;
- /* จุดกึ่งกลางใต้เท้า: กลางตัวละครในแนวนอน และใกล้ฐานล่างของตัว */
- const cx=(sr.left+sr.right)/2;
- const cy=sr.bottom-sr.height*0.06;
- const ringSel=['#pv_fsau','#pv_wsau','.enaura'];
- const allSel=[...ringSel,'.hglow'];
- const all=allSel.map(q=>box.querySelector(q)).filter(Boolean);
- if(!all.length)return;
- all.forEach(e=>{e.style.translate='0px 0px'});
- const ring=ringSel.map(q=>box.querySelector(q)).filter(Boolean).map(e=>e.getBoundingClientRect()).filter(r=>r.width>0&&r.height>0);
- const ref=ring.length?ring:all.map(e=>e.getBoundingClientRect()).filter(r=>r.width>0&&r.height>0);
- if(!ref.length)return;
- const ax=(Math.min(...ref.map(r=>r.left))+Math.max(...ref.map(r=>r.right)))/2;
- const ay=(Math.min(...ref.map(r=>r.top))+Math.max(...ref.map(r=>r.bottom)))/2;
- const dx=cx-ax,dy=cy-ay;
- all.forEach(e=>{e.style.translate=dx.toFixed(1)+'px '+dy.toFixed(1)+'px'});
+ /* ตำแหน่งอ้างอิง: ออร่าพื้นอยู่ใต้เท้า (กึ่งกลางแนวนอน, ใกล้ฐานล่าง) ออร่าตีบวกอยู่รอบตัว (กึ่งกลางทั้งตัว) */
+ const baseX=(sr.left+sr.right)/2, baseY=sr.bottom-sr.height*0.06;
+ const bodyX=(sr.left+sr.right)/2, bodyY=(sr.top+sr.bottom)/2;
+ const targets=[
+  {q:'#pv_fsau',x:baseX,y:baseY},
+  {q:'#pv_wsau',x:baseX,y:baseY},
+  {q:'.hglow',x:baseX,y:baseY},
+  {q:'.enaura',x:bodyX,y:bodyY}
+ ];
+ const items=targets.map(t=>({t,el:box.querySelector(t.q)})).filter(o=>o.el);
+ if(!items.length)return;
+ items.forEach(o=>{o.el.style.translate='0px 0px'});
+ items.forEach(o=>{
+  const r=o.el.getBoundingClientRect();
+  if(!r.width||!r.height)return;
+  const cx=(r.left+r.right)/2,cy=(r.top+r.bottom)/2;
+  o.el.style.translate=(o.t.x-cx).toFixed(1)+'px '+(o.t.y-cy).toFixed(1)+'px';
+ });
 };
 </script>
 <script>
