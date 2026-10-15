@@ -8444,13 +8444,16 @@ body.g-hidden *,body.g-hidden *::before,body.g-hidden *::after{animation-play-st
 <style id="fx-css">
 body.fx-mode>*:not(#fx-dock):not(script):not(style){display:none!important}
 #fx-dock{position:fixed;inset:0;z-index:960;background:#07100c;overflow:hidden;color:#f5eedc;user-select:none;-webkit-user-select:none;contain:layout paint}
-#fx-dock .fx-scene{position:absolute;inset:0;touch-action:none}
+#fx-dock .fx-scene{position:absolute;inset:0;touch-action:none;z-index:0;isolation:isolate}
+/* เปิดกระเป๋า/หน้าซื้อ: ซ่อนตัวละคร เอ็น จอย ไม่ให้ทะลุขึ้นมาบนหน้าต่าง */
+#fx-dock.fx-modal #fxPl,#fx-dock.fx-modal #fxBob,#fx-dock.fx-modal .fx-joy,#fx-dock.fx-modal .fx-alert{visibility:hidden}
 #fx-dock .fx-scene>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 #fx-dock .fx-pl{position:absolute;width:0;height:0;transition:left .3s linear,top .3s linear}
 #fx-dock .fx-pl.me{transition:none}
 #fx-dock .fx-ch{position:absolute;left:-60px;bottom:0;width:120px;height:130px;transform-origin:50% 100%;pointer-events:none}
 #fx-dock .fx-ch:before{content:"";position:absolute;left:14px;right:14px;bottom:-5px;height:13px;border-radius:50%;background:radial-gradient(#0009,#0000 70%)}
 #fx-dock .fx-hs{position:absolute;inset:0}
+#fx-dock .fx-hs.fx-fb{opacity:.92}
 #fx-dock .fx-hs svg.nh{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;transform:rotate(-5deg);transform-origin:50% 100%}
 #fx-dock .fx-fig{position:absolute;left:38px;bottom:0;width:44px;height:72px}
 /* ===== 1) ท่ายืน: ถือเบ็ด หายใจเบาๆ ===== */
@@ -8535,9 +8538,9 @@ body.fx-mode>*:not(#fx-dock):not(script):not(style){display:none!important}
 #fx-dock .fx-ctl .hk{background:linear-gradient(#ff6b6b,#b3261e)}
 #fx-dock .fx-ctl .rl{background:linear-gradient(#6bb8ff,#1f5fa6)}
 #fx-dock .fx-bb.draft{font-style:italic;opacity:.92;background:#fffffff0}
-#fx-dock .fx-joy{position:absolute;left:14px;bottom:282px;width:104px;height:104px;border-radius:50%;background:#0007;border:2px solid #e5b94a99;touch-action:none;z-index:4}
+#fx-dock .fx-joy{position:absolute;left:12px;bottom:236px;width:92px;height:92px;border-radius:50%;background:#0007;border:2px solid #e5b94a99;touch-action:none;z-index:4}
 #fx-dock .fx-knob{position:absolute;left:50%;top:50%;width:42px;height:42px;margin:-21px 0 0 -21px;border-radius:50%;background:linear-gradient(#ffd23f,#ff8a1a);box-shadow:0 2px 8px #000a;pointer-events:none}
-#fx-dock .fx-log{max-height:84px;overflow:hidden;display:flex;flex-direction:column-reverse;font-size:12px;background:#0008;border-radius:12px;padding:6px 10px}
+#fx-dock .fx-log{max-height:52px;overflow:hidden;display:flex;flex-direction:column-reverse;font-size:12px;background:#0008;border-radius:12px;padding:6px 10px}
 #fx-dock .fx-log div{padding:2px 0}
 #fx-dock .fx-log b{color:#ffd23f}
 #fx-dock .fx-power{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:14px;height:160px;background:#0008;border-radius:999px;overflow:hidden;border:2px solid #fff9;display:none}
@@ -8557,18 +8560,19 @@ body.fx-mode>*:not(#fx-dock):not(script):not(style){display:none!important}
 @keyframes fxDip{50%{transform:translateY(8px)}}
 #fx-dock .fx-ring{transform-box:fill-box;transform-origin:center;animation:fxRing 1s ease-out forwards}
 @keyframes fxRing{0%{transform:scale(.2);opacity:.9}100%{transform:scale(2.6);opacity:0}}
-#fx-sell{position:absolute;inset:0;z-index:5;background:#000d;display:flex;align-items:center;justify-content:center;padding:14px}
-#fx-sell .fx-panel{width:100%;max-width:420px;max-height:100%;overflow:auto;background:#1f1510;border:3px solid #e5b94a;border-radius:16px;padding:12px}
-#fx-sell .fx-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:16px;font-weight:800}
-#fx-sell .fx-note{font-size:12px;color:#9fe1cb;margin-bottom:8px}
-#fx-sell .fx-item{display:flex;gap:8px;align-items:center;padding:8px;border-radius:12px;background:#0006;margin-bottom:6px}
-#fx-sell .fx-dot{width:14px;height:14px;border-radius:50%;flex:none}
-#fx-sell .fx-info{flex:1;min-width:0;font-size:13px}
-#fx-sell .fx-info small{display:block;color:#c9b99a;font-size:11px}
+#fx-sell,#fx-buy{position:absolute;inset:0;z-index:50;background:#050a08f2;display:flex;align-items:center;justify-content:center;padding:14px}
+#fx-sell .fx-panel,#fx-buy .fx-panel{width:100%;max-width:420px;max-height:100%;overflow:auto;background:#1f1510;border:3px solid #e5b94a;border-radius:16px;padding:12px}
+:is(#fx-sell,#fx-buy) .fx-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:16px;font-weight:800}
+:is(#fx-sell,#fx-buy) .fx-note{font-size:12px;color:#9fe1cb;margin-bottom:8px}
+:is(#fx-sell,#fx-buy) .fx-item{display:flex;gap:8px;align-items:center;padding:8px;border-radius:12px;background:#0006;margin-bottom:6px}
+:is(#fx-sell,#fx-buy) .fx-dot{width:14px;height:14px;border-radius:50%;flex:none}
+:is(#fx-sell,#fx-buy) .fx-info{flex:1;min-width:0;font-size:13px}
+:is(#fx-sell,#fx-buy) .fx-info small{display:block;color:#c9b99a;font-size:11px}
 #fx-sell .fx-acts{display:flex;flex-direction:column;gap:4px}
 #fx-sell .fx-acts button{padding:5px 9px;border-radius:9px;border:1.5px solid #fff3b0;background:linear-gradient(#ffd23f,#ff8a1a);color:#3a1400;font:inherit;font-size:12px;font-weight:800}
 #fx-sell .fx-acts button:disabled{opacity:.4}
-#fx-sell .fx-sellall{width:100%;margin-top:8px;padding:11px;border-radius:12px;border:2px solid #fff3b0;background:linear-gradient(#ffd23f,#ff8a1a 50%,#c8401a);color:#fff;font:inherit;font-weight:900}
+:is(#fx-sell,#fx-buy) .fx-sellall:disabled{opacity:.5;filter:grayscale(.6)}
+:is(#fx-sell,#fx-buy) .fx-sellall{width:100%;margin-top:8px;padding:11px;border-radius:12px;border:2px solid #fff3b0;background:linear-gradient(#ffd23f,#ff8a1a 50%,#c8401a);color:#fff;font:inherit;font-weight:900}
 </style>
 <script>
 /* ===== ท่าตกปลาออนไลน์ v5: โมเดลเดียว ไม่ซ้อน · ท่ายืน/เดิน/เหวี่ยง/สู้ปลา · ชนขอบบ่อไหลตามขอบ ===== */
@@ -8577,10 +8581,10 @@ const FISH=[
  {name:'ปลาดุก',rarity:'ทั่วไป',w:50,tier:0,c:'#8a8f98',g:40,s:0,d:0},
  {name:'ปลาช่อน',rarity:'ทั่วไป',w:28,tier:1,c:'#9b9a6a',g:70,s:1,d:0},
  {name:'ปลาสวาย',rarity:'ดี',w:12,tier:2,c:'#6fb3d9',g:150,s:2,d:0},
- {name:'ปลาทับทิม',rarity:'หายาก',w:6,tier:2,c:'#e0624a',g:320,s:5,d:1},
+ {name:'ปลาทับทิม',rarity:'หายาก',w:6,tier:2,hd:1.15,c:'#e0624a',g:320,s:5,d:1},
  {name:'ปลาทองคำ',rarity:'หายากมาก',w:3,tier:3,c:'#f2b233',g:900,s:15,d:5},
  {name:'มังกรน้ำ',rarity:'ตำนาน',w:0.8,tier:4,c:'#7f77dd',g:3000,s:40,d:20},
- {name:'คุนเผิง',rarity:'เทพ',w:0.2,tier:4,c:'#2a6aff',g:12000,s:120,d:80}];
+ {name:'คุนเผิง',rarity:'เทพ',w:0.2,tier:4,hd:1.3,c:'#2a6aff',g:12000,s:120,d:80}];
 const NS='http://www.w3.org/2000/svg';
 const W=380,SC=0.85;
 const SELF='self';
@@ -8588,12 +8592,12 @@ let H=828,CY=348,POND;
 const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function layout(){H=Math.max(560,Math.min(1000,Math.round(W*innerHeight/innerWidth)));CY=Math.round(H*0.42);POND={cx:190,cy:CY,rx:118,ry:58}}
+function layout(){H=Math.max(560,Math.min(1000,Math.round(W*innerHeight/innerWidth)));CY=Math.round(H*0.56);POND={cx:190,cy:CY,rx:118,ry:60}} /* บ่อเลื่อนลงมาอยู่กลางล่างของจอ */
 /* พื้นที่ห้ามเดิน = น้ำ + ขอบดินรอบบ่อ + ระยะเผื่อเท้า (วงรีใหญ่) · ชนแล้วไหลไปตามขอบ ไม่ทะลุ */
 const SHORE_X=16,SHORE_Y=12,PAD=9;
 function blockAB(){return{a:POND.rx+SHORE_X+PAD,b:POND.ry+SHORE_Y+PAD}}
-function minY(){return CY-38}
-function maxY(){return H-250}
+function minY(){return CY-POND.ry-58} /* เดินอ้อมไปหลังบ่อได้ */
+function maxY(){return H-215}
 function inPond(x,y){const e=blockAB(),u=(x-POND.cx)/e.a,v=(y-POND.cy)/e.b;return u*u+v*v<0.9999}
 function clampPos(x,y){
  x=Math.max(26,Math.min(W-26,x));y=Math.max(minY(),Math.min(maxY(),y));
@@ -8627,30 +8631,90 @@ function btns(s){$('fxCast').style.display=s==='cast'||s==='auto'?'':'none';$('f
 
 /* ---------- ฉาก ---------- */
 function sceneSVG(){
- const top=CY-95;let trees='';
- for(let i=0;i<16;i++){const x=6+i*25+(i%2)*5,y=top+8+(i%3)*3;trees+=`<ellipse cx="${x}" cy="${y}" rx="${11+(i%3)*2}" ry="${14+(i%2)*4}" fill="${i%2?'#3f7a3a':'#4f8f47'}"/><rect x="${x-1.5}" y="${y+10}" width="3" height="12" fill="#5a3a1c"/>`}
- let reeds='';for(const [x,y] of [[POND.cx-108,CY+16],[POND.cx-96,CY+30],[POND.cx+104,CY+18],[POND.cx+92,CY+34]]){reeds+=`<path d="M${x} ${y} q-3 -14 1 -26" stroke="#3f6e35" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="${x+1}" cy="${y-22}" rx="2.6" ry="7" fill="#8a6a3a"/>`}
- let pads='';[[150,CY+18,9],[228,CY+30,8],[204,CY-6,6],[166,CY+38,7],[250,CY-14,6]].forEach(([x,y,r])=>{pads+=`<ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r*.5}" fill="#4e8f3a"/>`});
+ /* ฉากยามอาทิตย์อัสดง: ภูเขาหลายชั้น เจดีย์บนยอดเขา น้ำตก ลำธาร ศาลา ต้นซากุระ โคมหิน ปลาคาร์ป กลีบดอกไม้ร่วง หิ่งห้อย */
+ const P=POND,top=CY-P.ry-120,R=(a,b)=>a+Math.random()*(b-a),f1=n=>n.toFixed(1);
+ const sx=300,sy=top-74;
+ let stars='';for(let i=0;i<30;i++){const x=R(0,W),y=R(4,Math.max(20,top*0.42));stars+=`<circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(R(.5,1.4))}" fill="#fff"><animate attributeName="opacity" values=".15;1;.15" dur="${f1(R(2,5))}s" begin="-${f1(R(0,5))}s" repeatCount="indefinite"/></circle>`}
+ let rays='';for(let i=0;i<14;i++){const a=i/14*Math.PI*2,b=a+0.09;rays+=`<path d="M0 0L${f1(Math.cos(a)*260)} ${f1(Math.sin(a)*260)}L${f1(Math.cos(b)*260)} ${f1(Math.sin(b)*260)}Z"/>`}
+ /* แนวต้นไม้ไกลๆ ที่ขอบฟ้า */
+ let ftrees='';for(let i=0;i<22;i++){const x=i*18+R(-4,4),h=R(16,30);ftrees+=`<path d="M${f1(x-8)} ${top+4}Q${f1(x)} ${f1(top-h)} ${f1(x+8)} ${top+4}Z"/>`}
+ /* หญ้า */
+ let tufts='';for(let i=0;i<70;i++){const x=R(0,W),y=R(top+14,H);const u=(x-P.cx)/(P.rx+20),v=(y-CY)/(P.ry+16);if(u*u+v*v<1.1)continue;const k=.6+(y-top)/(H-top)*.8;tufts+=`<path d="M${f1(x)} ${f1(y)}l${f1(-3*k)} ${f1(-7*k)}M${f1(x)} ${f1(y)}l0 ${f1(-9*k)}M${f1(x)} ${f1(y)}l${f1(3*k)} ${f1(-7*k)}"/>`}
+ let flowers='';for(let i=0;i<26;i++){const side=i%2,x=side?R(300,376):R(4,80),y=R(CY+P.ry+20,H-30);const c=['#ffd1e8','#fff3a8','#ffffff','#ffb3c7'][i%4];flowers+=`<circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(R(1.6,2.8))}" fill="${c}"/>`}
+ /* หินรอบขอบบ่อ */
+ let stones='';for(let i=0;i<30;i++){const a=i/30*Math.PI*2+R(-.05,.05),x=P.cx+Math.cos(a)*(P.rx+9),y=CY+Math.sin(a)*(P.ry+7);const r=R(6,11);stones+=`<ellipse cx="${f1(x)}" cy="${f1(y)}" rx="${f1(r)}" ry="${f1(r*.62)}" fill="${i%3?'#8d8a86':'#a7a39c'}" stroke="#4d4a45" stroke-width=".8"/>`}
+ /* ใบบัวและดอกบัว */
+ let lotus='';[[P.cx-62,CY+20,11],[P.cx+58,CY+28,10],[P.cx+20,CY-30,8],[P.cx-30,CY+40,9],[P.cx+84,CY-12,8],[P.cx-86,CY-6,9]].forEach(([x,y,r],i)=>{lotus+=`<path d="M${x} ${y}m${-r} 0a${r} ${f1(r*.5)} 0 1 0 ${r*2} 0a${r} ${f1(r*.5)} 0 1 0 ${-r*2} 0Z" fill="${i%2?'#3f8a3a':'#4fa046'}" stroke="#2c6a2c" stroke-width=".8"/>`;if(i%2===0)lotus+=`<g transform="translate(${x+2} ${y-3})"><path d="M0 0C-5 -2 -6 -8 -2 -9C-1 -6 0 -4 0 0Z" fill="#ff9ec4"/><path d="M0 0C5 -2 6 -8 2 -9C1 -6 0 -4 0 0Z" fill="#ff9ec4"/><path d="M0 0C-2 -4 -1 -10 0 -12C1 -10 2 -4 0 0Z" fill="#ffd1e3"/></g>`});
+ /* ปลาคาร์ปว่ายวนในบ่อ */
+ let koi='';[['#ff7a3d',.62,.55,14,0],['#fff2e6',.45,.4,11,-4],['#ffd23f',.75,.65,17,-9]].forEach(([c,kx,ky,d,b])=>{const a=P.rx*kx,bb=P.ry*ky;koi+=`<g opacity=".75"><path d="M-9 0C-5 -4 4 -4 8 0C4 4 -5 4 -9 0Z" fill="${c}"/><path d="M-8 0L-14 -4L-13 0L-14 4Z" fill="${c}"/><circle cx="1" cy="-1" r="1.5" fill="#e0402a" opacity=".7"/><animateMotion dur="${d}s" begin="${b}s" repeatCount="indefinite" rotate="auto" path="M${P.cx+a} ${CY}A${a} ${bb} 0 1 1 ${P.cx-a} ${CY}A${a} ${bb} 0 1 1 ${P.cx+a} ${CY}"/></g>`});
+ /* โคมลอยน้ำ */
+ let flo='';[[P.cx-40,CY-8],[P.cx+36,CY+6],[P.cx+4,CY+34]].forEach(([x,y],i)=>{flo+=`<g><animateTransform attributeName="transform" type="translate" values="0 0;0 1.6;0 0" dur="${3+i}s" repeatCount="indefinite"/><circle cx="${x}" cy="${y}" r="13" fill="url(#fxGlow)"/><path d="M${x-4} ${y+2}L${x-3} ${y-5}L${x+3} ${y-5}L${x+4} ${y+2}Z" fill="#ffb347" stroke="#a14a12" stroke-width=".7"/><ellipse cx="${x}" cy="${y+3}" rx="6" ry="1.6" fill="#ffcf7a" opacity=".55"/></g>`});
+ /* หิ่งห้อย */
+ let ff='';for(let i=0;i<14;i++){const x=R(10,W-10),y=R(top+10,H-60);ff+=`<circle cx="${f1(x)}" cy="${f1(y)}" r="1.6" fill="#fff6a0"><animate attributeName="opacity" values="0;1;0" dur="${f1(R(2,4))}s" begin="-${f1(R(0,4))}s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="translate" values="0 0;${f1(R(-10,10))} ${f1(R(-12,4))};0 0" dur="${f1(R(5,9))}s" repeatCount="indefinite"/></circle>`}
+ /* กลีบซากุระร่วง */
+ let pet='';for(let i=0;i<16;i++){const x=R(-10,W),d=R(9,16);pet+=`<path d="M0 0C2 -3 6 -2 5 1C4 3 1 3 0 0Z" fill="${i%3?'#ffc6dc':'#ffe3ee'}" opacity=".9"><animateMotion dur="${f1(d)}s" begin="-${f1(R(0,d))}s" repeatCount="indefinite" rotate="auto" path="M${f1(x)} -10C${f1(x+40)} ${f1(H*.3)} ${f1(x-30)} ${f1(H*.6)} ${f1(x+30)} ${H+10}"/></path>`}
+ /* ต้นซากุระ */
+ const sakura=(x,y,s,fl)=>`<g transform="translate(${x} ${y}) scale(${fl?-s:s} ${s})"><path d="M0 0C2 -30 -4 -52 8 -78M4 -46C16 -54 26 -58 36 -72M2 -60C-10 -70 -18 -74 -26 -86" stroke="#3a2418" stroke-width="7" fill="none" stroke-linecap="round"/><g fill="#ffb7d0"><circle cx="8" cy="-92" r="24"/><circle cx="34" cy="-80" r="20"/><circle cx="-22" cy="-92" r="20"/><circle cx="-8" cy="-112" r="18"/><circle cx="24" cy="-108" r="18"/></g><g fill="#ffd6e6"><circle cx="12" cy="-100" r="12"/><circle cx="-16" cy="-98" r="9"/><circle cx="34" cy="-86" r="8"/></g><g fill="#f08fb4" opacity=".6"><circle cx="-2" cy="-80" r="10"/><circle cx="26" cy="-70" r="9"/></g></g>`;
+ const pine=(x,y,s)=>`<g transform="translate(${x} ${y}) scale(${s})"><rect x="-3" y="-30" width="6" height="30" fill="#3a2418"/><path d="M-26 -24L0 -64L26 -24Z" fill="#245a3a"/><path d="M-21 -46L0 -84L21 -46Z" fill="#2e6d45"/><path d="M-15 -66L0 -100L15 -66Z" fill="#3a8052"/></g>`;
+ /* ศาลาจีนหลังคาโค้งสีแดงทอง */
+ const pav=(x,y)=>`<g transform="translate(${x} ${y})"><rect x="-28" y="-6" width="56" height="6" fill="#7a5a3a"/><rect x="-22" y="-40" width="4" height="34" fill="#b3261e"/><rect x="18" y="-40" width="4" height="34" fill="#b3261e"/><rect x="-6" y="-40" width="3" height="34" fill="#8e1d17"/><rect x="-24" y="-44" width="48" height="5" fill="#e5b94a"/><path d="M-40 -44Q-30 -46 -22 -56L22 -56Q30 -46 40 -44Q20 -50 0 -50Q-20 -50 -40 -44Z" fill="#2a3a5a"/><path d="M-30 -56Q-18 -60 -10 -72L10 -72Q18 -60 30 -56Z" fill="#33476e"/><path d="M-40 -44Q-30 -46 -22 -56M40 -44Q30 -46 22 -56" stroke="#e5b94a" stroke-width="1.6" fill="none"/><circle cx="0" cy="-76" r="3" fill="#ffd23f"/><circle cx="-14" cy="-34" r="5" fill="#ff5a3d"/><circle cx="14" cy="-34" r="5" fill="#ff5a3d"/><circle cx="-14" cy="-34" r="11" fill="url(#fxGlow)"/><circle cx="14" cy="-34" r="11" fill="url(#fxGlow)"/></g>`;
+ /* โคมหิน */
+ const lan=(x,y)=>`<g transform="translate(${x} ${y})"><circle cx="0" cy="-22" r="22" fill="url(#fxGlow)"><animate attributeName="opacity" values=".7;1;.7" dur="2.6s" repeatCount="indefinite"/></circle><rect x="-3" y="-12" width="6" height="12" fill="#8d8a86"/><rect x="-8" y="-2" width="16" height="4" rx="1" fill="#77736d"/><rect x="-7" y="-16" width="14" height="4" fill="#77736d"/><rect x="-5" y="-27" width="10" height="11" fill="#5c5853"/><rect x="-3" y="-25" width="6" height="7" fill="#ffd27a"/><path d="M-10 -27L0 -35L10 -27Z" fill="#77736d"/><circle cx="0" cy="-37" r="2" fill="#77736d"/></g>`;
+ /* เจดีย์บนยอดเขา */
+ let pag='';for(let i=0;i<5;i++){const w=16-i*2.6,y=-i*7;pag+=`<rect x="${f1(-w/2+1.5)}" y="${y-6}" width="${f1(w-3)}" height="6" fill="#3b2f5e"/><path d="M${f1(-w/2-3)} ${y-5}Q0 ${y-9} ${f1(w/2+3)} ${y-5}L${f1(w/2)} ${y-7}L${f1(-w/2)} ${y-7}Z" fill="#2c2350"/><rect x="-1" y="${y-4}" width="2" height="2" fill="#ffd27a"/>`}
+ const wfX=P.cx+6,wfTop=top-52,wfBot=top+4;
  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
 <defs>
- <linearGradient id="fxSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fa8e6"/><stop offset=".55" stop-color="#f3c9a0"/><stop offset="1" stop-color="#f7b58e"/></linearGradient>
- <radialGradient id="fxSun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff8dc"/><stop offset=".45" stop-color="#ffe3a3" stop-opacity=".6"/><stop offset="1" stop-color="#ffe3a3" stop-opacity="0"/></radialGradient>
- <linearGradient id="fxGr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9ccb74"/><stop offset="1" stop-color="#3f7034"/></linearGradient>
- <linearGradient id="fxShore" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e0b982"/><stop offset="1" stop-color="#8a6236"/></linearGradient>
- <radialGradient id="fxWater" cx=".5" cy=".4" r=".65"><stop offset="0" stop-color="#6fd9c4"/><stop offset=".6" stop-color="#1f8f80"/><stop offset="1" stop-color="#0b4a46"/></radialGradient>
- <radialGradient id="fxVig" cx=".5" cy=".5" r=".8"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".38"/></radialGradient>
+ <linearGradient id="fxSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d1b4a"/><stop offset=".35" stop-color="#5a3f8a"/><stop offset=".7" stop-color="#e2788a"/><stop offset="1" stop-color="#ffc178"/></linearGradient>
+ <radialGradient id="fxSun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff6d6"/><stop offset=".25" stop-color="#ffd58a" stop-opacity=".85"/><stop offset="1" stop-color="#ff9a5a" stop-opacity="0"/></radialGradient>
+ <radialGradient id="fxGlow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd27a" stop-opacity=".9"/><stop offset="1" stop-color="#ff9a3a" stop-opacity="0"/></radialGradient>
+ <linearGradient id="fxMist" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe2d0" stop-opacity="0"/><stop offset=".5" stop-color="#ffe2d0" stop-opacity=".55"/><stop offset="1" stop-color="#ffe2d0" stop-opacity="0"/></linearGradient>
+ <linearGradient id="fxGr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fbf6a"/><stop offset=".4" stop-color="#5c9a48"/><stop offset="1" stop-color="#25502a"/></linearGradient>
+ <linearGradient id="fxShore" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfb284"/><stop offset="1" stop-color="#7a5a34"/></linearGradient>
+ <radialGradient id="fxWater" cx=".5" cy=".35" r=".7"><stop offset="0" stop-color="#8fe8e0"/><stop offset=".45" stop-color="#2aa39a"/><stop offset="1" stop-color="#0b3f4a"/></radialGradient>
+ <linearGradient id="fxRefl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc9a0" stop-opacity=".55"/><stop offset=".5" stop-color="#ffc9a0" stop-opacity="0"/></linearGradient>
+ <linearGradient id="fxFall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8fbff"/><stop offset="1" stop-color="#9fe1e6"/></linearGradient>
+ <radialGradient id="fxVig" cx=".5" cy=".55" r=".8"><stop offset=".62" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></radialGradient>
+ <clipPath id="fxPondClip"><ellipse cx="${P.cx}" cy="${CY}" rx="${P.rx}" ry="${P.ry}"/></clipPath>
 </defs>
 <rect width="${W}" height="${H}" fill="url(#fxSky)"/>
-<circle cx="318" cy="${top-30}" r="86" fill="url(#fxSun)"/><circle cx="318" cy="${top-30}" r="14" fill="#fff6d6"/>
-<path d="M0 ${top-10} L60 ${top-70} L110 ${top-30} L165 ${top-90} L225 ${top-36} L280 ${top-82} L340 ${top-26} L380 ${top-56} L380 ${top+30} L0 ${top+30}Z" fill="#8e8cc4" opacity=".75"/>
-<path d="M0 ${top+14} L70 ${top-6} L130 ${top+12} L200 ${top-10} L260 ${top+10} L330 ${top-2} L380 ${top+10} L380 ${top+44} L0 ${top+44}Z" fill="#6e6aa6" opacity=".7"/>
-${trees}
-<rect y="${top+40}" width="${W}" height="${H-top}" fill="url(#fxGr)"/>
-<ellipse cx="${POND.cx}" cy="${CY}" rx="${POND.rx+16}" ry="${POND.ry+12}" fill="url(#fxShore)"/>
-<ellipse cx="${POND.cx}" cy="${CY}" rx="${POND.rx}" ry="${POND.ry}" fill="url(#fxWater)"/>
-<g fill="#cff5ec" opacity=".35"><ellipse cx="160" cy="${CY-12}" rx="26" ry="1.6"/><ellipse cx="226" cy="${CY+14}" rx="20" ry="1.4"/><ellipse cx="190" cy="${CY+32}" rx="30" ry="1.6"/></g>
-${pads}${reeds}
-<rect width="${W}" height="${H}" fill="url(#fxVig)"/>
+<g>${stars}</g>
+<g transform="translate(${sx} ${sy})" fill="#ffe7b0" opacity=".13">${rays}<animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="120s" additive="sum" repeatCount="indefinite"/></g>
+<circle cx="${sx}" cy="${sy}" r="110" fill="url(#fxSun)"/><circle cx="${sx}" cy="${sy}" r="22" fill="#fff3cf"/>
+<path d="M0 ${top-92}L40 ${top-130}L70 ${top-112}L96 ${top-160}L130 ${top-118}L170 ${top-140}L210 ${top-104}L250 ${top-150}L300 ${top-100}L340 ${top-136}L380 ${top-108}L380 ${top}L0 ${top}Z" fill="#7a68ae" opacity=".8"/>
+<g transform="translate(96 ${top-158})">${pag}<path d="M0 -36L0 -46" stroke="#2c2350" stroke-width="1.4"/></g>
+<rect y="${top-120}" width="${W}" height="50" fill="url(#fxMist)"><animate attributeName="x" values="-20;20;-20" dur="18s" repeatCount="indefinite"/></rect>
+<path d="M0 ${top-50}L50 ${top-86}L100 ${top-60}L150 ${top-94}L230 ${top-96}L280 ${top-62}L330 ${top-84}L380 ${top-56}L380 ${top}L0 ${top}Z" fill="#4c3f7c"/>
+<path d="M150 ${top-94}L168 ${top-60}L176 ${top-58}L178 ${top}L212 ${top}L214 ${top-58}L222 ${top-62}L230 ${top-96}Z" fill="#3a3166"/>
+<rect x="${wfX-12}" y="${wfTop}" width="24" height="${wfBot-wfTop}" fill="url(#fxFall)" opacity=".92"/>
+<g stroke="#ffffff" stroke-width="1.6" stroke-dasharray="6 9" opacity=".8"><path d="M${wfX-7} ${wfTop}V${wfBot}"><animate attributeName="stroke-dashoffset" from="0" to="-30" dur=".6s" repeatCount="indefinite"/></path><path d="M${wfX} ${wfTop}V${wfBot}"><animate attributeName="stroke-dashoffset" from="-8" to="-38" dur=".5s" repeatCount="indefinite"/></path><path d="M${wfX+7} ${wfTop}V${wfBot}"><animate attributeName="stroke-dashoffset" from="-4" to="-34" dur=".7s" repeatCount="indefinite"/></path></g>
+<rect y="${top-46}" width="${W}" height="40" fill="url(#fxMist)" opacity=".8"><animate attributeName="x" values="16;-16;16" dur="14s" repeatCount="indefinite"/></rect>
+<g fill="#2f4a3a">${ftrees}</g>
+<rect y="${top}" width="${W}" height="${H-top}" fill="url(#fxGr)"/>
+<ellipse cx="${wfX}" cy="${top+4}" rx="26" ry="6" fill="#e8fbff" opacity=".85"><animate attributeName="rx" values="22;28;22" dur="1.2s" repeatCount="indefinite"/></ellipse>
+<path d="M${wfX-12} ${top+4}C${wfX-22} ${top+30} ${P.cx+22} ${CY-P.ry-34} ${P.cx-2} ${CY-P.ry+4}L${P.cx+22} ${CY-P.ry+4}C${P.cx+40} ${CY-P.ry-30} ${wfX+6} ${top+30} ${wfX+12} ${top+4}Z" fill="#4fb8b0" stroke="#cfb284" stroke-width="3"/>
+<path d="M${wfX-2} ${top+10}C${wfX-8} ${top+34} ${P.cx+26} ${CY-P.ry-28} ${P.cx+10} ${CY-P.ry}" stroke="#d8fbf6" stroke-width="1.4" fill="none" stroke-dasharray="5 8" opacity=".8"><animate attributeName="stroke-dashoffset" from="0" to="-26" dur="1s" repeatCount="indefinite"/></path>
+${pav(52,top+40)}
+${pine(354,top+44,.95)}${pine(330,top+30,.7)}
+<g stroke="#3f7a35" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".75">${tufts}</g>
+${lan(P.cx-P.rx-4,CY-P.ry-6)}${lan(P.cx+P.rx+4,CY-P.ry-6)}
+<ellipse cx="${P.cx}" cy="${CY+4}" rx="${P.rx+20}" ry="${P.ry+16}" fill="#1f3a22" opacity=".35"/>
+<ellipse cx="${P.cx}" cy="${CY}" rx="${P.rx+16}" ry="${P.ry+12}" fill="url(#fxShore)"/>
+<ellipse cx="${P.cx}" cy="${CY}" rx="${P.rx}" ry="${P.ry}" fill="url(#fxWater)"/>
+<g clip-path="url(#fxPondClip)">
+ <rect x="${P.cx-P.rx}" y="${CY-P.ry}" width="${P.rx*2}" height="${P.ry*2}" fill="url(#fxRefl)"/>
+ <path d="M${sx-130} ${CY-P.ry+6}L${sx-104} ${CY-P.ry+6}L${sx-92} ${CY+P.ry}L${sx-150} ${CY+P.ry}Z" fill="#ffe2a8" opacity=".18"/>
+ ${koi}
+ <g fill="#e8fffb">${[[-60,-26,22],[30,-36,18],[-10,6,30],[54,18,20],[-50,36,24]].map(([dx,dy,l],i)=>`<rect x="${P.cx+dx}" y="${CY+dy}" width="${l}" height="1.4" rx=".7"><animate attributeName="opacity" values="0;.6;0" dur="${2.4+i*.5}s" begin="-${i*.7}s" repeatCount="indefinite"/></rect>`).join('')}</g>
+ <ellipse cx="${P.cx}" cy="${CY}" rx="${P.rx}" ry="${P.ry}" fill="none" stroke="#06262c" stroke-opacity=".45" stroke-width="10"/>
+</g>
+${lotus}${flo}
+${stones}
+${sakura(18,CY+P.ry+64,.95,false)}${sakura(368,CY+P.ry+86,.85,true)}
+<g>${flowers}</g>
+<g>${ff}</g>
+<g>${pet}</g>
+<rect width="${W}" height="${H}" fill="url(#fxVig)" pointer-events="none"/>
 </svg>`;
 }
 
@@ -8690,10 +8754,15 @@ function ensureEl(key,html,name,isMe){
   const el=document.createElement('div');el.className='fx-pl'+(isMe?' me':'');
   el.innerHTML='<div class="fx-bbs"></div><div class="fx-ch idle"></div><span class="fx-nm"></span>';
   $('fxPl').appendChild(el);
-  o={el,ch:el.querySelector('.fx-ch'),nm:el.querySelector('.fx-nm'),bb:el.querySelector('.fx-bbs'),h:null,name:null,walkT:0,castT:0,face:0,walking:undefined,tip:null};
+  o={el,ch:el.querySelector('.fx-ch'),nm:el.querySelector('.fx-nm'),bb:el.querySelector('.fx-bbs'),h:undefined,name:null,walkT:0,castT:0,face:0,walking:undefined,tip:null};
   els.set(key,o);
  }
- if(o.h!==html){o.h=html;o.ch.innerHTML=html?'<div class="fx-hs">'+html+'</div>':figure();o.tip=o.ch.querySelector('.fx-tip')}
+ if(o.h!==html){ /* เดิม h เริ่มเป็น null = html null จึงไม่เคยวาดตัว → ผู้เล่นอื่นที่โปรไฟล์ยังไม่โหลดมองไม่เห็น */
+  o.h=html;
+  const fb=!html&&!isMe&&myHTML?myHTML.replace(/pme_/g,'pfb_'):null; /* ตัวสำรองระหว่างรอโหลดโมเดลจริง */
+  o.ch.innerHTML=html?'<div class="fx-hs">'+html+'</div>':fb?'<div class="fx-hs fx-fb">'+fb+'</div>':figure();
+  o.tip=o.ch.querySelector('.fx-tip');
+ }
  if(o.name!==name){o.name=name;o.nm.textContent=name}
  return o;
 }
@@ -8783,50 +8852,101 @@ function walkTo(x,y){
  cancelAnimationFrame(me.raf);me.raf=requestAnimationFrame(moveFrame);
 }
 
-/* ---------- ซิงก์ผู้เล่นออนไลน์ ---------- */
-function myInfo(){return{uid,sid,name:(S&&S.name)||'จอมยุทธ์',lv:(S&&S.lv)||1,st,cid:cidOwn,px:me.x,py:me.y-CY,face:me.face,bx:bob?bob.x:null,by:bob?bob.y-CY:null}}
-function publish(){if(ch&&ch.state==='joined'){try{ch.track(myInfo())}catch(e){}}}
-async function syncPresence(){
- if(!ch)return;
- const state=ch.presenceState();const list=[];
- Object.keys(state).forEach(k=>{const arr=state[k];const p=arr&&arr[arr.length-1];if(p&&(p.sid||p.uid)!==sid&&!(p.uid===uid&&!p.sid)){p.key=p.sid||p.uid;list.push(p)}});
- const cnt=list.length+1;
- const cn=$('fxCnt');if(cn)cn.textContent='● ออนไลน์ที่ท่า '+cnt+' คน';
- const shown=list.slice(0,12);
- const profs=await Promise.all(shown.map(p=>fetchProfile(p.uid)));
- if(!$('fx-dock'))return;
- const keep=new Set();
- shown.forEach((p,i)=>{
-  const prof=profs[i];const old=remotes.get(p.key)||{};
-  /* ตำแหน่งส่งมาเป็นระยะเทียบกับบ่อ (ทุกเครื่องหน้าจอไม่เท่ากัน) */
-  const q=clampPos(typeof p.px==='number'?p.px:(old.x||190),typeof p.py==='number'?CY+p.py:(old.y||CY+150));
-  const r={uid:p.uid,name:p.name||(prof&&prof.name)||'ผู้เล่น',lv:p.lv||(prof&&prof.lv)||1,st:p.st||'idle',cid:p.cid||0,
-   x:q.x,y:q.y,face:p.face||1,bx:typeof p.bx==='number'?p.bx:null,by:typeof p.by==='number'?CY+p.by:null,html:(prof&&prof.html)||old.html||null};
-  r.walking=(old.x!==undefined&&(Math.abs(r.x-old.x)>0.5||Math.abs(r.y-old.y)>0.5));
-  remotes.set(p.key,r);keep.add(p.key);
-  const o=ensureEl(p.key,r.html,r.name+' Lv.'+r.lv,false);
-  if(old.x===undefined)seenCid.set('r'+p.key,r.cid); /* เพิ่งเห็นครั้งแรก ไม่ต้องเล่นท่าเหวี่ยงย้อนหลัง */
-  setPos(o,r.x,r.y,r.face,r.walking);
-  setPose(o,r.st);
-  if(r.walking){clearTimeout(o.walkT);o.walkT=setTimeout(()=>{const z=els.get(p.key);if(z)setPos(z,r.x,r.y,r.face,false)},500)}
-  playCast(o,r.cid,'r'+p.key);
- });
- remotes.forEach((r,k)=>{if(!keep.has(k)){remotes.delete(k);const o=els.get(k);if(o){o.el.remove();els.delete(k)}}});
- drawRods();
+/* ---------- ซิงก์ผู้เล่นออนไลน์ ----------
+   ใช้ 2 ทางพร้อมกัน: presence (รายชื่อคนในท่า) + broadcast 'pos' (ตำแหน่งสด/heartbeat)
+   ถ้าทางใดทางหนึ่งไม่ทำงาน ก็ยังเห็นผู้เล่นอื่นได้ · เห็นตัวทันทีด้วยตัวสำรอง แล้วค่อยเปลี่ยนเป็นโมเดลจริงเมื่อโหลดโปรไฟล์เสร็จ */
+let joined=false,lastTrack=0,lastBc=0,pubT=0,hbI=0,retryT=0;
+function myInfo(){return{uid,sid,name:(S&&S.name)||'จอมยุทธ์',lv:(S&&S.lv)||1,st,cid:cidOwn,px:Math.round(me.x),py:Math.round(me.y-CY),face:me.face,bx:bob?Math.round(bob.x):null,by:bob?Math.round(bob.y-CY):null}}
+function sendPos(){if(!ch||!joined)return;try{ch.send({type:'broadcast',event:'pos',payload:myInfo()})}catch(e){}}
+function trackMe(){if(!ch||!joined)return;lastTrack=Date.now();try{ch.track(myInfo())}catch(e){}}
+function publish(force){
+ if(!ch||!joined)return;
+ const now=Date.now();
+ if(force||now-lastBc>=170){lastBc=now;sendPos()}
+ if(force||now-lastTrack>=1200)trackMe();
+ clearTimeout(pubT);pubT=setTimeout(()=>{sendPos();trackMe()},700); /* ส่งสถานะสุดท้ายหลังหยุดเดินเสมอ */
 }
-function setSt(s){st=s;setPose(els.get(SELF),s);publish();drawRods()}
+function updCount(){const cn=$('fxCnt');if(cn)cn.textContent='● ออนไลน์ที่ท่า '+(remotes.size+1)+' คน'}
+function removeRemote(k){remotes.delete(k);const o=els.get(k);if(o){clearTimeout(o.walkT);o.el.remove();els.delete(k)}const r=rods.get(k);if(r){r.g.remove();rods.delete(k)}BUB.delete(k);updCount()}
+function applyRemote(p){
+ if(!p||typeof p!=='object'||!$('fx-dock'))return;
+ const key=p.sid||p.uid;if(!key||key===sid)return;
+ const old=remotes.get(key);
+ const q=clampPos(typeof p.px==='number'?p.px:(old?old.x:190),typeof p.py==='number'?CY+p.py:(old?old.y:CY+P_SPAWN()));
+ const moved=!!old&&(Math.abs(q.x-old.x)>0.5||Math.abs(q.y-old.y)>0.5);
+ const r=old||{html:null};
+ Object.assign(r,{uid:p.uid,name:String(p.name||r.name||'ผู้เล่น').slice(0,16),lv:p.lv||r.lv||1,st:p.st||'idle',cid:p.cid||0,x:q.x,y:q.y,face:p.face===-1?-1:1,
+  bx:typeof p.bx==='number'?p.bx:null,by:typeof p.by==='number'?CY+p.by:null,seen:Date.now()});
+ remotes.set(key,r);
+ const o=ensureEl(key,r.html,r.name+' Lv.'+r.lv,false);
+ if(!old)seenCid.set('r'+key,r.cid); /* เพิ่งเห็นครั้งแรก ไม่ต้องเล่นท่าเหวี่ยงย้อนหลัง */
+ setPos(o,r.x,r.y,r.face,moved);
+ setPose(o,r.st);
+ if(moved){clearTimeout(o.walkT);o.walkT=setTimeout(()=>{const z=els.get(key),rr=remotes.get(key);if(z&&rr)setPos(z,rr.x,rr.y,rr.face,false)},450)}
+ playCast(o,r.cid,'r'+key);
+ if(!r.html&&!r.fetching&&r.uid&&sb&&(!r.retryAt||Date.now()>r.retryAt)){
+  r.fetching=true;
+  fetchProfile(r.uid).then(pr=>{const z=remotes.get(key);if(!z)return;z.fetching=false;
+   if(pr&&pr.html){z.html=pr.html;if(els.get(key))ensureEl(key,z.html,z.name+' Lv.'+z.lv,false)}else z.retryAt=Date.now()+15000}).catch(()=>{const z=remotes.get(key);if(z){z.fetching=false;z.retryAt=Date.now()+15000}});
+ }
+ if(!old)updCount();
+}
+function syncPresence(){
+ if(!ch)return;let state={};try{state=ch.presenceState()||{}}catch(e){}
+ const live=new Set();
+ Object.keys(state).forEach(k=>{const arr=state[k];const p=arr&&arr[arr.length-1];if(!p||k===sid||p.sid===sid)return;if(!p.sid)p.sid=k;live.add(p.sid);applyRemote(p)});
+ const now=Date.now();
+ remotes.forEach((r,k)=>{if(!live.has(k)&&now-r.seen>8000)removeRemote(k)});
+ updCount();drawRods();
+}
+function setSt(s){st=s;setPose(els.get(SELF),s);publish(true);drawRods()}
+function P_SPAWN(){return POND.ry+40}
 
 async function connect(){
  const GA=window.GameAuth;
- if(!GA||GA.mode!=='online'||!GA.ready||!(await GA.ready)||!GA.sb){setMsg('เล่นแบบออฟไลน์ · เห็นผู้เล่นอื่นเมื่อออนไลน์');return}
- sb=GA.sb;const u=await GA.user();if(!u)return;uid=u.id;sid=uid+'-'+Math.random().toString(36).slice(2,8);
+ if(!GA||!GA.ready||!(await GA.ready)||GA.mode!=='online'||!GA.sb){setMsg('เล่นแบบออฟไลน์ · เห็นผู้เล่นอื่นเมื่อออนไลน์');return}
+ sb=GA.sb;let u=null;try{u=await GA.user()}catch(e){}
+ if(!u){setMsg('ยังไม่ได้เข้าสู่ระบบ · เห็นผู้เล่นอื่นเมื่อล็อกอินออนไลน์');return}
+ if(!$('fx-dock'))return;
+ uid=u.id;if(!sid)sid=uid+'-'+Math.random().toString(36).slice(2,8);
  try{window.socPublish&&window.socPublish(true)}catch(e){}
- ch=sb.channel('fish_dock',{config:{presence:{key:sid},broadcast:{self:false}}});
- ch.on('presence',{event:'sync'},()=>syncPresence())
+ /* ลบช่องเก่าที่ค้าง (เปิดท่าซ้ำเร็วๆ) ไม่งั้น supabase จะคืนช่องเดิมที่ปิดไปแล้ว */
+ try{const old=(sb.getChannels?sb.getChannels():[]).filter(c=>/fish_dock$/.test(c.topic||''));await Promise.all(old.map(c=>sb.removeChannel(c)))}catch(e){}
+ if(!$('fx-dock'))return;
+ joined=false;
+ const c=sb.channel('fish_dock',{config:{presence:{key:sid},broadcast:{self:false,ack:false}}});
+ ch=c;
+ c.on('presence',{event:'sync'},()=>{if(ch===c)syncPresence()})
+  .on('presence',{event:'join'},({newPresences})=>{if(ch!==c)return;(newPresences||[]).forEach(applyRemote);drawRods()})
+  .on('presence',{event:'leave'},({key})=>{if(ch===c&&key&&key!==sid)removeRemote(key)})
+  .on('broadcast',{event:'pos'},({payload})=>{if(ch===c)applyRemote(payload)})
+  .on('broadcast',{event:'hello'},({payload})=>{if(ch!==c)return;if(payload)applyRemote(payload);setTimeout(sendPos,rnd(100,600))})
+  .on('broadcast',{event:'bye'},({payload})=>{const k=payload&&payload.sid;if(ch===c&&k&&k!==sid)removeRemote(k)})
   .on('broadcast',{event:'catch'},({payload})=>{if(!payload)return;logLine(`<b>${esc(payload.name)}</b> ได้ ${esc(payload.fish)} (${esc(payload.rarity)})`)})
   .on('broadcast',{event:'chat'},({payload})=>{const pk=payload&&(payload.sid||payload.uid);if(!pk||pk===sid)return;const t=String(payload.text||'').slice(0,80);if(!t)return;sayBubble(pk,t);logLine(`💬 <b>${esc(payload.name||'ผู้เล่น')}</b>: ${esc(t)}`)})
   .on('broadcast',{event:'typing'},onRemoteTyping)
-  .subscribe(s=>{if(s==='SUBSCRIBED'){publish();setMsg('ออนไลน์แล้ว · แตะบนฉากเพื่อเดิน')}});
+  .subscribe(s=>{
+   if(ch!==c)return;
+   if(s==='SUBSCRIBED'){
+    joined=true;trackMe();
+    try{c.send({type:'broadcast',event:'hello',payload:myInfo()})}catch(e){}
+    setMsg('ออนไลน์แล้ว · ใช้จอยหรือแตะบนฉากเพื่อเดิน');
+    setTimeout(()=>{if(ch===c)syncPresence()},800);
+   }else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT'||s==='CLOSED'){
+    joined=false;
+    if(!$('fx-dock'))return;
+    setMsg('การเชื่อมต่อหลุด · กำลังเชื่อมใหม่…');
+    clearTimeout(retryT);retryT=setTimeout(()=>{if($('fx-dock')&&ch===c){ch=null;connect()}},3000);
+   }
+  });
+ /* heartbeat: ส่งตำแหน่งทุก 3 วิ ให้คนที่เพิ่งเข้ามาเห็นทันที · ลบคนที่เงียบเกิน 20 วิ */
+ clearInterval(hbI);
+ hbI=setInterval(()=>{
+  if(!$('fx-dock')){clearInterval(hbI);return}
+  if(ch!==c)return;
+  sendPos();if(Date.now()-lastTrack>15000)trackMe();
+  const now=Date.now();remotes.forEach((r,k)=>{if(now-r.seen>20000)removeRemote(k)});
+ },3000);
 }
 
 /* ---------- จอยสติ๊กเดินอิสระ ---------- */
@@ -8901,7 +9021,7 @@ function onTyping(){
  const now=Date.now();
  if(!t||now-lastTypeSend>250){
   lastTypeSend=now;
-  try{if(ch&&ch.state==='joined')ch.send({type:'broadcast',event:'typing',payload:{uid,sid,text:t}})}catch(e){}
+  try{if(ch&&joined)ch.send({type:'broadcast',event:'typing',payload:{uid,sid,text:t}})}catch(e){}
  }
 }
 function onRemoteTyping({payload}){
@@ -8917,7 +9037,7 @@ function sendChat(){
  const name=(S&&S.name)||'จอมยุทธ์';
  setBubble(SELF,text,false);
  logLine(`💬 <b>${esc(name)}</b>: ${esc(text)}`);
- try{if(ch&&ch.state==='joined'){
+ try{if(ch&&joined){
   ch.send({type:'broadcast',event:'chat',payload:{uid,sid,name,text}});
   ch.send({type:'broadcast',event:'typing',payload:{uid,sid,text:''}});
  }}catch(e){}
@@ -8961,8 +9081,8 @@ function bite(){
  fish=pickFish();setSt('biting');
  const a=$('fxAlert');a.style.left=(bob.x/W*100)+'%';a.style.top=(bob.y/H*100)+'%';a.style.display='flex';
  if(autoOn){setMsg('🤖 ซัดอัตโนมัติ');later(hook,500);return}
- btns('hook');setMsg('ปลาฮิตเบ็ด! กดซัดเลย');
- later(missed,2200);
+ const dd=diffOf(fish);btns('hook');setMsg('ปลาฮิตเบ็ด! กดซัดเลย ('+dd.stars+')');
+ later(missed,dd.bite); /* ปลายิ่งระดับสูง ยิ่งต้องซัดไว */
 }
 function missed(){if(st!=='biting')return;toast('ปลาหนีไปแล้ว');endCast()}
 function hook(){
@@ -8970,20 +9090,28 @@ function hook(){
  $('fxAlert').style.display='none';setSt('fighting');btns(autoOn?'auto':'reel');
  setMsg('กำลังสู้กับ '+fish.name);
  const f=fish;
- fight={progress:50,marker:50,center:50,width:Math.max(20,32-f.tier*3),pull:3+f.tier*2.5,t0:performance.now(),last:performance.now(),limit:16000,raf:0};
- $('fxFight').style.display='block';$('fxFName').textContent=f.name+' · '+f.rarity;
+ const d=diffOf(f),t0=performance.now();
+ fight={progress:40,marker:50,center:50,width:d.w,d,t0,last:t0,limit:FIGHT_MS,raf:0,dart:0,dartV:0,dartAt:t0+rnd(600,1400),jerkV:0,jerkAt:t0+rnd(500,1200)};
+ $('fxFight').style.display='block';$('fxFName').innerHTML=esc(f.name+' · '+f.rarity)+' <span style="color:#ffd23f">'+d.stars+'</span>';
  fight.raf=requestAnimationFrame(fightFrame);
 }
 function fightFrame(now){
  const f=fight;if(!f||st!=='fighting')return;
  const dt=Math.min(50,now-f.last);f.last=now;const el=now-f.t0;
- f.center=50+Math.sin(el*0.0006)*20;
- const pull=Math.sin(el*0.001+fish.tier)*f.pull*0.04+(Math.random()-0.5)*f.pull*0.05;
+ const d=f.d;
+ /* โซนเขียวเคลื่อนตามระดับปลา: ระดับสูง = แคบ เร็ว พุ่งหลบกะทันหัน */
+ if(now>f.dartAt){f.dartAt=now+rnd(700,1800)/(1+fish.tier*0.3);f.dart=rnd(-1,1)*d.amp*0.55*(fish.tier/4)}
+ f.dartV+=(f.dart-f.dartV)*Math.min(1,dt*0.004);
+ f.center=50+Math.sin(el*d.zs)*d.amp*0.7+Math.sin(el*d.zs*2.3+1.7)*d.amp*0.3+f.dartV;
+ f.center=Math.max(d.w/2,Math.min(100-d.w/2,f.center));
+ /* ปลากระชากสาย: ระดับสูงกระชากแรงและถี่ */
+ if(now>f.jerkAt){f.jerkAt=now+rnd(450,1300)/(1+fish.tier*0.2);f.jerkV=(Math.random()<.5?-1:1)*d.jerk*rnd(.5,1)}
+ f.jerkV*=Math.pow(0.996,dt);
  if(autoOn)reeling=f.marker<f.center;
- f.marker+=(reeling?0.22:-0.07)*dt+pull*dt*0.1;
+ f.marker+=(reeling?0.2:-0.075)*dt+f.jerkV*dt*0.02;
  f.marker=Math.max(0,Math.min(100,f.marker));
  const inZ=Math.abs(f.marker-f.center)<f.width/2;
- f.progress+=inZ?dt*0.016:-dt*0.005;
+ f.progress+=inZ?dt*d.gain:-dt*d.dec;
  f.progress=Math.max(0,Math.min(100,f.progress));
  const z=$('fxZone');z.style.left=(f.center-f.width/2)+'%';z.style.width=f.width+'%';
  $('fxMk').style.left=f.marker+'%';
@@ -8993,6 +9121,19 @@ function fightFrame(now){
  if(f.progress<=0||el>f.limit)return lost();
  f.raf=requestAnimationFrame(fightFrame);
 }
+/* ความยากตามระดับปลา (tier 0-4) · hd = ตัวคูณความยากเฉพาะปลา */
+const FIGHT_MS=21000; /* เวลาสู้ปลา 21 วินาที (เดิม 16) */
+const DIFF=[
+ {w:34,zs:.00045,amp:16,jerk:.6,gain:.012,dec:.004,bite:2600,stars:'★'},
+ {w:28,zs:.0006,amp:22,jerk:1.0,gain:.010,dec:.005,bite:2300,stars:'★★'},
+ {w:22,zs:.00085,amp:27,jerk:1.6,gain:.0085,dec:.0062,bite:2000,stars:'★★★'},
+ {w:16,zs:.00115,amp:32,jerk:2.3,gain:.007,dec:.0076,bite:1700,stars:'★★★★'},
+ {w:12,zs:.0015,amp:36,jerk:3.1,gain:.0058,dec:.009,bite:1400,stars:'★★★★★'}];
+function diffOf(f){
+ const d=Object.assign({},DIFF[Math.max(0,Math.min(4,f.tier|0))]),h=f.hd||1;
+ d.w=Math.max(9,d.w/h);d.zs*=h;d.jerk*=h;d.dec*=h;d.gain/=Math.sqrt(h);d.bite=Math.round(d.bite/h);
+ return d;
+}
 function endCast(){
  clearAll();st='idle';setPose(els.get(SELF),'idle');fight=null;bob=null;reeling=false;
  $('fxFight').style.display='none';$('fxAlert').style.display='none';
@@ -9000,11 +9141,36 @@ function endCast(){
  if(autoOn)later(autoCast,1500);
 }
 function autoCast(){if(!autoOn||st!=='idle')return;cast(rnd(40,90))}
+/* ---------- ออโต้ตกปลา: ต้องซื้อครั้งเดียวด้วยเพชร 10,000 ---------- */
+const AUTO_PRICE=10000;
+function autoLabel(){
+ const b=$('fxAuto');if(!b)return;
+ if(!S.fishAuto){b.textContent='🔒 ออโต้ 💎'+AUTO_PRICE.toLocaleString();b.classList.remove('on')}
+ else{b.textContent='🤖 ออโต้: '+(autoOn?'เปิด':'ปิด');b.classList.toggle('on',autoOn)}
+}
+function closeModal(id){const e=$(id);if(e)e.remove();const d=$('fx-dock');if(d&&!$('fx-sell')&&!$('fx-buy'))d.classList.remove('fx-modal')}
+function buyAuto(){
+ if($('fx-buy'))return;
+ const have=S.diamonds||0,ok=have>=AUTO_PRICE;
+ const w=document.createElement('div');w.id='fx-buy';
+ w.innerHTML=`<div class="fx-panel"><div class="fx-top"><span>🤖 ออโต้ตกปลา</span><button class="fx-btn" id="fxBuyX">ปิด</button></div><div class="fx-note">เหวี่ยงเบ็ด ซัด และลากสายให้อัตโนมัติ · ซื้อครั้งเดียวใช้ได้ถาวร</div><div class="fx-item"><div class="fx-info"><b>ราคา 💎 ${AUTO_PRICE.toLocaleString()} เพชร</b><small>เพชรที่มีอยู่ 💎 ${have.toLocaleString()}</small></div></div><button class="fx-sellall" id="fxBuyOk" ${ok?'':'disabled'}>${ok?'ยืนยันซื้อ':'เพชรไม่พอ (ขาด 💎 '+(AUTO_PRICE-have).toLocaleString()+')'}</button></div>`;
+ $('fx-dock').appendChild(w);$('fx-dock').classList.add('fx-modal');
+ $('fxBuyX').onclick=()=>closeModal('fx-buy');
+ $('fxBuyOk').onclick=()=>{
+  if(S.fishAuto)return closeModal('fx-buy');
+  if((S.diamonds||0)<AUTO_PRICE){toast('เพชรไม่พอ');return}
+  S.diamonds-=AUTO_PRICE;S.fishAuto=1;saveSave();
+  logLine('ซื้อ <b>ออโต้ตกปลา</b> แล้ว (💎 -'+AUTO_PRICE.toLocaleString()+')');toast('ซื้อออโต้สำเร็จ!');
+  closeModal('fx-buy');autoLabel();
+ };
+}
 function toggleAuto(){
- autoOn=!autoOn;
- const b=$('fxAuto');b.textContent='🤖 ออโต้: '+(autoOn?'เปิด':'ปิด');b.classList.toggle('on',autoOn);
+ if(!S.fishAuto)return buyAuto();
+ autoOn=!autoOn;autoLabel();
  if(autoOn&&st==='idle'){btns('auto');later(autoCast,300)}
  else if(!autoOn&&st==='idle')btns('cast');
+ else if(st==='fighting'){reeling=false;btns(autoOn?'auto':'reel')}
+ else if(st==='biting'){if(autoOn)hook();else btns('hook')}
 }
 function leapFx(x,y,f){
  const fx=$('fxFx');if(!fx)return;
@@ -9023,7 +9189,7 @@ function caught(){
  $('fxCount').textContent=S.fish;
  toast('ได้ '+f.name+' ลงกระเป๋าแล้ว');
  logLine(`คุณได้ <b>${esc(f.name)}</b> (${esc(f.rarity)})`);
- try{if(ch&&ch.state==='joined')ch.send({type:'broadcast',event:'catch',payload:{name:S.name||'จอมยุทธ์',fish:f.name,rarity:f.rarity}})}catch(e){}
+ try{if(ch&&joined)ch.send({type:'broadcast',event:'catch',payload:{name:S.name||'จอมยุทธ์',fish:f.name,rarity:f.rarity}})}catch(e){}
  endCast();setMsg(autoOn?'🤖 ตกต่อเอง':'ตกต่อได้เลย หรือขายปลาในกระเป๋า');
 }
 function lost(){toast('ปลาหลุดจากเบ็ด');logLine('ปลาหลุดจากเบ็ด');endCast()}
@@ -9057,20 +9223,27 @@ function renderBag(){
 }
 function openBag(){
  if($('fx-sell'))return;
+ $('fx-dock').classList.add('fx-modal');
  const w=document.createElement('div');w.id='fx-sell';
  w.innerHTML=`<div class="fx-panel"><div class="fx-top"><span>🎒 กระเป๋าปลา</span><button class="fx-btn" id="fxSellX">ปิด</button></div><div class="fx-note fx-count"></div><div class="fx-list"></div><button class="fx-sellall" id="fxSellAll">ขายปลาทั้งหมด</button></div>`;
  $('fx-dock').appendChild(w);
- $('fxSellX').onclick=()=>w.remove();
+ $('fxSellX').onclick=()=>closeModal('fx-sell');
  $('fxSellAll').onclick=sellAll;
  renderBag();
 }
 
 /* ---------- หน้าจอท่าตกปลา ---------- */
+let prevHold=false;
 window.openFish=function(){
  if($('fx-dock'))return;
  layout();
+ /* ออกจากหน้าหลัก: ปิดหน้าต่างที่เปิดค้าง หยุดการต่อสู้/เกมหลักไว้ระหว่างอยู่ท่าตกปลา */
+ try{if(typeof closeW==='function')closeW()}catch(e){}
+ try{const c=$('cityw');if(c)c.remove()}catch(e){}
+ prevHold=!!window._hold;window._hold=true;
  document.body.classList.add('fx-mode');
- {const p0=clampPos(190+rnd(-105,105),CY+112+rnd(0,42));me.x=p0.x;me.y=p0.y}me.face=me.x>190?-1:1;me.target=null;st='idle';
+ try{window.scrollTo(0,0)}catch(e){}
+ {const p0=clampPos(190+rnd(-150,150),CY+P_SPAWN()+rnd(-6,10));me.x=p0.x;me.y=p0.y}me.face=me.x>190?-1:1;me.target=null;st='idle';
  const w=document.createElement('div');w.id='fx-dock';
  w.innerHTML=`
  <div class="fx-scene" id="fxScene">${sceneSVG()}
@@ -9082,7 +9255,7 @@ window.openFish=function(){
  <div id="fxPower" class="fx-power"><i id="fxPowerFill"></i></div>
  <div id="fxAlert" class="fx-alert">!</div>
  <div id="fxFight" class="fx-fight">
-  <div class="fx-lbl"><span id="fxFName">ปลากำลังดิ้น</span><span id="fxTime">16 วินาที</span></div>
+  <div class="fx-lbl"><span id="fxFName">ปลากำลังดิ้น</span><span id="fxTime">21 วินาที</span></div>
   <div class="fx-track"><div id="fxZone" class="fx-zone"></div><div id="fxMk" class="fx-mk"></div></div>
   <div class="fx-prog"><i id="fxPf"></i></div>
  </div>
@@ -9095,7 +9268,7 @@ window.openFish=function(){
    <button id="fxHook" class="hk" style="display:none">ซัด!</button>
    <button id="fxReel" class="rl" style="display:none">กดค้างเพื่อลากสาย</button>
   </div>
-  <div class="fx-chat"><button id="fxAuto" class="fx-btn" style="padding:0 12px">🤖 ออโต้: ปิด</button><input id="fxIn" maxlength="80" placeholder="พิมพ์ข้อความ…" autocomplete="off"><button id="fxSend">ส่ง</button></div>
+  <div class="fx-chat"><button id="fxAuto" class="fx-btn" style="padding:0 10px;white-space:nowrap">🤖 ออโต้: ปิด</button><input id="fxIn" maxlength="80" placeholder="พิมพ์ข้อความ…" autocomplete="off"><button id="fxSend">ส่ง</button></div>
   <div class="fx-log" id="fxLog"></div>
  </div>`;
  document.body.appendChild(w);
@@ -9107,7 +9280,7 @@ window.openFish=function(){
  btns('cast');
  $('fxBack').onclick=closeFish;
  $('fxBag').onclick=openBag;
- $('fxAuto').onclick=toggleAuto;
+ $('fxAuto').onclick=toggleAuto;autoLabel();
  $('fxSend').onclick=sendChat;
  $('fxIn').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat()});
  $('fxIn').addEventListener('input',onTyping);
@@ -9127,10 +9300,14 @@ window.openFish=function(){
 };
 function closeFish(){
  clearAll();autoOn=false;joyStop();animRun=false;cancelAnimationFrame(me.raf);
- try{if(ch){ch.untrack&&ch.untrack();sb&&sb.removeChannel(ch)}}catch(e){}
- ch=null;remotes.clear();els.clear();st='idle';bob=null;fight=null;BUB.clear();rods.clear();seenCid.clear();me.target=null;
+ clearInterval(hbI);clearTimeout(pubT);clearTimeout(retryT);
+ const c0=ch;ch=null;joined=false;
+ try{if(c0){try{c0.send({type:'broadcast',event:'bye',payload:{sid}})}catch(e){}c0.untrack&&c0.untrack();sb&&sb.removeChannel(c0)}}catch(e){}
+ sid=null;remotes.clear();els.clear();st='idle';bob=null;fight=null;BUB.clear();rods.clear();seenCid.clear();me.target=null;
  const w=$('fx-dock');if(w)w.remove();
  document.body.classList.remove('fx-mode');
+ window._hold=prevHold; /* กลับหน้าหลัก เกมเดินต่อ */
+ try{if(typeof render==='function')render()}catch(e){}
 }
 })();
 </script>
