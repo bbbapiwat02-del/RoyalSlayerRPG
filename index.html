@@ -8514,8 +8514,12 @@ body.fx-mode>*:not(#fx-dock):not(script):not(style){display:none!important}
 @keyframes fxCLf{0%{transform:rotate(0)}30%,48%{transform:rotate(10deg)}64%{transform:rotate(-12deg)}100%{transform:rotate(0)}}
 @keyframes fxCLb{0%{transform:rotate(0)}30%,48%{transform:rotate(-12deg)}64%{transform:rotate(14deg)}100%{transform:rotate(0)}}
 @keyframes fxCAll{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}
+#fx-dock .fx-chat{display:flex;gap:6px}
+#fx-dock .fx-chat input{flex:1;min-width:0;padding:9px 12px;border-radius:12px;border:2px solid #e5b94a;background:#1a2a20ee;color:#f5eedc;font:inherit;font-size:14px;user-select:text;-webkit-user-select:text}
+#fx-dock .fx-chat button{padding:0 16px;border-radius:12px;border:2px solid #fff3b0;background:linear-gradient(#ffd23f,#ff8a1a);color:#3a1400;font:inherit;font-weight:900}
+#fx-dock .fx-fight{position:absolute;left:10px;right:10px;top:70px;display:none;background:#0a1210e6;border-radius:14px;padding:9px 11px;z-index:3}
 #fx-dock .fx-nm{position:absolute;left:0;top:6px;transform:translateX(-50%);white-space:nowrap;font-size:11px;font-weight:800;color:#fff;text-shadow:0 1px 3px #000;background:#000b;padding:2px 7px;border-radius:9px}
-#fx-dock .fx-bbs{position:absolute;left:0;bottom:150px;transform:translateX(-50%);width:max-content;max-width:170px}
+#fx-dock .fx-bbs{position:absolute;left:0;bottom:128px;transform:translateX(-50%);width:max-content;max-width:170px}
 #fx-dock .fx-bb{display:block;background:#fffffff5;color:#26231e;padding:5px 9px;border-radius:12px;font-size:12px;font-weight:700;line-height:1.35;text-align:center;word-break:break-word;box-shadow:0 3px 10px #0008;position:relative;animation:fxBubble .3s ease-out}
 #fx-dock .fx-bb:after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-top-color:#fffffff5;border-bottom:0}
 @keyframes fxBubble{from{opacity:0;transform:translateY(6px)}}
@@ -8608,7 +8612,7 @@ function clampPos(x,y){
 }
 
 
-let sb=null,uid=null,ch=null;
+let sb=null,uid=null,sid=null,ch=null;
 let st='idle',power=0,pdir=1,raf=0,lastT=0,bob=null,fish=null,fight=null,reeling=false,cidOwn=0,autoOn=false;
 let me={x:190,y:0,face:1,target:null,moving:false,lastPub:0};
 let timers=[],cache=new Map(),remotes=new Map(),myHTML='',lastChat=0,lastLog='';
@@ -8663,7 +8667,8 @@ function nhOnly(html,tag){
   if(fa){
    const sw=[...fa.children].find(e=>e.tagName.toLowerCase()==='g'&&/rotate\(-28\)/.test(e.getAttribute('transform')||''));
    if(sw){sw.setAttribute('transform','translate(136.2 125) rotate(-28) scale(1.15)');sw.innerHTML=ROD}
-  }
+   else fa.insertAdjacentHTML('beforeend','<g transform="translate(136.2 125) rotate(-28) scale(1.15)">'+ROD+'</g>');
+  }else nh.insertAdjacentHTML('beforeend','<g transform="translate(136.2 125) rotate(-28) scale(1.15)">'+ROD+'</g>');
   return nh.outerHTML.replace(/pv_/g,'p'+tag+'_');
  }catch(e){return null}
 }
@@ -8730,8 +8735,8 @@ function rodFor(key){
  const o={g,th:g.querySelector('.th'),bo:g.querySelector('.bo')};
  rods.set(key,o);return o;
 }
-function placeRod(key,b,s){
- const r=rodFor(key),t=b?tipScene(els.get(key)):null;
+function placeRod(key,b,s,fb){
+ const r=rodFor(key),t=b?(tipScene(els.get(key))||fb):null;
  if(b&&t){
   r.g.style.display='';
   r.th.setAttribute('x1',t.x.toFixed(1));r.th.setAttribute('y1',t.y.toFixed(1));
@@ -8742,8 +8747,8 @@ function placeRod(key,b,s){
 }
 function drawRods(){
  const live=new Set();
- live.add(SELF);placeRod(SELF,bob&&st!=='idle'&&st!=='charging'?bob:null,st);
- remotes.forEach((r,k)=>{live.add(k);placeRod(k,(r.bx!=null&&r.by!=null&&r.st&&r.st!=='idle')?{x:r.bx,y:r.by}:null,r.st)});
+ live.add(SELF);placeRod(SELF,bob&&st!=='idle'&&st!=='charging'?bob:null,st,{x:me.x+34*me.face,y:me.y-100});
+ remotes.forEach((r,k)=>{live.add(k);placeRod(k,(r.bx!=null&&r.by!=null&&r.st&&r.st!=='idle')?{x:r.bx,y:r.by}:null,r.st,{x:r.x+34*(r.face||1),y:r.y-100})});
  rods.forEach((o,k)=>{if(!live.has(k)){o.g.remove();rods.delete(k)}});
 }
 
@@ -8779,12 +8784,12 @@ function walkTo(x,y){
 }
 
 /* ---------- ซิงก์ผู้เล่นออนไลน์ ---------- */
-function myInfo(){return{uid,name:(S&&S.name)||'จอมยุทธ์',lv:(S&&S.lv)||1,st,cid:cidOwn,px:me.x,py:me.y-CY,face:me.face,bx:bob?bob.x:null,by:bob?bob.y-CY:null}}
+function myInfo(){return{uid,sid,name:(S&&S.name)||'จอมยุทธ์',lv:(S&&S.lv)||1,st,cid:cidOwn,px:me.x,py:me.y-CY,face:me.face,bx:bob?bob.x:null,by:bob?bob.y-CY:null}}
 function publish(){if(ch&&ch.state==='joined'){try{ch.track(myInfo())}catch(e){}}}
 async function syncPresence(){
  if(!ch)return;
  const state=ch.presenceState();const list=[];
- Object.keys(state).forEach(k=>{const arr=state[k];const p=arr&&arr[arr.length-1];if(p&&p.uid!==uid)list.push(p)});
+ Object.keys(state).forEach(k=>{const arr=state[k];const p=arr&&arr[arr.length-1];if(p&&(p.sid||p.uid)!==sid&&!(p.uid===uid&&!p.sid)){p.key=p.sid||p.uid;list.push(p)}});
  const cnt=list.length+1;
  const cn=$('fxCnt');if(cn)cn.textContent='● ออนไลน์ที่ท่า '+cnt+' คน';
  const shown=list.slice(0,12);
@@ -8792,19 +8797,19 @@ async function syncPresence(){
  if(!$('fx-dock'))return;
  const keep=new Set();
  shown.forEach((p,i)=>{
-  const prof=profs[i];const old=remotes.get(p.uid)||{};
+  const prof=profs[i];const old=remotes.get(p.key)||{};
   /* ตำแหน่งส่งมาเป็นระยะเทียบกับบ่อ (ทุกเครื่องหน้าจอไม่เท่ากัน) */
   const q=clampPos(typeof p.px==='number'?p.px:(old.x||190),typeof p.py==='number'?CY+p.py:(old.y||CY+150));
   const r={uid:p.uid,name:p.name||(prof&&prof.name)||'ผู้เล่น',lv:p.lv||(prof&&prof.lv)||1,st:p.st||'idle',cid:p.cid||0,
    x:q.x,y:q.y,face:p.face||1,bx:typeof p.bx==='number'?p.bx:null,by:typeof p.by==='number'?CY+p.by:null,html:(prof&&prof.html)||old.html||null};
   r.walking=(old.x!==undefined&&(Math.abs(r.x-old.x)>0.5||Math.abs(r.y-old.y)>0.5));
-  remotes.set(p.uid,r);keep.add(p.uid);
-  const o=ensureEl(p.uid,r.html,r.name+' Lv.'+r.lv,false);
-  if(old.x===undefined)seenCid.set('r'+p.uid,r.cid); /* เพิ่งเห็นครั้งแรก ไม่ต้องเล่นท่าเหวี่ยงย้อนหลัง */
+  remotes.set(p.key,r);keep.add(p.key);
+  const o=ensureEl(p.key,r.html,r.name+' Lv.'+r.lv,false);
+  if(old.x===undefined)seenCid.set('r'+p.key,r.cid); /* เพิ่งเห็นครั้งแรก ไม่ต้องเล่นท่าเหวี่ยงย้อนหลัง */
   setPos(o,r.x,r.y,r.face,r.walking);
   setPose(o,r.st);
-  if(r.walking){clearTimeout(o.walkT);o.walkT=setTimeout(()=>{const z=els.get(p.uid);if(z)setPos(z,r.x,r.y,r.face,false)},500)}
-  playCast(o,r.cid,'r'+p.uid);
+  if(r.walking){clearTimeout(o.walkT);o.walkT=setTimeout(()=>{const z=els.get(p.key);if(z)setPos(z,r.x,r.y,r.face,false)},500)}
+  playCast(o,r.cid,'r'+p.key);
  });
  remotes.forEach((r,k)=>{if(!keep.has(k)){remotes.delete(k);const o=els.get(k);if(o){o.el.remove();els.delete(k)}}});
  drawRods();
@@ -8814,12 +8819,12 @@ function setSt(s){st=s;setPose(els.get(SELF),s);publish();drawRods()}
 async function connect(){
  const GA=window.GameAuth;
  if(!GA||GA.mode!=='online'||!GA.ready||!(await GA.ready)||!GA.sb){setMsg('เล่นแบบออฟไลน์ · เห็นผู้เล่นอื่นเมื่อออนไลน์');return}
- sb=GA.sb;const u=await GA.user();if(!u)return;uid=u.id;
+ sb=GA.sb;const u=await GA.user();if(!u)return;uid=u.id;sid=uid+'-'+Math.random().toString(36).slice(2,8);
  try{window.socPublish&&window.socPublish(true)}catch(e){}
- ch=sb.channel('fish_dock',{config:{presence:{key:uid},broadcast:{self:false}}});
+ ch=sb.channel('fish_dock',{config:{presence:{key:sid},broadcast:{self:false}}});
  ch.on('presence',{event:'sync'},()=>syncPresence())
   .on('broadcast',{event:'catch'},({payload})=>{if(!payload)return;logLine(`<b>${esc(payload.name)}</b> ได้ ${esc(payload.fish)} (${esc(payload.rarity)})`)})
-  .on('broadcast',{event:'chat'},({payload})=>{if(!payload||!payload.uid||payload.uid===uid)return;const t=String(payload.text||'').slice(0,80);if(!t)return;sayBubble(payload.uid,t);logLine(`💬 <b>${esc(payload.name||'ผู้เล่น')}</b>: ${esc(t)}`)})
+  .on('broadcast',{event:'chat'},({payload})=>{const pk=payload&&(payload.sid||payload.uid);if(!pk||pk===sid)return;const t=String(payload.text||'').slice(0,80);if(!t)return;sayBubble(pk,t);logLine(`💬 <b>${esc(payload.name||'ผู้เล่น')}</b>: ${esc(t)}`)})
   .on('broadcast',{event:'typing'},onRemoteTyping)
   .subscribe(s=>{if(s==='SUBSCRIBED'){publish();setMsg('ออนไลน์แล้ว · แตะบนฉากเพื่อเดิน')}});
 }
@@ -8867,7 +8872,14 @@ function joyLoop(now){
 }
 
 /* ---------- แชต: กำลังพิมพ์ขึ้นเหนือหัวแบบสด + ข้อความจริง ---------- */
-function updateBubbles(){els.forEach((o,k)=>{const b=BUB.get(k);o.bb.innerHTML=b?`<span class="fx-bb${b.draft?' draft':''}">${esc(b.text)}</span>`:''})}
+function updateBubbles(){els.forEach((o,k)=>{
+ const b=BUB.get(k);
+ if(!b){if(o.bb.firstChild)o.bb.innerHTML='';return}
+ let sp=o.bb.firstChild;
+ if(!sp){sp=document.createElement('span');sp.className='fx-bb';o.bb.appendChild(sp)}
+ if(sp.textContent!==b.text)sp.textContent=b.text;
+ sp.classList.toggle('draft',!!b.draft);
+})}
 function setBubble(key,text,draft){
  const t=Date.now();
  BUB.set(key,{text,draft:!!draft,t});updateBubbles();
@@ -8889,13 +8901,13 @@ function onTyping(){
  const now=Date.now();
  if(!t||now-lastTypeSend>250){
   lastTypeSend=now;
-  try{if(ch&&ch.state==='joined')ch.send({type:'broadcast',event:'typing',payload:{uid,text:t}})}catch(e){}
+  try{if(ch&&ch.state==='joined')ch.send({type:'broadcast',event:'typing',payload:{uid,sid,text:t}})}catch(e){}
  }
 }
 function onRemoteTyping({payload}){
- if(!payload||!payload.uid||payload.uid===uid)return;
+ const pk=payload&&(payload.sid||payload.uid);if(!pk||pk===sid)return;
  const t=String(payload.text||'').slice(0,80);
- if(t)setBubble(payload.uid,t,true);else{BUB.delete(payload.uid);updateBubbles()}
+ if(t)setBubble(pk,t,true);else{BUB.delete(pk);updateBubbles()}
 }
 function sendChat(){
  const inp=$('fxIn');if(!inp)return;
@@ -8906,8 +8918,8 @@ function sendChat(){
  setBubble(SELF,text,false);
  logLine(`💬 <b>${esc(name)}</b>: ${esc(text)}`);
  try{if(ch&&ch.state==='joined'){
-  ch.send({type:'broadcast',event:'chat',payload:{uid,name,text}});
-  ch.send({type:'broadcast',event:'typing',payload:{uid,text:''}});
+  ch.send({type:'broadcast',event:'chat',payload:{uid,sid,name,text}});
+  ch.send({type:'broadcast',event:'typing',payload:{uid,sid,text:''}});
  }}catch(e){}
 }
 
@@ -9058,8 +9070,7 @@ window.openFish=function(){
  if($('fx-dock'))return;
  layout();
  document.body.classList.add('fx-mode');
- if(!document.hidden)document.body.classList.add('g-hidden');
- {const p0=clampPos(190,CY+150);me.x=p0.x;me.y=p0.y}me.face=1;me.target=null;st='idle';
+ {const p0=clampPos(190+rnd(-105,105),CY+112+rnd(0,42));me.x=p0.x;me.y=p0.y}me.face=me.x>190?-1:1;me.target=null;st='idle';
  const w=document.createElement('div');w.id='fx-dock';
  w.innerHTML=`
  <div class="fx-scene" id="fxScene">${sceneSVG()}
@@ -9120,7 +9131,6 @@ function closeFish(){
  ch=null;remotes.clear();els.clear();st='idle';bob=null;fight=null;BUB.clear();rods.clear();seenCid.clear();me.target=null;
  const w=$('fx-dock');if(w)w.remove();
  document.body.classList.remove('fx-mode');
- if(!document.hidden)document.body.classList.remove('g-hidden');
 }
 })();
 </script>
