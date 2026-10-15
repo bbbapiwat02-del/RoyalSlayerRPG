@@ -8446,27 +8446,74 @@ body.fx-mode>*:not(#fx-dock):not(script):not(style){display:none!important}
 #fx-dock{position:fixed;inset:0;z-index:960;background:#07100c;overflow:hidden;color:#f5eedc;user-select:none;-webkit-user-select:none;contain:layout paint}
 #fx-dock .fx-scene{position:absolute;inset:0;touch-action:none}
 #fx-dock .fx-scene>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
-#fx-dock .fx-pl{position:absolute;width:0;height:0;transition:left .35s linear,top .35s linear}
+#fx-dock .fx-pl{position:absolute;width:0;height:0;transition:left .3s linear,top .3s linear}
 #fx-dock .fx-pl.me{transition:none}
 #fx-dock .fx-ch{position:absolute;left:-60px;bottom:0;width:120px;height:130px;transform-origin:50% 100%;pointer-events:none}
-#fx-dock .fx-hs svg{position:absolute;left:0;bottom:0;width:120px;height:130px;overflow:visible}
-#fx-dock .fx-fig{position:absolute;left:-22px;bottom:0;width:44px;height:72px}
-/* ท่าทาง: หายใจ เดิน เหวี่ยง */
-#fx-dock .fx-hs .body{transform-box:fill-box;transform-origin:50% 100%}
-#fx-dock .fx-hs .leg{transform-box:fill-box;transform-origin:50% 0%}
-#fx-dock .fx-hs .arm{transform-box:fill-box;transform-origin:50% 0%}
-#fx-dock .fx-ch.idle .fx-hs .body{animation:fxBreath 3.2s ease-in-out infinite}
-@keyframes fxBreath{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.025)}}
-#fx-dock .fx-ch.walk .fx-hs .body{animation:fxBobW .5s linear infinite}
-@keyframes fxBobW{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-#fx-dock .fx-ch.walk .fx-hs .leg.l{animation:fxLegA .5s linear infinite}
-#fx-dock .fx-ch.walk .fx-hs .leg.r{animation:fxLegB .5s linear infinite}
-@keyframes fxLegA{0%,100%{transform:rotate(-20deg)}50%{transform:rotate(20deg)}}
-@keyframes fxLegB{0%,100%{transform:rotate(20deg)}50%{transform:rotate(-20deg)}}
-#fx-dock .fx-ch.walk .fx-hs .arm{animation:fxArmW .5s linear infinite}
-@keyframes fxArmW{0%,100%{transform:rotate(12deg)}50%{transform:rotate(-12deg)}}
-#fx-dock .fx-ch.cast .fx-hs .arm{animation:fxArmCast 1.05s ease-in-out}
-@keyframes fxArmCast{0%{transform:rotate(0)}30%{transform:rotate(-60deg)}60%{transform:rotate(25deg)}100%{transform:rotate(0)}}
+#fx-dock .fx-ch:before{content:"";position:absolute;left:14px;right:14px;bottom:-5px;height:13px;border-radius:50%;background:radial-gradient(#0009,#0000 70%)}
+#fx-dock .fx-hs{position:absolute;inset:0}
+#fx-dock .fx-hs svg.nh{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;transform:rotate(-5deg);transform-origin:50% 100%}
+#fx-dock .fx-fig{position:absolute;left:38px;bottom:0;width:44px;height:72px}
+/* ===== 1) ท่ายืน: ถือเบ็ด หายใจเบาๆ ===== */
+#fx-dock .fx-ch .nh .n-wpn{animation:none}
+#fx-dock .fx-ch .nh .n-body{animation:fxBreath 3.2s ease-in-out infinite}
+#fx-dock .fx-ch .nh .n-head{animation:fxHead 3.2s ease-in-out infinite}
+#fx-dock .fx-ch .nh .n-all{animation:fxSway 3.2s ease-in-out infinite}
+#fx-dock .fx-ch .nh .n-uarm{animation:fxIdUa 3.2s ease-in-out infinite}
+#fx-dock .fx-ch .nh .n-farm{animation:fxIdFa 3.2s ease-in-out infinite}
+#fx-dock .fx-ch .nh .n-arm2{animation:fxIdA2 3.2s ease-in-out infinite}
+@keyframes fxBreath{0%,100%{transform:scale(1,1)}50%{transform:scale(1.025,1.04)}}
+@keyframes fxHead{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-2px) rotate(-1.5deg)}}
+@keyframes fxSway{0%,100%{transform:translateY(0)}50%{transform:translateY(1.5px)}}
+@keyframes fxIdUa{0%,100%{transform:rotate(-22deg)}50%{transform:rotate(-25deg)}}
+@keyframes fxIdFa{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(-10deg)}}
+@keyframes fxIdA2{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(-8deg)}}
+/* ===== 2) ท่ารอปลา / สู้ปลา ===== */
+#fx-dock .fx-ch.fishing .nh .n-uarm{animation:fxFhUa 2.4s ease-in-out infinite}
+#fx-dock .fx-ch.fishing .nh .n-farm{animation:fxFhFa 2.4s ease-in-out infinite}
+@keyframes fxFhUa{0%,100%{transform:rotate(-30deg)}50%{transform:rotate(-33deg)}}
+@keyframes fxFhFa{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(-12deg)}}
+#fx-dock .fx-ch.fight .nh .n-uarm{animation:fxFgUa .2s ease-in-out infinite}
+#fx-dock .fx-ch.fight .nh .n-farm{animation:fxFgFa .2s ease-in-out infinite}
+#fx-dock .fx-ch.fight .nh .n-body{animation:fxFgBd .3s ease-in-out infinite}
+#fx-dock .fx-ch.fight .nh .n-lf{animation:none;transform:rotate(14deg)}
+#fx-dock .fx-ch.fight .nh .n-lb{animation:none;transform:rotate(-16deg)}
+@keyframes fxFgUa{0%,100%{transform:rotate(-36deg)}50%{transform:rotate(-30deg)}}
+@keyframes fxFgFa{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(-6deg)}}
+@keyframes fxFgBd{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(-8deg)}}
+/* ===== 3) ท่าเดิน: ขาหน้า/ขาหลังก้าวสลับ แขนแกว่ง ตัวเด้ง ===== */
+#fx-dock .fx-ch.walk .nh .n-lf{animation:fxLf .5s linear infinite}
+#fx-dock .fx-ch.walk .nh .n-lb{animation:fxLb .5s linear infinite}
+#fx-dock .fx-ch.walk .nh .n-all{animation:fxHop .25s ease-in-out infinite}
+#fx-dock .fx-ch.walk .nh .n-body{animation:fxWBd .5s ease-in-out infinite}
+#fx-dock .fx-ch.walk .nh .n-head{animation:fxWHd .25s ease-in-out infinite}
+#fx-dock .fx-ch.walk .nh .n-arm2{animation:fxWA2 .5s ease-in-out infinite}
+#fx-dock .fx-ch.walk .nh .n-uarm{animation:fxWUa .5s ease-in-out infinite}
+#fx-dock .fx-ch.walk .nh .n-farm{animation:fxWFa .5s ease-in-out infinite}
+@keyframes fxLf{0%,100%{transform:rotate(-30deg)}50%{transform:rotate(26deg)}}
+@keyframes fxLb{0%,100%{transform:rotate(30deg)}50%{transform:rotate(-34deg)}}
+@keyframes fxHop{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes fxWBd{0%,100%{transform:rotate(6deg)}50%{transform:rotate(9deg)}}
+@keyframes fxWHd{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
+@keyframes fxWA2{0%,100%{transform:rotate(-38deg)}50%{transform:rotate(34deg)}}
+@keyframes fxWUa{0%,100%{transform:rotate(12deg)}50%{transform:rotate(-6deg)}}
+@keyframes fxWFa{0%,100%{transform:rotate(-22deg)}50%{transform:rotate(-10deg)}}
+/* ===== 4) ท่าเหวี่ยงเบ็ด 1 วินาที: ง้างหลัง → หยุดเล็กน้อย → สะบัดไปข้างหน้า(ปล่อยเอ็นที่ 64%) → กลับท่าถือ ===== */
+#fx-dock .fx-ch.cast .nh .n-uarm{animation:fxCUa 1s cubic-bezier(.4,0,.3,1) 1 both}
+#fx-dock .fx-ch.cast .nh .n-farm{animation:fxCFa 1s cubic-bezier(.4,0,.3,1) 1 both}
+#fx-dock .fx-ch.cast .nh .n-arm2{animation:fxCA2 1s ease-in-out 1 both}
+#fx-dock .fx-ch.cast .nh .n-body{animation:fxCBd 1s ease-in-out 1 both}
+#fx-dock .fx-ch.cast .nh .n-head{animation:fxCHd 1s ease-in-out 1 both}
+#fx-dock .fx-ch.cast .nh .n-lf{animation:fxCLf 1s ease-in-out 1 both}
+#fx-dock .fx-ch.cast .nh .n-lb{animation:fxCLb 1s ease-in-out 1 both}
+#fx-dock .fx-ch.cast .nh .n-all{animation:fxCAll 1s ease-in-out 1 both}
+@keyframes fxCUa{0%{transform:rotate(-22deg)}30%{transform:rotate(-105deg)}48%{transform:rotate(-108deg)}64%{transform:rotate(-2deg)}80%{transform:rotate(-24deg)}100%{transform:rotate(-30deg)}}
+@keyframes fxCFa{0%{transform:rotate(-6deg)}30%{transform:rotate(-34deg)}48%{transform:rotate(-38deg)}64%{transform:rotate(22deg)}80%{transform:rotate(-6deg)}100%{transform:rotate(-8deg)}}
+@keyframes fxCA2{0%,100%{transform:rotate(-14deg)}35%{transform:rotate(-50deg)}64%{transform:rotate(38deg)}}
+@keyframes fxCBd{0%{transform:rotate(0)}30%{transform:rotate(-8deg) scale(1.02)}48%{transform:rotate(-9deg)}64%{transform:rotate(10deg) translateX(2px)}100%{transform:rotate(0)}}
+@keyframes fxCHd{0%{transform:rotate(0)}30%{transform:rotate(-7deg)}64%{transform:rotate(6deg) translateX(2px)}100%{transform:rotate(0)}}
+@keyframes fxCLf{0%{transform:rotate(0)}30%,48%{transform:rotate(10deg)}64%{transform:rotate(-12deg)}100%{transform:rotate(0)}}
+@keyframes fxCLb{0%{transform:rotate(0)}30%,48%{transform:rotate(-12deg)}64%{transform:rotate(14deg)}100%{transform:rotate(0)}}
+@keyframes fxCAll{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}
 #fx-dock .fx-nm{position:absolute;left:0;top:6px;transform:translateX(-50%);white-space:nowrap;font-size:11px;font-weight:800;color:#fff;text-shadow:0 1px 3px #000;background:#000b;padding:2px 7px;border-radius:9px}
 #fx-dock .fx-bbs{position:absolute;left:0;bottom:150px;transform:translateX(-50%);width:max-content;max-width:170px}
 #fx-dock .fx-bb{display:block;background:#fffffff5;color:#26231e;padding:5px 9px;border-radius:12px;font-size:12px;font-weight:700;line-height:1.35;text-align:center;word-break:break-word;box-shadow:0 3px 10px #0008;position:relative;animation:fxBubble .3s ease-out}
@@ -8486,14 +8533,6 @@ body.fx-mode>*:not(#fx-dock):not(script):not(style){display:none!important}
 #fx-dock .fx-bb.draft{font-style:italic;opacity:.92;background:#fffffff0}
 #fx-dock .fx-joy{position:absolute;left:14px;bottom:282px;width:104px;height:104px;border-radius:50%;background:#0007;border:2px solid #e5b94a99;touch-action:none;z-index:4}
 #fx-dock .fx-knob{position:absolute;left:50%;top:50%;width:42px;height:42px;margin:-21px 0 0 -21px;border-radius:50%;background:linear-gradient(#ffd23f,#ff8a1a);box-shadow:0 2px 8px #000a;pointer-events:none}
-#fx-dock .fx-ch{isolation:isolate}
-#fx-dock .fx-hs{transform-origin:50% 100%}
-#fx-dock .fx-hs [class*="aura"],#fx-dock .fx-hs [class*="Aura"],#fx-dock .fx-hs [class*="halo"],#fx-dock .fx-hs [class*="glow"]{z-index:-1}
-#fx-dock .fx-ch.cast .fx-hs{animation:fxCastBody 1.05s ease-in-out}
-@keyframes fxCastBody{0%{transform:rotate(0)}30%{transform:rotate(-9deg)}60%{transform:rotate(5deg)}100%{transform:rotate(0)}}
-#fx-dock .fx-chat{display:flex;gap:6px}
-#fx-dock .fx-chat input{flex:1;min-width:0;padding:9px 12px;border-radius:12px;border:2px solid #e5b94a;background:#1a2a20ee;color:#f5eedc;font:inherit;font-size:14px;user-select:text;-webkit-user-select:text}
-#fx-dock .fx-chat button{padding:0 16px;border-radius:12px;border:2px solid #fff3b0;background:linear-gradient(#ffd23f,#ff8a1a);color:#3a1400;font:inherit;font-weight:900}
 #fx-dock .fx-log{max-height:84px;overflow:hidden;display:flex;flex-direction:column-reverse;font-size:12px;background:#0008;border-radius:12px;padding:6px 10px}
 #fx-dock .fx-log div{padding:2px 0}
 #fx-dock .fx-log b{color:#ffd23f}
@@ -8501,7 +8540,6 @@ body.fx-mode>*:not(#fx-dock):not(script):not(style){display:none!important}
 #fx-dock .fx-power i{position:absolute;bottom:0;left:0;right:0;height:0;background:linear-gradient(#ffe08a,#f2843b)}
 #fx-dock .fx-alert{position:absolute;transform:translate(-50%,-125%);width:34px;height:34px;border-radius:50%;background:#fff;color:#e24b4a;font-weight:900;font-size:20px;display:none;align-items:center;justify-content:center;box-shadow:0 4px 12px #000a;animation:fxShake .25s ease-in-out infinite;z-index:3}
 @keyframes fxShake{50%{margin-left:3px}}
-#fx-dock .fx-fight{position:absolute;left:10px;right:10px;top:70px;display:none;background:#0a1210e6;border-radius:14px;padding:9px 11px;z-index:3}
 #fx-dock .fx-lbl{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px}
 #fx-dock .fx-track{position:relative;height:18px;background:#fff2;border-radius:999px;overflow:hidden}
 #fx-dock .fx-zone{position:absolute;top:0;bottom:0;background:#9fe1cbcc;border-radius:999px}
@@ -8509,9 +8547,6 @@ body.fx-mode>*:not(#fx-dock):not(script):not(style){display:none!important}
 #fx-dock .fx-prog{margin-top:7px;height:9px;background:#fff2;border-radius:999px;overflow:hidden}
 #fx-dock .fx-prog i{display:block;height:100%;width:50%;background:#ffd76b}
 #fx-dock .fx-toast{position:absolute;left:50%;top:70px;transform:translateX(-50%);background:#fffffff2;color:#26231e;padding:6px 14px;border-radius:999px;font-size:13px;font-weight:800;white-space:nowrap;display:none;box-shadow:0 4px 14px #0006;z-index:4}
-#fx-dock .fx-rod{transform-box:view-box}
-#fx-dock .fx-swing{animation:fxCast 1.05s ease-in-out}
-@keyframes fxCast{0%{transform:rotate(0)}30%{transform:rotate(-40deg)}60%{transform:rotate(16deg)}100%{transform:rotate(0)}}
 #fx-dock .fx-bobber{transform-box:fill-box;transform-origin:center;animation:fxBob 1.6s ease-in-out infinite}
 @keyframes fxBob{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}
 #fx-dock .fx-dip{animation:fxDip .5s ease-in-out 4}
@@ -8532,7 +8567,7 @@ body.fx-mode>*:not(#fx-dock):not(script):not(style){display:none!important}
 #fx-sell .fx-sellall{width:100%;margin-top:8px;padding:11px;border-radius:12px;border:2px solid #fff3b0;background:linear-gradient(#ffd23f,#ff8a1a 50%,#c8401a);color:#fff;font:inherit;font-weight:900}
 </style>
 <script>
-/* ===== ท่าตกปลาออนไลน์ v4: เดินได้อิสระ ท่าหายใจ/เดิน/เหวี่ยง โหมดออโต้ แชตขึ้นหัว ===== */
+/* ===== ท่าตกปลาออนไลน์ v5: โมเดลเดียว ไม่ซ้อน · ท่ายืน/เดิน/เหวี่ยง/สู้ปลา · ชนขอบบ่อไหลตามขอบ ===== */
 (function(){
 const FISH=[
  {name:'ปลาดุก',rarity:'ทั่วไป',w:50,tier:0,c:'#8a8f98',g:40,s:0,d:0},
@@ -8544,21 +8579,34 @@ const FISH=[
  {name:'คุนเผิง',rarity:'เทพ',w:0.2,tier:4,c:'#2a6aff',g:12000,s:120,d:80}];
 const NS='http://www.w3.org/2000/svg';
 const W=380,SC=0.85;
-const HAND={x:14,y:-74},TIP={x:50,y:-122};     // จุดมือ/ปลายคันเบ็ด เทียบกับเท้า (ก่อนย่อขนาด)
+const SELF='self';
 let H=828,CY=348,POND;
 const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function layout(){H=Math.max(560,Math.min(1000,Math.round(W*innerHeight/innerWidth)));CY=Math.round(H*0.42);POND={cx:190,cy:CY,rx:118,ry:58}}
-function inPond(x,y){const dx=(x-POND.cx)/(POND.rx+26),dy=(y-POND.cy)/(POND.ry+22);return dx*dx+dy*dy<1}
+/* พื้นที่ห้ามเดิน = น้ำ + ขอบดินรอบบ่อ + ระยะเผื่อเท้า (วงรีใหญ่) · ชนแล้วไหลไปตามขอบ ไม่ทะลุ */
+const SHORE_X=16,SHORE_Y=12,PAD=9;
+function blockAB(){return{a:POND.rx+SHORE_X+PAD,b:POND.ry+SHORE_Y+PAD}}
+function minY(){return CY-38}
+function maxY(){return H-250}
+function inPond(x,y){const e=blockAB(),u=(x-POND.cx)/e.a,v=(y-POND.cy)/e.b;return u*u+v*v<0.9999}
 function clampPos(x,y){
- x=Math.max(24,Math.min(W-24,x));y=Math.max(70,Math.min(H-250,y));
- if(inPond(x,y)){ // ดันออกจากบ่อ ไม่ให้เดินลงน้ำ
-  const dx=x-POND.cx,dy=y-POND.cy,k=Math.hypot(dx/(POND.rx+26),dy/(POND.ry+22))||1;
-  x=POND.cx+dx/k;y=POND.cy+dy/k;
+ x=Math.max(26,Math.min(W-26,x));y=Math.max(minY(),Math.min(maxY(),y));
+ const e=blockAB();let u=(x-POND.cx)/e.a,v=(y-POND.cy)/e.b;
+ if(u*u+v*v<1){
+  const k=Math.hypot(u,v);
+  if(k<1e-6){u=0;v=1}else{u/=k;v/=k}
+  let nx=POND.cx+u*e.a,ny=POND.cy+v*e.b;
+  if(ny<minY()){ /* ชนเพดานพื้นที่เดิน → ไหลออกด้านข้างตามขอบวงรี */
+   ny=minY();const t=(ny-POND.cy)/e.b,hw=e.a*Math.sqrt(Math.max(0,1-t*t));
+   nx=POND.cx+(x>=POND.cx?hw:-hw);
+  }
+  x=Math.max(26,Math.min(W-26,nx));y=ny;
  }
  return{x,y};
 }
+
 
 let sb=null,uid=null,ch=null;
 let st='idle',power=0,pdir=1,raf=0,lastT=0,bob=null,fish=null,fight=null,reeling=false,cidOwn=0,autoOn=false;
@@ -8602,15 +8650,26 @@ ${pads}${reeds}
 </svg>`;
 }
 
-/* ---------- ตัวละคร: ใช้เฉพาะชิ้นตัวละครหลัก ตัดเอฟเฟกต์ที่หลุดตำแหน่งออก ---------- */
-function cleanHero(html){
- const t=document.createElement('div');t.innerHTML=html;
- t.querySelectorAll('.enaura,.sh,.pfx,.spr-fx').forEach(e=>e.remove());
- return t.innerHTML;
+/* ---------- ตัวละคร: ใช้เฉพาะโมเดลหันข้าง (svg.nh) ตัวเดียว · ไม่เอาโมเดลเก่าที่ซ้อนอยู่ใต้มัน ---------- */
+const ROD='<g class="fxq"><path d="M-16 0L30 -1" stroke="#2a140c" stroke-width="4.4" stroke-linecap="round"/><path d="M-16 0L30 -1" stroke="#8a5a2e" stroke-width="2.6" stroke-linecap="round"/><path d="M30 -1Q64 -4 98 -20" stroke="#2a140c" stroke-width="2.8" fill="none" stroke-linecap="round"/><path d="M30 -1Q64 -4 98 -20" stroke="#d9b27a" stroke-width="1.4" fill="none" stroke-linecap="round"/><circle cx="6" cy="5" r="3.6" fill="#b9bfc7" stroke="#2a140c" stroke-width=".8"/><circle cx="46" cy="-2.6" r="1.4" fill="none" stroke="#2a140c" stroke-width=".7"/><circle cx="74" cy="-8" r="1.1" fill="none" stroke="#2a140c" stroke-width=".6"/><circle class="fx-tip" cx="98" cy="-20" r="1.6" fill="#0000"/></g>';
+function nhOnly(html,tag){
+ try{
+  const d=document.createElement('div');d.innerHTML=html;
+  const nh=d.querySelector('svg.nh');if(!nh)return null;
+  nh.removeAttribute('style');
+  const w=nh.querySelector('.n-wpn');if(w)w.removeAttribute('style');
+  /* เปลี่ยนดาบเป็นคันเบ็ด อยู่ในกลุ่มแขนท่อนล่าง จึงขยับตามแขนทุกท่า */
+  const fa=nh.querySelector('.n-farm');
+  if(fa){
+   const sw=[...fa.children].find(e=>e.tagName.toLowerCase()==='g'&&/rotate\(-28\)/.test(e.getAttribute('transform')||''));
+   if(sw){sw.setAttribute('transform','translate(136.2 125) rotate(-28) scale(1.15)');sw.innerHTML=ROD}
+  }
+  return nh.outerHTML.replace(/pv_/g,'p'+tag+'_');
+ }catch(e){return null}
 }
-function heroHTML(){try{const hs=$('hs');if(!hs||!window.pfPrefix)return null;return cleanHero(window.pfPrefix(hs.innerHTML))}catch(e){return null}}
+function heroHTML(){try{const hs=$('hs');const nh=hs&&hs.querySelector('svg.nh');if(!nh||!window.pfPrefix)return null;return nhOnly(window.pfPrefix(nh.outerHTML),'me')}catch(e){return null}}
 function tagOf(u){return String(u).replace(/[^a-zA-Z0-9]/g,'').slice(0,10)}
-function remoteHero(data,tag){try{const hh=window.pfRenderHero?window.pfRenderHero(data):null;return hh?cleanHero(hh.replace(/pv_(?!hs\b)/g,'p'+tag+'_')):null}catch(e){return null}}
+function remoteHero(data,tag){try{const hh=window.pfRenderHero?window.pfRenderHero(data):null;return hh?nhOnly(hh,tag):null}catch(e){return null}}
 function figure(){return `<svg class="fx-fig" viewBox="0 0 44 72" aria-hidden="true"><circle cx="22" cy="14" r="10" fill="#f2c29b"/><path d="M12 11 Q22 -2 32 11 Z" fill="#e94e3c"/><rect x="12" y="26" width="20" height="26" rx="7" fill="#4a90d9"/><rect x="14" y="50" width="6" height="20" fill="#3c3489"/><rect x="24" y="50" width="6" height="20" fill="#3c3489"/></svg>`}
 async function fetchProfile(u){
  const c=cache.get(u);if(c&&Date.now()-c.t<60000)return c;
@@ -8619,108 +8678,138 @@ async function fetchProfile(u){
  return null;
 }
 
-/* ---------- ตัวผู้เล่น (สร้างครั้งเดียว แล้วอัปเดตตำแหน่ง) ---------- */
+/* ---------- ตัวผู้เล่น (สร้างครั้งเดียว แล้วอัปเดตตำแหน่ง/ท่า) ---------- */
 function ensureEl(key,html,name,isMe){
  let o=els.get(key);
  if(!o){
   const el=document.createElement('div');el.className='fx-pl'+(isMe?' me':'');
-  el.innerHTML=`<div class="fx-bbs"></div><div class="fx-ch idle"></div><span class="fx-nm"></span>`;
+  el.innerHTML='<div class="fx-bbs"></div><div class="fx-ch idle"></div><span class="fx-nm"></span>';
   $('fxPl').appendChild(el);
-  o={el,ch:el.querySelector('.fx-ch'),nm:el.querySelector('.fx-nm'),bb:el.querySelector('.fx-bbs'),h:null,name:null,walkT:0};
+  o={el,ch:el.querySelector('.fx-ch'),nm:el.querySelector('.fx-nm'),bb:el.querySelector('.fx-bbs'),h:null,name:null,walkT:0,castT:0,face:0,walking:undefined,tip:null};
   els.set(key,o);
  }
- if(o.h!==html){o.h=html;o.ch.innerHTML=`<div class="fx-hs">${html||''}</div>`+(html?'':figure());requestAnimationFrame(()=>alignFx(o))}
+ if(o.h!==html){o.h=html;o.ch.innerHTML=html?'<div class="fx-hs">'+html+'</div>':figure();o.tip=o.ch.querySelector('.fx-tip')}
  if(o.name!==name){o.name=name;o.nm.textContent=name}
  return o;
 }
 function setPos(o,x,y,face,walking){
  o.el.style.left=(x/W*100).toFixed(2)+'%';
  o.el.style.top=(y/H*100).toFixed(2)+'%';
- o.ch.style.transform=`scale(${(face*SC).toFixed(3)},${SC})`;
- o.ch.classList.toggle('walk',!!walking);o.ch.classList.toggle('idle',!walking);if(o.face!==face){o.face=face;requestAnimationFrame(()=>alignFx(o))}
+ o.el.style.zIndex=String(Math.round(y)); /* คนที่อยู่ล่างกว่าอยู่หน้า ไม่ซ้อนกันมั่ว */
+ if(o.face!==face){o.face=face;o.ch.style.transform='scale('+(face*SC).toFixed(3)+','+SC+')'}
+ const w=!!walking;
+ if(o.walking!==w){o.walking=w;o.ch.classList.toggle('walk',w);o.ch.classList.toggle('idle',!w)}
 }
-function updateBubbles(){els.forEach((o,k)=>{const b=BUB.get(k);o.bb.innerHTML=b?`<span class="fx-bb">${esc(b.text)}</span>`:''})}
+function setPose(o,s){ /* ท่าถือเบ็ด: รอปลา / สู้ปลา */
+ if(!o)return;
+ o.ch.classList.toggle('fishing',s==='waiting'||s==='biting'||s==='fighting');
+ o.ch.classList.toggle('fight',s==='fighting');
+}
 function playCast(o,cid,seenKey){
  if(seenCid.get(seenKey)===cid)return;seenCid.set(seenKey,cid);
  if(!cid||!o)return;
  o.ch.classList.remove('cast');void o.ch.offsetWidth;o.ch.classList.add('cast');
- setTimeout(()=>o.ch&&o.ch.classList.remove('cast'),1100);
+ clearTimeout(o.castT);o.castT=setTimeout(()=>{if(o.ch)o.ch.classList.remove('cast')},1050);
 }
 
-/* ---------- คันเบ็ดและทุ่น ---------- */
+/* ---------- เอ็นและทุ่น: เริ่มจากปลายคันเบ็ดจริงบนตัวละคร ตามท่าทุกเฟรม ---------- */
+function tipScene(o){
+ try{
+  if(!o||!o.tip||!o.tip.isConnected)return null;
+  const r=o.tip.getBoundingClientRect();if(!r.width&&!r.height)return null;
+  const m=$('fxBob').getScreenCTM();if(!m)return null;
+  const p=new DOMPoint((r.left+r.right)/2,(r.top+r.bottom)/2).matrixTransform(m.inverse());
+  return{x:p.x,y:p.y};
+ }catch(e){return null}
+}
 function rodFor(key){
  if(rods.has(key))return rods.get(key);
- const g=document.createElementNS(NS,'g');g.setAttribute('class','fx-rod');
- g.innerHTML='<line class="rl" stroke="#5a4632" stroke-width="2.6" stroke-linecap="round"/><line class="th" stroke="#fff" stroke-opacity=".8" stroke-width="1"/><circle class="bo" r="4.5" fill="#e24b4a" stroke="#fff" stroke-width="1.6"/>';
+ const g=document.createElementNS(NS,'g');
+ g.innerHTML='<line class="th" stroke="#fff" stroke-opacity=".85" stroke-width="1"/><circle class="bo" r="4.5" fill="#e24b4a" stroke="#fff" stroke-width="1.6"/>';
  $('fxBob').appendChild(g);
- const o={g,rl:g.querySelector('.rl'),th:g.querySelector('.th'),bo:g.querySelector('.bo')};
+ const o={g,th:g.querySelector('.th'),bo:g.querySelector('.bo')};
  rods.set(key,o);return o;
 }
-function placeRod(key,fx,fy,b,s){
- const o=rodFor(key);
- const hx=fx+HAND.x*SC,hy=fy+HAND.y*SC,tx=fx+TIP.x*SC,ty=fy+TIP.y*SC;
- o.rl.setAttribute('x1',hx);o.rl.setAttribute('y1',hy);o.rl.setAttribute('x2',tx);o.rl.setAttribute('y2',ty);
- o.g.style.transformOrigin=hx+'px '+hy+'px';
- if(b){
-  o.th.style.display='';o.bo.style.display='';
-  o.th.setAttribute('x1',tx);o.th.setAttribute('y1',ty);o.th.setAttribute('x2',b.x);o.th.setAttribute('y2',b.y);
-  o.bo.setAttribute('cx',b.x);o.bo.setAttribute('cy',b.y);
-  o.bo.setAttribute('class',s==='biting'?'bo fx-dip':'bo fx-bobber');
- }else{o.th.style.display='none';o.bo.style.display='none'}
+function placeRod(key,b,s){
+ const r=rodFor(key),t=b?tipScene(els.get(key)):null;
+ if(b&&t){
+  r.g.style.display='';
+  r.th.setAttribute('x1',t.x.toFixed(1));r.th.setAttribute('y1',t.y.toFixed(1));
+  r.th.setAttribute('x2',b.x.toFixed(1));r.th.setAttribute('y2',b.y.toFixed(1));
+  r.bo.setAttribute('cx',b.x.toFixed(1));r.bo.setAttribute('cy',b.y.toFixed(1));
+  const c=s==='biting'?'bo fx-dip':'bo fx-bobber';if(r.bo.getAttribute('class')!==c)r.bo.setAttribute('class',c);
+ }else r.g.style.display='none';
 }
 function drawRods(){
  const live=new Set();
- live.add(uid||'me');placeRod(uid||'me',me.x,me.y,bob&&st!=='idle'&&st!=='charging'?bob:null,st);
- remotes.forEach((r,k)=>{live.add(k);placeRod(k,r.x,r.y,(r.bx!=null&&r.by!=null&&r.st&&r.st!=='idle')?{x:r.bx,y:r.by}:null,r.st)});
+ live.add(SELF);placeRod(SELF,bob&&st!=='idle'&&st!=='charging'?bob:null,st);
+ remotes.forEach((r,k)=>{live.add(k);placeRod(k,(r.bx!=null&&r.by!=null&&r.st&&r.st!=='idle')?{x:r.bx,y:r.by}:null,r.st)});
  rods.forEach((o,k)=>{if(!live.has(k)){o.g.remove();rods.delete(k)}});
 }
 
-/* ---------- เดิน (แตะบนฉากเพื่อเดิน) ---------- */
+/* ---------- เดิน (แตะบนฉากเพื่อเดิน) · ชนขอบบ่อแล้วไหลไปตามขอบ ---------- */
+const SPEED=150;
+function stepMe(dx,dy){ /* เดินหนึ่งก้าว คืนค่าระยะที่เดินได้จริง */
+ const p=clampPos(me.x+dx,me.y+dy);
+ const moved=Math.hypot(p.x-me.x,p.y-me.y);
+ me.x=p.x;me.y=p.y;return moved;
+}
 function moveFrame(now){
  if(!me.target){me.moving=false;return}
  const dt=Math.min(50,now-(me.lastT||now));me.lastT=now;
  const dx=me.target.x-me.x,dy=me.target.y-me.y,d=Math.hypot(dx,dy);
- const step=Math.min(d,140*dt/1000);
- if(d>0.5){me.face=dx<0?-1:1;const p=clampPos(me.x+dx/d*step,me.y+dy/d*step);me.x=p.x;me.y=p.y;me.moving=true}
- else{me.target=null;me.moving=false}
- const o=els.get(uid||'me');if(o)setPos(o,me.x,me.y,me.face,me.moving);
+ const o=els.get(SELF);
+ if(d>0.8){
+  const step=Math.min(d,SPEED*dt/1000);
+  if(Math.abs(dx)>1)me.face=dx<0?-1:1;
+  const moved=stepMe(dx/d*step,dy/d*step);
+  me.moving=moved>step*0.2;
+  if(!me.moving)me.target=null; /* ติดขอบบ่อ เดินต่อไม่ได้ */
+ }else{me.target=null;me.moving=false}
+ if(o)setPos(o,me.x,me.y,me.face,me.moving);
  drawRods();
  if(now-me.lastPub>250){me.lastPub=now;publish()}
- if(me.target)raf=requestAnimationFrame(moveFrame);
- else{publish();}
+ if(me.target)me.raf=requestAnimationFrame(moveFrame);
+ else{if(o)setPos(o,me.x,me.y,me.face,false);publish()}
 }
 function walkTo(x,y){
- if(st==='biting'||st==='fighting'||st==='flying'||st==='charging')return;
+ if(st==='flying'||st==='charging')return;
  const p=clampPos(x,y);me.target=p;me.lastT=performance.now();
  cancelAnimationFrame(me.raf);me.raf=requestAnimationFrame(moveFrame);
 }
 
 /* ---------- ซิงก์ผู้เล่นออนไลน์ ---------- */
-function myInfo(){return{uid,name:(S&&S.name)||'จอมยุทธ์',lv:(S&&S.lv)||1,st,cid:cidOwn,px:me.x,py:me.y,face:me.face,bx:bob?bob.x:null,by:bob?bob.y:null}}
+function myInfo(){return{uid,name:(S&&S.name)||'จอมยุทธ์',lv:(S&&S.lv)||1,st,cid:cidOwn,px:me.x,py:me.y-CY,face:me.face,bx:bob?bob.x:null,by:bob?bob.y-CY:null}}
 function publish(){if(ch&&ch.state==='joined'){try{ch.track(myInfo())}catch(e){}}}
 async function syncPresence(){
  if(!ch)return;
  const state=ch.presenceState();const list=[];
  Object.keys(state).forEach(k=>{const arr=state[k];const p=arr&&arr[arr.length-1];if(p&&p.uid!==uid)list.push(p)});
- const count=list.length+1;
- const c=$('fxCnt');if(c)c.textContent='● ออนไลน์ที่ท่า '+count+' คน';
- const profs=await Promise.all(list.slice(0,12).map(p=>fetchProfile(p.uid)));
+ const cnt=list.length+1;
+ const cn=$('fxCnt');if(cn)cn.textContent='● ออนไลน์ที่ท่า '+cnt+' คน';
+ const shown=list.slice(0,12);
+ const profs=await Promise.all(shown.map(p=>fetchProfile(p.uid)));
+ if(!$('fx-dock'))return;
  const keep=new Set();
- list.slice(0,12).forEach((p,i)=>{
+ shown.forEach((p,i)=>{
   const prof=profs[i];const old=remotes.get(p.uid)||{};
+  /* ตำแหน่งส่งมาเป็นระยะเทียบกับบ่อ (ทุกเครื่องหน้าจอไม่เท่ากัน) */
+  const q=clampPos(typeof p.px==='number'?p.px:(old.x||190),typeof p.py==='number'?CY+p.py:(old.y||CY+150));
   const r={uid:p.uid,name:p.name||(prof&&prof.name)||'ผู้เล่น',lv:p.lv||(prof&&prof.lv)||1,st:p.st||'idle',cid:p.cid||0,
-   x:typeof p.px==='number'?p.px:(old.x||190),y:typeof p.py==='number'?p.py:(old.y||300),face:p.face||1,bx:p.bx,by:p.by,html:(prof&&prof.html)||old.html||null};
-  r.walking=(r.x!==old.x||r.y!==old.y);
+   x:q.x,y:q.y,face:p.face||1,bx:typeof p.bx==='number'?p.bx:null,by:typeof p.by==='number'?CY+p.by:null,html:(prof&&prof.html)||old.html||null};
+  r.walking=(old.x!==undefined&&(Math.abs(r.x-old.x)>0.5||Math.abs(r.y-old.y)>0.5));
   remotes.set(p.uid,r);keep.add(p.uid);
-  const o=ensureEl(p.uid,r.html,r.name+' Lv.'+r.lv+(r.st==='fighting'?' · ลากสาย':''),false);
+  const o=ensureEl(p.uid,r.html,r.name+' Lv.'+r.lv,false);
+  if(old.x===undefined)seenCid.set('r'+p.uid,r.cid); /* เพิ่งเห็นครั้งแรก ไม่ต้องเล่นท่าเหวี่ยงย้อนหลัง */
   setPos(o,r.x,r.y,r.face,r.walking);
-  if(r.walking){clearTimeout(o.walkT);o.walkT=setTimeout(()=>{const q=els.get(p.uid);if(q)setPos(q,r.x,r.y,r.face,false)},450)}
+  setPose(o,r.st);
+  if(r.walking){clearTimeout(o.walkT);o.walkT=setTimeout(()=>{const z=els.get(p.uid);if(z)setPos(z,r.x,r.y,r.face,false)},500)}
   playCast(o,r.cid,'r'+p.uid);
  });
  remotes.forEach((r,k)=>{if(!keep.has(k)){remotes.delete(k);const o=els.get(k);if(o){o.el.remove();els.delete(k)}}});
  drawRods();
 }
-function setSt(s){st=s;publish();drawRods()}
+function setSt(s){st=s;setPose(els.get(SELF),s);publish();drawRods()}
 
 async function connect(){
  const GA=window.GameAuth;
@@ -8733,54 +8822,23 @@ async function connect(){
   .on('broadcast',{event:'chat'},({payload})=>{if(!payload||!payload.uid||payload.uid===uid)return;const t=String(payload.text||'').slice(0,80);if(!t)return;sayBubble(payload.uid,t);logLine(`💬 <b>${esc(payload.name||'ผู้เล่น')}</b>: ${esc(t)}`)})
   .on('broadcast',{event:'typing'},onRemoteTyping)
   .subscribe(s=>{if(s==='SUBSCRIBED'){publish();setMsg('ออนไลน์แล้ว · แตะบนฉากเพื่อเดิน')}});
- const k=uid;els.delete('me');
-}
-
-/* ---------- แชต: ข้อความขึ้นเหนือหัว ---------- */
-function sayBubble(key,text){
- BUB.set(key,{text,t:Date.now()});updateBubbles();
- setTimeout(()=>{const b=BUB.get(key);if(b&&Date.now()-b.t>=4900){BUB.delete(key);updateBubbles()}},5000);
-}
-function sendChat(){
- const inp=$('fxIn');if(!inp)return;
- const text=inp.value.trim().slice(0,80);if(!text)return;
- if(Date.now()-lastChat<1000){setMsg('พิมพ์เร็วเกินไป');return}
- lastChat=Date.now();inp.value='';
- const name=(S&&S.name)||'จอมยุทธ์';
- sayBubble(uid||'me',text);
- logLine(`💬 <b>${esc(name)}</b>: ${esc(text)}`);
- try{if(ch&&ch.state==='joined')ch.send({type:'broadcast',event:'chat',payload:{uid,name,text}})}catch(e){}
-}
-
-/* ---------- เอฟเฟกต์ตรงตัวละคร: วัดตัวละครจริงแล้วเลื่อนออร่าให้อยู่กลางตัวและใต้เท้า ---------- */
-function alignFx(o){
- if(!o||!o.ch)return;
- const hs=o.ch.querySelector('.fx-hs');if(!hs)return;
- const effs=[...hs.querySelectorAll('[class*="aura"],[class*="Aura"],[class*="halo"],[class*="glow"]')].filter(e=>!e.closest('.body,.n-body'));
- effs.forEach(e=>{e.style.translate='0px 0px'});
- const body=hs.querySelector('.body,.n-body')||hs.querySelector('svg');
- if(!body||!effs.length)return;
- const b=body.getBoundingClientRect();if(!b.width)return;
- const feet=o.ch.getBoundingClientRect();
- const bcx=(b.left+b.right)/2;
- const fx=(o.face||1)*SC, fy=SC;
- effs.forEach(e=>{
-  const r=e.getBoundingClientRect();if(!r.width)return;
-  const dx=(bcx-(r.left+r.right)/2)/fx;
-  e.style.translate=dx.toFixed(1)+'px 0px';
- });
 }
 
 /* ---------- จอยสติ๊กเดินอิสระ ---------- */
 const joy={on:false,dx:0,dy:0,t:0};
 let joyRun=false;
+function joyStop(){
+ if(!joy.on)return;
+ joy.on=false;joy.dx=0;joy.dy=0;
+ const k=$('fxKnob');if(k)k.style.transform='';
+ const o=els.get(SELF);if(o)setPos(o,me.x,me.y,me.face,false);
+ publish();
+}
 function initJoy(){
  const j=$('fxJoy'),k=$('fxKnob');if(!j||!k)return;
  const aim=e=>{const r=j.getBoundingClientRect();const cx=r.left+r.width/2,cy=r.top+r.height/2;
   let dx=(e.clientX-cx)/(r.width/2),dy=(e.clientY-cy)/(r.height/2);const m=Math.hypot(dx,dy);if(m>1){dx/=m;dy/=m}
-  joy.dx=dx;joy.dy=dy;k.style.transform=`translate(${(dx*30).toFixed(1)}px,${(dy*30).toFixed(1)}px)`};
- const end=()=>{if(!joy.on)return;joy.on=false;joy.dx=0;joy.dy=0;k.style.transform='';
-  const o=els.get(uid||'me');if(o)setPos(o,me.x,me.y,me.face,false);publish()};
+  joy.dx=dx;joy.dy=dy;k.style.transform='translate('+(dx*30).toFixed(1)+'px,'+(dy*30).toFixed(1)+'px)'};
  j.addEventListener('pointerdown',e=>{
   if(st==='charging'||st==='flying')return;
   e.preventDefault();me.target=null;cancelAnimationFrame(me.raf);
@@ -8789,21 +8847,22 @@ function initJoy(){
   if(!joyRun){joyRun=true;requestAnimationFrame(joyLoop)}
  });
  j.addEventListener('pointermove',e=>{if(joy.on)aim(e)});
- ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>j.addEventListener(ev,end));
+ ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>j.addEventListener(ev,joyStop));
 }
 function joyLoop(now){
- if(!joy.on||st==='charging'||st==='flying'){joy.on=false;joyRun=false;return}
+ if(!joy.on||st==='charging'||st==='flying'||!$('fx-dock')){joyStop();joyRun=false;return}
  const dt=Math.min(50,now-joy.t);joy.t=now;
- const m=Math.hypot(joy.dx,joy.dy);
- const o=els.get(uid||'me');
+ const m=Math.hypot(joy.dx,joy.dy),o=els.get(SELF);
+ let walking=false;
  if(m>0.12){
-  const sp=170*Math.min(1,m)*dt/1000;
-  const p=clampPos(me.x+joy.dx/m*sp,me.y+joy.dy/m*sp);
-  me.x=p.x;me.y=p.y;if(Math.abs(joy.dx)>0.05)me.face=joy.dx<0?-1:1;
-  if(o)setPos(o,me.x,me.y,me.face,true);
-  drawRods();
+  const step=SPEED*1.15*Math.min(1,m)*dt/1000;
+  if(Math.abs(joy.dx)>0.15)me.face=joy.dx<0?-1:1;
+  const moved=stepMe(joy.dx/m*step,joy.dy/m*step);
+  walking=moved>step*0.2; /* ติดขอบบ่อ = ยืนนิ่ง ไม่เดินอยู่กับที่ */
   if(now-(me.lastPub||0)>200){me.lastPub=now;publish()}
  }
+ if(o)setPos(o,me.x,me.y,me.face,walking);
+ drawRods();
  requestAnimationFrame(joyLoop);
 }
 
@@ -8815,26 +8874,17 @@ function setBubble(key,text,draft){
  setTimeout(()=>{const b=BUB.get(key);if(b&&b.t===t){BUB.delete(key);updateBubbles()}},draft?8000:5000);
 }
 function sayBubble(key,text){setBubble(key,text,false)}
-/* ---------- อนิเมชันเฟรมต่อเฟรม: เดินโยกตัว ---------- */
-let animRun=false,lastAnim=0;
-function animLoop(now){
- const dt=Math.min(60,now-(lastAnim||now));lastAnim=now;
- els.forEach(o=>{
-  if(!o.hs||!o.hs.isConnected)o.hs=o.ch.querySelector('.fx-hs');
-  if(!o.hs)return;
-  if(o.ch.classList.contains('walk')){
-   o.ph=(o.ph||0)+dt*0.018;
-   const sw=Math.sin(o.ph);
-   o.hs.style.transform=`translateY(${(-Math.abs(sw)*4).toFixed(2)}px) rotate(${(sw*2.5).toFixed(2)}deg)`;
-   o.wasWalk=true;
-  }else if(o.wasWalk){o.hs.style.transform='';o.wasWalk=false;o.ph=0}
- });
- requestAnimationFrame(animLoop);
+/* ---------- วนทุกเฟรม: ให้เอ็นตามปลายคันเบ็ดที่ขยับตามท่า ---------- */
+let animRun=false;
+function frameLoop(){
+ if(!$('fx-dock')){animRun=false;return}
+ if(bob||remotes.size)drawRods();
+ requestAnimationFrame(frameLoop);
 }
 let lastTypeSend=0;
 function onTyping(){
  const t=$('fxIn').value.trim().slice(0,80);
- const key=uid||'me';
+ const key=SELF;
  if(t)setBubble(key,t,true);else{BUB.delete(key);updateBubbles()}
  const now=Date.now();
  if(!t||now-lastTypeSend>250){
@@ -8853,7 +8903,7 @@ function sendChat(){
  if(Date.now()-lastChat<1000){setMsg('พิมพ์เร็วเกินไป');return}
  lastChat=Date.now();inp.value='';
  const name=(S&&S.name)||'จอมยุทธ์';
- setBubble(uid||'me',text,false);
+ setBubble(SELF,text,false);
  logLine(`💬 <b>${esc(name)}</b>: ${esc(text)}`);
  try{if(ch&&ch.state==='joined'){
   ch.send({type:'broadcast',event:'chat',payload:{uid,name,text}});
@@ -8873,18 +8923,25 @@ function chargeFrame(now){
 function startCharge(){if(st!=='idle'||autoOn)return;st='charging';power=0;pdir=1;lastT=performance.now();$('fxPower').style.display='block';raf=requestAnimationFrame(chargeFrame)}
 function releaseCast(){if(st!=='charging')return;cancelAnimationFrame(raf);$('fxPower').style.display='none';cast(Math.max(20,power))}
 function cast(p){
- st='flying';btns('none');cidOwn++;
+ st='flying';btns('none');cidOwn++;me.target=null;
  const ang=rnd(0,Math.PI*2),d=0.35+(p/100)*0.55;
  const tx=POND.cx+Math.cos(ang)*POND.rx*d,ty=POND.cy+Math.sin(ang)*POND.ry*d;
- const sx=me.x+TIP.x*SC,sy=me.y+TIP.y*SC,t0=performance.now();
- playCast(els.get(uid||'me'),cidOwn,'me');
- (function fly(now){
-  const t=Math.min(1,(now-t0)/650);
-  bob={x:sx+(tx-sx)*t,y:sy+(ty-sy)*t-Math.sin(Math.PI*t)*70};
-  drawRods();
-  if(t<1)raf=requestAnimationFrame(fly);
-  else{bob={x:tx,y:ty};ripple(tx,ty);setSt('waiting');setMsg(autoOn?'🤖 รอปลากิน…':'รอปลากิน…');later(bite,rnd(1200,2800))}
- })(t0);
+ const o=els.get(SELF);
+ if(Math.abs(tx-me.x)>6)me.face=tx<me.x?-1:1; /* หันหน้าไปทางจุดที่จะเหวี่ย */
+ if(o)setPos(o,me.x,me.y,me.face,false);
+ playCast(o,cidOwn,'me');publish();
+ /* ปล่อยเอ็นตอนแขนสะบัดไปข้างหน้า (ประมาณ 64% ของท่า) */
+ later(()=>{
+  const t0=performance.now();
+  (function fly(now){
+   const s=tipScene(els.get(SELF))||{x:me.x+30,y:me.y-100};
+   const t=Math.min(1,(now-t0)/600);
+   bob={x:s.x+(tx-s.x)*t,y:s.y+(ty-s.y)*t-Math.sin(Math.PI*t)*70};
+   drawRods();
+   if(t<1)raf=requestAnimationFrame(fly);
+   else{bob={x:tx,y:ty};ripple(tx,ty);setSt('waiting');setMsg(autoOn?'🤖 รอปลากิน…':'รอปลากิน…');later(bite,rnd(1200,2800))}
+  })(t0);
+ },640);
 }
 function ripple(x,y){const g=document.createElementNS(NS,'ellipse');g.setAttribute('cx',x);g.setAttribute('cy',y);g.setAttribute('rx',12);g.setAttribute('ry',4.5);g.setAttribute('fill','none');g.setAttribute('stroke','#d7f5ec');g.setAttribute('stroke-width',1.4);g.setAttribute('class','fx-ring');$('fxBob').appendChild(g);setTimeout(()=>g.remove(),1000)}
 function bite(){
@@ -8925,7 +8982,7 @@ function fightFrame(now){
  f.raf=requestAnimationFrame(fightFrame);
 }
 function endCast(){
- clearAll();st='idle';fight=null;bob=null;reeling=false;
+ clearAll();st='idle';setPose(els.get(SELF),'idle');fight=null;bob=null;reeling=false;
  $('fxFight').style.display='none';$('fxAlert').style.display='none';
  btns(autoOn?'auto':'cast');publish();drawRods();
  if(autoOn)later(autoCast,1500);
@@ -9002,7 +9059,7 @@ window.openFish=function(){
  layout();
  document.body.classList.add('fx-mode');
  if(!document.hidden)document.body.classList.add('g-hidden');
- me.x=190;me.y=CY+150;me.face=1;me.target=null;
+ {const p0=clampPos(190,CY+150);me.x=p0.x;me.y=p0.y}me.face=1;me.target=null;st='idle';
  const w=document.createElement('div');w.id='fx-dock';
  w.innerHTML=`
  <div class="fx-scene" id="fxScene">${sceneSVG()}
@@ -9032,9 +9089,9 @@ window.openFish=function(){
  </div>`;
  document.body.appendChild(w);
  myHTML=heroHTML()||'';
- ensureEl(uid||'me',myHTML,(S&&S.name||'จอมยุทธ์')+' (ท่าน)',true);
- const mo=els.get(uid||'me');if(mo)mo.el.classList.add('me');
- setPos(els.get(uid||'me'),me.x,me.y,me.face,false);
+ const mo=ensureEl(SELF,myHTML,((S&&S.name)||'จอมยุทธ์')+' (ท่าน)',true);
+ mo.el.classList.add('me');
+ setPos(mo,me.x,me.y,me.face,false);
  drawRods();
  btns('cast');
  $('fxBack').onclick=closeFish;
@@ -9055,10 +9112,10 @@ window.openFish=function(){
  ['pointerup','pointerleave','pointercancel'].forEach(ev=>r.addEventListener(ev,()=>reeling=false));
  connect();
  initJoy();
- if(!animRun){animRun=true;requestAnimationFrame(animLoop)}
+ if(!animRun){animRun=true;requestAnimationFrame(frameLoop)}
 };
 function closeFish(){
- clearAll();autoOn=false;
+ clearAll();autoOn=false;joyStop();animRun=false;cancelAnimationFrame(me.raf);
  try{if(ch){ch.untrack&&ch.untrack();sb&&sb.removeChannel(ch)}}catch(e){}
  ch=null;remotes.clear();els.clear();st='idle';bob=null;fight=null;BUB.clear();rods.clear();seenCid.clear();me.target=null;
  const w=$('fx-dock');if(w)w.remove();
