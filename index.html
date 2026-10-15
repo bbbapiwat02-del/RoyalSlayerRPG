@@ -8486,6 +8486,11 @@ body.fx-mode>*:not(#fx-dock):not(script):not(style){display:none!important}
 #fx-dock .fx-bb.draft{font-style:italic;opacity:.92;background:#fffffff0}
 #fx-dock .fx-joy{position:absolute;left:14px;bottom:282px;width:104px;height:104px;border-radius:50%;background:#0007;border:2px solid #e5b94a99;touch-action:none;z-index:4}
 #fx-dock .fx-knob{position:absolute;left:50%;top:50%;width:42px;height:42px;margin:-21px 0 0 -21px;border-radius:50%;background:linear-gradient(#ffd23f,#ff8a1a);box-shadow:0 2px 8px #000a;pointer-events:none}
+#fx-dock .fx-ch{isolation:isolate}
+#fx-dock .fx-hs{transform-origin:50% 100%}
+#fx-dock .fx-hs [class*="aura"],#fx-dock .fx-hs [class*="Aura"],#fx-dock .fx-hs [class*="halo"],#fx-dock .fx-hs [class*="glow"]{z-index:-1}
+#fx-dock .fx-ch.cast .fx-hs{animation:fxCastBody 1.05s ease-in-out}
+@keyframes fxCastBody{0%{transform:rotate(0)}30%{transform:rotate(-9deg)}60%{transform:rotate(5deg)}100%{transform:rotate(0)}}
 #fx-dock .fx-chat{display:flex;gap:6px}
 #fx-dock .fx-chat input{flex:1;min-width:0;padding:9px 12px;border-radius:12px;border:2px solid #e5b94a;background:#1a2a20ee;color:#f5eedc;font:inherit;font-size:14px;user-select:text;-webkit-user-select:text}
 #fx-dock .fx-chat button{padding:0 16px;border-radius:12px;border:2px solid #fff3b0;background:linear-gradient(#ffd23f,#ff8a1a);color:#3a1400;font:inherit;font-weight:900}
@@ -8762,8 +8767,7 @@ function alignFx(o){
  effs.forEach(e=>{
   const r=e.getBoundingClientRect();if(!r.width)return;
   const dx=(bcx-(r.left+r.right)/2)/fx;
-  let dy=(feet.bottom-r.bottom)/fy;if(Math.abs(dy)>120)dy=0;
-  e.style.translate=dx.toFixed(1)+'px '+dy.toFixed(1)+'px';
+  e.style.translate=dx.toFixed(1)+'px 0px';
  });
 }
 
@@ -8778,7 +8782,7 @@ function initJoy(){
  const end=()=>{if(!joy.on)return;joy.on=false;joy.dx=0;joy.dy=0;k.style.transform='';
   const o=els.get(uid||'me');if(o)setPos(o,me.x,me.y,me.face,false);publish()};
  j.addEventListener('pointerdown',e=>{
-  if(st!=='idle'&&st!=='waiting')return;
+  if(st==='charging'||st==='flying')return;
   e.preventDefault();me.target=null;cancelAnimationFrame(me.raf);
   joy.on=true;aim(e);try{j.setPointerCapture(e.pointerId)}catch(_){}
   joy.t=performance.now();
@@ -8788,7 +8792,7 @@ function initJoy(){
  ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>j.addEventListener(ev,end));
 }
 function joyLoop(now){
- if(!joy.on||(st!=='idle'&&st!=='waiting')){joy.on=false;joyRun=false;return}
+ if(!joy.on||st==='charging'||st==='flying'){joy.on=false;joyRun=false;return}
  const dt=Math.min(50,now-joy.t);joy.t=now;
  const m=Math.hypot(joy.dx,joy.dy);
  const o=els.get(uid||'me');
@@ -8811,6 +8815,22 @@ function setBubble(key,text,draft){
  setTimeout(()=>{const b=BUB.get(key);if(b&&b.t===t){BUB.delete(key);updateBubbles()}},draft?8000:5000);
 }
 function sayBubble(key,text){setBubble(key,text,false)}
+/* ---------- อนิเมชันเฟรมต่อเฟรม: เดินโยกตัว ---------- */
+let animRun=false,lastAnim=0;
+function animLoop(now){
+ const dt=Math.min(60,now-(lastAnim||now));lastAnim=now;
+ els.forEach(o=>{
+  if(!o.hs||!o.hs.isConnected)o.hs=o.ch.querySelector('.fx-hs');
+  if(!o.hs)return;
+  if(o.ch.classList.contains('walk')){
+   o.ph=(o.ph||0)+dt*0.018;
+   const sw=Math.sin(o.ph);
+   o.hs.style.transform=`translateY(${(-Math.abs(sw)*4).toFixed(2)}px) rotate(${(sw*2.5).toFixed(2)}deg)`;
+   o.wasWalk=true;
+  }else if(o.wasWalk){o.hs.style.transform='';o.wasWalk=false;o.ph=0}
+ });
+ requestAnimationFrame(animLoop);
+}
 let lastTypeSend=0;
 function onTyping(){
  const t=$('fxIn').value.trim().slice(0,80);
@@ -9035,6 +9055,7 @@ window.openFish=function(){
  ['pointerup','pointerleave','pointercancel'].forEach(ev=>r.addEventListener(ev,()=>reeling=false));
  connect();
  initJoy();
+ if(!animRun){animRun=true;requestAnimationFrame(animLoop)}
 };
 function closeFish(){
  clearAll();autoOn=false;
