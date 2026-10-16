@@ -720,7 +720,7 @@ body{display:flex;flex-direction:column;height:calc(100dvh - env(safe-area-inset
 <div class="csg"><div class="csc l" id="csL"></div><div class="csh" id="csH"></div><div class="csc r" id="csR"></div></div>
 <div id="csd"></div>
 <div class="sg" id="csS"></div>
-<button class="rs" id="rs">รีเซ็ตเกม</button>
+
 </div></div>
 <div id="ov" hidden><div class="pnl"><button id="cl">✕</button>
 <div class="tkr" style="margin:0 0 4px">🪙 <b id="gg">0</b></div>
@@ -919,7 +919,7 @@ function gameTick(){if(window._hold){last=Date.now();return}
 }
 var tkh=setInterval(gameTick,Math.round(1000/G.fps));
 setInterval(()=>{S.t=Date.now();try{localStorage.setItem('ml1',JSON.stringify(S))}catch(e){}},4000);
-$('rs').onclick=()=>{if(confirm('รีเซ็ตเกมทั้งหมด?')){try{localStorage.removeItem('ml1')}catch(e){}S={gold:0,diamonds:0,stage:1,kills:0,up:{atk:0,hp:0,spd:0,crit:0},t:Date.now(),auto:false,chest:1,keys:0,eq:[null,null,null,null,null],pend:null,lv:1,exp:0,tk:3,tkT:Date.now(),wg:0,wl:0,pets:{},pet:'',egg:1,hc:0,sk:[null,null,null,null,null,null],skills:{},skf:3,skh:0,skp:0};hp=MHP();spawn();renderGear();initSk()}};
+if($('rs'))$('rs').onclick=()=>{if(confirm('รีเซ็ตเกมทั้งหมด?')){try{localStorage.removeItem('ml1')}catch(e){}S={gold:0,diamonds:0,stage:1,kills:0,up:{atk:0,hp:0,spd:0,crit:0},t:Date.now(),auto:false,chest:1,keys:0,eq:[null,null,null,null,null],pend:null,lv:1,exp:0,tk:3,tkT:Date.now(),wg:0,wl:0,pets:{},pet:'',egg:1,hc:0,sk:[null,null,null,null,null,null],skills:{},skf:3,skh:0,skp:0};hp=MHP();spawn();renderGear();initSk()}};
 const RN=['สามัญ','ดี','หายาก','มหากาพย์','ตำนาน','เทพ','เซียน','อมตะ','จักรพรรดิ','สวรรค์','ปฐมกาล'],RC=['#9a9a8a','#4caf50','#3d8bfd','#a855f7','#f59e0b','#ef4444','#ff4fb8','#22e0ff','#ffd400','#3dffa8','#ffffff'],RM=[1,1.8,3,5,8,12,17,24,34,48,70],
 SL=[{i:'🗡️',n:'กระบี่',b:.08,t:'โจมตี'},{i:'🥋',n:'เสื้อเกราะ',b:.08,t:'ลมปราณ'},{i:'👒',n:'หมวก',b:1.5,t:'คริ'},{i:'👟',n:'รองเท้า',b:.04,t:'ก้าว'},{i:'📿',n:'สร้อยหยก',b:.08,t:'เหรียญ'}],
 AD=['ธรรมดา','เหล็กกล้า','จันทรา','มังกร','สายฟ้า','สวรรค์','หยกวิญญาณ','เทพอมตะ','จักรพรรดิมังกร','นภาลัย','ปฐมกาล'];RN.push('โกลาหล','นิรันดร์','เทพบิดร','จักรวาล','อนันตกาล','เทพอสูร','เทวาธิราช','สุริยัน','อสงไขย');RC.push('#ff7a1a','#7c4dff','#e8c25a','#00b3ff','#ff4fd8','#ff2e63','#b6ff3d','#00d9c0','#ffffff');RM.push(100,145,210,300,440,640,930,1350,2000);AD.push('โกลาหล','นิรันดร์','เทพบิดร','จักรวาล','อนันตกาล','เทพอสูร','เทวาธิราช','สุริยัน','อสงไขย');
