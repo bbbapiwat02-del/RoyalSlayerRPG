@@ -9103,20 +9103,42 @@ function startCount(){if(!R||R.phase!=='ready')return;R.phase='count';clearInter
  D={duel:1,nm:R.opp.n||R.oppName,n:2,w:1,t:99999,ct:DUR,gold:0,mul:0,off:0,abs:lvAvg,hpm:1,dm:0};
  R.oppMax=R.opp.max;R.oppHp=R.opp.max;hp=MHP();
  try{lastR=0}catch(e){}
- spawn();
+ spawn();try{window.skqReset&&skqReset(true)}catch(e){}
+ /* ปิดหน้าต่างแชท/ป๊อปอัพต่างๆ อัตโนมัติเมื่อเริ่มนับถอยหลัง */
+ try{const cw=document.getElementById('chw');if(cw)cw.hidden=true;pmClose();const pf=document.getElementById('pfw');if(pf)pf.hidden=true;document.activeElement&&document.activeElement.blur&&document.activeElement.blur()}catch(e){}
+ calm();
  const A=document.getElementById('arena');const cd=document.createElement('div');cd.id='pvcd';A.appendChild(cd);
  let n=3;const tick=()=>{if(!R||R.phase!=='count'){cd.remove();return}cd.innerHTML=`<b>${n>0?n:'สู้!'}</b>`;try{sfx(n>0?'hit':'boss')}catch(e){}
-  if(n<0){cd.remove();R.phase='fight';R.t0=Date.now();R.last=Date.now();mState='idle';heroCd=200;
+  if(n<0){cd.remove();R.phase='fight';R.t0=Date.now();R.last=Date.now();mState='idle';heroCd=200;try{window.skqReset&&skqReset(true)}catch(e){}
    const g=document.createElement('button');g.id='pvgu';g.textContent='🏳️ ยอมแพ้';g.onclick=()=>{if(R&&R.phase==='fight'){send('dead');finish(false,'quit')}};A.appendChild(g);return}
   n--;setTimeout(tick,n<0?600:900)};tick();
  track();
 }
 /* ---------- ระหว่างต่อสู้ ---------- */
+/* ปรับตัวคู่ต่อสู้: ขนาดเท่าตัวเรา + เท้าแตะพื้นระดับเดียวกัน (วัดจากจอจริง ทำซ้ำจนลงตัว) */
+function fitOpp(n){const go=()=>{try{const po=document.querySelector('#mon.pvpm #ms .pvpo'),os=po&&po.querySelector('svg'),hs=document.querySelector('#hs svg.nh')||document.querySelector('#hs svg');if(!po||!os||!hs)return;
+ const hr=hs.getBoundingClientRect(),or=os.getBoundingClientRect();if(hr.height<20||or.height<20)return;
+ let ch=0;const k=hr.height/or.height;
+ if(Math.abs(k-1)>=.03){po.style.width=(po.offsetWidth*k).toFixed(1)+'px';po.style.height=(po.offsetHeight*k).toFixed(1)+'px';ch=1}
+ else{const or2=os.getBoundingClientRect(),dy=hr.bottom-or2.bottom;if(Math.abs(dy)>1.5){const sc=or2.height/(po.offsetHeight||1)||1,cur=parseFloat(getComputedStyle(po).bottom)||0;po.style.bottom=(cur-dy/sc).toFixed(1)+'px';ch=1}}
+ if(ch&&(n||0)<6)fitOpp((n||0)+1)}catch(e){}};
+ requestAnimationFrame(()=>requestAnimationFrame(go))}
+/* ระหว่างประลอง: ซ่อนกล่องสเตตัส · ชื่อคู่ต่อสู้อยู่บนหลอดเลือดเหมือนตัวเรา */
+document.head.insertAdjacentHTML('beforeend','<style>#arena.pvpa #mstp{display:none!important}#mnm{position:absolute;z-index:3;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;font-weight:900;color:#fff;text-shadow:0 1px 3px #000,0 0 6px #000;pointer-events:none;transform:translateX(-50%);text-align:center}</style>');
+(function nmLoop(){requestAnimationFrame(nmLoop);try{const A=document.getElementById('arena');if(!A)return;const on=!!(D&&D.duel&&R);A.classList.toggle('pvpa',on);
+ let t=document.getElementById('mnm');if(!on){if(t)t.remove();return}
+ const mb=document.getElementById('mb'),hb=document.getElementById('hb'),hn=document.getElementById('hn');if(!mb)return;
+ if(!t){t=document.createElement('div');t.id='mnm';mb.parentElement.appendChild(t)}
+ const o=R.opp||{},txt=(o.n||R.oppName||'ผู้เล่น')+' · Lv.'+(o.lv||R.oppLv||'?');if(t.textContent!==txt)t.textContent=txt;
+ if(hn&&getComputedStyle(hn).fontSize)t.style.fontSize=getComputedStyle(hn).fontSize;
+ const dy=hb&&hn?hn.offsetTop-hb.offsetTop:-16;t.style.left=(mb.offsetLeft+mb.offsetWidth/2).toFixed(1)+'px';t.style.top=(mb.offsetTop+dy).toFixed(1)+'px';t.style.opacity=mb.style.opacity||1}catch(e){}})();
+setInterval(()=>{if(D&&D.duel&&R&&R.phase!=='fight')fitOpp()},700);
+addEventListener('resize',()=>{if(D&&D.duel)fitOpp()});
 function paintOpp(){if(!(D&&D.duel)||!R)return;const MSx=document.getElementById('ms'),MWx=document.getElementById('mon');
  MWx.classList.add('pvpm');MWx.classList.remove('boss','wbd');MSx.classList.remove('bossf');
  MSx.innerHTML=R.art?`<div class="pvpo">${R.art}</div>`:'<div class="pvpo" style="font-size:72px;line-height:128px;text-align:center">🥷</div>';
  const o=R.opp||{},st=o.st||{},L=[['STR','#ff7a5a','str'],['AGI','#5ae8a8','agi'],['VIT','#ffc04a','vit'],['INT','#b08aff','int'],['DEX','#5ac8ff','dex'],['LUK','#8aff6a','luk']];
- paintPet();
+ paintPet();fitOpp();
  const pn=document.getElementById('mstp');if(pn)pn.innerHTML=`<div class="hd"><b>Lv.${esc(o.lv||'?')}</b><span>⚔️ ${esc(o.n||R.oppName)}</span></div><div class="gr">${L.map(([a,c,k])=>`<i><em style="color:${c}">${a}</em>${fmtS(st[k]||0)}</i>`).join('')}</div>`}
 const _sp=spawn;spawn=function(){const r=_sp.apply(this,arguments);
  if(D&&D.duel&&R){const o=R.opp||{},st=o.st||{};
@@ -9128,12 +9150,17 @@ const _sp=spawn;spawn=function(){const r=_sp.apply(this,arguments);
 const _ms=monSwing;monSwing=function(){if(D&&D.duel)return;return _ms.apply(this,arguments)};
 const _dk=dgKill;dgKill=function(){if(D&&D.duel){mhp=Math.max(1,mhp);if(mState==='dying')mState='idle';return}return _dk.apply(this,arguments)};
 const _de=dgEnd;dgEnd=function(w){if(D&&D.duel){if(!w&&R&&R.phase==='fight'){send('dead');finish(false,'ko')}return}return _de.apply(this,arguments)};
-const _dm=dmgMon;dmgMon=function(d,crit,kind){if(!(D&&D.duel))return _dm.apply(this,arguments);
+const _dm=dmgMon;dmgMon=function(d,crit,kind){if(!(D&&D.duel))return _dm.apply(this,arguments);if(waitPh())return;
  if(!R||R.phase!=='fight'||mState!=='idle')return;
  const raw=Math.max(1,Math.floor(d));send('hit',{d:raw,c:crit?1:0,k:kind||''});R.dealt+=raw;
  const red=kind==='s'?(R.opp.mdef||0):(R.opp.def||0);return _dm.call(this,Math.max(1,Math.floor(raw*(1-red))),crit,kind)};
-const _hs=heroSwing;heroSwing=function(){window._nSw=null;const r=_hs.apply(this,arguments);if(D&&D.duel&&R&&R.phase==='fight'&&window._nSw){send('sw',window._nSw);window._nSw=null}return r};
-const _cf=castFx;castFx=function(k){const r=_cf.apply(this,arguments);if(D&&D.duel&&R&&R.phase==='fight'&&k)send('fx',{i:k.i,c:k.c||'#ffd23f',r:k.r||0});return r};
+/* ระหว่างนับถอยหลัง: ยืนหายใจเฉยๆ ห้ามตี/ใช้สกิล/สัตว์เลี้ยงโจมตี */
+const waitPh=()=>D&&D.duel&&(!R||R.phase!=='fight');
+function calm(){try{const h=document.getElementById('hero');h&&h.getAnimations&&h.getAnimations({subtree:true}).forEach(a=>{if(a.id!=='breath'&&!(a.animationName))try{a.cancel()}catch(e){}});
+ ['atk','dat','dht','natk'].forEach(c=>{h&&h.classList.remove(c);const m=document.getElementById('mon');m&&m.classList.remove(c)})}catch(e){}}
+const _hs=heroSwing;heroSwing=function(){if(waitPh())return;window._nSw=null;const r=_hs.apply(this,arguments);if(D&&D.duel&&R&&R.phase==='fight'&&window._nSw){send('sw',window._nSw);window._nSw=null}return r};
+if(typeof castSk==='function'){const _ck=castSk;castSk=function(){if(waitPh())return;return _ck.apply(this,arguments)}}
+const _cf=castFx;castFx=function(k){if(waitPh())return;const r=_cf.apply(this,arguments);if(D&&D.duel&&R&&R.phase==='fight'&&k)send('fx',{i:k.i,c:k.c||'#ffd23f',r:k.r||0});return r};
 function oppSwing(p){const MWx=document.getElementById('mon'),nh=MWx.querySelector('.pvpo svg.nh');
  const gap=MWx.offsetLeft-(HW.offsetLeft+HW.offsetWidth),adv=Math.max(24,gap+MWx.offsetWidth*.4),dist=p.v?adv*.95:adv*.72;
  if(nh&&window.nPlayMove)nPlayMove(MWx,nh,p.v|0,dist,p.dur||900,true);
@@ -9156,7 +9183,7 @@ function oppPet(p){const e=petEl();if(!e)return;const sv=e.querySelector('svg');
  const dist=Math.max(30,e.offsetLeft-(HW.offsetLeft+HW.offsetWidth*.55));
  if(window.nPlayPet)nPlayPet(e,sv,p.v|0,dist,true);
  else e.animate([{transform:'translate(0,0)'},{transform:`translate(${-dist*.5}px,-26px)`,offset:.3},{transform:`translate(${-dist}px,-4px)`,offset:.5},{transform:'translate(0,0)'}],{duration:560,easing:'ease-in-out'})}
-const _pa=petAtk;petAtk=function(){window._nPa=null;const r=_pa.apply(this,arguments);if(D&&D.duel&&R&&R.phase==='fight'&&window._nPa){send('pa',window._nPa);window._nPa=null}return r};
+const _pa=petAtk;petAtk=function(){if(waitPh())return;window._nPa=null;const r=_pa.apply(this,arguments);if(D&&D.duel&&R&&R.phase==='fight'&&window._nPa){send('pa',window._nPa);window._nPa=null}return r};
 function oppFx(p){try{const big=p.r>=3;fx('slash',p.i,'left:6%;top:18%;font-size:'+(big?96:80)+'px');burst(20,52,p.c,big?28:18);if(big)shake()}catch(e){}}
 let stT=0;function stSoon(){const n=Date.now();if(n-stT<120){clearTimeout(stSoon.h);stSoon.h=setTimeout(()=>{stT=Date.now();send('st',{hp:Math.max(0,Math.floor(hp)),max:MHP()})},120);return}stT=n;send('st',{hp:Math.max(0,Math.floor(hp)),max:MHP()})}
 function oppHit(p){
@@ -9252,6 +9279,61 @@ window.addEventListener('click',e=>{
  const uid=t.dataset.uid;if(!uid||t.dataset.me||uid===me)return;
  e.stopImmediatePropagation();e.preventDefault();pfUid=uid;pmOpen(uid,nameOf(t),e.clientX,e.clientY)},true);
 window.pvpMenu=pmOpen;
+})();
+</script>
+<script>/* ================= ตั้งค่าการใช้สกิลอัตโนมัติ: ใช้เรียงจากช่อง 1 → ช่องสุดท้ายเสมอ + กำหนดเวลารอของแต่ละช่อง ================= */
+(function(){
+function cfg(){if(!S.skq||typeof S.skq!=='object')S.skq={on:true,d:[0,0,0,0,0,0]};if(!Array.isArray(S.skq.d))S.skq.d=[0,0,0,0,0,0];while(S.skq.d.length<6)S.skq.d.push(0);return S.skq}
+let ptr=0,nextAt=0,fails=0;
+const filled=()=>{const r=[];for(let i=0;i<6;i++)if(S.sk&&S.sk[i]&&SK.find(x=>x.id===S.sk[i])&&S.skills[S.sk[i]])r.push(i);return r};
+function nextSlot(from){const f=filled();if(!f.length)return -1;for(const i of f)if(i>=from)return i;return f[0]}
+function arm(i){const c=cfg();nextAt=Date.now()+Math.max(0,+c.d[i]||0)*1000}
+/* เริ่มรอบใหม่ (เข้าประลอง/เปลี่ยนการตั้งค่า): เริ่มที่ช่องแรกเสมอ */
+function reset(full){ptr=nextSlot(0);fails=0;if(ptr>=0)arm(ptr);else nextAt=0;
+ if(full){for(let i=0;i<6;i++)skCds[i]=0;skG=0}}
+window.skqReset=reset;
+const _auto=autoSk;
+autoSk=function(){const c=cfg();if(!c.on)return _auto.apply(this,arguments);
+ let i=nextSlot(ptr<0?0:ptr);if(i<0)return;if(i!==ptr){ptr=i;arm(i);return}
+ if(Date.now()<nextAt)return;
+ if(skCds[i]>0)return; /* รอสกิลช่องนี้พร้อมก่อน ไม่ข้ามลำดับ */
+ const b=skCds[i];castSk(i);
+ if(skCds[i]!==b||fails>=3){fails=0;skG=700;const n=nextSlot(i+1);ptr=n;if(n>=0)arm(n)}else{fails++;skG=500}};
+/* ---------- หน้าตั้งค่าในหน้าสกิล ---------- */
+document.head.insertAdjacentHTML('beforeend',`<style>
+#skq{margin-top:10px;padding:10px;border-radius:14px;background:linear-gradient(#2a1a0c,#160c06);border:1.5px solid #8a6a3a;color:#ffe9c8}
+#skq .qh{display:flex;align-items:center;gap:8px;font-weight:900;font-size:13.5px}
+#skq .qh small{font-weight:400;font-size:10.5px;color:#b89a7a;display:block}
+#skq .qt{margin-left:auto;flex:none;width:52px;height:28px;border-radius:15px;border:1.5px solid #8a6a3a;background:#3a2a1a;position:relative;cursor:pointer}
+#skq .qt::after{content:'';position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#bba;transition:.2s}
+#skq .qt.on{background:linear-gradient(#5ad97a,#1f7a3a);border-color:#c8ffd0}#skq .qt.on::after{left:26px;background:#fff}
+#skq .ql{display:flex;flex-direction:column;gap:5px;margin-top:8px}
+#skq .qr{display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:10px;background:#0006;border:1px solid #4a3420}
+#skq .qr.nx{border-color:#ffd23f;box-shadow:0 0 8px #ffd23f66}
+#skq .qr .no{width:20px;height:20px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;background:#ffd23f;color:#3a1a00}
+#skq .qr .nm{flex:1;min-width:0;font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#skq .qr .nm small{display:block;font-weight:400;font-size:10px;color:#a8907a}
+#skq .qr .st{display:flex;align-items:center;gap:3px;flex:none}
+#skq .qr .st button{width:26px;height:26px;border-radius:8px;border:1px solid #8a6a3a;background:linear-gradient(#4a3020,#24140a);color:#ffe9c8;font:inherit;font-weight:900;font-size:15px;line-height:1;cursor:pointer}
+#skq .qr .st b{min-width:44px;text-align:center;font-size:12px;color:#ffe066}
+#skq .qr.qe{opacity:.45;display:flex!important}
+#skq .qn{margin-top:6px;font-size:10.5px;color:#b89a7a;line-height:1.45}
+#skq.off .ql{opacity:.45;pointer-events:none}
+</style>`);
+function panel(){const box=document.getElementById('skinfo');if(!box)return;let w=document.getElementById('skq');if(!w){w=document.createElement('div');w.id='skq';box.parentElement.insertBefore(w,box.nextSibling)}
+ const c=cfg();w.className=c.on?'':'off';
+ w.innerHTML=`<div class="qh"><span>⚙️ ตั้งค่าการใช้สกิล (ออโต้)<small>ใช้เรียงจากช่อง 1 ไปช่องสุดท้ายเสมอ แล้ววนกลับช่อง 1</small></span><span class="qt ${c.on?'on':''}" id="skqt"></span></div>
+ <div class="ql">${[0,1,2,3,4,5].map(i=>{const id=S.sk[i],k=id&&SK.find(x=>x.id===id),o=k&&S.skills[k.id],v=+c.d[i]||0;
+  return `<div class="qr ${k&&o?'':'qe'} ${c.on&&i===ptr?'nx':''}" data-i="${i}"><span class="no">${i+1}</span><span class="nm">${k?`<span style="color:${RC[k.r]}">${k.i||''} ${k.n}</span><small>คูลดาวน์ ${k.cd} วิ</small>`:'— ช่องว่าง —<small>ข้ามอัตโนมัติ</small>'}</span>
+  <span class="st"><button data-a="-">−</button><b>${v>0?'รอ '+v+' วิ':'ทันที'}</b><button data-a="+">+</button></span></div>`}).join('')}</div>
+ <div class="qn">⏱️ "รอ X วิ" = หลังใช้สกิลช่องก่อนหน้าแล้ว รอกี่วินาทีจึงใช้ช่องนี้ · ถ้าสกิลช่องนั้นยังติดคูลดาวน์ จะรอจนพร้อมโดยไม่ข้ามไปช่องถัดไป · ใช้ตอนเปิดปุ่ม "ออโต้" และในการท้าประลอง (เริ่มประลองสกิลทุกช่องพร้อมใช้ทันที)</div>`;
+ w.querySelector('#skqt').onclick=()=>{c.on=!c.on;reset();try{save&&save()}catch(e){}panel()};
+ w.querySelectorAll('.qr .st button').forEach(b=>b.onclick=e=>{e.stopPropagation();const i=+b.closest('.qr').dataset.i;let v=+c.d[i]||0;
+  v=b.dataset.a==='+'?Math.min(60,v+(v<5?.5:1)):Math.max(0,v-(v<=5?.5:1));c.d[i]=+v.toFixed(1);if(i===ptr)arm(i);try{save&&save()}catch(e){}panel()});}
+const _rs=renderSkw;renderSkw=function(){const r=_rs.apply(this,arguments);try{panel()}catch(e){}return r};
+/* เปลี่ยนสกิลในช่อง → เริ่มลำดับใหม่ที่ช่องแรก */
+let sig='';setInterval(()=>{try{const k=(S.sk||[]).join(',');if(k!==sig){sig=k;reset()}const w=document.getElementById('skq');if(w&&!document.getElementById('skw').hidden){w.querySelectorAll('.qr').forEach(r=>r.classList.toggle('nx',cfg().on&&+r.dataset.i===ptr))}}catch(e){}},500);
+cfg();reset();
 })();
 </script>
 
