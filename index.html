@@ -1162,6 +1162,11 @@ $('mbtn').style.opacity=musicOn?1:.4;$('sbtn').textContent=sfxOn?'🔊':'🔇';
 $('mbtn').onclick=()=>{initAudio();musicOn=!musicOn;$('mbtn').style.opacity=musicOn?1:.4;if(WM)WM.gain.value=musicOn?1:0;saveSnd()};
 $('sbtn').onclick=()=>{initAudio();sfxOn=!sfxOn;$('sbtn').textContent=sfxOn?'🔊':'🔇';saveSnd()};
 addEventListener('pointerdown',initAudio);addEventListener('keydown',initAudio);
+/* มือถือ: การแตะ (pointerdown) ยังไม่นับเป็นการอนุญาตเสียง ต้องปลดล็อกตอนยกนิ้ว/คลิก ไม่งั้นหน้าล็อกอินจะเงียบ */
+(function(){const unlock=()=>{try{initAudio();if(!AC)return;if(AC.state!=='running')AC.resume();
+ const b=AC.createBuffer(1,1,22050),s=AC.createBufferSource();s.buffer=b;s.connect(AC.destination);s.start(0);
+ if(AC.state==='running'){try{audioSetup&&audioSetup()}catch(e){}try{applyVol&&applyVol()}catch(e){}}}catch(e){}};
+ ['touchend','pointerup','click','keydown','mousedown'].forEach(ev=>addEventListener(ev,unlock,{capture:true,passive:true}))})();
 document.addEventListener('visibilitychange',()=>{if(AC)document.hidden?AC.suspend():AC.resume()});
 setInterval(()=>sched(),100);
 {const tr=(x,h)=>`M${x-1.5} 100V${100-h*.2}H${x+1.5}V100ZM${x} ${100-h}L${x-h*.18} ${100-h*.55}H${x-h*.08}L${x-h*.24} ${100-h*.22}H${x+h*.24}L${x+h*.08} ${100-h*.55}H${x+h*.18}Z`;
@@ -2486,24 +2491,30 @@ sched=function(){
    เครื่องดนตรี: ลูท ขลุ่ยรีคอร์เดอร์/ทินวิสเซิล ซอฟิดเดิล เฮอร์ดี-เกอร์ดี (เสียงโดรน) ดัลซิเมอร์ กลองบอดราน แทมบูริน
    จังหวะ 6/8 แบบจิ๊ก และ 4/4 · โหมดโดเรียน/มิกโซลิเดียน/ไมเนอร์ฮาร์มอนิก · ทำนองโครงสร้าง AABB แบบเพลงพื้นบ้าน */
 const FSC=[
- {r:62,m:'mix',ts:6,b:70,p:[0,6,3,0],q:[3,0,6,0],ld:'wh',e:0},   /*0 ทุ่งกว้าง*/
- {r:57,m:'dor',ts:6,b:62,p:[0,6,0,3],q:[3,0,6,0],ld:'rc',e:0},   /*1 ป่าลึก*/
- {r:67,m:'maj',ts:8,b:106,p:[0,3,4,0],q:[5,3,4,0],ld:'wh',e:1},  /*2 หุบเขา*/
- {r:64,m:'dor',ts:8,b:84,p:[0,6,3,0],q:[2,3,6,0],ld:'rc',e:0},   /*3 ทะเลสาบ*/
- {r:57,m:'mix',ts:6,b:82,p:[0,6,3,0],q:[3,6,0,4],ld:'fd',e:1},   /*4 ตลาดปราการ*/
- {r:62,m:'hmn',ts:8,b:100,p:[0,3,4,0],q:[5,3,4,0],ld:'fd',e:1},  /*5 ทะเลทราย*/
- {r:64,m:'aeo',ts:6,b:86,p:[0,5,6,0],q:[3,5,6,0],ld:'fd',e:1},   /*6 แดนมาร*/
- {r:62,m:'dor',ts:8,b:120,p:[0,6,0,3],q:[2,6,3,0],ld:'fd',e:2},  /*7 หอคอย*/
- {r:57,m:'hmn',ts:8,b:132,p:[0,3,4,0],q:[5,6,4,0],ld:'fd',e:2},  /*8 บอสโลก*/
- {r:59,m:'hmn',ts:6,b:100,p:[0,5,4,0],q:[3,4,5,0],ld:'fd',e:2},  /*9 บอสเทพ*/
- {r:60,m:'aeo',ts:8,b:124,p:[0,5,6,0],q:[3,6,4,0],ld:'fd',e:2},  /*10 ดันเจี้ยน*/
- {r:65,m:'maj',ts:6,b:56,p:[0,3,4,0],q:[5,3,1,4],ld:'rc',e:0},   /*11 พักผ่อน/ท่าปลา*/
- {r:64,m:'dor',ts:8,b:126,p:[0,6,3,0],q:[2,3,6,0],ld:'fd',e:2},  /*12 บอสด่าน*/
- {r:62,m:'hmn',ts:6,b:108,p:[0,3,4,0],q:[5,6,4,0],ld:'fd',e:2},  /*13 ประลอง*/
- {r:62,m:'dor',ts:8,b:76,p:[0,6,3,0],q:[2,6,4,0],ld:'rc',e:0,gr:1} /*14 หน้าล็อกอิน*/];
+ {r:62,m:'mix',ts:6,b:84,p:[0,6,3,0],q:[3,0,6,0],ld:'wh',e:1},   /*0 ทุ่งกว้าง*/
+ {r:57,m:'dor',ts:6,b:80,p:[0,6,0,3],q:[3,0,6,0],ld:'fd',e:1},   /*1 ป่าลึก*/
+ {r:67,m:'maj',ts:8,b:120,p:[0,3,4,0],q:[5,3,4,0],ld:'wh',e:1},  /*2 หุบเขา*/
+ {r:64,m:'dor',ts:8,b:112,p:[0,6,3,0],q:[2,3,6,0],ld:'fd',e:1},  /*3 ทะเลสาบ*/
+ {r:57,m:'mix',ts:6,b:90,p:[0,6,3,0],q:[3,6,0,4],ld:'fd',e:1},   /*4 ตลาดปราการ*/
+ {r:62,m:'hmn',ts:8,b:118,p:[0,3,4,0],q:[5,3,4,0],ld:'fd',e:1},  /*5 ทะเลทราย*/
+ {r:64,m:'aeo',ts:6,b:94,p:[0,5,6,0],q:[3,5,6,0],ld:'fd',e:2},   /*6 แดนมาร*/
+ {r:62,m:'dor',ts:8,b:140,p:[0,6,0,3],q:[2,6,3,0],ld:'fd',e:3},  /*7 หอคอย*/
+ {r:57,m:'hmn',ts:8,b:150,p:[0,3,4,0],q:[5,6,4,0],ld:'fd',e:3},  /*8 บอสโลก*/
+ {r:59,m:'hmn',ts:6,b:112,p:[0,5,4,0],q:[3,4,5,0],ld:'fd',e:3},  /*9 บอสเทพ*/
+ {r:60,m:'aeo',ts:8,b:132,p:[0,5,6,0],q:[3,6,4,0],ld:'fd',e:2},  /*10 ดันเจี้ยน*/
+ {r:65,m:'maj',ts:6,b:72,p:[0,3,4,0],q:[5,3,1,4],ld:'wh',e:1},   /*11 พักผ่อน/ท่าปลา*/
+ {r:64,m:'dor',ts:8,b:144,p:[0,6,3,0],q:[2,3,6,0],ld:'fd',e:3},  /*12 บอสด่าน*/
+ {r:62,m:'hmn',ts:6,b:116,p:[0,3,4,0],q:[5,6,4,0],ld:'fd',e:3},  /*13 ประลอง*/
+ {r:62,m:'dor',ts:8,b:104,p:[0,6,3,0],q:[2,6,4,0],ld:'wh',e:1,gr:1} /*14 หน้าล็อกอิน*/];
 const FMO={maj:[0,2,4,5,7,9,11],aeo:[0,2,3,5,7,8,10],dor:[0,2,3,5,7,9,10],mix:[0,2,4,5,7,9,10],hmn:[0,2,3,5,7,8,11]};
 const dg=(z,d)=>{const sc=FMO[z.m];return sc[((d%7)+7)%7]+12*Math.floor(d/7)};
-function fScene(){try{const q=document.getElementById('ss');if(q&&!q.classList.contains('go'))return 14;if(D&&D.duel)return 13}catch(e){}return sceneZ()}
+function fScene(){try{const q=document.getElementById('ss');if(q&&!q.classList.contains('go'))return 14;if(D&&D.duel)return 13;if(D&&!D.tw&&!D.wb&&!D.bs&&isBoss())return 12}catch(e){}return sceneZ()}
+/* ทองเหลืองคอร์ดพาวเวอร์ + กลองศึก (ฉากบอส) */
+function iPow(f,t,dur,v){[[f,1],[f*1.5,.8],[f*2,.6],[f*.5,.7]].forEach(([fr,k])=>[-6,6].forEach(c=>{const o=AC.createOscillator(),fl=AC.createBiquadFilter(),g=AC.createGain();o.type='sawtooth';o.frequency.value=fr;o.detune.value=c;fl.type='lowpass';fl.Q.value=1.5;fl.frequency.setValueAtTime(3200,t);fl.frequency.exponentialRampToValueAtTime(800,t+dur);
+ g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v*k,t+.015);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(fl);fl.connect(g);out(g,.4);o.start(t);o.stop(t+dur+.05)}))}
+function iWar(t,v){osc('sine',120,40,t,.5,v,MU,.002);osc('triangle',75,35,t,.35,v*.6,MU,.002);nz(t,.08,v*.5,'lowpass',1200,150,MU)}
+function iRise(t,dur,v){try{const s=AC.createBufferSource();s.buffer=NB;s.loop=true;const f=AC.createBiquadFilter(),g=AC.createGain();f.type='bandpass';f.Q.value=2;f.frequency.setValueAtTime(800,t);f.frequency.exponentialRampToValueAtTime(8000,t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+dur);g.gain.exponentialRampToValueAtTime(.0001,t+dur+.06);s.connect(f);f.connect(g);g.connect(MU);s.start(t);s.stop(t+dur+.1)}catch(e){}}
+let fCyc=0;
 let REV=null,RS=null;
 function fBus(){if(REV||!AC)return;try{const len=AC.sampleRate*2.2|0,b=AC.createBuffer(2,len,AC.sampleRate);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3)}
  REV=AC.createConvolver();REV.buffer=b;const rg=AC.createGain();rg.gain.value=.3;RS=AC.createGain();RS.connect(REV);REV.connect(rg);rg.connect(MU)}catch(e){REV=null;RS=null}}
@@ -2557,18 +2568,21 @@ sched=function(){
  if(fZ!==SZ||!fSec.length){fZ=SZ;fBuild(z);fStep=0;if(fNext>AC.currentTime+.05)fNext=AC.currentTime+.05}
  if(fNext<AC.currentTime)fNext=AC.currentTime+.08;
  while(fNext<AC.currentTime+.45){
-  const t=fNext,s=fStep%L,bar=Math.floor(s/T),st=s%T,B=fBar[bar],R=z.r,ch=fChord(z,bar%4,B),root=dg(z,ch[0]),beat=T===6?(st===0||st===3):(st%2===0),down=st===0;
-  if(s===0&&fStep>0)fBuild(z);
+  const t=fNext,s=fStep%L,bar=Math.floor(s/T),st=s%T,B=fBar[bar],ch=fChord(z,bar%4,B),root=dg(z,ch[0]),beat=T===6?(st===0||st===3):(st%2===0),down=st===0;
+  if(s===0&&fStep>0){fBuild(z);fCyc++}
+  /* บอส: ทุกรอบที่สองยกคีย์ขึ้นหนึ่งเสียงเต็ม ให้เพลงไต่ระดับความเร้าใจ */
+  const R=z.r+(e===3&&fCyc%2===1?2:0);
   /* โดรนเฮอร์ดี-เกอร์ดี (ฉากเปิด/ต่อสู้/ล็อกอิน) + เบสลูท */
   if(down&&(e>=1||z.gr||bar%2===0))iDrone(mf(R-24),t,sp*T*(e>=1||z.gr?1:2),e===2?.022:.016);
   if(down)iLute(mf(R-24+root),t,.13,1.6);
   /* ลูทดีดคอร์ด: 6/8 = บุม-ชิก-ชิก · 4/4 = ไล่คอร์ด */
   const tone=i=>mf(R-12+dg(z,ch[i%3]+7*Math.floor(i/3)));
-  if(T===6){const pat=[0,1,2,3,1,2];if(e===2||st!==0)iLute(tone(pat[st]+(st>=3?1:0)),t,e===0?.06:.07,.8)}
+  if(e===3){const r5=[0,0,7,0,12,0,7,10][st%8];iFiddle(mf(R-12+root+r5),t,sp*.42,.045);iFiddle(mf(R-12+root+(st%2?7:0)),t+sp/2,sp*.42,.035)}
+  else if(T===6){const pat=[0,1,2,3,1,2];if(e===2||st!==0)iLute(tone(pat[st]+(st>=3?1:0)),t,e===0?.06:.07,.8)}
   else{const pat=[0,2,1,2,0,2,1,3];if(e>=1||st%2===0)iLute(tone(pat[st]),t,e===0?.06:.065,.8)}
   /* ทำนอง */
   const n=fSec[s];if(n){const f=mf(R+dg(z,n.d)),du=sp*n.len*.98;
-   if(z.ld==='fd')iFiddle(f,t,du,e===2?.075:.065);else iWhistle(f,t,du,z.ld==='rc'?.1:.085,z.ld==='rc');
+   if(z.ld==='fd')iFiddle(f,t,du,e>=2?.08:.07);if(e===3&&n.len>=2)iPow(f/2,t,Math.min(du,sp*3),.012);if(e===1&&!B&&z.ld==='wh')iFiddle(f/2,t,du,.03);else iWhistle(f,t,du,z.ld==='rc'?.1:.085,z.ld==='rc');
    /* ท่อน B ฉากเปิด: ดัลซิเมอร์เล่นคู่คู่แปด */
    if(B&&e>=1&&Math.random()<.6)iDulc(f*2,t,.03);
    if(B&&e===0&&n.len>=3)iDulc(f,t,.035)}
@@ -2579,6 +2593,11 @@ sched=function(){
   else if(e===1){if(T===6){if(st===0)iBod(t,.14);if(st===3)iBod(t,.08,1);if(st===2||st===5)iTamb(t,.05)}else{if(st===0||st===4)iBod(t,.13);if(st===2||st===6)iBod(t,.06,1);if(st%2===1)iTamb(t,.035)}}
   else{if(T===6){if(st===0||st===3)iBod(t,.2);if(st===2||st===5)iBod(t,.08,1);iTamb(t,st===0?.07:.035)}else{if(st===0||st===4)iBod(t,.2);if(st===3||st===7)iBod(t,.1,1);if(st===2||st===6)nz(t,.08,.07,'bandpass',2000,1300,MU);iTamb(t,st%2?.04:.025)}
    if(down&&bar%4===0)nz(t,1,.06,'highpass',6500,9000,MU)}
+  if(e===3){const hb=T===6?(st===0||st===3):(st%2===0);if(hb)iWar(t,st===0?.3:.2);if(T===8&&(st===3||st===7))iWar(t+sp/2,.14);
+   if(down&&bar%2===0){iPow(mf(R-12+root),t,sp*(T===6?2.5:3),.022);nz(t,1.3,.1,'highpass',5000,9000,MU)}
+   if(bar%8===7&&st===0)iRise(t,sp*T,.16);
+   if(bar%8===7&&st>=T-2){iWar(t,.22);iWar(t+sp/2,.25)}}
+  if(e>=1&&e<3&&bar%8===7&&st===0)iRise(t,sp*T,e===2?.09:.05);
   fStep++;fNext+=sp}
 };
 
