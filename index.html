@@ -890,7 +890,7 @@ function render(){
  T('gold',fmtS(S.gold));T('diamonds',fmtS(S.diamonds));T('shopdiamonds',fmt(S.diamonds));T('trg',fmt(S.gold));T('wgg',fmt(S.gold));T('ptg',fmt(S.gold));T('pte',S.egg||0);T('gg',fmt(S.gold));T('lvt','Lv.'+S.lv);W('xpf',(S.exp/expNeed(S.lv)*100).toFixed(1)+'%');T('xpt',fmt(S.exp)+' / '+fmt(expNeed(S.lv))+'  ('+Math.min(100,S.exp/expNeed(S.lv)*100).toFixed(1)+'%)');
  bd('nv2',typeof stPts==='function'&&stPts()>0);bd('nv3',!!S.pend||S.keys>0||(S.skf||0)>0);bd('nv4',!D&&S.tk>0);bd('nv5',wingCan());bd('nv6',petCan());bd('nv7',S.sk.some(x=>!x)&&Object.keys(S.skills).some(id=>!S.sk.includes(id)));bd('nv8',S.gold>=500||S.diamonds>=12);
  DIS('open',!!S.pend||S.gold<copen());if(!$('skp').hidden){DIS('sg1',skBusy||((S.skf||0)<=0&&S.gold<skPrice()));DIS('sg10',skBusy||S.gold<skPrice()*9)}DIS('keyb',!!S.pend||S.keys<1);
- T('stage',D?(D.bs||D.tw||D.wb?(D.tw?'🗼 ':D.wb?'🌍 ':'👹 ')+D.nm+' · ⏱'+Math.ceil(D.t)+'s':'🪙 '+DG[D.i].n+' · คลื่น '+D.w+'/'+D.n+' · ⏱'+Math.ceil(D.t)+'s · +'+fmt(D.gold)):(isBoss()?'👹 ผู้นำสำนักมาร · ':'')+Z[Math.floor((S.stage-1)/10)%Z.length]+' ด่าน '+S.stage+(isBoss()?'':'  ('+S.kills+'/5)'));
+ T('stage',D?(D.duel?'⚔️ ประลอง vs '+D.nm+' · ⏱'+Math.max(0,Math.ceil(D.ct||0))+'s':D.bs||D.tw||D.wb?(D.tw?'🗼 ':D.wb?'🌍 ':'👹 ')+D.nm+' · ⏱'+Math.ceil(D.t)+'s':'🪙 '+DG[D.i].n+' · คลื่น '+D.w+'/'+D.n+' · ⏱'+Math.ceil(D.t)+'s · +'+fmt(D.gold)):(isBoss()?'👹 ผู้นำสำนักมาร · ':'')+Z[Math.floor((S.stage-1)/10)%Z.length]+' ด่าน '+S.stage+(isBoss()?'':'  ('+S.kills+'/5)'));
  W('hbw',Math.round(Math.max(0,hp/MHP()*100))+'%');W('mbw',Math.round(Math.max(0,mhp/mmax*100))+'%');
  T('sA',fmtS(ATK()));T('sH',fmtS(hp)+'/'+fmtS(MHP()));T('sC',(+CRIT().toFixed(1))+'%'+(CRIT()>100?'(x'+CRD().toFixed(1)+')':''));T('sS','x'+SPD().toFixed(2));
  skTick();if(!$('shopw').hidden)renderShop();
@@ -2332,7 +2332,7 @@ setInterval(()=>{
  if(!boss){if(!bb.hidden)bb.hidden=true;_bbL=null;_bbK='';return}
  if(bb.hidden){bb.hidden=false;bb.style.animation='none';void bb.offsetWidth;bb.style.animation='';_bbL=null}
  const pct=Math.max(0,Math.min(1,mhp/mmax));
- const nm=D&&D.tw?D.nm:D&&(D.bs||D.wb)?D.nm:D?(DG[D.i]?DG[D.i].n+' · ผู้พิทักษ์':'ผู้พิทักษ์'):(window.monNm?'ราชา'+window.monNm:'ผู้นำสำนักมาร')+' · ด่าน '+S.stage;
+ const nm=D&&(D.tw||D.duel)?D.nm:D&&(D.bs||D.wb)?D.nm:D?(DG[D.i]?DG[D.i].n+' · ผู้พิทักษ์':'ผู้พิทักษ์'):(window.monNm?'ราชา'+window.monNm:'ผู้นำสำนักมาร')+' · ด่าน '+S.stage;
  const tag=D&&D.tw?'ชั้น '+D.f:D&&D.wb?'บอสโลก':D&&D.bs?'BOSS เทพ':'BOSS',ic=($('ms').dataset.k||$('ms').textContent),key=nm+tag+ic;
  if(key!==_bbK){_bbK=key;$('bbn').textContent=nm;$('bbt').textContent=tag;$('bbi').innerHTML=$('ms').dataset.k?$('ms').innerHTML:ic}
  const lag=$('bblag'),fil=$('bbfil');
@@ -7507,6 +7507,8 @@ const fashBox=(x,list,ic,lab)=>{const o=x&&list?list.find(q=>q.id===x.id):null;r
  if($('pfml'))$('pfml').onclick=async()=>{P.hidden=true;await openSoc('m');mtab='new';renderM(uid)};
  if($('pfdm'))$('pfdm').onclick=()=>{P.hidden=true;W.hidden=true;window.openDM&&openDM(uid)}}
 window.openProfile=openProfile;
+/* ให้เมนูกดชื่อผู้เล่นเรียกใช้ระบบเพื่อนได้ */
+window.socFrReq=frReq;window.socFrResp=frResp;window.socFrLoad=loadFriends;window.socFrState=uid=>FR.friends.some(f=>f.uid===uid)?'f':FR.out.some(f=>f.uid===uid)?'out':FR.inc.some(f=>f.uid===uid)?'in':'';
 
 function bindRows(){BD.querySelectorAll('[data-uid]').forEach(e=>e.onclick=()=>openProfile(e.dataset.uid));
  BD.querySelectorAll('[data-acc]').forEach(e=>e.onclick=()=>frResp(e.dataset.acc,true));
@@ -8728,7 +8730,7 @@ const NPM=[
 const RX={h:[86,158],p:[228,220]}; /* ระยะพุ่งสูงสุดในท่าต้นแบบ (ปรับตามระยะจริงถึงมอนสเตอร์) */
 const fxOn=()=>!(typeof G!=='undefined'&&G.fx===0)&&!document.body.classList.contains('g-lowanim');
 document.head.insertAdjacentHTML('beforeend',`<style>
-#hero.natk .nh .n-uarm,#hero.natk .nh .n-farm,#hero.natk .nh .n-arm2,#hero.natk .nh .n-body,#hero.natk .nh .n-head,#hero.natk .nh .n-all,#hero.natk .nh .n-wpn{animation:none!important}
+.natk .nh .n-uarm,.natk .nh .n-farm,.natk .nh .n-arm2,.natk .nh .n-body,.natk .nh .n-head,.natk .nh .n-all,.natk .nh .n-wpn{animation:none!important}
 #hero.natk .nh .n-tail{animation-duration:.42s!important}#hero.natk .nh .n-tas{animation-duration:.35s!important}#hero.natk .nh .n-flap,#hero.natk .nh .n-flap2{animation-duration:.5s!important}
 .nghost{position:absolute;pointer-events:none;overflow:visible;z-index:2}.nghost *{animation:none!important}
 #natr{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:6;overflow:visible}
@@ -8801,6 +8803,7 @@ heroSwing=function(){
  hA.forEach(a=>a.playbackRate=rate);
  const mine=hA;root.onfinish=()=>{if(hA!==mine)return;mine.forEach(a=>{try{a.cancel()}catch(e){}});HW.classList.remove('natk')};
  const at=(t,f)=>hT.push(setTimeout(f,t/rate));
+ window._nSw={v,hd:(v?460:565)/rate,dur:D};
  const hitT=v?460:565,col=S.eq&&S.eq[0]?rcx(S.eq[0]):'#cfe6ff';
  at(hitT-120,()=>sfx('slash'));
  at(M.trail[0],()=>trail(true));at(M.trail[1],()=>trail(false));
@@ -8808,6 +8811,18 @@ heroSwing=function(){
  else{at(335,()=>footDust(HW));[340,370,400,428].forEach(t=>at(t,()=>ghostOf(document.querySelector('#hs svg.nh'),'brightness(1.7) saturate(0) drop-shadow(0 0 5px #6ad9ff)',HGP)));at(920,()=>footDust(HW));at(1060,()=>footDust(HW))}
  setTimeout(()=>{if(mState==='idle')slashFx(v?1:0,mPos(),col);dmgMon(dmg,c);if(hA===mine){stopAll(mine,v?85:65);if(v===1&&typeof shake==='function')shake()}},hitT/rate); /* ดาเมจไม่ถูกยกเลิกแม้ตีเร็วจนท่าทับกัน */
 };
+/* ---------- เล่นท่าโจมตีกับตัวละครตัวอื่น (ใช้กับคู่ต่อสู้ในโหมดประลอง · กลับด้านซ้าย-ขวาได้) ---------- */
+const xA=new WeakMap();
+window.nPlayMove=function(wrap,nh,v,dist,dur,mirror){try{
+ if(!wrap||!nh||!NHM[v])return;const M=NHM[v],D2=Math.max(300,Math.min(M.dur,dur||M.dur)),rate=M.dur/D2;
+ (xA.get(wrap)||[]).forEach(a=>{try{a.cancel()}catch(e){}});
+ const kx=(mirror?-1:1)*Math.max(20,dist)/RX.h[v],ky=(wrap.offsetHeight||110)/128,tf0=rootTf(kx,ky),tf=k=>tf0(mirror?{...k,r:-(k.r||0)}:k);
+ const st={};for(const k in HP){const e=nh.querySelector(HP[k]);if(e)st[k]={r:angleOf(e)}}
+ wrap.classList.add('natk');const list=[wrap.animate(frames(M.root,M.dur,tf,{}),{duration:M.dur,fill:'forwards'})];
+ for(const k in HP){const e=nh.querySelector(HP[k]);if(!e)continue;const keys=M[k]||[[220,HREST[k]],[M.dur,HREST[k]]];list.push(e.animate(frames(keys,M.dur,partTf,st[k]||{}),{duration:M.dur,fill:'forwards'}))}
+ list.forEach(a=>a.playbackRate=rate);xA.set(wrap,list);
+ list[0].onfinish=()=>{if(xA.get(wrap)!==list)return;list.forEach(a=>{try{a.cancel()}catch(e){}});wrap.classList.remove('natk')};
+}catch(e){}};
 /* ---------- สัตว์เลี้ยง: แยกข้อต่อจากรูปเดิมในเกม (หัว ขากรรไกร ขาหน้า ขาหลัง หาง ปีก) ---------- */
 function rigPet(svg,p){
  if(!svg||svg.dataset.nrig)return;svg.dataset.nrig=1;
@@ -8882,6 +8897,7 @@ petAtk=function(){const o=S.pets[S.pet],pe=$('pet');if(!o||!pe)return;
  const sv=ensureRig();if(!sv||!sv.dataset.nrig)return _oldPet.apply(this,arguments);
  const p=PT.find(x=>x.id===S.pet),d=Math.floor(ATK()*(.3+.012*o.lv+.08*o.st)),col=p.e;
  const v=Math.random()<.5?0:1;const M=NPM[v]; /* สุ่มท่า 1 หรือ 2 ทุกครั้ง */
+ window._nPa={v};
  pA.forEach(a=>{try{a.cancel()}catch(e){}});pT.forEach(clearTimeout);pA=[];pT=[];
  const gap=MW.offsetLeft-pe.offsetLeft-pe.offsetWidth,target=Math.max(30,gap+pe.offsetWidth*.3);
  const kx=target/RX.p[v],ky=pe.offsetHeight/76;
@@ -8898,6 +8914,293 @@ petAtk=function(){const o=S.pets[S.pet],pe=$('pet');if(!o||!pe)return;
  else{at(200,()=>footDust(pe));at(490,()=>{if(mState==='idle'){dmgMon(Math.floor(d*.55),false,'p');hitFx()}stopAll(mine,45)});at(630,()=>{if(mState==='idle'){dmgMon(Math.max(1,d-Math.floor(d*.55)),false,'p');hitFx()}stopAll(mine,55)});at(870,()=>footDust(pe))}
 };
 const at2=(P,w,h)=>`left:calc(${P.x.toFixed(2)}% - ${w}px);top:calc(${P.y.toFixed(2)}% - ${h}px)`;
+/* ใช้กับสัตว์เลี้ยงของคู่ต่อสู้ในโหมดประลอง (กลับด้านซ้าย-ขวา) */
+window.nRigPet=function(svg,p){try{rigPet(svg,p)}catch(e){}};
+const pX=new WeakMap();
+window.nPlayPet=function(wrap,sv,v,dist,mirror){try{
+ const M=NPM[v];if(!wrap||!sv||!M)return;(pX.get(wrap)||[]).forEach(a=>{try{a.cancel()}catch(e){}});
+ const kx=(mirror?-1:1)*Math.max(30,dist)/RX.p[v],ky=(wrap.offsetHeight||58)/76,tf0=rootTf(kx,ky),tf=k=>tf0(mirror?{...k,r:-(k.r||0)}:k);
+ const st={};PP.forEach(k=>{const e=sv.querySelector('.pt-'+k);if(e)st[k]={r:angleOf(e)}});
+ const list=[wrap.animate(frames(M.root,M.dur,tf,{}),{duration:M.dur,fill:'forwards'})];
+ PP.forEach(k=>{const e=sv.querySelector('.pt-'+k);if(!e)return;const keys=M[k]||(k.startsWith('head')&&M.head)||(k==='wing2'&&M.wing)||(k==='lf2'&&M.lf1)||(k==='lb2'&&M.lb1)||[[220,{}],[M.dur,{}]];list.push(e.animate(frames(keys,M.dur,partTf,st[k]||{}),{duration:M.dur,fill:'forwards'}))});
+ pX.set(wrap,list);list[0].onfinish=()=>{if(pX.get(wrap)!==list)return;list.forEach(a=>{try{a.cancel()}catch(e){}})};
+}catch(e){}};
+})();
+</script>
+
+<script>/* ================= ท้าประลองออนไลน์แบบเรียลไทม์ (กดชื่อผู้เล่น → ข้อมูลผู้เล่น → ⚔️ ท้าประลอง) =================
+   ใช้สนามหลักทั้งหมด: ท่าโจมตี สกิลด้านล่าง สัตว์เลี้ยง บัพ เอฟเฟค เหมือนตีมอนสเตอร์ · คู่ต่อสู้แสดงเป็นตัวละครจริงของผู้เล่นนั้น
+   ฝั่งที่ถูกตีเป็นผู้ตัดสินเลือดของตัวเอง (หักป้องกัน/หลบ ด้วยสเตตัสจริงของตัวเอง) แล้วส่งเลือดกลับให้อีกฝ่าย */
+(function(){
+const esc=x=>String(x==null?'':x).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+const DUR=90;
+let sb=null,me=null,lobby=null,online=new Map(),R=null,joining=false;
+async function net(){try{const GA=window.GameAuth;if(!GA||GA.mode!=='online'||!GA.ready||!(await GA.ready)||!GA.sb)return false;const u=await GA.user();if(!u)return false;sb=GA.sb;me=u.id;return true}catch(e){return false}}
+async function joinLobby(){if(lobby||joining)return;joining=true;try{if(!(await net()))return;
+ const c=sb.channel('pvp_lobby',{config:{presence:{key:me},broadcast:{self:false}}});lobby=c;
+ c.on('presence',{event:'sync'},()=>{try{online=new Map(Object.entries(c.presenceState()).map(([k,a])=>[k,a[a.length-1]]));refreshBtn()}catch(e){}})
+  .on('broadcast',{event:'inv'},({payload:p})=>{if(p&&p.to===me)onInvite(p)})
+  .on('broadcast',{event:'resp'},({payload:p})=>{if(p&&p.to===me)onResp(p)})
+  .on('broadcast',{event:'cancel'},({payload:p})=>{if(p&&p.to===me)onCancel(p)})
+  .subscribe(st=>{if(st==='SUBSCRIBED')track();else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'){try{sb.removeChannel(c)}catch(e){}if(lobby===c)lobby=null}});
+ }finally{joining=false}}
+function track(){try{lobby&&lobby.track({n:S.name||'จอมยุทธ์',lv:S.lv||1,busy:!!R})}catch(e){}}
+setInterval(()=>{if(document.getElementById('ss')||window._hold&&!document.body.classList.contains('fx-mode'))return;if(!lobby)joinLobby();},4000);
+setInterval(()=>{if(lobby)track()},30000);
+function lsend(ev,p){try{lobby&&lobby.send({type:'broadcast',event:ev,payload:p})}catch(e){}}
+/* ---------- UI ---------- */
+document.head.insertAdjacentHTML('beforeend',`<style>
+.pvx{position:fixed;inset:0;z-index:99990;display:flex;align-items:center;justify-content:center;background:#000a;padding:16px;animation:pvIn .25s ease-out}
+.pvx .bx{position:relative;width:100%;max-width:340px;border-radius:20px;padding:18px 16px 14px;text-align:center;color:#ffe9c8;border:2px solid transparent;
+ background:radial-gradient(circle at 50% 0,#ff5a3a55,transparent 60%) padding-box,linear-gradient(#2a1208,#100604) padding-box,linear-gradient(160deg,#fff3b0,#ff6a2a,#5a1a08,#ffd23f) border-box;box-shadow:0 0 30px #ff6a2a88,0 10px 30px #000c}
+.pvx .sw{font-size:48px;line-height:1;animation:pvSw 1.2s ease-in-out infinite;filter:drop-shadow(0 0 10px #ff8a3a)}
+.pvx h3{margin:6px 0 2px;font-size:19px;color:#fff;text-shadow:0 0 10px #ff6a2a}
+.pvx p{margin:4px 0;font-size:13px;color:#e8c8b0}.pvx p b{color:#ffe066}
+.pvx .tb{height:7px;border-radius:5px;background:#0008;overflow:hidden;margin:10px 0 4px}.pvx .tb i{display:block;height:100%;background:linear-gradient(90deg,#ffd23f,#ff5a3a);transition:width 1s linear}
+.pvx .bt{display:flex;gap:8px;margin-top:12px}.pvx .bt button{flex:1;padding:12px 6px;border-radius:14px;font:inherit;font-weight:900;font-size:15px;border:2px solid #fff3b0;cursor:pointer}
+.pvx .ok{background:linear-gradient(#ffd23f,#ff8a1a 55%,#c8401a);color:#fff;text-shadow:0 1px 0 #7a1004;box-shadow:0 4px 0 #6a1a04}
+.pvx .no{background:linear-gradient(#4a3a30,#20160f);color:#e8d8c8;border-color:#8a7060}
+.pvx.res .bx.w{background:radial-gradient(circle at 50% 0,#ffd23f66,transparent 60%) padding-box,linear-gradient(#2a1e08,#100a04) padding-box,linear-gradient(160deg,#fff3b0,#ffd23f,#5a3a08,#ffd23f) border-box;box-shadow:0 0 40px #ffd23f99}
+.pvx.res .bx.l{background:radial-gradient(circle at 50% 0,#5a6a8a66,transparent 60%) padding-box,linear-gradient(#141820,#08090c) padding-box,linear-gradient(160deg,#cfd8e6,#5a6a8a,#1a1e28,#8a9ab8) border-box;box-shadow:0 0 30px #5a6a8a88}
+.pvx .big{font-size:40px;font-weight:900;background:linear-gradient(#fff,#ffe066,#ff8a1a);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 #5a1a00)}
+.pvx .l .big{background:linear-gradient(#fff,#cfd8e6,#8a9ab8);-webkit-background-clip:text;background-clip:text}
+.pvx .gr{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.pvx .gr div{padding:6px;border-radius:10px;background:#0006;border:1px solid #6a4a2a;font-size:11px}.pvx .gr b{display:block;font-size:15px;color:#ffe066}
+#pvtoast{position:fixed;left:50%;top:18%;transform:translateX(-50%);z-index:99991;padding:9px 16px;border-radius:14px;background:#1a0a06ee;border:1.5px solid #ffd23f;color:#ffe9c8;font-weight:800;font-size:13px;box-shadow:0 6px 18px #000a;pointer-events:none;max-width:86%;text-align:center}
+#pvcd{position:absolute;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;pointer-events:none}
+#pvcd b{font-size:92px;font-weight:900;color:#fff;text-shadow:0 0 24px #ff6a2a,0 4px 0 #7a1004;animation:pvCd .9s ease-out both}
+#pvgu{position:absolute;right:8px;top:150px;z-index:9;padding:5px 10px;border-radius:12px;border:1.5px solid #fff3b0;background:linear-gradient(#6a5a50,#2a1e18);color:#fff;font:inherit;font-weight:800;font-size:11.5px}
+#mon.pvpm #ms .pvpo{position:absolute;left:50%;bottom:-6px;width:118px;height:128px;transform:translateX(-50%) scaleX(-1)}
+#mon.pvpm #ms .pvpo svg.nh{position:absolute!important;left:0!important;top:0;bottom:auto!important;width:100%!important;height:100%!important;overflow:visible;transform:rotate(-5deg)!important;transform-origin:50% 100%;display:block}
+#pvpet{position:absolute;z-index:4;pointer-events:none}
+#pvpet .pvpi{width:100%;height:100%;transform:scaleX(-1)}
+#pvpet .pvpi svg{width:100%!important;height:100%!important;overflow:visible}
+#pfduel{background:linear-gradient(#ff7a5a,#b3261e)!important;color:#fff!important;border-color:#ffd0c0!important}
+#pfduel:disabled{opacity:.5}
+.pfdst{font-size:10.5px;color:#caa78a;margin-top:4px;text-align:center}
+@keyframes pvIn{from{opacity:0}}@keyframes pvSw{50%{transform:rotate(-10deg) scale(1.1)}}
+@keyframes pvCd{0%{transform:scale(2.4);opacity:0}30%{transform:scale(1);opacity:1}100%{transform:scale(.9);opacity:0}}
+</style>`);
+function toast(t){let e=document.getElementById('pvtoast');if(!e){e=document.createElement('div');e.id='pvtoast';document.body.appendChild(e)}e.textContent=t;e.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.display='none',2600)}
+function modal(id,html,cls){close(id);const w=document.createElement('div');w.className='pvx '+(cls||'');w.id=id;w.innerHTML='<div class="bx">'+html+'</div>';document.body.appendChild(w);return w}
+function close(id){const e=document.getElementById(id);if(e)e.remove()}
+/* ---------- ปุ่มท้าประลองในหน้าข้อมูลผู้เล่น ---------- */
+let pfUid=null;
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-uid]');if(t)pfUid=t.dataset.uid},true);
+if(window.openProfile){const _op=window.openProfile;window.openProfile=function(uid){pfUid=uid;return _op.apply(this,arguments)}}
+function refreshBtn(){const b=document.getElementById('pfduel');if(!b)return;const uid=b.dataset.uid,o=online.get(uid),st=document.getElementById('pfdst');
+ const ok=!!o&&!o.busy&&!R&&!D;b.disabled=!ok;if(st)st.textContent=!lobby?'⚠️ ต้องเชื่อมต่อออนไลน์':!o?'● ผู้เล่นนี้ไม่ได้ออนไลน์อยู่ตอนนี้':o.busy?'⚔️ กำลังประลองกับคนอื่นอยู่':D?'ออกจากดันเจี้ยน/บอสก่อนจึงจะท้าได้':R?'กำลังประลองอยู่':'● ออนไลน์ · ท้าประลองได้เลย'}
+const pfObs=new MutationObserver(()=>{const B=document.getElementById('pfbd');if(!B)return;const bt=B.querySelector('.pfbt');if(!bt||B.querySelector('#pfduel')||!pfUid||pfUid===me)return;
+ const name=(B.querySelector('.pft b')||{}).textContent||'ผู้เล่น';
+ bt.insertAdjacentHTML('afterbegin',`<button class="sobtn" id="pfduel" data-uid="${esc(pfUid)}">⚔️ ท้าประลอง</button>`);bt.insertAdjacentHTML('afterend','<div class="pfdst" id="pfdst"></div>');
+ const b=document.getElementById('pfduel');b.onclick=e=>{e.stopPropagation();challenge(b.dataset.uid,name)};refreshBtn()});
+const pfb=()=>{const B=document.getElementById('pfbd');if(B)pfObs.observe(B,{childList:true,subtree:true});else setTimeout(pfb,1000)};pfb();
+/* ---------- ส่งคำท้า / รับคำท้า ---------- */
+async function challenge(uid,name){
+ if(!(await net())||!lobby){toast('⚠️ ต้องเชื่อมต่อออนไลน์');return}
+ if(uid===me)return;if(R){toast('กำลังประลองอยู่');return}if(D){toast('ออกจากดันเจี้ยน/บอสก่อนจึงจะท้าประลองได้');return}
+ const o=online.get(uid);if(!o){toast('ผู้เล่นนี้ไม่ได้ออนไลน์อยู่ตอนนี้');return}if(o.busy){toast('ผู้เล่นนี้กำลังประลองอยู่');return}
+ const rm=me.slice(0,6)+Date.now().toString(36);
+ R={room:rm,oppUid:uid,oppName:name||o.n,oppLv:o.lv,role:'a',phase:'wait',dealt:0,taken:0};track();
+ lsend('inv',{to:uid,from:me,n:S.name||'จอมยุทธ์',lv:S.lv,bp:typeof BP==='function'?BP():0,room:rm});
+ try{const P=document.getElementById('pfw');if(P)P.hidden=true}catch(e){}
+ let left=20;const w=modal('pvwait',`<div class="sw">⚔️</div><h3>ส่งคำท้าแล้ว</h3><p>รอ <b>${esc(R.oppName)}</b> ตอบรับ…</p><div class="tb"><i style="width:100%"></i></div><p id="pvwl">${left} วินาที</p><div class="bt"><button class="no" id="pvwc">ยกเลิก</button></div>`);
+ w.querySelector('#pvwc').onclick=()=>{if(R&&R.phase==='wait'){lsend('cancel',{to:uid,from:me,room:rm});endR()}close('pvwait')};
+ const tb=w.querySelector('.tb i');R.waitI=setInterval(()=>{left--;tb.style.width=(left/20*100)+'%';const l=document.getElementById('pvwl');if(l)l.textContent=left+' วินาที';
+  if(left<=0){clearInterval(R&&R.waitI);if(R&&R.phase==='wait'){lsend('cancel',{to:uid,from:me,room:rm});endR();close('pvwait');toast('⌛ อีกฝ่ายไม่ตอบรับคำท้า')}}},1000);
+}
+function onInvite(p){
+ if(R||D){lsend('resp',{to:p.from,from:me,room:p.room,ok:false,why:'busy'});return}
+ try{sfx('boss')}catch(e){}
+ let left=15;const w=modal('pvinv',`<div class="sw">⚔️</div><h3>มีผู้ท้าประลอง!</h3><p><b>${esc(p.n)}</b> Lv.${esc(p.lv)}${p.bp?' · ⚡ BP '+esc(fmt(p.bp)):''}</p><p>ต้องการรับคำท้าและต่อสู้ทันทีหรือไม่?</p><div class="tb"><i style="width:100%"></i></div><p id="pvil">${left} วินาที</p><div class="bt"><button class="no" id="pvin">ปฏิเสธ</button><button class="ok" id="pviy">⚔️ รับคำท้า</button></div>`);
+ w.dataset.room=p.room;const tb=w.querySelector('.tb i');
+ const iv=setInterval(()=>{left--;tb.style.width=(left/15*100)+'%';const l=document.getElementById('pvil');if(l)l.textContent=left+' วินาที';if(left<=0){clearInterval(iv);if(document.getElementById('pvinv')){close('pvinv');lsend('resp',{to:p.from,from:me,room:p.room,ok:false,why:'to'})}}},1000);
+ w.querySelector('#pvin').onclick=()=>{clearInterval(iv);close('pvinv');lsend('resp',{to:p.from,from:me,room:p.room,ok:false,why:'no'})};
+ w.querySelector('#pviy').onclick=()=>{clearInterval(iv);close('pvinv');
+  if(R||D){lsend('resp',{to:p.from,from:me,room:p.room,ok:false,why:'busy'});toast('ออกจากดันเจี้ยน/บอสก่อนจึงจะรับคำท้าได้');return}
+  R={room:p.room,oppUid:p.from,oppName:p.n,oppLv:p.lv,role:'b',phase:'ready',dealt:0,taken:0};track();
+  lsend('resp',{to:p.from,from:me,room:p.room,ok:true});openRoom()};
+}
+function onResp(p){if(!R||R.room!==p.room||R.phase!=='wait')return;clearInterval(R.waitI);close('pvwait');
+ if(!p.ok){toast(p.why==='busy'?'อีกฝ่ายไม่ว่างตอนนี้':p.why==='to'?'⌛ อีกฝ่ายไม่ตอบรับคำท้า':'❌ อีกฝ่ายปฏิเสธคำท้า');endR();return}
+ R.phase='ready';openRoom()}
+function onCancel(p){const w=document.getElementById('pvinv');if(w&&w.dataset.room===p.room){close('pvinv');toast('อีกฝ่ายยกเลิกคำท้าแล้ว')}}
+/* ---------- ห้องประลอง ---------- */
+function snap(){return{n:S.name||'จอมยุทธ์',lv:S.lv,max:MHP(),def:+defR().toFixed(3),mdef:+mdefR().toFixed(3),st:S.st||{},atk:ATK(),pet:(S.pet&&S.pets&&S.pets[S.pet])?S.pet:''}}
+function send(t,p){if(!R||!R.ch)return;try{R.ch.send({type:'broadcast',event:'m',payload:Object.assign({t,f:me},p||{})})}catch(e){}}
+async function openRoom(){
+ try{closeW()}catch(e){}try{const fb=document.getElementById('fxBack');if(fb)fb.click()}catch(e){}
+ modal('pvprep',`<div class="sw">⚔️</div><h3>เตรียมสนามประลอง</h3><p>vs <b>${esc(R.oppName)}</b></p><p>กำลังเชื่อมต่อ…</p>`);
+ try{window.socPublish&&window.socPublish(true)}catch(e){}
+ loadOpp(R.oppUid);
+ const ch=sb.channel('pvp_'+R.room,{config:{broadcast:{self:false}}});R.ch=ch;
+ ch.on('broadcast',{event:'m'},({payload:p})=>onMsg(p)).subscribe(st=>{if(st==='SUBSCRIBED'&&R&&R.ch===ch){R.sub=true;sendReady()}});
+ R.readyI=setInterval(()=>{if(R&&R.phase==='ready'&&R.sub)sendReady()},900);
+ R.prepT=setTimeout(()=>{if(R&&R.phase==='ready'){close('pvprep');toast('เชื่อมต่อกับอีกฝ่ายไม่สำเร็จ');endR()}},15000);
+}
+function sendReady(){send('ready',{s:snap(),got:!!R.opp})}
+async function loadOpp(uid){try{const {data}=await sb.from('public_profiles').select('name,lv,data').eq('user_id',uid).maybeSingle();const d=(data&&data.data)||{};let html=null;
+ try{html=window.pfRenderHero?pfRenderHero(d):null}catch(e){}
+ if(html&&R){const t=document.createElement('div');t.innerHTML=html;const nh=t.querySelector('svg.nh');if(nh){nh.removeAttribute('style');R.art=nh.outerHTML.replace(/pv_/g,'pq_')}}
+ if(D&&D.duel)paintOpp()}catch(e){}}
+function onMsg(p){if(!R||!p||p.f!==R.oppUid)return;R.last=Date.now();
+ switch(p.t){
+  case'ready':R.opp=p.s;if(p.got)R.oppGot=true;if(R.phase==='ready'){sendReady();if(R.oppGot)startCount()}break;
+  case'sw':if(R.phase==='fight')oppSwing(p);break;
+  case'hit':if(R.phase==='fight')oppHit(p);break;
+  case'fx':if(R.phase==='fight')oppFx(p);break;
+  case'pa':if(R.phase==='fight')oppPet(p);break;
+  case'st':R.oppHp=p.hp;R.oppMax=p.max;if(D&&D.duel){mmax=Math.max(1,p.max);mhp=Math.max(1,Math.min(mmax,p.hp))}break;
+  case'dead':if(R.phase==='fight'||R.phase==='count')finish(true,'ko');break;
+  case'end':if(R.phase==='fight')finish(p.win===me,'time');break;
+ }}
+function startCount(){if(!R||R.phase!=='ready')return;R.phase='count';clearInterval(R.readyI);clearTimeout(R.prepT);close('pvprep');
+ const lvAvg=Math.max(1,Math.round(((S.lv||1)+(R.opp.lv||S.lv||1))/2));
+ D={duel:1,nm:R.opp.n||R.oppName,n:2,w:1,t:99999,ct:DUR,gold:0,mul:0,off:0,abs:lvAvg,hpm:1,dm:0};
+ R.oppMax=R.opp.max;R.oppHp=R.opp.max;hp=MHP();
+ try{lastR=0}catch(e){}
+ spawn();
+ const A=document.getElementById('arena');const cd=document.createElement('div');cd.id='pvcd';A.appendChild(cd);
+ let n=3;const tick=()=>{if(!R||R.phase!=='count'){cd.remove();return}cd.innerHTML=`<b>${n>0?n:'สู้!'}</b>`;try{sfx(n>0?'hit':'boss')}catch(e){}
+  if(n<0){cd.remove();R.phase='fight';R.t0=Date.now();R.last=Date.now();mState='idle';heroCd=200;
+   const g=document.createElement('button');g.id='pvgu';g.textContent='🏳️ ยอมแพ้';g.onclick=()=>{if(R&&R.phase==='fight'){send('dead');finish(false,'quit')}};A.appendChild(g);return}
+  n--;setTimeout(tick,n<0?600:900)};tick();
+ track();
+}
+/* ---------- ระหว่างต่อสู้ ---------- */
+function paintOpp(){if(!(D&&D.duel)||!R)return;const MSx=document.getElementById('ms'),MWx=document.getElementById('mon');
+ MWx.classList.add('pvpm');MWx.classList.remove('boss','wbd');MSx.classList.remove('bossf');
+ MSx.innerHTML=R.art?`<div class="pvpo">${R.art}</div>`:'<div class="pvpo" style="font-size:72px;line-height:128px;text-align:center">🥷</div>';
+ const o=R.opp||{},st=o.st||{},L=[['STR','#ff7a5a','str'],['AGI','#5ae8a8','agi'],['VIT','#ffc04a','vit'],['INT','#b08aff','int'],['DEX','#5ac8ff','dex'],['LUK','#8aff6a','luk']];
+ paintPet();
+ const pn=document.getElementById('mstp');if(pn)pn.innerHTML=`<div class="hd"><b>Lv.${esc(o.lv||'?')}</b><span>⚔️ ${esc(o.n||R.oppName)}</span></div><div class="gr">${L.map(([a,c,k])=>`<i><em style="color:${c}">${a}</em>${fmtS(st[k]||0)}</i>`).join('')}</div>`}
+const _sp=spawn;spawn=function(){const r=_sp.apply(this,arguments);
+ if(D&&D.duel&&R){const o=R.opp||{},st=o.st||{};
+  window._rig=null;
+  window.MST={lv:o.lv||1,boss:false,wb:false,pf:'biped',str:st.str||0,agi:0,vit:st.vit||0,int:st.int||0,dex:0,luk:st.luk||0,hpM:1,dmgM:1,spd:1,pdef:0,mres:0,crit:0,mag:1,nm:o.n||R.oppName};
+  mmax=Math.max(1,R.oppMax||o.max||1);mhp=Math.max(1,R.oppHp||mmax);paintOpp()}
+ else{const m=document.getElementById('mon');if(m)m.classList.remove('pvpm')}
+ return r};
+const _ms=monSwing;monSwing=function(){if(D&&D.duel)return;return _ms.apply(this,arguments)};
+const _dk=dgKill;dgKill=function(){if(D&&D.duel){mhp=Math.max(1,mhp);if(mState==='dying')mState='idle';return}return _dk.apply(this,arguments)};
+const _de=dgEnd;dgEnd=function(w){if(D&&D.duel){if(!w&&R&&R.phase==='fight'){send('dead');finish(false,'ko')}return}return _de.apply(this,arguments)};
+const _dm=dmgMon;dmgMon=function(d,crit,kind){if(!(D&&D.duel))return _dm.apply(this,arguments);
+ if(!R||R.phase!=='fight'||mState!=='idle')return;
+ const raw=Math.max(1,Math.floor(d));send('hit',{d:raw,c:crit?1:0,k:kind||''});R.dealt+=raw;
+ const red=kind==='s'?(R.opp.mdef||0):(R.opp.def||0);return _dm.call(this,Math.max(1,Math.floor(raw*(1-red))),crit,kind)};
+const _hs=heroSwing;heroSwing=function(){window._nSw=null;const r=_hs.apply(this,arguments);if(D&&D.duel&&R&&R.phase==='fight'&&window._nSw){send('sw',window._nSw);window._nSw=null}return r};
+const _cf=castFx;castFx=function(k){const r=_cf.apply(this,arguments);if(D&&D.duel&&R&&R.phase==='fight'&&k)send('fx',{i:k.i,c:k.c||'#ffd23f',r:k.r||0});return r};
+function oppSwing(p){const MWx=document.getElementById('mon'),nh=MWx.querySelector('.pvpo svg.nh');
+ const gap=MWx.offsetLeft-(HW.offsetLeft+HW.offsetWidth),adv=Math.max(24,gap+MWx.offsetWidth*.4),dist=p.v?adv*.95:adv*.72;
+ if(nh&&window.nPlayMove)nPlayMove(MWx,nh,p.v|0,dist,p.dur||900,true);
+ else MWx.animate([{transform:'translateX(0)'},{transform:'translateX(14px)',offset:.3},{transform:`translateX(${-dist}px)`,offset:.55},{transform:'translateX(0)'}],{duration:Math.min(900,p.dur||700),easing:'ease-in-out'})}
+/* ---------- สัตว์เลี้ยงของคู่ต่อสู้ (ยืนข้างคู่ต่อสู้ หันมาทางเรา) ---------- */
+function petEl(){return document.getElementById('pvpet')}
+function paintPet(){const old=petEl();const id=R&&R.opp&&R.opp.pet,P=id&&typeof PT!=='undefined'?PT.find(x=>x.id===id):null;
+ if(!P){if(old)old.remove();return}
+ if(old&&old.dataset.id===id)return;if(old)old.remove();
+ const A=document.getElementById('arena'),sz=72+6*Math.min(6,P.r),e=document.createElement('div');e.id='pvpet';e.dataset.id=id;
+ e.style.cssText=`width:${sz}px;height:${Math.round(sz*.74)}px;--pc:${P.e}`;
+ e.innerHTML=`<div class="pvpi">${petSVG(P,sz,false)}</div>`;A.appendChild(e);
+ try{window.nRigPet&&nRigPet(e.querySelector('svg'),P)}catch(_){}
+ placePet()}
+function placePet(){const e=petEl(),MWx=document.getElementById('mon'),pe=document.getElementById('pet');if(!e||!MWx)return;
+ const A=document.getElementById('arena');let x=MWx.offsetLeft+MWx.offsetWidth*.55;x=Math.min(x,A.clientWidth-e.offsetWidth-2);
+ e.style.left=x+'px';const b=pe?getComputedStyle(pe).bottom:'18%';e.style.bottom=b}
+setInterval(()=>{if(petEl())placePet()},1000);
+function oppPet(p){const e=petEl();if(!e)return;const sv=e.querySelector('svg');
+ const dist=Math.max(30,e.offsetLeft-(HW.offsetLeft+HW.offsetWidth*.55));
+ if(window.nPlayPet)nPlayPet(e,sv,p.v|0,dist,true);
+ else e.animate([{transform:'translate(0,0)'},{transform:`translate(${-dist*.5}px,-26px)`,offset:.3},{transform:`translate(${-dist}px,-4px)`,offset:.5},{transform:'translate(0,0)'}],{duration:560,easing:'ease-in-out'})}
+const _pa=petAtk;petAtk=function(){window._nPa=null;const r=_pa.apply(this,arguments);if(D&&D.duel&&R&&R.phase==='fight'&&window._nPa){send('pa',window._nPa);window._nPa=null}return r};
+function oppFx(p){try{const big=p.r>=3;fx('slash',p.i,'left:6%;top:18%;font-size:'+(big?96:80)+'px');burst(20,52,p.c,big?28:18);if(big)shake()}catch(e){}}
+let stT=0;function stSoon(){const n=Date.now();if(n-stT<120){clearTimeout(stSoon.h);stSoon.h=setTimeout(()=>{stT=Date.now();send('st',{hp:Math.max(0,Math.floor(hp)),max:MHP()})},120);return}stT=n;send('st',{hp:Math.max(0,Math.floor(hp)),max:MHP()})}
+function oppHit(p){
+ const dodge=(()=>{try{return stDodge()}catch(e){return 0}})();
+ if(Math.random()*100<dodge){fl('MISS','miss','h');return}
+ const v=Math.max(1,Math.floor((+p.d||0)*(1-(p.k==='s'?mdefR():defR()))));
+ hp-=v;R.taken+=v;try{dmgNum(v,'h','h')}catch(e){}
+ try{HW.animate([{filter:'brightness(1)'},{filter:'brightness(2.2) saturate(.4)',offset:.25},{filter:'brightness(1)'}],{duration:220});if(p.k==='p')burst(22,55,'#ffd23f',6);if(p.c)shake()}catch(e){}
+ if(hp<=0){hp=0;send('st',{hp:0,max:MHP()});send('dead');finish(false,'ko');return}
+ stSoon()}
+setInterval(()=>{if(!R)return;const n=Date.now();
+ if(R.phase==='fight'){send('hb');if(n-stT>600){stT=n;send('st',{hp:Math.max(0,Math.floor(hp)),max:MHP()})}
+  const el=(n-R.t0)/1000;if(D&&D.duel)D.ct=DUR-el;
+  if(el>=DUR&&R.role==='a'){const my=hp/MHP(),op=(R.oppHp??mhp)/(R.oppMax??mmax),win=my>=op;send('end',{win:win?me:R.oppUid});finish(win,'time')}
+  else if(el>=DUR+6)finish(hp/MHP()>=(R.oppHp??mhp)/(R.oppMax??mmax),'time');
+  if(n-R.last>12000)finish(true,'quit')}
+ else if(R.phase==='count'&&n-(R.last||n)>15000)finish(true,'quit');
+},250);
+/* ---------- จบการประลอง ---------- */
+function finish(win,why){if(!R||R.phase==='end')return;R.phase='end';
+ const opp=R.oppName,dealt=R.dealt,taken=R.taken;let gold=0;
+ try{if(win)gold=Math.floor(gpk()*10)}catch(e){}
+ S.pvp=S.pvp||{w:0,l:0};if(win){S.pvp.w++;S.gold+=gold}else S.pvp.l++;
+ try{sfx(win?'lvl':'die')}catch(e){}
+ const g=document.getElementById('pvgu');if(g)g.remove();const cd=document.getElementById('pvcd');if(cd)cd.remove();
+ const WHY={ko:win?'น็อกคู่ต่อสู้ได้!':'ถูกน็อก',time:'หมดเวลา · ตัดสินจากเลือดที่เหลือ',quit:win?'คู่ต่อสู้ยอมแพ้/หลุดการเชื่อมต่อ':'ยอมแพ้'};
+ setTimeout(()=>{
+  const w=modal('pvres',`<div class="big">${win?'🏆 ชนะ!':'💀 แพ้'}</div><h3>vs ${esc(opp)}</h3><p>${WHY[why]||''}</p>
+   <div class="gr"><div>ดาเมจที่ทำได้<b>${fmt(dealt)}</b></div><div>ดาเมจที่ได้รับ<b>${fmt(taken)}</b></div><div>สถิติประลอง<b>${S.pvp.w} ชนะ · ${S.pvp.l} แพ้</b></div><div>รางวัล<b>${win?'🪙 '+fmt(gold):'-'}</b></div></div>
+   <div class="bt"><button class="ok" id="pvrok">ตกลง</button></div>`,'res');
+  w.querySelector('.bx').classList.add(win?'w':'l');w.querySelector('#pvrok').onclick=()=>close('pvres')},win&&why==='ko'?700:300);
+ const ch=R.ch;setTimeout(()=>{try{ch&&sb.removeChannel(ch)}catch(e){}},1500);
+ endR(true);
+}
+function endR(battle){if(R){clearInterval(R.waitI);clearInterval(R.readyI);clearTimeout(R.prepT)}
+ const was=D&&D.duel;R=null;track();try{const pp=document.getElementById('pvpet');if(pp)pp.remove()}catch(e){}
+ if(was||battle){if(D&&D.duel)D=null;const m=document.getElementById('mon');if(m)m.classList.remove('pvpm');try{mState='dying';hp=MHP();setTimeout(()=>{try{spawn()}catch(e){}},600)}catch(e){}}
+ refreshBtn()}
+window.pvpChallenge=challenge;
+
+/* ---------- เมนูเมื่อกดชื่อ/รูปผู้เล่น: ดูข้อมูล · ท้าประลอง · แอดเพื่อน ---------- */
+document.head.insertAdjacentHTML('beforeend',`<style>
+#pmenu{position:fixed;z-index:99980;min-width:220px;max-width:min(300px,calc(100vw - 24px));padding:10px;border-radius:16px;color:#ffe9c8;border:2px solid transparent;
+ background:radial-gradient(circle at 50% 0,#ffb02e33,transparent 60%) padding-box,linear-gradient(#2a1608,#120804) padding-box,linear-gradient(160deg,#fff3b0,#ff8a1a,#5a2a08,#ffd23f) border-box;box-shadow:0 10px 28px #000c,0 0 16px #ff8a1a55;animation:pmIn .16s ease-out}
+#pmenu .ph{display:flex;align-items:center;gap:8px;padding:2px 4px 8px;border-bottom:1px dashed #6a4a2a;margin-bottom:8px}
+#pmenu .ph .av{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:18px;background:radial-gradient(circle at 40% 35%,#8a5a2a,#2a1608);border:1.5px solid #ffd23f}
+#pmenu .ph b{display:block;font-size:14px;color:#fff;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#pmenu .ph small{font-size:10.5px;color:#a8907a}#pmenu .ph small.on{color:#7dff9a}
+#pmenu .pb{display:flex;flex-direction:column;gap:6px}
+#pmenu .pb button{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:12px;border:1.5px solid #8a6a3a;background:linear-gradient(#3a2412,#1e1008);color:#ffe9c8;font:inherit;font-weight:800;font-size:14px;text-align:left;cursor:pointer}
+#pmenu .pb button i{font-style:normal;font-size:18px;width:22px;text-align:center}
+#pmenu .pb button small{margin-left:auto;font-size:10.5px;font-weight:400;color:#a8907a}
+#pmenu .pb button.duel{background:linear-gradient(#ff7a5a,#b3261e);border-color:#ffd0c0;color:#fff}
+#pmenu .pb button.add{background:linear-gradient(#5ad97a,#1f7a3a);border-color:#c8ffd0;color:#fff}
+#pmenu .pb button:disabled{opacity:.45;filter:grayscale(.5)}
+#pmenu .pm{margin-top:6px;font-size:11.5px;text-align:center;color:#ffe066;min-height:14px}
+@keyframes pmIn{from{opacity:0;transform:scale(.92)}}
+</style>`);
+function pmClose(){const m=document.getElementById('pmenu');if(m)m.remove()}
+function nameOf(el){const pick=n=>{if(!n)return'';const c=n.cloneNode(true);c.querySelectorAll('small,i,.k,.dot,svg').forEach(x=>x.remove());return(c.textContent||'').replace(/⭐|🧙|🥷/gu,'').trim()};
+ let t='';if(!el.classList.contains('av')&&!el.classList.contains('cav')&&!el.classList.contains('wbr'))t=pick(el);
+ if(!t){const row=el.closest('.sorow,.wbr,#chl>div')||el.parentElement;t=pick(row&&row.querySelector('.pname,.nm b,.nm,span:not(.av):not(.cav)'))}
+ return(t||'ผู้เล่น').slice(0,24)}
+async function pmOpen(uid,name,x,y){pmClose();
+ const o=online.get(uid),busy=o&&o.busy;
+ const m=document.createElement('div');m.id='pmenu';
+ m.innerHTML=`<div class="ph"><span class="av">🧙</span><span><b>${esc(name)}</b><small class="${o?'on':''}">${o?'● ออนไลน์'+(o.lv?' · Lv.'+esc(o.lv):''):'⚪ ไม่ได้ออนไลน์'}</small></span></div>
+  <div class="pb"><button data-a="view"><i>👤</i>ดูข้อมูล</button>
+  <button class="duel" data-a="duel" ${!o||busy||R||D?'disabled':''}><i>⚔️</i>ท้าประลอง<small>${!o?'ออฟไลน์':busy?'ไม่ว่าง':R?'กำลังประลอง':D?'อยู่ในดัน':''}</small></button>
+  <button class="add" data-a="add"><i>➕</i><span class="lb">แอดเพื่อน</span><small class="fs"></small></button></div><div class="pm"></div>`;
+ document.body.appendChild(m);
+ const W=innerWidth,H=innerHeight,r=m.getBoundingClientRect();m.style.left=Math.max(12,Math.min(W-r.width-12,x-r.width/2))+'px';m.style.top=Math.max(12,Math.min(H-r.height-12,y+12))+'px';
+ const msg=t=>{const e=m.querySelector('.pm');if(e)e.textContent=t};
+ const add=m.querySelector('[data-a=add]');
+ const setFr=st=>{const lb=add.querySelector('.lb'),fs=add.querySelector('.fs');if(st==='f'){lb.textContent='เป็นเพื่อนกันแล้ว';add.disabled=true}else if(st==='out'){lb.textContent='ส่งคำขอแล้ว';fs.textContent='รอตอบรับ';add.disabled=true}else if(st==='in'){lb.textContent='ยอมรับคำขอเพื่อน';fs.textContent='เขาขอมา'}};
+ try{if(window.socFrState){setFr(socFrState(uid));if(window.socFrLoad)socFrLoad().then(()=>{if(document.getElementById('pmenu')===m)setFr(socFrState(uid))}).catch(()=>{})}}catch(e){}
+ m.querySelector('[data-a=view]').onclick=()=>{pmClose();if(window.openProfile)openProfile(uid)};
+ m.querySelector('[data-a=duel]').onclick=()=>{pmClose();challenge(uid,name)};
+ add.onclick=async()=>{if(!window.socFrReq){msg('⚠️ ระบบเพื่อนยังไม่พร้อม');return}add.disabled=true;
+  try{if(window.socFrState&&socFrState(uid)==='in'){await socFrResp(uid,true);msg('🤝 เป็นเพื่อนกันแล้ว!');setFr('f');return}
+   msg('กำลังส่งคำขอ…');const t=await socFrReq({uid});msg(t||'ส่งคำขอแล้ว');try{await socFrLoad();setFr(socFrState(uid))}catch(e){}}catch(e){msg('ส่งไม่สำเร็จ');add.disabled=false}};
+}
+window.addEventListener('click',e=>{
+ const mm=document.getElementById('pmenu');if(mm&&!mm.contains(e.target)){pmClose()}
+ const t=e.target.closest&&e.target.closest('#chl [data-uid],#wbbody [data-uid],#wblv [data-uid],.sorow [data-uid],#dmhd [data-uid],[data-uid].pmx');
+ if(!t||t.closest('#pmenu,#pfw')||t.id==='pfduel')return;
+ const uid=t.dataset.uid;if(!uid||t.dataset.me||uid===me)return;
+ e.stopImmediatePropagation();e.preventDefault();pfUid=uid;pmOpen(uid,nameOf(t),e.clientX,e.clientY)},true);
+window.pvpMenu=pmOpen;
 })();
 </script>
 
