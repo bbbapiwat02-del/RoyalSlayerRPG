@@ -9607,7 +9607,7 @@ const ITM=[
 /* รวมรายการทั้งหมดในกระเป๋า (ของเทพกับปลาอ่านจากระบบเดิมโดยตรง ไม่ซ้ำข้อมูล) */
 function list(){const b=B(),L=[];
  b.g.forEach(it=>L.push({k:'gear',id:'g'+it._id,it,sl:it.s,r:it.t,c:RC[it.t]}));
- try{const own=ensureBs().own;for(const si in own)for(const sl in own[si]){const it=own[si][sl];if(!it||!SETS[si])continue;const eq=!!(S.eq[+sl]&&S.eq[+sl].set===+si);L.push({k:'god',id:'d'+si+'_'+sl,it,si:+si,sl:+sl,eq,r:30+(+si),c:SETS[si].c})}}catch(e){}
+ try{const own=ensureBs().own;for(const si in own)for(const sl in own[si]){const it=own[si][sl];if(!it||!SETS[si])continue;const eq=!!(S.eq[+sl]&&S.eq[+sl].set===+si);if(eq)continue;L.push({k:'god',id:'d'+si+'_'+sl,it,si:+si,sl:+sl,eq,r:30+(+si),c:SETS[si].c})}}catch(e){}
  for(const k in b.box)if(b.box[k]>0&&BOX[k])L.push({k:'box',id:'b'+k,bk:k,n:b.box[k],r:28,c:BOX[k].c});
  try{const F=window.FISHX||[];for(const nm in (S.fishBag||{})){const n=S.fishBag[nm];if(!n)continue;const f=F.find(x=>x.name===nm);if(!f)continue;L.push({k:'fish',id:'f'+nm,f,n,r:f.boss?25:Math.min(9,f.tier||f.r||0),c:f.boss?'#ff4fd8':(f.c||'#5ac8ff')})}}catch(e){}
  ITM.forEach(o=>{const n=o.g();if(n>0)L.push({k:'itm',id:'i'+o.id,o,n,r:20,c:o.c})});
@@ -9631,7 +9631,7 @@ function fly(html,c,n){try{const bt=document.getElementById('bagbtn');if(!bt||!b
  e.animate([{transform:`translate(${sx}px,${sy}px) scale(.2)`,opacity:0},{transform:`translate(${sx}px,${sy-30}px) scale(1.25)`,opacity:1,offset:.25},{transform:`translate(${sx}px,${sy}px) scale(1)`,opacity:1,offset:.45},{transform:`translate(${tx}px,${ty}px) scale(.3)`,opacity:.6}],{duration:1150,easing:'cubic-bezier(.5,0,.6,1)'}).onfinish=()=>{e.remove();bt.classList.remove('gulp');void bt.offsetWidth;bt.classList.add('gulp')};
  try{sfx('reveal',3)}catch(er){}}catch(er){}}
 window.bagFly=fly;
-function badge(){const e=document.querySelector('#bagbtn em');if(!e)return;const n=B().nw;e.textContent=n>99?'99+':n;e.style.display=n>0?'':'none';const f=document.querySelector('#bagbtn i');if(f)f.classList.toggle('full',free()<=0)}
+function badge(){const e=document.querySelector('#bagbtn em');if(!e)return;try{const i=document.querySelector('#bagbtn i');if(i)i.textContent=used()+'/'+cap()}catch(er){}const n=B().nw;e.textContent=n>99?'99+':n;e.style.display=n>0?'':'none';const f=document.querySelector('#bagbtn i');if(f)f.classList.toggle('full',free()<=0)}
 /* ---------- สไตล์ ---------- */
 document.head.insertAdjacentHTML('beforeend',`<style>
 #bagbtn{position:absolute;width:50px;height:50px;border-radius:14px;z-index:8;padding:0;border:2px solid #f5c542;touch-action:none;user-select:none;-webkit-user-select:none;
@@ -9772,7 +9772,7 @@ window.openBag=function(t){if(t){tab=t;sub=-1}msel=false;SEL.clear();openW('bagw
 function art(x,sz){try{if(x.k==='gear')return icon(x.it.s,x.it.t,sz);if(x.k==='god')return gz(x.it.s,x.si,sz);if(x.k==='box')return `<span class="bgi" style="font-size:${sz*.62}px">${BOX[x.bk].e}</span>`;if(x.k==='itm')return `<span class="bgi" style="font-size:${sz*.6}px">${x.o.e}</span>`;if(x.k==='fish')return window.fishSVGx?fishSVGx(x.f,sz):'🐟'}catch(e){}return '<span class="bgi">❔</span>'}
 function nameOf(x){if(x.k==='gear')return '['+RN[x.it.t]+'] '+SL[x.it.s].n+AD[x.it.t];if(x.k==='god')return SETS[x.si].pn[x.sl];if(x.k==='box')return BOX[x.bk].n;if(x.k==='itm')return x.o.n;if(x.k==='fish')return x.f.name;return ''}
 const canSel=x=>x.k!=='itm'&&!(x.k==='god'&&x.eq);
-function view(){const L=list();return{L,show:L.filter(x=>(tab==='all'||x.k===tab)&&(sub<0||!(x.k==='gear'||x.k==='god')||x.sl===sub)).sort((a,b)=>b.r-a.r||(a.k<b.k?-1:a.k>b.k?1:0))}}
+function view(){const L=list();return{L,show:L.filter(x=>(tab==='all'||x.k===tab||(tab==='gear'&&sub>=0&&x.k==='god'))&&(sub<0||!(x.k==='gear'||x.k==='god')||x.sl===sub)).sort((a,b)=>b.r-a.r||(a.k<b.k?-1:a.k>b.k?1:0))}}
 function render(){const body=document.getElementById('bagbody');if(!body)return;const {L,show}=view(),u=L.filter(x=>x.k!=='itm').length,c=cap(),pc=Math.min(100,u/c*100);
  win.classList.toggle('msel',msel);
  for(const id of [...SEL])if(!L.find(x=>x.id===id&&canSel(x)))SEL.delete(id);
@@ -9782,7 +9782,7 @@ function render(){const body=document.getElementById('bagbody');if(!body)return;
  body.innerHTML=`<div class="bz-hd"><div class="bz-art">${ICO}</div><div class="bz-ti"><h3>กระเป๋าจอมยุทธ์</h3><small>เก็บสมบัติจากทั่วยุทธภพ</small>
    <div class="bz-cap"><div class="bz-ring" style="--p:${pc.toFixed(1)};--rc:${pc>90?'#ff5a3a':pc>70?'#ffb02e':'#5ad97a'}">${Math.round(pc)}%</div><div class="bz-cn"><b>${u}</b> / ${c} ช่อง<br><small style="color:${free()>0?'#a8e8b0':'#ff8a7a'}">${free()>0?'ว่าง '+free()+' ช่อง':'กระเป๋าเต็ม!'}</small></div></div></div>
    ${c<MAXC?`<button class="bz-x" id="bagx"><i>➕</i>ขยาย ${STEP} ช่อง<small>💎 ${fmt(xCost())}</small></button>`:''}</div>
-  <div class="bz-tb">${TABS.map(([k,ic,n])=>{const m=k==='all'?L.length:L.filter(x=>x.k===k).length;return `<button data-t="${k}" class="${tab===k?'on':''}"><i>${ic}</i>${n}${m?`<em>${m}</em>`:''}</button>`}).join('')}</div>
+  <div class="bz-tb">${TABS.map(([k,ic,n])=>{const m=k==='all'?L.filter(x=>x.k!=='itm').length:L.filter(x=>x.k===k).length;return `<button data-t="${k}" class="${tab===k?'on':''}"><i>${ic}</i>${n}${m?`<em>${m}</em>`:''}</button>`}).join('')}</div>
   ${tab==='gear'||tab==='god'?`<div class="bz-sub"><button data-s="-1" class="${sub<0?'on':''}">ทุกช่อง</button>${SL.map((z,i)=>`<button data-s="${i}" class="${sub===i?'on':''}">${z.n}</button>`).join('')}</div>`:''}
   <div class="bz-tl"><button id="bagms" class="${msel?'on':''}">${msel?'✖ ยกเลิกเลือก':'☑️ เลือกหลายชิ้น'}</button>${msel?'<button id="bagsa">✅ เลือกทั้งหมด</button>':''}<small>${show.length} รายการ</small></div>
   <div class="bz-pn"><div class="bz-gr">${show.length?show.map(x=>`<div class="bz-s ${x.k} ${hi(x)?'hi':''} ${SEL.has(x.id)?'sel':''} ${msel&&!canSel(x)?'no':''}" data-id="${esc(x.id)}" style="--c:${x.c}">${art(x,54)}${x.n>1?`<b>x${fmt(x.n)}</b>`:''}${x.eq?'<u>สวมอยู่</u>':tag(x)}<i class="ck"></i></div>`).join('')+'<div class="bz-s e0"></div>'.repeat(pad):'<div class="bz-emp"><i>🕸️</i>ยังไม่มีของในหมวดนี้</div>'}</div></div>
@@ -9864,6 +9864,33 @@ const _be=bsEnd;bsEnd=function(win){const d=D,si=d&&d.si;let before=null;try{bef
  try{if(si!=null&&before){const own=bsOwn(si),k=Object.keys(own).find(z=>!before.includes(z));if(k!=null){const it=own[k];B().nw++;badge();setTimeout(()=>{fly(gz(it.s,si,60),SETS[si].c);toast('⚜️ '+SETS[si].pn[it.s]+' เข้ากระเป๋าแล้ว')},1700)}}}catch(e){}return r};
 /* บอสเทพ: เปลี่ยนชุดแล้วของธรรมดาที่สวมอยู่เข้ากระเป๋า (เดิมหายไป) */
 const _bq=bsEquip;bsEquip=function(si,slot,quiet){const cur=S.eq[slot],own=bsOwn(si)[slot];if(own&&cur&&cur.set==null)addGear(cur,true);return _bq.apply(this,arguments)};
+
+/* ---------- หีบสุ่ม: โชว์ให้สวมก่อน → ของระดับสูงที่ไม่ได้สวมเด้งเข้ากระเป๋า ---------- */
+function HT(){let mx=0;for(let t=0;t<RN.length;t++)if(OBU(t)<=S.lv)mx=t;return Math.max(3,mx-2)}
+window.bagHT=HT;
+function store(list,why){let n=0,best=null;list.forEach(it=>{if(addGear(it,true)){n++;if(!best||it.t>best.t)best=it}});
+ if(n){setTimeout(()=>{fly(icon(best.s,best.t,60),RC[best.t],n);toast('🎒 '+(why||'เก็บอุปกรณ์ระดับสูง')+' '+n+' ชิ้นเข้ากระเป๋า')},250)}
+ else if(list.length&&free()<=0)toast('🎒 กระเป๋าเต็ม! ของระดับสูง '+list.length+' ชิ้นเก็บไม่ได้');return n}
+/* เปิด x1: ของดีกว่าถูกสวมอัตโนมัติ → ของเดิมระดับสูงเข้ากระเป๋า */
+const _oc=openChest;openChest=function(){const snap=S.eq.slice();const r=_oc.apply(this,arguments);
+ try{const h=HT(),out=[];for(let i=0;i<5;i++){const o=snap[i];if(o&&o!==S.eq[i]&&o.set==null&&o.t>=h)out.push(o)}if(out.length)store(out,'ของเดิมระดับสูง')}catch(e){}return r};
+/* เปิด x10/x50: สวมชิ้นที่ดีที่สุดให้ก่อน แล้วของระดับสูงที่เหลือ (รวมของเดิมที่ถูกแทน) เข้ากระเป๋า แทนที่จะหายไป */
+if(typeof openMulti==='function'){const _om=openMulti;openMulti=function(n){const snap=S.eq.slice(),got=[],_r=roll;roll=function(){const it=_r.apply(this,arguments);got.push(it);return it};let r;try{r=_om.apply(this,arguments)}finally{roll=_r}
+ try{if(got.length){const h=HT(),on=new Set(S.eq),out=got.filter(it=>!on.has(it)&&it.t>=h);for(let i=0;i<5;i++){const o=snap[i];if(o&&o!==S.eq[i]&&o.set==null&&o.t>=h)out.push(o)}
+  if(out.length)setTimeout(()=>store(out.sort((a,b)=>b.t-a.t||b.v-a.v),'ของระดับสูงจากหีบ'),1700)}}catch(e){}return r}}
+/* การ์ดหีบ x1: ของระดับสูงมีป้ายบอก + ปิดหน้าต่างโดยไม่เลือก → เก็บเข้ากระเป๋าอัตโนมัติ */
+const _sp2=showPend;showPend=function(){const r=_sp2.apply(this,arguments);try{const it=S.pend,c=document.querySelector('#card .icard');if(it&&c&&it.t>=HT()&&!c.querySelector('.baght'))c.insertAdjacentHTML('beforeend','<div class="baght" style="margin-top:6px;font-size:11px;color:#ffe066">🎒 ของระดับสูง: ถ้าไม่สวมใส่ จะเก็บเข้ากระเป๋าให้อัตโนมัติเมื่อปิดหน้านี้</div>')}catch(e){}return r};
+setInterval(()=>{try{const it=S.pend,ov=document.getElementById('ov');if(it&&ov&&ov.hidden&&it.t>=HT()&&addGear(it,true)){S.pend=null;try{$('card').innerHTML='';$('itm').className='';renderGear()}catch(e){}setTimeout(()=>{fly(icon(it.s,it.t,60),RC[it.t]);toast('🎒 '+SL[it.s].n+AD[it.t]+' เข้ากระเป๋าแล้ว')},300)}}catch(e){}},600);
+/* ---------- หน้าตัวละคร: ถอดอุปกรณ์เข้ากระเป๋า / เปลี่ยนจากกระเป๋า ---------- */
+function unequip(i){const e=S.eq[i];if(!e)return;const b0=BP();
+ if(e.set==null){if(!addGear(e)){return}}
+ S.eq[i]=null;try{sfx('equip');bpToast(BP()-b0);updateHero();renderGear()}catch(er){}try{renderCs();csDetail(i)}catch(er){}toast('🎒 ถอด'+SL[i].n+'เข้ากระเป๋าแล้ว')}
+window.bagUnequip=unequip;
+if(typeof csDetail==='function'){const _cd=csDetail;csDetail=function(i){const r=_cd.apply(this,arguments);try{const d=document.getElementById('csd');if(d&&i<5){const c=d.querySelector('.icard')||d;if(!c.querySelector('.bagcs')){
+  const e=S.eq[i],n=list().filter(x=>(x.k==='gear'||x.k==='god')&&x.sl===i).length;
+  c.insertAdjacentHTML('beforeend',`<div class="bagcs" style="display:flex;gap:6px;margin-top:8px">${e?`<button class="auto" data-a="un" style="flex:1">🎒 ถอดเข้ากระเป๋า</button>`:''}<button class="skill" data-a="ch" style="flex:1">🔁 ${e?'เปลี่ยน':'สวมใส่'}จากกระเป๋า${n?' ('+n+')':''}</button></div>`);
+  const u=c.querySelector('[data-a=un]');if(u)u.onclick=ev=>{ev.stopPropagation();unequip(i)};
+  c.querySelector('[data-a=ch]').onclick=ev=>{ev.stopPropagation();tab='gear';sub=i;msel=false;SEL.clear();openW('bagw');render()}}}}catch(er){}return r}}
 /* ตกปลา: แจ้งตัวเลขบนกระเป๋า + ตัวเลขช่อง */
 let fN=-1;setInterval(()=>{try{const n=Object.values(S.fishBag||{}).reduce((a,b)=>a+b,0);if(fN>=0&&n>fN){B().nw+=n-fN;badge()}fN=n;const i=document.querySelector('#bagbtn i');if(i)i.textContent=used()+'/'+cap()}catch(e){}},1500);
 setInterval(()=>{try{bt.style.display=(document.getElementById('ss')||(D&&D.duel))?'none':''}catch(e){}},700);
