@@ -3883,7 +3883,7 @@ $('twr').parentElement.insertBefore(win,$('twr').nextSibling);WID.push('wbw');wi
 win.addEventListener('pointerdown',e=>{if(e.target===win)closeW()});
 if(typeof fdWrap==='function')fdWrap(win.querySelector('.pnl'));
 window._wbLeft=()=>left();function left(){const t=Date.now()+7*36e5,s=Math.max(0,Math.ceil((WBP-t%WBP)/1000));if(WBP<36e5)return Math.floor(s/60)+' นาที '+(s%60)+' วิ';return Math.floor(s/3600)+' ชม. '+Math.floor(s%3600/60)+' นาที'}
-function claim(){const w=ensureWb(),c=w.claim;if(!c)return;const x=wbRw(c.rank);addStone(x.st);S.diamonds=(S.diamonds||0)+x.dm;S.tk=(S.tk||0)+x.tk;w.wbx+=x.wbx;w.pbx+=x.pbx;w.claim=null;sfx('lvl');banner('🎁 รับรางวัลอันดับ '+c.rank+' แล้ว!');wbMsg='🎁 ได้รับ: '+rwTx(x);renderWb()}
+function claim(){const w=ensureWb(),c=w.claim;if(!c)return;const x=wbRw(c.rank);addStone(x.st);S.diamonds=(S.diamonds||0)+x.dm;S.tk=(S.tk||0)+x.tk;w.wbx+=x.wbx;w.pbx+=x.pbx;w.claim=null;try{window.bagTakeWb&&bagTakeWb(x)}catch(e){}sfx('lvl');banner('🎁 รับรางวัลอันดับ '+c.rank+' แล้ว!');wbMsg='🎁 ได้รับ: '+rwTx(x);renderWb()}
 function openWing(){const w=ensureWb();if(w.wbx<1)return;w.wbx--;const b0=BP();let m;
  if(S.wg===0){S.wg=1;S.wl=0;m='🪽 ได้รับปีกแรก: '+WG[0].n+'!'}
  else if(S.wg<WG.length&&Math.random()<.22){S.wg++;S.wl=0;m='🌟 วิวัฒนาการฟรี! ได้ '+WG[S.wg-1].n}
@@ -3908,11 +3908,12 @@ function renderWb(){const w=ensureWb(),B=boss(),box=$('wbbody'),rk=WBN.rank;WBN.
    (WBN.on&&!inTop&&w.sc>0&&rk?`<div class="wbr me"><b class="k">${rk}</b><span>⭐ ${S.name||'คุณ'}<small>Lv.${S.lv}</small></span><i>${fmt(w.sc)}</i></div>`:'')+
    (WBN.on?'':'<div class="tkr"><small>⚠️ ออฟไลน์ — อันดับจะแสดงเมื่อเชื่อมต่อเซิร์ฟเวอร์</small></div>')+'</div>';}
  else if(wbTab===1){h+='<div class="wbl">'+[['🥇 อันดับ 1',1],['🥈 อันดับ 2',2],['🥉 อันดับ 3',3],['อันดับ 4-5',4],['อันดับ 6-10',6],['อันดับ 11-20',11],['อันดับ 21-30',21],['อันดับ 31-50',31],['51 ขึ้นไป (ร่วมตี)',51]].map(([n,k])=>`<div class="wbrw"><b>${n}</b>${rwTx(wbRw(k))}</div>`).join('')+'<div class="tkr"><small>ตัดอันดับและรับรางวัลหลังเที่ยงคืนทุกวัน (ต้องตีอย่างน้อย 1 ครั้ง)</small></div></div>'}
- else h+=`<div class="wbbx"><div><div class="ic">🪽</div><b>กล่องปีกเทพ</b><br><small>มี ${w.wbx}</small><br><small style="color:#caa78a">วิวัฒนาการฟรี / ดาวปีก</small><button class="skill" id="wbow" style="width:100%;margin-top:6px" ${w.wbx?'':'disabled'}>เปิด</button></div><div><div class="ic">🐲</div><b>กล่องสัตว์เทพ</b><br><small>มี ${w.pbx}</small><br><small style="color:#caa78a">สัตว์ระดับเทพขึ้นไป</small><button class="skill" id="wbop" style="width:100%;margin-top:6px" ${w.pbx?'':'disabled'}>เปิด</button></div></div>`;
+ else h+=`<div class="wbclm" style="background:linear-gradient(#3a2a10,#1a1006);border-color:#ffd23f">🎒 กล่องที่ได้รับจะเข้า <b>กระเป๋า</b> อัตโนมัติ · เปิดได้จากกระเป๋า<br><button class="skill" style="margin-top:6px" onclick="window.openBag&&openBag('box')">🎒 เปิดกระเป๋า</button></div>`+`<div class="wbbx" style="${w.wbx+w.pbx?'':'display:none'}"><div><div class="ic">🪽</div><b>กล่องปีกเทพ</b><br><small>มี ${w.wbx}</small><br><small style="color:#caa78a">วิวัฒนาการฟรี / ดาวปีก</small><button class="skill" id="wbow" style="width:100%;margin-top:6px" ${w.wbx?'':'disabled'}>เปิด</button></div><div><div class="ic">🐲</div><b>กล่องสัตว์เทพ</b><br><small>มี ${w.pbx}</small><br><small style="color:#caa78a">สัตว์ระดับเทพขึ้นไป</small><button class="skill" id="wbop" style="width:100%;margin-top:6px" ${w.pbx?'':'disabled'}>เปิด</button></div></div>`;
  box.innerHTML=h;try{window.wbDeco&&wbDeco(box,B,w)}catch(e){}
  $('wbgo').onclick=start;if($('wbcl'))$('wbcl').onclick=claim;if($('wbow'))$('wbow').onclick=openWing;if($('wbop'))$('wbop').onclick=openPet;
  box.querySelectorAll('.wbt button').forEach(b=>b.onclick=()=>{wbTab=+b.dataset.t;renderWb()});
 }
+window.wbBox={open:k=>{const w=ensureWb();if(k==='wbw'){w.wbx++;openWing()}else{w.pbx++;openPet()}},ens:()=>ensureWb()};
 let wq=false;
 function start(){if(D)return;if(mState==='dying'){if(!wq){wq=true;setTimeout(()=>{wq=false;start()},350)}return}
  const B=boss();ensureWb();wbMsg='';D={i:300,wb:1,wday:dk(),nm:B.nm,em:B.em,n:1,w:1,t:WT,gold:0,mul:0,off:0,abs:Math.max(1,S.stage),hpm:1e6,dm:.08};
@@ -9583,6 +9584,292 @@ let wasB=false;
  else if(wasB&&!A.classList.contains('bmd'))A.classList.add('bmd')}catch(e){}})();
 })();
 </script>
+<script>/* ================= 🎒 กระเป๋า: เก็บกล่องบอสโลก · อุปกรณ์เทพ · อุปกรณ์จากหีบสุ่ม · ไอเทม · ปลา =================
+   - ช่องเริ่มต้น 500 ช่อง ขยายด้วยเพชร (+50 ช่อง/ครั้ง ราคาเพิ่มขึ้นเรื่อยๆ)
+   - อุปกรณ์/กล่อง ขายเป็นทองไม่ได้ ทิ้งได้อย่างเดียว · ปลาขายได้ตามราคาท่าปลา · ไอเทม (กุญแจ ตั๋ว หิน ไข่ คัมภีร์) แสดงอย่างเดียว ไม่กินช่อง
+   - เลือกหลายชิ้นพร้อมกัน: ขายปลาที่ติ๊ก / ทิ้งของที่ติ๊ก
+   - ลิงก์ทุกระบบ: รับรางวัลบอสโลก → กล่องเด้งเข้ากระเป๋า · ดรอปบอสเทพ → เข้ากระเป๋า · หีบสุ่ม → ปุ่ม "เก็บ"
+     สวมของใหม่ → ของเดิมเข้ากระเป๋า · ตกปลา → ปลาอยู่ในกระเป๋า */
+(function(){
+const BASE=500,STEP=50,MAXC=3000;
+function B(){if(!S.bag||typeof S.bag!=='object')S.bag={};const b=S.bag;if(!Array.isArray(b.g))b.g=[];if(!b.box||typeof b.box!=='object')b.box={};if(!Number.isFinite(b.x))b.x=0;if(!Number.isFinite(b.nw))b.nw=0;if(!b.uid)b.uid=1;return b}
+const cap=()=>BASE+B().x*STEP;
+const xCost=()=>300*(B().x+1);
+const esc=t=>String(t==null?'':t).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+const BOX={wbw:{n:'กล่องปีกเทพ',e:'🪽',c:'#5ac8ff',d:'เปิดแล้วได้ ปีกแรก / วิวัฒนาการฟรี / ดาวปีก'},wbp:{n:'กล่องสัตว์เทพ',e:'🐲',c:'#ff4fb8',d:'เปิดแล้วได้สัตว์เลี้ยงระดับเทพขึ้นไป'}};
+/* ไอเทมใช้งาน (อ่านจากระบบเดิม ไม่กินช่อง ทิ้งไม่ได้) */
+const ITM=[
+ {id:'keys',n:'กุญแจหีบสมบัติ',e:'🔑',c:'#ffd23f',g:()=>S.keys||0,d:'ใช้เปิดหีบสุ่มอุปกรณ์ฟรี 1 ครั้ง',go:()=>openW('ov'),gl:'📦 ไปเปิดหีบ'},
+ {id:'skf',n:'คัมภีร์สุ่มสกิลฟรี',e:'📜',c:'#c77dff',g:()=>S.skf||0,d:'สุ่มสกิลที่หอคัมภีร์ฟรี 1 ครั้ง',go:()=>{openW('ov');try{ovTab(2)}catch(e){}},gl:'🔮 ไปสุ่มสกิล'},
+ {id:'tk',n:'ตั๋วท้าทาย',e:'🎫',c:'#ff8a3a',g:()=>S.tk||0,d:'ใช้เข้าดันเจี้ยนและบอสเทพ',go:()=>openW('dgw'),gl:'⚔️ ไปดันเจี้ยน'},
+ {id:'stone',n:'หินตีบวก',e:'💠',c:'#36d6ff',g:()=>S.stone||0,d:'ใช้ตีบวกอุปกรณ์ให้แรงขึ้น',go:()=>openW('tr'),gl:'🔨 ไปตีบวก'},
+ {id:'egg',n:'ไข่สัตว์เลี้ยง',e:'🥚',c:'#7dff6a',g:()=>S.egg||0,d:'ฟักเป็นสัตว์เลี้ยงสุ่มระดับ',go:()=>openW('ptw'),gl:'🐾 ไปฟักไข่'}];
+/* รวมรายการทั้งหมดในกระเป๋า (ของเทพกับปลาอ่านจากระบบเดิมโดยตรง ไม่ซ้ำข้อมูล) */
+function list(){const b=B(),L=[];
+ b.g.forEach(it=>L.push({k:'gear',id:'g'+it._id,it,sl:it.s,r:it.t,c:RC[it.t]}));
+ try{const own=ensureBs().own;for(const si in own)for(const sl in own[si]){const it=own[si][sl];if(!it||!SETS[si])continue;const eq=!!(S.eq[+sl]&&S.eq[+sl].set===+si);L.push({k:'god',id:'d'+si+'_'+sl,it,si:+si,sl:+sl,eq,r:30+(+si),c:SETS[si].c})}}catch(e){}
+ for(const k in b.box)if(b.box[k]>0&&BOX[k])L.push({k:'box',id:'b'+k,bk:k,n:b.box[k],r:28,c:BOX[k].c});
+ try{const F=window.FISHX||[];for(const nm in (S.fishBag||{})){const n=S.fishBag[nm];if(!n)continue;const f=F.find(x=>x.name===nm);if(!f)continue;L.push({k:'fish',id:'f'+nm,f,n,r:f.boss?25:Math.min(9,f.tier||f.r||0),c:f.boss?'#ff4fd8':(f.c||'#5ac8ff')})}}catch(e){}
+ ITM.forEach(o=>{const n=o.g();if(n>0)L.push({k:'itm',id:'i'+o.id,o,n,r:20,c:o.c})});
+ return L}
+const used=()=>list().filter(x=>x.k!=='itm').length;
+const free=()=>cap()-used();
+/* ---------- เพิ่มของเข้ากระเป๋า ---------- */
+function addGear(it,quiet){const b=B();if(free()<=0){if(!quiet)toast('🎒 กระเป๋าเต็ม! ขยายช่องหรือทิ้งของก่อน');return false}
+ const x={s:it.s,t:it.t,v:it.v};if(it.q!=null)x.q=it.q;x._id=b.uid++;b.g.push(x);b.nw++;badge();return true}
+window.bagAddGear=addGear;
+window.bagTakeWb=function(){const w=window.wbBox&&wbBox.ens();if(!w)return;const b=B();let n=0;
+ if(w.wbx>0){b.box.wbw=(b.box.wbw||0)+w.wbx;n+=w.wbx;fly(BOX.wbw.e,BOX.wbw.c,w.wbx);w.wbx=0}
+ if(w.pbx>0){b.box.wbp=(b.box.wbp||0)+w.pbx;n+=w.pbx;setTimeout(()=>fly(BOX.wbp.e,BOX.wbp.c,w.pbx),350);w.pbx=0}
+ if(n){b.nw+=n;badge();setTimeout(()=>toast('🎒 กล่องบอสโลก x'+n+' เข้ากระเป๋าแล้ว'),900)}};
+setTimeout(()=>{try{window.bagTakeWb()}catch(e){}},2500);
+/* ---------- แจ้งเตือน / แอนิเมชันของบินเข้ากระเป๋า ---------- */
+function toast(t){let e=document.getElementById('bagtoast');if(!e){e=document.createElement('div');e.id='bagtoast';document.body.appendChild(e)}e.textContent=t;e.classList.remove('on');void e.offsetWidth;e.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>e.classList.remove('on'),2200)}
+function fly(html,c,n){try{const bt=document.getElementById('bagbtn');if(!bt||!bt.offsetParent)return;const r=bt.getBoundingClientRect(),W=innerWidth,H=innerHeight;
+ const e=document.createElement('div');e.className='bagfly';e.style.setProperty('--c',c||'#ffd23f');e.innerHTML=`<span>${html}</span>${n>1?`<b>x${n}</b>`:''}`;document.body.appendChild(e);
+ const sx=W/2-36,sy=H*.42-36,tx=r.left+r.width/2-36,ty=r.top+r.height/2-36;
+ e.animate([{transform:`translate(${sx}px,${sy}px) scale(.2)`,opacity:0},{transform:`translate(${sx}px,${sy-30}px) scale(1.25)`,opacity:1,offset:.25},{transform:`translate(${sx}px,${sy}px) scale(1)`,opacity:1,offset:.45},{transform:`translate(${tx}px,${ty}px) scale(.3)`,opacity:.6}],{duration:1150,easing:'cubic-bezier(.5,0,.6,1)'}).onfinish=()=>{e.remove();bt.classList.remove('gulp');void bt.offsetWidth;bt.classList.add('gulp')};
+ try{sfx('reveal',3)}catch(er){}}catch(er){}}
+window.bagFly=fly;
+function badge(){const e=document.querySelector('#bagbtn em');if(!e)return;const n=B().nw;e.textContent=n>99?'99+':n;e.style.display=n>0?'':'none';const f=document.querySelector('#bagbtn i');if(f)f.classList.toggle('full',free()<=0)}
+/* ---------- สไตล์ ---------- */
+document.head.insertAdjacentHTML('beforeend',`<style>
+#bagbtn{position:absolute;width:50px;height:50px;border-radius:14px;z-index:8;padding:0;border:2px solid #f5c542;touch-action:none;user-select:none;-webkit-user-select:none;
+ background:radial-gradient(circle at 35% 28%,#8a5a2a,#3a1a06 75%);box-shadow:0 3px 8px #0008,inset 0 1px 0 #ffd77a88,0 0 10px #f5c54255;display:flex;align-items:center;justify-content:center;transition:transform .15s}
+#bagbtn svg{width:36px;height:36px;display:block;filter:drop-shadow(0 2px 2px #0008)}
+#bagbtn:active{transform:scale(.92)}#bagbtn.drag{transform:scale(1.15);box-shadow:0 0 18px #f5c542,0 4px 10px #0009;transition:none}
+#bagbtn em{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:#e5534b;color:#fff;font-style:normal;font-size:10.5px;font-weight:900;line-height:18px;text-align:center;box-shadow:0 0 0 2px #2a1206}
+#bagbtn i{position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);font-style:normal;font-size:8.5px;font-weight:900;color:#ffe9a0;text-shadow:0 1px 2px #000;white-space:nowrap}
+#bagbtn i.full{color:#ff6a5a}
+#bagbtn.gulp{animation:bagG .45s cubic-bezier(.3,1.8,.5,1)}
+@keyframes bagG{30%{transform:scale(1.3,.8)}60%{transform:scale(.9,1.15)}}
+.bagfly{position:fixed;left:0;top:0;z-index:99995;width:72px;height:72px;pointer-events:none;display:flex;align-items:center;justify-content:center;border-radius:18px;
+ background:radial-gradient(circle,color-mix(in srgb,var(--c) 55%,transparent),transparent 70%);filter:drop-shadow(0 0 12px var(--c))}
+.bagfly span{font-size:48px;line-height:1}.bagfly span svg{width:60px!important;height:60px!important}
+.bagfly b{position:absolute;right:-2px;bottom:2px;padding:1px 6px;border-radius:8px;background:#000c;color:#ffe066;font-size:13px}
+#bagtoast{position:fixed;left:50%;top:22%;transform:translate(-50%,-10px);z-index:99996;padding:9px 16px;border-radius:14px;background:#1a0a06ee;border:1.5px solid #ffd23f;color:#ffe9c8;font-weight:800;font-size:13px;opacity:0;pointer-events:none;transition:.25s;max-width:86%;text-align:center}
+#bagtoast.on{opacity:1;transform:translate(-50%,0)}
+/* ===== หน้าต่างกระเป๋า ===== */
+#bagw .bz-hd{position:relative;display:flex;align-items:center;gap:10px;padding:12px 12px 12px 10px;border-radius:18px;overflow:hidden;isolation:isolate;color:#ffe9c8;
+ background:radial-gradient(circle at 16% 50%,#ffb02e55,transparent 42%),repeating-linear-gradient(135deg,#ffffff06 0 6px,transparent 6px 14px),linear-gradient(160deg,#4a2810,#1e0e04 70%);
+ border:2px solid transparent;background-clip:padding-box;box-shadow:0 0 0 2px #c8902a,0 0 0 4px #3a1a04,0 0 18px #ff9a2a55,inset 0 0 20px #000a}
+#bagw .bz-hd::before{content:'';position:absolute;inset:-40%;z-index:-1;background:conic-gradient(from 0deg,transparent,#ffd23f22,transparent 30%,#ff8a1a22,transparent 60%);animation:bzSpin 14s linear infinite}
+#bagw .bz-art{position:relative;flex:none;width:66px;height:66px}
+#bagw .bz-art::before{content:'';position:absolute;inset:-6px;border-radius:50%;background:radial-gradient(circle,#ffd23f66,transparent 65%);animation:bzPulse 2.4s ease-in-out infinite}
+#bagw .bz-art svg{position:relative;width:100%;height:100%;filter:drop-shadow(0 3px 4px #000a)}
+#bagw .bz-ti{flex:1;min-width:0}
+#bagw .bz-ti h3{margin:0;font-size:17px;font-weight:900;background:linear-gradient(#fff,#ffe9a0 50%,#ffb02e);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 0 #5a2a00)}
+#bagw .bz-ti small{display:block;font-size:10.5px;color:#c8a87a}
+#bagw .bz-cap{display:flex;align-items:center;gap:8px;margin-top:6px}
+#bagw .bz-ring{flex:none;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff;
+ background:radial-gradient(circle,#1a0c04 56%,transparent 58%),conic-gradient(var(--rc) calc(var(--p)*1%),#ffffff1a 0)}
+#bagw .bz-cn{flex:1;font-size:11px;line-height:1.3}#bagw .bz-cn b{font-size:15px;color:#fff}
+#bagw .bz-x{flex:none;align-self:stretch;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:6px 10px;border-radius:14px;border:1.5px solid #9ae8ff;
+ background:linear-gradient(#5ac8ff,#1a5aa8);color:#fff;font:inherit;font-weight:900;font-size:11.5px;line-height:1.15;box-shadow:0 3px 0 #0a2a5a,0 0 12px #3aa8ff66}
+#bagw .bz-x i{font-style:normal;font-size:18px}#bagw .bz-x small{font-size:10px;color:#d8f4ff}
+#bagw .bz-x.arm{background:linear-gradient(#ffd23f,#c8701a);border-color:#fff3b0;box-shadow:0 3px 0 #5a2a00,0 0 14px #ffd23f}
+#bagw .bz-tb{display:flex;gap:5px;margin:10px 0 6px;overflow-x:auto;padding:2px 2px 4px;scrollbar-width:none}
+#bagw .bz-tb::-webkit-scrollbar{display:none}
+#bagw .bz-tb button{flex:1 1 0;min-width:0;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 6px 5px;border-radius:12px;border:1.5px solid #5a3a1a;
+ background:linear-gradient(#2a1608,#140a04);color:#d8b890;font:inherit;font-weight:800;font-size:10.5px;position:relative}
+#bagw .bz-tb button i{font-style:normal;font-size:18px;line-height:1.1}
+#bagw .bz-tb button em{position:absolute;top:-5px;right:-3px;font-style:normal;font-size:9px;font-weight:900;min-width:16px;padding:0 4px;border-radius:8px;background:#5a3a1a;color:#ffe9c8}
+#bagw .bz-tb button.on{background:linear-gradient(#ffe066,#e8901a 60%,#a8500a);color:#3a1600;border-color:#fff3b0;box-shadow:0 0 12px #ffb02e99,inset 0 1px 0 #fff8}
+#bagw .bz-tb button.on em{background:#e5534b;color:#fff}
+#bagw .bz-sub{display:flex;gap:4px;margin:0 0 6px;overflow-x:auto;scrollbar-width:none}
+#bagw .bz-sub button{flex:none;padding:4px 10px;border-radius:10px;border:1px solid #6a4a22;background:#1a0e06;color:#c8a87a;font:inherit;font-size:11px;font-weight:700}
+#bagw .bz-sub button.on{background:#ffd23f;color:#3a1600;border-color:#fff3b0}
+#bagw .bz-tl{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+#bagw .bz-tl button{padding:6px 10px;border-radius:10px;border:1.5px solid #8a6a3a;background:linear-gradient(#3a2412,#1e1008);color:#ffe9c8;font:inherit;font-weight:800;font-size:11.5px}
+#bagw .bz-tl button.on{background:linear-gradient(#5ad97a,#1f7a3a);border-color:#c8ffd0;color:#fff}
+#bagw .bz-tl small{margin-left:auto;font-size:10.5px;color:#a88a6a}
+#bagw .bz-pn{position:relative;padding:8px;border-radius:16px;background:radial-gradient(ellipse at 50% 0,#3a200c,transparent 70%),repeating-linear-gradient(90deg,#ffffff05 0 2px,transparent 2px 18px),linear-gradient(#1c0e05,#0c0602);
+ border:2px solid #6a4418;box-shadow:inset 0 0 0 1px #c8902a55,inset 0 0 22px #000c}
+#bagw .bz-pn::before,#bagw .bz-pn::after{content:'❖';position:absolute;top:-9px;font-size:14px;color:#ffd23f;text-shadow:0 0 6px #ff9a2a}
+#bagw .bz-pn::before{left:10px}#bagw .bz-pn::after{right:10px}
+#bagw .bz-gr{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;max-height:48vh;overflow-y:auto;padding:3px;overscroll-behavior:contain}
+#bagw .bz-s{position:relative;aspect-ratio:1;border-radius:12px;cursor:pointer;padding:3px;display:flex;align-items:center;justify-content:center;overflow:hidden;isolation:isolate;
+ border:2px solid transparent;background:radial-gradient(circle at 50% 38%,color-mix(in srgb,var(--c) 34%,#1a0e06),#0a0502 78%) padding-box,linear-gradient(160deg,color-mix(in srgb,var(--c) 90%,#fff),color-mix(in srgb,var(--c) 45%,#000) 55%,color-mix(in srgb,var(--c) 80%,#fff)) border-box;
+ box-shadow:inset 0 0 10px #000b,0 2px 4px #0008;transition:transform .12s}
+#bagw .bz-s:active{transform:scale(.94)}
+#bagw .bz-s>div,#bagw .bz-s>span{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+#bagw .bz-s svg{max-width:100%!important;max-height:100%!important;width:auto!important;height:auto!important}
+#bagw .bz-s .bgi{font-size:30px;line-height:1;filter:drop-shadow(0 2px 3px #000a)}
+#bagw .bz-s b{position:absolute;right:3px;bottom:1px;font-size:10px;font-weight:900;color:#fff;text-shadow:0 0 3px #000,0 0 3px #000,0 0 3px #000;z-index:2}
+#bagw .bz-s u{position:absolute;left:2px;top:2px;text-decoration:none;font-size:8.5px;font-weight:900;padding:0 4px;border-radius:6px;background:#2ea043;color:#fff;z-index:2}
+#bagw .bz-s s{position:absolute;right:2px;top:2px;text-decoration:none;font-size:8px;font-weight:900;padding:0 3px;border-radius:5px;background:var(--c);color:#fff;text-shadow:0 1px 1px #000a;z-index:2}
+#bagw .bz-s.hi::after{content:'';position:absolute;inset:-50%;z-index:1;background:linear-gradient(115deg,transparent 40%,#ffffff55 50%,transparent 60%);animation:bzShine 2.8s ease-in-out infinite;pointer-events:none}
+#bagw .bz-s.god{box-shadow:0 0 10px #ffd23f88,inset 0 0 10px #000b}
+#bagw .bz-s.god s{background:#ffd23f;color:#3a1a00}
+#bagw .bz-s.itm{border-style:dashed}
+#bagw .bz-s.e0{cursor:default;border:1.5px dashed #4a3018;background:radial-gradient(circle,#1a0e06,#0a0502);box-shadow:inset 0 0 8px #000a}
+#bagw .bz-s .ck{position:absolute;inset:0;z-index:3;display:none;align-items:center;justify-content:center;background:#1f7a3a66;border-radius:10px}
+#bagw .bz-s .ck::after{content:'✓';width:24px;height:24px;border-radius:50%;background:#2ea043;color:#fff;font-weight:900;font-size:15px;line-height:24px;text-align:center;box-shadow:0 0 0 2px #fff,0 0 10px #5ad97a}
+#bagw .bz-s.sel .ck{display:flex}
+#bagw.msel .bz-s.no{opacity:.35;filter:grayscale(.6)}
+#bagw .bz-bar{position:sticky;bottom:0;z-index:5;display:flex;gap:6px;align-items:center;margin-top:8px;padding:8px;border-radius:14px;background:linear-gradient(#3a2008,#180c04);border:1.5px solid #ffd23f;box-shadow:0 -4px 14px #000a,0 0 12px #ffb02e55}
+#bagw .bz-bar .n{flex:none;font-size:11px;font-weight:800;color:#ffe9a0;text-align:center;line-height:1.2}#bagw .bz-bar .n b{display:block;font-size:16px;color:#fff}
+#bagw .bz-bar button{flex:1;padding:9px 4px;border-radius:11px;border:1.5px solid #8a6a3a;font:inherit;font-weight:900;font-size:12px;line-height:1.15;color:#fff;background:linear-gradient(#4a3020,#24140a)}
+#bagw .bz-bar button small{display:block;font-size:9.5px;font-weight:700;opacity:.9}
+#bagw .bz-bar .sl{background:linear-gradient(#ffe066,#e8901a);border-color:#fff3b0;color:#3a1600}
+#bagw .bz-bar .dl{background:linear-gradient(#a8342a,#4a0e08);border-color:#ff8a7a}
+#bagw .bz-bar .dl.arm{background:linear-gradient(#ff5a3a,#b3261e);animation:bagArm .5s ease-in-out infinite alternate}
+#bagw .bz-bar button:disabled{opacity:.35}
+#bagw .bz-ft{margin-top:8px;font-size:10.5px;color:#a88a6a;text-align:center;line-height:1.5}
+#bagw .bz-emp{grid-column:1/-1;padding:24px 0;text-align:center;color:#8a6a4a;font-size:12px}
+#bagw .bz-emp i{display:block;font-style:normal;font-size:36px;opacity:.6}
+@keyframes bzSpin{to{transform:rotate(360deg)}}@keyframes bzPulse{50%{transform:scale(1.15);opacity:.6}}
+@keyframes bzShine{0%,55%{transform:translateX(-60%)}100%{transform:translateX(60%)}}
+/* ป๊อปอัพรายละเอียด */
+#bagpop{position:fixed;inset:0;z-index:99990;display:flex;align-items:center;justify-content:center;padding:16px;background:radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--c) 25%,#000a),#000d 70%);animation:bpIn .2s ease-out}
+#bagpop .bx{position:relative;width:100%;max-width:330px;border-radius:20px;padding:16px 14px 14px;text-align:center;color:#ffe9c8;overflow:hidden;isolation:isolate;
+ border:2px solid transparent;background:radial-gradient(circle at 50% 0,color-mix(in srgb,var(--c) 35%,transparent),transparent 60%) padding-box,linear-gradient(#2a1608,#100804) padding-box,linear-gradient(160deg,#fff3b0,var(--c),#3a1a04,var(--c)) border-box;box-shadow:0 0 30px color-mix(in srgb,var(--c) 55%,transparent),0 10px 30px #000c}
+#bagpop .ry{position:absolute;left:50%;top:70px;width:300px;height:300px;margin:-150px 0 0 -150px;z-index:-1;border-radius:50%;background:repeating-conic-gradient(color-mix(in srgb,var(--c) 30%,transparent) 0 8deg,transparent 8deg 22deg);-webkit-mask:radial-gradient(circle,#000 15%,transparent 65%);mask:radial-gradient(circle,#000 15%,transparent 65%);animation:bzSpin 30s linear infinite}
+#bagpop .ic{width:116px;height:116px;margin:0 auto;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 0 14px var(--c)) drop-shadow(0 4px 4px #000a);animation:bpBob 2.4s ease-in-out infinite}
+#bagpop .ic svg{max-width:116px!important;max-height:116px!important;width:auto!important;height:auto!important}
+#bagpop .ic .bgi{font-size:80px;line-height:1}
+#bagpop h4{margin:8px 0 4px;font-size:17px;font-weight:900;color:#fff;text-shadow:0 0 10px var(--c),0 2px 2px #000}
+#bagpop .tg{display:inline-block;padding:2px 12px;border-radius:10px;background:var(--c);color:#fff;font-size:11px;font-weight:900;text-shadow:0 1px 2px #000a;box-shadow:0 0 10px var(--c)}
+#bagpop .rw{margin:10px 0 0;padding:8px;border-radius:12px;background:#0008;border:1px solid color-mix(in srgb,var(--c) 40%,#5a3a1a);font-size:12.5px;line-height:1.55}
+#bagpop .rw small{color:#b89a7a}
+#bagpop .nt{margin-top:6px;font-size:10.5px;color:#ff9a8a}
+#bagpop .bt{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+#bagpop .bt button{flex:1;min-width:30%;padding:11px 6px;border-radius:12px;border:1.5px solid #8a6a3a;font:inherit;font-weight:900;font-size:13.5px;color:#fff;background:linear-gradient(#4a3020,#24140a)}
+#bagpop .bt .ok{background:linear-gradient(#5ad97a,#1f7a3a);border-color:#c8ffd0}
+#bagpop .bt .op{background:linear-gradient(#ffd23f,#ff8a1a 55%,#c8401a);border-color:#fff3b0}
+#bagpop .bt .sl{background:linear-gradient(#ffe066,#e8901a);border-color:#fff3b0;color:#3a1a00}
+#bagpop .bt .dl{background:linear-gradient(#7a2a20,#3a0e08);border-color:#e5534b}
+#bagpop .bt .dl.arm{background:linear-gradient(#ff5a3a,#b3261e);animation:bagArm .5s ease-in-out infinite alternate}
+@keyframes bagArm{to{box-shadow:0 0 12px #ff5a3a}}@keyframes bpIn{from{opacity:0}}@keyframes bpBob{50%{transform:translateY(-5px)}}
+</style>`);
+const ICO=`<svg viewBox="0 0 48 48"><defs><linearGradient id="bgG1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d89a4a"/><stop offset="1" stop-color="#7a4210"/></linearGradient><linearGradient id="bgG2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset="1" stop-color="#c88a1a"/></linearGradient></defs>
+<path d="M17 14Q17 5 24 5Q31 5 31 14" fill="none" stroke="#5a2a08" stroke-width="3.2" stroke-linecap="round"/><path d="M17 14Q17 5 24 5Q31 5 31 14" fill="none" stroke="#c8822a" stroke-width="1.6" stroke-linecap="round"/>
+<path d="M9 18Q9 13 14 13H34Q39 13 39 18V39Q39 44 34 44H14Q9 44 9 39Z" fill="url(#bgG1)" stroke="#3a1a04" stroke-width="1.6"/>
+<path d="M9 20H39V27Q24 31 9 27Z" fill="#a8622a" stroke="#3a1a04" stroke-width="1.2"/><rect x="20" y="24" width="8" height="8" rx="2" fill="url(#bgG2)" stroke="#5a3a04"/><circle cx="24" cy="28" r="1.4" fill="#5a3a04"/>
+<path d="M13 31V40M35 31V40" stroke="#5a2a08" stroke-width="1" stroke-dasharray="2 2"/></svg>`;
+/* ---------- ปุ่มกระเป๋า ลากย้ายได้ ---------- */
+const ar=document.getElementById('arena');
+const bt=document.createElement('button');bt.id='bagbtn';bt.setAttribute('aria-label','กระเป๋า');bt.innerHTML=ICO+'<em style="display:none">0</em><i></i>';ar.appendChild(bt);
+function pos(){const w=ar.clientWidth-54,h=ar.clientHeight-54;let p=null;try{p=JSON.parse(localStorage.getItem('ml_bagpos')||'null')}catch(e){}
+ if(p){bt.style.left=Math.max(4,Math.min(w,p.x*w))+'px';bt.style.top=Math.max(4,Math.min(h,p.y*h))+'px'}else{bt.style.left=Math.max(4,ar.clientWidth-56)+'px';bt.style.top='140px'}}
+pos();addEventListener('resize',pos);
+let moved=false;
+(function(){let sx,sy,ox,oy,id=null,mv=false;
+ bt.addEventListener('pointerdown',e=>{id=e.pointerId;try{bt.setPointerCapture(id)}catch(er){}sx=e.clientX;sy=e.clientY;ox=bt.offsetLeft;oy=bt.offsetTop;mv=false});
+ bt.addEventListener('pointermove',e=>{if(id!==e.pointerId)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(!mv&&Math.hypot(dx,dy)<6)return;mv=true;moved=true;bt.classList.add('drag');const w=ar.clientWidth-54,h=ar.clientHeight-54;bt.style.left=Math.max(4,Math.min(w,ox+dx))+'px';bt.style.top=Math.max(4,Math.min(h,oy+dy))+'px'});
+ const end=e=>{if(id!==e.pointerId)return;id=null;bt.classList.remove('drag');if(mv){const w=ar.clientWidth-54,h=ar.clientHeight-54;try{localStorage.setItem('ml_bagpos',JSON.stringify({x:w>0?bt.offsetLeft/w:0,y:h>0?bt.offsetTop/h:0}))}catch(er){}setTimeout(()=>{moved=false},60)}};
+ bt.addEventListener('pointerup',end);bt.addEventListener('pointercancel',end)})();
+bt.addEventListener('click',e=>{if(moved)return;e.stopPropagation();openBag()});
+/* ---------- หน้าต่างกระเป๋า ---------- */
+const win=document.createElement('div');win.id='bagw';win.className='win';win.hidden=true;
+win.innerHTML='<div class="pnl"><button class="wc">✕</button><div class="cst">🎒 กระเป๋า</div><div id="bagbody"></div></div>';
+document.getElementById('twr').parentElement.appendChild(win);WID.push('bagw');win.querySelector('.wc').onclick=closeW;
+win.addEventListener('pointerdown',e=>{if(e.target===win)closeW()});
+try{if(typeof fdWrap==='function')fdWrap(win.querySelector('.pnl'))}catch(e){}
+let tab='all',sub=-1,msel=false;const SEL=new Set();
+const TABS=[['all','🎒','ทั้งหมด'],['gear','⚔️','อุปกรณ์'],['god','⚜️','เทพ'],['box','🎁','กล่อง'],['itm','🧪','ไอเทม'],['fish','🐟','ปลา']];
+window.openBag=function(t){if(t){tab=t;sub=-1}msel=false;SEL.clear();openW('bagw');B().nw=0;badge();render()};
+function art(x,sz){try{if(x.k==='gear')return icon(x.it.s,x.it.t,sz);if(x.k==='god')return gz(x.it.s,x.si,sz);if(x.k==='box')return `<span class="bgi" style="font-size:${sz*.62}px">${BOX[x.bk].e}</span>`;if(x.k==='itm')return `<span class="bgi" style="font-size:${sz*.6}px">${x.o.e}</span>`;if(x.k==='fish')return window.fishSVGx?fishSVGx(x.f,sz):'🐟'}catch(e){}return '<span class="bgi">❔</span>'}
+function nameOf(x){if(x.k==='gear')return '['+RN[x.it.t]+'] '+SL[x.it.s].n+AD[x.it.t];if(x.k==='god')return SETS[x.si].pn[x.sl];if(x.k==='box')return BOX[x.bk].n;if(x.k==='itm')return x.o.n;if(x.k==='fish')return x.f.name;return ''}
+const canSel=x=>x.k!=='itm'&&!(x.k==='god'&&x.eq);
+function view(){const L=list();return{L,show:L.filter(x=>(tab==='all'||x.k===tab)&&(sub<0||!(x.k==='gear'||x.k==='god')||x.sl===sub)).sort((a,b)=>b.r-a.r||(a.k<b.k?-1:a.k>b.k?1:0))}}
+function render(){const body=document.getElementById('bagbody');if(!body)return;const {L,show}=view(),u=L.filter(x=>x.k!=='itm').length,c=cap(),pc=Math.min(100,u/c*100);
+ win.classList.toggle('msel',msel);
+ for(const id of [...SEL])if(!L.find(x=>x.id===id&&canSel(x)))SEL.delete(id);
+ const pad=(5-(show.length%5||5))%5+(tab==='all'&&!msel?5:0);
+ const tag=x=>x.k==='god'?'<s>เทพ</s>':x.k==='gear'&&x.it.t>=5?`<s>${RN[x.it.t]}</s>`:x.k==='fish'&&x.f.boss?'<s>บอส</s>':'';
+ const hi=x=>x.k==='god'||(x.k==='gear'&&x.it.t>=7)||(x.k==='fish'&&x.f.boss)||x.k==='box';
+ body.innerHTML=`<div class="bz-hd"><div class="bz-art">${ICO}</div><div class="bz-ti"><h3>กระเป๋าจอมยุทธ์</h3><small>เก็บสมบัติจากทั่วยุทธภพ</small>
+   <div class="bz-cap"><div class="bz-ring" style="--p:${pc.toFixed(1)};--rc:${pc>90?'#ff5a3a':pc>70?'#ffb02e':'#5ad97a'}">${Math.round(pc)}%</div><div class="bz-cn"><b>${u}</b> / ${c} ช่อง<br><small style="color:${free()>0?'#a8e8b0':'#ff8a7a'}">${free()>0?'ว่าง '+free()+' ช่อง':'กระเป๋าเต็ม!'}</small></div></div></div>
+   ${c<MAXC?`<button class="bz-x" id="bagx"><i>➕</i>ขยาย ${STEP} ช่อง<small>💎 ${fmt(xCost())}</small></button>`:''}</div>
+  <div class="bz-tb">${TABS.map(([k,ic,n])=>{const m=k==='all'?L.length:L.filter(x=>x.k===k).length;return `<button data-t="${k}" class="${tab===k?'on':''}"><i>${ic}</i>${n}${m?`<em>${m}</em>`:''}</button>`}).join('')}</div>
+  ${tab==='gear'||tab==='god'?`<div class="bz-sub"><button data-s="-1" class="${sub<0?'on':''}">ทุกช่อง</button>${SL.map((z,i)=>`<button data-s="${i}" class="${sub===i?'on':''}">${z.n}</button>`).join('')}</div>`:''}
+  <div class="bz-tl"><button id="bagms" class="${msel?'on':''}">${msel?'✖ ยกเลิกเลือก':'☑️ เลือกหลายชิ้น'}</button>${msel?'<button id="bagsa">✅ เลือกทั้งหมด</button>':''}<small>${show.length} รายการ</small></div>
+  <div class="bz-pn"><div class="bz-gr">${show.length?show.map(x=>`<div class="bz-s ${x.k} ${hi(x)?'hi':''} ${SEL.has(x.id)?'sel':''} ${msel&&!canSel(x)?'no':''}" data-id="${esc(x.id)}" style="--c:${x.c}">${art(x,54)}${x.n>1?`<b>x${fmt(x.n)}</b>`:''}${x.eq?'<u>สวมอยู่</u>':tag(x)}<i class="ck"></i></div>`).join('')+'<div class="bz-s e0"></div>'.repeat(pad):'<div class="bz-emp"><i>🕸️</i>ยังไม่มีของในหมวดนี้</div>'}</div></div>
+  ${msel?bar(L):''}
+  <div class="bz-ft">⚔️ อุปกรณ์ / ⚜️ ของเทพ / 🎁 กล่อง <b>ขายเป็นทองไม่ได้</b> ทิ้งได้อย่างเดียว · 🐟 ปลาขายได้ตามราคาท่าปลา · 🧪 ไอเทมไม่กินช่อง</div>`;
+ body.querySelectorAll('.bz-tb button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;sub=-1;render()});
+ body.querySelectorAll('.bz-sub button').forEach(b=>b.onclick=()=>{sub=+b.dataset.s;render()});
+ body.querySelector('#bagms').onclick=()=>{msel=!msel;SEL.clear();render()};
+ const sa=body.querySelector('#bagsa');if(sa)sa.onclick=()=>{const all=show.filter(canSel);const allOn=all.every(x=>SEL.has(x.id));all.forEach(x=>allOn?SEL.delete(x.id):SEL.add(x.id));render()};
+ body.querySelectorAll('.bz-s[data-id]').forEach(e=>e.onclick=()=>{const x=list().find(y=>y.id===e.dataset.id);if(!x)return;
+  if(msel){if(!canSel(x)){toast(x.k==='itm'?'🧪 ไอเทมเลือกขาย/ทิ้งไม่ได้':'✅ ชิ้นที่สวมอยู่เลือกไม่ได้');return}SEL.has(x.id)?SEL.delete(x.id):SEL.add(x.id);e.classList.toggle('sel');const bb=body.querySelector('.bz-bar');if(bb){bb.outerHTML=bar(list());bindBar()}return}
+  pop(x)});
+ bindBar();
+ const xb=document.getElementById('bagx');if(xb)xb.onclick=()=>{const cst=xCost();if((S.diamonds||0)<cst){toast('💎 เพชรไม่พอ (ต้องใช้ '+fmt(cst)+')');return}
+  if(!xb.classList.contains('arm')){xb.classList.add('arm');xb.innerHTML=`<i>❓</i>ยืนยัน?<small>แตะอีกครั้ง 💎 ${fmt(cst)}</small>`;setTimeout(()=>{if(xb.isConnected)render()},2500);return}
+  S.diamonds-=cst;B().x++;try{sfx('lvl')}catch(e){}toast('🎒 ขยายกระเป๋าเป็น '+cap()+' ช่องแล้ว!');render();badge()};
+ badge()}
+/* ---------- แถบคำสั่งตอนเลือกหลายชิ้น ---------- */
+function selItems(L){return L.filter(x=>SEL.has(x.id))}
+function bar(L){const it=selItems(L),fs=it.filter(x=>x.k==='fish'),ot=it.filter(x=>x.k!=='fish');
+ let g=0,st=0,dm=0,fn=0;fs.forEach(x=>{g+=x.f.g*x.n;st+=(x.f.s||0)*x.n;dm+=(x.f.d||0)*x.n;fn+=x.n});
+ const on=ot.reduce((a,x)=>a+(x.k==='box'?x.n:1),0);
+ return `<div class="bz-bar"><div class="n">เลือก<b>${it.length}</b></div>
+  <button class="sl" id="bagbs" ${fs.length?'':'disabled'}>💰 ขายปลา ${fn?fn+' ตัว':''}<small>${fs.length?'🪙 '+fmt(g)+(st?' · 💠 '+fmt(st):'')+(dm?' · 💎 '+fmt(dm):''):'เลือกปลาเพื่อขาย'}</small></button>
+  <button class="dl" id="bagbd" ${ot.length?'':'disabled'}>🗑️ ทิ้ง ${on?on+' ชิ้น':''}<small>${ot.length?'อุปกรณ์ขายเป็นทองไม่ได้':'เลือกของเพื่อทิ้ง'}</small></button></div>`}
+function bindBar(){const s=document.getElementById('bagbs'),d=document.getElementById('bagbd');
+ if(s)s.onclick=()=>{const fs=selItems(list()).filter(x=>x.k==='fish');let g=0,n=0;fs.forEach(x=>{const f=x.f,have=(S.fishBag||{})[f.name]||0;if(!have)return;S.gold=(S.gold||0)+f.g*have;S.stone=(S.stone||0)+(f.s||0)*have;S.diamonds=(S.diamonds||0)+(f.d||0)*have;g+=f.g*have;n+=have;delete S.fishBag[f.name];SEL.delete(x.id)});
+  if(n){try{sfx('coin')}catch(e){}toast('💰 ขายปลา '+n+' ตัว · 🪙 +'+fmt(g))}render()};
+ if(d)d.onclick=()=>{if(!d.classList.contains('arm')){d.classList.add('arm');d.innerHTML='⚠️ แตะอีกครั้ง<small>ยืนยันทิ้งของที่เลือก</small>';setTimeout(()=>{if(d.isConnected){const bb=document.querySelector('#bagw .bz-bar');if(bb){bb.outerHTML=bar(list());bindBar()}}},2500);return}
+  const b=B();let n=0;selItems(list()).filter(x=>x.k!=='fish').forEach(x=>{
+   if(x.k==='gear'){const i=b.g.indexOf(x.it);if(i>=0){b.g.splice(i,1);n++}}
+   else if(x.k==='god'&&!x.eq){try{delete ensureBs().own[x.si][x.sl];n++}catch(e){}}
+   else if(x.k==='box'){n+=b.box[x.bk]||0;delete b.box[x.bk]}SEL.delete(x.id)});
+  try{sfx('coin')}catch(e){}toast('🗑️ ทิ้งแล้ว '+n+' ชิ้น');render()}}
+/* ---------- รายละเอียดของ + ปุ่มใช้งาน ---------- */
+function closePop(){const m=document.getElementById('bagpop');if(m)m.remove()}
+function arm(btn,fn){btn.onclick=()=>{if(btn.classList.contains('arm')){fn();return}btn.classList.add('arm');const t=btn.textContent;btn.textContent='แตะอีกครั้งเพื่อทิ้ง';setTimeout(()=>{if(btn.isConnected){btn.classList.remove('arm');btn.textContent=t}},2500)}}
+function pop(x){closePop();let info='',btns='';const c=x.c;
+ const bpl=(b0,b1)=>{const db=b1-b0;return `⚡ BP ${fmt(b0)} → <b>${fmt(b1)}</b> <b style="color:${db>=0?'#5ad97a':'#ff6a5a'}">${db>=0?'▲ +':'▼ −'}${fmt(Math.abs(db))}</b>`};
+ if(x.k==='gear'){const it=x.it,cur=S.eq[it.s];
+  info=`<span class="tg">${RN[it.t]} · ${SL[it.s].n}</span><div class="rw">${istat(it)}<br><small>สวมอยู่: ${cur?(cur.set!=null?SETS[cur.set].pn[it.s]:'['+RN[cur.t]+'] '+SL[it.s].n+AD[cur.t])+' · '+istat(cur):'ว่าง'}</small><br>${bpl(BP(),bpWith(it.s,it))}</div><div class="nt">⚠️ อุปกรณ์ขายเป็นทองไม่ได้ ทิ้งได้อย่างเดียว</div>`;
+  btns=`<button class="ok" id="bpE">✅ สวมใส่</button><button class="dl" id="bpD">🗑️ ทิ้ง</button>`}
+ else if(x.k==='god'){const st=SETS[x.si],it=x.it;
+  info=`<span class="tg">⚜️ ${st.n}</span><div class="rw">${istat(it)}<br><small>ดรอปจาก ${st.boss} · สวมครบชุดได้โบนัสเซ็ต</small><br>${x.eq?'<b style="color:#5ad97a">✅ กำลังสวมใส่อยู่</b>':bpl(BP(),bpWith(x.sl,it))}</div><div class="nt">⚠️ ของเทพขายเป็นทองไม่ได้ · ทิ้งแล้วชิ้นนี้ดรอปได้อีก</div>`;
+  btns=`${x.eq?'':'<button class="ok" id="bpE">✅ สวมใส่</button>'}<button class="op" id="bpS">⚜️ ดูชุดเทพ</button>${x.eq?'':'<button class="dl" id="bpD">🗑️ ทิ้ง</button>'}`}
+ else if(x.k==='box'){const o=BOX[x.bk];info=`<span class="tg">กล่องบอสโลก</span><div class="rw">มีอยู่ <b>${x.n}</b> กล่อง<br><small>${o.d}</small></div>`;
+  btns=`<button class="op" id="bpO">🎁 เปิด 1</button>${x.n>1?`<button class="op" id="bpA">🎁 เปิดทั้งหมด</button>`:''}<button class="dl" id="bpD">🗑️ ทิ้ง 1</button>`}
+ else if(x.k==='itm'){const o=x.o;info=`<span class="tg">ไอเทม</span><div class="rw">มีอยู่ <b>${fmt(x.n)}</b><br><small>${o.d}</small></div><div class="nt" style="color:#b8a88a">ไอเทมไม่กินช่องกระเป๋า · ใช้ได้ที่ระบบนั้นๆ</div>`;btns=`<button class="op" id="bpG">${o.gl}</button>`}
+ else if(x.k==='fish'){const f=x.f,pr=n=>`🪙 ${fmt(f.g*n)}${f.s?' · 💠 '+fmt(f.s*n):''}${f.d?' · 💎 '+fmt(f.d*n):''}`;
+  info=`<span class="tg">${f.boss?'👑 บอสปลา':'ปลา'}</span><div class="rw">มีอยู่ <b>${x.n}</b> ตัว<br>ราคาขาย/ตัว: <b>${pr(1)}</b>${x.n>1?`<br><small>ขายทั้งหมด: ${pr(x.n)}</small>`:''}</div>`;
+  btns=`<button class="sl" id="bpF">💰 ขาย 1</button>${x.n>1?`<button class="sl" id="bpFA">💰 ขายทั้งหมด</button>`:''}`}
+ document.body.insertAdjacentHTML('beforeend',`<div id="bagpop" style="--c:${c}"><div class="bx"><div class="ry"></div><div class="ic">${art(x,116)}</div><h4>${esc(nameOf(x))}</h4>${info}<div class="bt">${btns}<button id="bpX">ปิด</button></div></div></div>`);
+ const M=document.getElementById('bagpop'),q=id=>document.getElementById(id);M.onclick=e=>{if(e.target===M)closePop()};q('bpX').onclick=closePop;
+ const done=()=>{closePop();render();try{updateHero()}catch(e){}};
+ if(x.k==='gear'){q('bpE').onclick=()=>{const b=B(),i=b.g.indexOf(x.it);if(i<0)return;const it=x.it,cur=S.eq[it.s],b0=BP();b.g.splice(i,1);const ne={s:it.s,t:it.t,v:it.v};if(it.q!=null)ne.q=it.q;S.eq[it.s]=ne;
+   if(cur&&cur.set==null){const k={...cur};k._id=b.uid++;b.g.push(k)}
+   try{sfx('equip');bpToast(BP()-b0);renderGear()}catch(e){}done()};
+  arm(q('bpD'),()=>{const b=B(),i=b.g.indexOf(x.it);if(i>=0)b.g.splice(i,1);try{sfx('coin')}catch(e){}done()})}
+ if(x.k==='god'){if(q('bpE'))q('bpE').onclick=()=>{const b0=BP();bsEquip(x.si,x.sl,true);try{sfx('equip');bpToast(BP()-b0);renderGear()}catch(e){}done()};
+  q('bpS').onclick=()=>{closePop();try{bsSel=x.si}catch(e){}openW('bsw')};
+  if(q('bpD'))arm(q('bpD'),()=>{try{delete ensureBs().own[x.si][x.sl]}catch(e){}done()})}
+ if(x.k==='box'){const open1=()=>{const b=B();if(!(b.box[x.bk]>0))return false;b.box[x.bk]--;if(b.box[x.bk]<=0)delete b.box[x.bk];window.wbBox&&wbBox.open(x.bk);return true};
+  q('bpO').onclick=()=>{closePop();open1();render()};
+  if(q('bpA'))q('bpA').onclick=()=>{closePop();let n=0;while(open1()&&n<200)n++;render();toast('🎁 เปิดกล่องแล้ว '+n+' กล่อง')};
+  arm(q('bpD'),()=>{const b=B();if(b.box[x.bk]>0){b.box[x.bk]--;if(!b.box[x.bk])delete b.box[x.bk]}done()})}
+ if(x.k==='itm')q('bpG').onclick=()=>{closePop();x.o.go()};
+ if(x.k==='fish'){const sell=n=>{const f=x.f,have=(S.fishBag||{})[f.name]||0;n=Math.min(n,have);if(!n)return;S.gold=(S.gold||0)+f.g*n;S.stone=(S.stone||0)+(f.s||0)*n;S.diamonds=(S.diamonds||0)+(f.d||0)*n;
+   S.fishBag[f.name]=have-n;if(S.fishBag[f.name]<=0)delete S.fishBag[f.name];try{sfx('coin')}catch(e){}toast('💰 ขาย '+f.name+' x'+n+' · 🪙 +'+fmt(f.g*n));done()};
+  q('bpF').onclick=()=>sell(1);if(q('bpFA'))q('bpFA').onclick=()=>sell(1e9)}
+}
+/* ---------- ลิงก์กับระบบอื่น ---------- */
+/* หีบสุ่ม: ปุ่ม "เก็บเข้ากระเป๋า" + สวมของใหม่แล้วของเดิมเข้ากระเป๋า */
+const _sp=showPend;showPend=function(){const r=_sp.apply(this,arguments);try{const it=S.pend,row=document.querySelector('#card .row');if(it&&row&&!row.querySelector('.bagk')){
+  row.insertAdjacentHTML('beforeend',`<button class="auto bagk" style="background:linear-gradient(#c88a3a,#7a4210);color:#fff;border-color:#ffd77a">🎒 เก็บ</button>`);
+  row.querySelector('.bagk').onclick=()=>{if(S.pend!==it)return;if(!addGear(it))return;S.pend=null;fly(icon(it.s,it.t,60),RC[it.t]);$('itm').className='';renderGear();showPend()};
+  const eb=document.getElementById('eqb');if(eb){const o=eb.onclick;eb.onclick=function(){const cur=S.eq[it.s];const r2=o&&o.apply(this,arguments);if(cur&&cur.set==null&&cur!==it&&addGear(cur,true)){toast('🎒 ของเดิมเก็บเข้ากระเป๋าแล้ว')}return r2}}}}catch(e){}return r};
+/* บอสเทพ: ดรอปชิ้นใหม่ → บินเข้ากระเป๋า */
+const _be=bsEnd;bsEnd=function(win){const d=D,si=d&&d.si;let before=null;try{before=Object.keys(bsOwn(si))}catch(e){}const r=_be.apply(this,arguments);
+ try{if(si!=null&&before){const own=bsOwn(si),k=Object.keys(own).find(z=>!before.includes(z));if(k!=null){const it=own[k];B().nw++;badge();setTimeout(()=>{fly(gz(it.s,si,60),SETS[si].c);toast('⚜️ '+SETS[si].pn[it.s]+' เข้ากระเป๋าแล้ว')},1700)}}}catch(e){}return r};
+/* บอสเทพ: เปลี่ยนชุดแล้วของธรรมดาที่สวมอยู่เข้ากระเป๋า (เดิมหายไป) */
+const _bq=bsEquip;bsEquip=function(si,slot,quiet){const cur=S.eq[slot],own=bsOwn(si)[slot];if(own&&cur&&cur.set==null)addGear(cur,true);return _bq.apply(this,arguments)};
+/* ตกปลา: แจ้งตัวเลขบนกระเป๋า + ตัวเลขช่อง */
+let fN=-1;setInterval(()=>{try{const n=Object.values(S.fishBag||{}).reduce((a,b)=>a+b,0);if(fN>=0&&n>fN){B().nw+=n-fN;badge()}fN=n;const i=document.querySelector('#bagbtn i');if(i)i.textContent=used()+'/'+cap()}catch(e){}},1500);
+setInterval(()=>{try{bt.style.display=(document.getElementById('ss')||(D&&D.duel))?'none':''}catch(e){}},700);
+badge();
+})();
+</script>
 <style id="fx-css">
 body.fx-mode>*:not(#fx-dock):not(script):not(style){display:none!important}
 #fx-dock{position:fixed;inset:0;z-index:960;background:#07100c;overflow:hidden;color:#f5eedc;user-select:none;-webkit-user-select:none;contain:layout paint}
@@ -10542,6 +10829,7 @@ function lost(){toast('ปลาหลุดจากเบ็ด');logLine('ป
 
 /* ---------- กระเป๋า / ขายปลา ---------- */
 function bagCount(n){return (S.fishBag&&S.fishBag[n])||0}
+window.FISHX=FISH;window.fishSVGx=fishSVG;
 function priceTxt(f){return '🪙 '+f.g.toLocaleString()+(f.s?' · 💠 '+f.s:'')+(f.d?' · 💎 '+f.d:'')}
 function sellFish(name,all){
  const f=FISH.find(x=>x.name===name);if(!f)return;
