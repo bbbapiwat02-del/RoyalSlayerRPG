@@ -744,7 +744,7 @@ body{display:flex;flex-direction:column;height:calc(100dvh - env(safe-area-inset
 const $=id=>document.getElementById(id);
 var mstun=0,BU={};
 /* ===== ข้อมูลเซตอุปกรณ์เทพเจ้า (บอสท้าทาย) ===== */
-/* บอสเทพ 19 ตัว เปิดทุก 10 เลเวล (อิงระดับอุปกรณ์ในหีบสุ่ม: เลเวล 10k = ระดับ k) · ของแรงกว่าอุปกรณ์ระดับเดียวกัน x1.75 · ได้แล้วไม่ดรอปซ้ำ */
+/* บอสเทพ 19 ตัว เปิดทุก 20 เลเวล (อิงระดับอุปกรณ์ในหีบสุ่ม: เลเวล 20k = ระดับ 2k) · ของแรงกว่าอุปกรณ์ระดับเดียวกัน x1.75 · ได้แล้วไม่ดรอปซ้ำ */
 const SETS=(()=>{const T=[
  ['ชุดมังกรอัคคี','มังกรอัคคีพิโรธ','🐲','#ff6a2a','#ffb02e',['#ff6a2a','#7a1208','#ffe2a8'],['กระบี่มังกรอัคคี','เกราะเกล็ดเพลิง','มงกุฎเพลิงมังกร','รองเท้าเหินอัคคี','สร้อยแก้วเพลิง']],
  ['ชุดอัสนีสวรรค์','วิหคอัสนีสวรรค์','🦅','#36d6ff','#8f7bff',['#36d6ff','#0b2f7a','#dcf8ff'],['กระบี่อัสนีบาต','เกราะเมฆาคำราม','หมวกสายฟ้าสวรรค์','รองเท้าวายุวิถี','สร้อยแก้วอสนี']],
@@ -769,8 +769,10 @@ const SETS=(()=>{const T=[
  /* รูปบอส: ตัวเลข = มอนสเตอร์แบบ mkMon · 'dN' = มังกรแบบบอสโลก */
  const ART=['d0',32,16,74,41,95,20,103,118,60,69,56,18,'d1',33,6,59,117,'d4'];
  return T.map((x,i)=>{const k=i+1,tot=Math.max(.025,.13-k*.0055);
+  /* เปิดทุก 20 เลเวล: บอสลำดับ k อยู่เลเวล 20k → ของระดับ 2k (เกินระดับ 19 แล้วเพิ่มความแรงแทน) */
+  const L=2*k,bt=Math.min(19,L),ov=Math.max(0,L-19);
   return{n:x[0],boss:x[1],em:x[2],c:x[3],c2:x[4],pal:x[5],pn:Array.isArray(x[6])?x[6]:SN.map(w=>w+x[6]),rb:!!x[7],art:ART[i],
-   lv:10*k,bt:k,vt:Math.min(19,k+5),p:tot/5,pity:12+k,pw:1.75,bm:+(1+(k-1)*.35).toFixed(2),off:2+k,abs:Math.round((9*k-1)*1.15)+k,hpm:+(3.5+k*.45).toFixed(2),dm:+(1.2+k*.07).toFixed(2),tm:90+Math.min(60,k*3),_hard:1}})})();
+   lv:20*k,bt,vt:Math.min(19,L+3),p:tot/5,pity:12+k,pw:+(1.75*(1+ov*.12)).toFixed(3),bm:+(1+(k-1)*.35).toFixed(2),off:2+L,abs:Math.round((9*L-1)*1.15)+L,hpm:+(3.5+L*.45).toFixed(2),dm:+(1.2+L*.07).toFixed(2),tm:90+Math.min(60,k*3),_hard:1}})})();
 const EXC=SETS.map(s=>s.c),SPAL=SETS.map(s=>s.pal);
 window._hold=true;
 const CHI=['📦','🧰','🎁','🏺','💎','👑','🔮','🌌'],MAXC=200,NT=20,OB=[55,21,10,5,3.36,1.5,1.1,.8,.6,.45,.35];
@@ -979,7 +981,10 @@ WID.forEach(w=>$(w).addEventListener('pointerdown',e=>{if(e.target===$(w))closeW
 document.querySelectorAll('.wc').forEach(b=>b.onclick=closeW);$('cl').onclick=closeW;$('ccl').onclick=closeW;
 
 renderGear();
-const expNeed=l=>Math.floor(20*Math.pow(1.3,l-1));
+/* EXP ที่ต้องใช้: หลัง Lv.100 ช้าลง 2 เท่า · หลัง Lv.150 ช้าลง 3 เท่า */
+const expRaw=l=>Math.floor(20*Math.pow(1.3,l-1));window.expRaw=expRaw;
+const expMul=l=>l>=150?3:l>=100?2:1;
+const expNeed=l=>expRaw(l)*expMul(l);
 function gainExp(x){S.exp+=x;let up=0;while(S.exp>=expNeed(S.lv)){S.exp-=expNeed(S.lv);S.lv++;up++}
  if(up){sfx('lvl');hp=MHP();burst(20,50,'#7dd3fc',30);burst(20,50,'#ffd23f',20);fx('ring');shake();window.lvFx&&lvFx(S.lv);anim($('hero'),'lvl');setTimeout(()=>$('hero').classList.remove('lvl'),950)}}
 function heroSwing(){
@@ -1897,7 +1902,7 @@ function renderBs(){
   <div class="bzi"><span>คุณภาพ</span><b>95–108%</b></div>
   <div class="bzi"><span>ความแรงเทียบของในหีบระดับ ${RNk}</span><b>x${st.pw}</b></div>
   <div class="bzi"><span>ครบชุดแล้วชนะบอส</span><b>ได้ 🪙 + 💠 แทน</b></div>
-  <small style="color:var(--mut)">บอสเทพตัวใหม่เปิดทุก 10 เลเวล · ยิ่งลำดับสูงยิ่งโหดและดรอปยากขึ้น</small></div>`}
+  <small style="color:var(--mut)">บอสเทพตัวใหม่เปิดทุก 20 เลเวล · ยิ่งลำดับสูงยิ่งโหดและดรอปยากขึ้น</small></div>`}
  $('bzbody').innerHTML=h;
  renderBsBuy(b);
  $('bzbody').querySelectorAll('.bzt button').forEach(x=>x.onclick=()=>{bzTab=+x.dataset.t;renderBs()});
@@ -8568,7 +8573,7 @@ const MAXT=20;
 const tMax=c=>Math.max(0,Math.min(MAXT,Math.floor((S.lv-c.lv)/10)+1));     /* ขั้นที่เปิดแล้ว */
 const tLv=(c,t)=>c.lv+10*(t-1);                                            /* เลเวลที่ต้องใช้ของขั้น t */
 function selT(c){S.dgt=S.dgt||{};const m=tMax(c);let t=S.dgt[c.k]||m;if(t>m)t=m;if(t<1)t=1;return t}
-function expBase(c,t){return expNeed(Math.min(S.lv,tLv(c,t)+9))}
+function expBase(c,t){return (window.expRaw||expNeed)(Math.min(S.lv,tLv(c,t)+9))}
 function rw(c,t){ /* รางวัลรวมต่อการเคลียร์ 1 ครั้ง */
  if(c.k==='exp'){const e=expBase(c,t);return{kill:Math.floor(e*.035),clr:Math.floor(e*.14)}}
  if(c.k==='stone')return{kill:1+Math.floor(t/3),clr:8+t*3};
