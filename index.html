@@ -8934,19 +8934,40 @@ window.nPlayPet=function(wrap,sv,v,dist,mirror){try{
 (function(){
 const esc=x=>String(x==null?'':x).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
 const DUR=90;
-let sb=null,me=null,lobby=null,online=new Map(),R=null,joining=false;
+let sb=null,me=null,lobby=null,online=new Map(),R=null,joining=false,lobbyOk=false,lobbyAt=0;
+/* จำผู้เล่นที่เคยเห็นในระบบประลอง 90 วิ กันสถานะกระพริบเวลาเน็ตสะดุด */
+const seen=new Map();
+function isOn(uid){const o=online.get(uid);if(o)return o;const s2=seen.get(uid);if(s2&&Date.now()-s2.t<90000)return Object.assign({},s2.o,{stale:1});return null}
+function syncP(c){try{const st=c.presenceState();const now=Date.now();online=new Map(Object.entries(st).map(([k,a])=>[k,a[a.length-1]]));online.forEach((o,k)=>seen.set(k,{o,t:now}));refreshBtn();pmRefresh()}catch(e){}}
+function dropLobby(){const c=lobby;lobby=null;lobbyOk=false;if(c){try{sb.removeChannel(c)}catch(e){}}}
 async function net(){try{const GA=window.GameAuth;if(!GA||GA.mode!=='online'||!GA.ready||!(await GA.ready)||!GA.sb)return false;const u=await GA.user();if(!u)return false;sb=GA.sb;me=u.id;return true}catch(e){return false}}
 async function joinLobby(){if(lobby||joining)return;joining=true;try{if(!(await net()))return;
- const c=sb.channel('pvp_lobby',{config:{presence:{key:me},broadcast:{self:false}}});lobby=c;
- c.on('presence',{event:'sync'},()=>{try{online=new Map(Object.entries(c.presenceState()).map(([k,a])=>[k,a[a.length-1]]));refreshBtn()}catch(e){}})
+ try{(sb.getChannels?sb.getChannels():[]).forEach(x=>{if(x.topic==='realtime:pvp_lobby')try{sb.removeChannel(x)}catch(e){}})}catch(e){}
+ const c=sb.channel('pvp_lobby',{config:{presence:{key:me},broadcast:{self:false}}});lobby=c;lobbyOk=false;lobbyAt=Date.now();
+ c.on('presence',{event:'sync'},()=>syncP(c))
+  .on('presence',{event:'join'},()=>syncP(c))
+  .on('presence',{event:'leave'},()=>syncP(c))
+  .on('broadcast',{event:'ack'},({payload:p})=>{if(p&&p.to===me&&R&&R.room===p.room){R.acked=1;const l=document.querySelector('#pvwait h3');if(l)l.textContent='อีกฝ่ายได้รับคำท้าแล้ว'}})
+  .on('broadcast',{event:'ping'},({payload:p})=>{if(p&&p.to===me)lsend('pong',{to:p.from,from:me,n:S.name||'จอมยุทธ์',lv:S.lv||1,busy:!!(R&&R.phase!=='wait')})})
+  .on('broadcast',{event:'pong'},({payload:p})=>{if(p&&p.to===me){const o={n:p.n,lv:p.lv,busy:p.busy};online.set(p.from,o);seen.set(p.from,{o,t:Date.now()});refreshBtn();pmRefresh()}})
   .on('broadcast',{event:'inv'},({payload:p})=>{if(p&&p.to===me)onInvite(p)})
   .on('broadcast',{event:'resp'},({payload:p})=>{if(p&&p.to===me)onResp(p)})
   .on('broadcast',{event:'cancel'},({payload:p})=>{if(p&&p.to===me)onCancel(p)})
-  .subscribe(st=>{if(st==='SUBSCRIBED')track();else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'){try{sb.removeChannel(c)}catch(e){}if(lobby===c)lobby=null}});
+  .subscribe(st=>{if(lobby!==c)return;if(st==='SUBSCRIBED'){lobbyOk=true;track();setTimeout(()=>syncP(c),800)}else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'||st==='CLOSED'){dropLobby()}});
  }finally{joining=false}}
-function track(){try{lobby&&lobby.track({n:S.name||'จอมยุทธ์',lv:S.lv||1,busy:!!R})}catch(e){}}
-setInterval(()=>{if(document.getElementById('ss')||window._hold&&!document.body.classList.contains('fx-mode'))return;if(!lobby)joinLobby();},4000);
-setInterval(()=>{if(lobby)track()},30000);
+function track(){try{lobby&&lobbyOk&&lobby.track({n:S.name||'จอมยุทธ์',lv:S.lv||1,busy:!!(R&&R.phase!=='wait')})}catch(e){}}
+/* เข้าระบบประลองทุกฉาก (รวมท่าปลา) ยกเว้นหน้าล็อกอิน / ถูกเตะ; ถ้าค้างไม่ต่อสำเร็จใน 12 วิ ต่อใหม่ */
+setInterval(()=>{if(document.getElementById('ss')||window._kicked)return;
+ if(lobby&&!lobbyOk&&Date.now()-lobbyAt>12000)dropLobby();
+ if(lobby&&lobbyOk&&lobby.state&&lobby.state!=='joined'&&lobby.state!=='joining')dropLobby();
+ if(!lobby)joinLobby();},3000);
+setInterval(()=>{if(lobby)track()},20000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(lobby&&lobby.state&&lobby.state!=='joined')dropLobby();if(!lobby)joinLobby();else track()}});
+window.addEventListener('online',()=>{dropLobby();joinLobby()});
+async function ensureLobby(){if(!lobby)joinLobby();for(let i=0;i<25&&!lobbyOk;i++)await new Promise(r=>setTimeout(r,200));return lobbyOk}
+/* ถามตรงๆ ว่าอีกฝ่ายอยู่ไหม (ใช้ตอนเปิดเมนู/หน้าข้อมูล ถ้ายังไม่เห็นใน presence) */
+function ping(uid){if(uid&&uid!==me)lsend('ping',{to:uid,from:me})}
+function pmRefresh(){try{const m=document.getElementById('pmenu');if(m&&m._ref)m._ref()}catch(e){}}
 function lsend(ev,p){try{lobby&&lobby.send({type:'broadcast',event:ev,payload:p})}catch(e){}}
 /* ---------- UI ---------- */
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -8987,8 +9008,9 @@ function close(id){const e=document.getElementById(id);if(e)e.remove()}
 let pfUid=null;
 document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-uid]');if(t)pfUid=t.dataset.uid},true);
 if(window.openProfile){const _op=window.openProfile;window.openProfile=function(uid){pfUid=uid;return _op.apply(this,arguments)}}
-function refreshBtn(){const b=document.getElementById('pfduel');if(!b)return;const uid=b.dataset.uid,o=online.get(uid),st=document.getElementById('pfdst');
- const ok=!!o&&!o.busy&&!R&&!D;b.disabled=!ok;if(st)st.textContent=!lobby?'⚠️ ต้องเชื่อมต่อออนไลน์':!o?'● ผู้เล่นนี้ไม่ได้ออนไลน์อยู่ตอนนี้':o.busy?'⚔️ กำลังประลองกับคนอื่นอยู่':D?'ออกจากดันเจี้ยน/บอสก่อนจึงจะท้าได้':R?'กำลังประลองอยู่':'● ออนไลน์ · ท้าประลองได้เลย'}
+function refreshBtn(){const b=document.getElementById('pfduel');if(!b)return;const uid=b.dataset.uid,o=isOn(uid),st=document.getElementById('pfdst');
+ if(!o&&!b._pg){b._pg=1;ping(uid)}
+ const ok=!R&&!D;b.disabled=!ok;if(st)st.textContent=!lobbyOk?'⏳ กำลังเชื่อมต่อระบบประลอง…':D?'ออกจากดันเจี้ยน/บอสก่อนจึงจะท้าได้':R?'กำลังประลองอยู่':!o?'⚪ ยังไม่เห็นสถานะออนไลน์ · กดท้าได้ ระบบจะเช็คให้':o.busy?'⚔️ กำลังประลองกับคนอื่นอยู่':D?'ออกจากดันเจี้ยน/บอสก่อนจึงจะท้าได้':R?'กำลังประลองอยู่':'● ออนไลน์ · ท้าประลองได้เลย'}
 const pfObs=new MutationObserver(()=>{const B=document.getElementById('pfbd');if(!B)return;const bt=B.querySelector('.pfbt');if(!bt||B.querySelector('#pfduel')||!pfUid||pfUid===me)return;
  const name=(B.querySelector('.pft b')||{}).textContent||'ผู้เล่น';
  bt.insertAdjacentHTML('afterbegin',`<button class="sobtn" id="pfduel" data-uid="${esc(pfUid)}">⚔️ ท้าประลอง</button>`);bt.insertAdjacentHTML('afterend','<div class="pfdst" id="pfdst"></div>');
@@ -8996,12 +9018,17 @@ const pfObs=new MutationObserver(()=>{const B=document.getElementById('pfbd');if
 const pfb=()=>{const B=document.getElementById('pfbd');if(B)pfObs.observe(B,{childList:true,subtree:true});else setTimeout(pfb,1000)};pfb();
 /* ---------- ส่งคำท้า / รับคำท้า ---------- */
 async function challenge(uid,name){
- if(!(await net())||!lobby){toast('⚠️ ต้องเชื่อมต่อออนไลน์');return}
+ if(!(await net())){toast('⚠️ ต้องเชื่อมต่อออนไลน์');return}
  if(uid===me)return;if(R){toast('กำลังประลองอยู่');return}if(D){toast('ออกจากดันเจี้ยน/บอสก่อนจึงจะท้าประลองได้');return}
- const o=online.get(uid);if(!o){toast('ผู้เล่นนี้ไม่ได้ออนไลน์อยู่ตอนนี้');return}if(o.busy){toast('ผู้เล่นนี้กำลังประลองอยู่');return}
+ if(!(await ensureLobby())){toast('⚠️ เชื่อมต่อระบบประลองไม่สำเร็จ ลองใหม่อีกครั้ง');return}
+ const o=isOn(uid)||{};if(o.busy&&!o.stale){toast('ผู้เล่นนี้กำลังประลองอยู่');return}
  const rm=me.slice(0,6)+Date.now().toString(36);
- R={room:rm,oppUid:uid,oppName:name||o.n,oppLv:o.lv,role:'a',phase:'wait',dealt:0,taken:0};track();
- lsend('inv',{to:uid,from:me,n:S.name||'จอมยุทธ์',lv:S.lv,bp:typeof BP==='function'?BP():0,room:rm});
+ R={room:rm,oppUid:uid,oppName:name||o.n||'ผู้เล่น',oppLv:o.lv||1,role:'a',phase:'wait',dealt:0,taken:0,acked:0};track();
+ const inv={to:uid,from:me,n:S.name||'จอมยุทธ์',lv:S.lv,bp:typeof BP==='function'?BP():0,room:rm};
+ lsend('inv',inv);
+ /* ส่งซ้ำจนกว่าอีกฝ่ายตอบว่าได้รับ (กันข้อความหลุด) — ถ้า 8 วิไม่มีสัญญาณ แปลว่าอีกฝ่ายไม่ได้ออนไลน์ */
+ [1500,3500,6000].forEach(t=>setTimeout(()=>{if(R&&R.room===rm&&R.phase==='wait'&&!R.acked)lsend('inv',inv)},t));
+ setTimeout(()=>{if(R&&R.room===rm&&R.phase==='wait'&&!R.acked){clearInterval(R.waitI);endR();close('pvwait');toast('⚪ อีกฝ่ายไม่ได้ออนไลน์อยู่ตอนนี้ หรือสัญญาณขาด')}},8500);
  try{const P=document.getElementById('pfw');if(P)P.hidden=true}catch(e){}
  let left=20;const w=modal('pvwait',`<div class="sw">⚔️</div><h3>ส่งคำท้าแล้ว</h3><p>รอ <b>${esc(R.oppName)}</b> ตอบรับ…</p><div class="tb"><i style="width:100%"></i></div><p id="pvwl">${left} วินาที</p><div class="bt"><button class="no" id="pvwc">ยกเลิก</button></div>`);
  w.querySelector('#pvwc').onclick=()=>{if(R&&R.phase==='wait'){lsend('cancel',{to:uid,from:me,room:rm});endR()}close('pvwait')};
@@ -9009,6 +9036,8 @@ async function challenge(uid,name){
   if(left<=0){clearInterval(R&&R.waitI);if(R&&R.phase==='wait'){lsend('cancel',{to:uid,from:me,room:rm});endR();close('pvwait');toast('⌛ อีกฝ่ายไม่ตอบรับคำท้า')}}},1000);
 }
 function onInvite(p){
+ lsend('ack',{to:p.from,from:me,room:p.room});
+ if(onInvite.last===p.room)return;onInvite.last=p.room;
  if(R||D){lsend('resp',{to:p.from,from:me,room:p.room,ok:false,why:'busy'});return}
  try{sfx('boss')}catch(e){}
  let left=15;const w=modal('pvinv',`<div class="sw">⚔️</div><h3>มีผู้ท้าประลอง!</h3><p><b>${esc(p.n)}</b> Lv.${esc(p.lv)}${p.bp?' · ⚡ BP '+esc(fmt(p.bp)):''}</p><p>ต้องการรับคำท้าและต่อสู้ทันทีหรือไม่?</p><div class="tb"><i style="width:100%"></i></div><p id="pvil">${left} วินาที</p><div class="bt"><button class="no" id="pvin">ปฏิเสธ</button><button class="ok" id="pviy">⚔️ รับคำท้า</button></div>`);
@@ -9154,20 +9183,21 @@ window.pvpChallenge=challenge;
 
 /* ---------- เมนูเมื่อกดชื่อ/รูปผู้เล่น: ดูข้อมูล · ท้าประลอง · แอดเพื่อน ---------- */
 document.head.insertAdjacentHTML('beforeend',`<style>
-#pmenu{position:fixed;z-index:99980;min-width:220px;max-width:min(300px,calc(100vw - 24px));padding:10px;border-radius:16px;color:#ffe9c8;border:2px solid transparent;
- background:radial-gradient(circle at 50% 0,#ffb02e33,transparent 60%) padding-box,linear-gradient(#2a1608,#120804) padding-box,linear-gradient(160deg,#fff3b0,#ff8a1a,#5a2a08,#ffd23f) border-box;box-shadow:0 10px 28px #000c,0 0 16px #ff8a1a55;animation:pmIn .16s ease-out}
-#pmenu .ph{display:flex;align-items:center;gap:8px;padding:2px 4px 8px;border-bottom:1px dashed #6a4a2a;margin-bottom:8px}
-#pmenu .ph .av{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:18px;background:radial-gradient(circle at 40% 35%,#8a5a2a,#2a1608);border:1.5px solid #ffd23f}
-#pmenu .ph b{display:block;font-size:14px;color:#fff;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#pmenu .ph small{font-size:10.5px;color:#a8907a}#pmenu .ph small.on{color:#7dff9a}
-#pmenu .pb{display:flex;flex-direction:column;gap:6px}
-#pmenu .pb button{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:12px;border:1.5px solid #8a6a3a;background:linear-gradient(#3a2412,#1e1008);color:#ffe9c8;font:inherit;font-weight:800;font-size:14px;text-align:left;cursor:pointer}
-#pmenu .pb button i{font-style:normal;font-size:18px;width:22px;text-align:center}
-#pmenu .pb button small{margin-left:auto;font-size:10.5px;font-weight:400;color:#a8907a}
+#pmenu{position:fixed;z-index:99980;width:auto;max-width:calc(100vw - 16px);padding:6px 7px;border-radius:12px;color:#ffe9c8;border:1.5px solid transparent;
+ background:linear-gradient(#2a1608,#120804) padding-box,linear-gradient(160deg,#fff3b0,#ff8a1a,#5a2a08,#ffd23f) border-box;box-shadow:0 6px 16px #000b;animation:pmIn .14s ease-out}
+#pmenu .ph{display:flex;align-items:center;gap:5px;padding:0 2px 4px;font-size:11.5px;white-space:nowrap}
+#pmenu .ph .av{display:none}
+#pmenu .ph>span{display:flex;align-items:baseline;gap:5px;min-width:0}
+#pmenu .ph b{font-size:12px;color:#fff;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#pmenu .ph small{font-size:9.5px;color:#a8907a}#pmenu .ph small.on{color:#7dff9a}
+#pmenu .pb{display:flex;flex-direction:row;gap:4px}
+#pmenu .pb button{display:flex;align-items:center;gap:3px;padding:5px 8px;border-radius:9px;border:1px solid #8a6a3a;background:linear-gradient(#3a2412,#1e1008);color:#ffe9c8;font:inherit;font-weight:800;font-size:11.5px;white-space:nowrap;cursor:pointer}
+#pmenu .pb button i{font-style:normal;font-size:13px}
+#pmenu .pb button small{display:none}
 #pmenu .pb button.duel{background:linear-gradient(#ff7a5a,#b3261e);border-color:#ffd0c0;color:#fff}
 #pmenu .pb button.add{background:linear-gradient(#5ad97a,#1f7a3a);border-color:#c8ffd0;color:#fff}
 #pmenu .pb button:disabled{opacity:.45;filter:grayscale(.5)}
-#pmenu .pm{margin-top:6px;font-size:11.5px;text-align:center;color:#ffe066;min-height:14px}
+#pmenu .pm{font-size:10px;text-align:center;color:#ffe066;margin-top:3px}#pmenu .pm:empty{display:none}
 @keyframes pmIn{from{opacity:0;transform:scale(.92)}}
 </style>`);
 function pmClose(){const m=document.getElementById('pmenu');if(m)m.remove()}
@@ -9176,17 +9206,22 @@ function nameOf(el){const pick=n=>{if(!n)return'';const c=n.cloneNode(true);c.qu
  if(!t){const row=el.closest('.sorow,.wbr,#chl>div')||el.parentElement;t=pick(row&&row.querySelector('.pname,.nm b,.nm,span:not(.av):not(.cav)'))}
  return(t||'ผู้เล่น').slice(0,24)}
 async function pmOpen(uid,name,x,y){pmClose();
- const o=online.get(uid),busy=o&&o.busy;
+ if(!lobby)joinLobby();
  const m=document.createElement('div');m.id='pmenu';
- m.innerHTML=`<div class="ph"><span class="av">🧙</span><span><b>${esc(name)}</b><small class="${o?'on':''}">${o?'● ออนไลน์'+(o.lv?' · Lv.'+esc(o.lv):''):'⚪ ไม่ได้ออนไลน์'}</small></span></div>
-  <div class="pb"><button data-a="view"><i>👤</i>ดูข้อมูล</button>
-  <button class="duel" data-a="duel" ${!o||busy||R||D?'disabled':''}><i>⚔️</i>ท้าประลอง<small>${!o?'ออฟไลน์':busy?'ไม่ว่าง':R?'กำลังประลอง':D?'อยู่ในดัน':''}</small></button>
-  <button class="add" data-a="add"><i>➕</i><span class="lb">แอดเพื่อน</span><small class="fs"></small></button></div><div class="pm"></div>`;
+ m.innerHTML=`<div class="ph"><span class="av">🧙</span><span><b>${esc(name)}</b><small class="st"></small></span></div>
+  <div class="pb"><button data-a="view"><i>👤</i>ข้อมูล</button>
+  <button class="duel" data-a="duel"><i>⚔️</i>ท้าสู้<small class="ds"></small></button>
+  <button class="add" data-a="add"><i>➕</i><span class="lb">แอด</span><small class="fs"></small></button></div><div class="pm"></div>`;
  document.body.appendChild(m);
- const W=innerWidth,H=innerHeight,r=m.getBoundingClientRect();m.style.left=Math.max(12,Math.min(W-r.width-12,x-r.width/2))+'px';m.style.top=Math.max(12,Math.min(H-r.height-12,y+12))+'px';
+ const W=innerWidth,H=innerHeight,r=m.getBoundingClientRect();m.style.left=Math.max(12,Math.min(W-r.width-12,x-r.width/2))+'px';m.style.top=Math.max(8,Math.min(H-r.height-8,y+10))+'px';
  const msg=t=>{const e=m.querySelector('.pm');if(e)e.textContent=t};
+ /* สถานะออนไลน์อัปเดตสด: presence + ping ถามตรงอีกฝ่าย */
+ let chk=1;m._ref=()=>{const o=isOn(uid),st=m.querySelector('.st'),db=m.querySelector('[data-a=duel]'),ds=m.querySelector('.ds');
+  st.className='st '+(o?'on':'');st.textContent=o?'● ออนไลน์'+(o.lv?' · Lv.'+o.lv:''):chk?'⏳ กำลังเช็คสถานะ…':'⚪ ไม่พบออนไลน์';
+  db.disabled=!!(R||D||(o&&o.busy&&!o.stale));ds.textContent=R?'กำลังประลอง':D?'อยู่ในดัน':o&&o.busy&&!o.stale?'ไม่ว่าง':!o&&!chk?'ลองท้าได้':''};
+ m._ref();if(!online.get(uid)){ensureLobby().then(()=>ping(uid));setTimeout(()=>{chk=0;if(m.isConnected)m._ref()},3500)}else chk=0;
  const add=m.querySelector('[data-a=add]');
- const setFr=st=>{const lb=add.querySelector('.lb'),fs=add.querySelector('.fs');if(st==='f'){lb.textContent='เป็นเพื่อนกันแล้ว';add.disabled=true}else if(st==='out'){lb.textContent='ส่งคำขอแล้ว';fs.textContent='รอตอบรับ';add.disabled=true}else if(st==='in'){lb.textContent='ยอมรับคำขอเพื่อน';fs.textContent='เขาขอมา'}};
+ const setFr=st=>{const lb=add.querySelector('.lb'),fs=add.querySelector('.fs');if(st==='f'){lb.textContent='เพื่อนแล้ว';add.disabled=true}else if(st==='out'){lb.textContent='ขอแล้ว';add.disabled=true}else if(st==='in'){lb.textContent='รับเพื่อน'}};
  try{if(window.socFrState){setFr(socFrState(uid));if(window.socFrLoad)socFrLoad().then(()=>{if(document.getElementById('pmenu')===m)setFr(socFrState(uid))}).catch(()=>{})}}catch(e){}
  m.querySelector('[data-a=view]').onclick=()=>{pmClose();if(window.openProfile)openProfile(uid)};
  m.querySelector('[data-a=duel]').onclick=()=>{pmClose();challenge(uid,name)};
