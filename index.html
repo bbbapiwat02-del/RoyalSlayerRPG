@@ -8465,7 +8465,7 @@ document.head.insertAdjacentHTML('beforeend','<style>.mrg *,.sg50 *{animation:no
 body.g-hidden *,body.g-hidden *::before,body.g-hidden *::after{animation-play-state:paused!important}
 </style>
 <script>document.addEventListener('visibilitychange',()=>document.body.classList.toggle('g-hidden',document.hidden));</script>
-<script>/* ================= ท่าโจมตีใหม่ v3: ตัวละคร + สัตว์เลี้ยง ใช้ท่า 1/ท่า 2 สลับกัน · ขาก้าวตามจังหวะ · รอยดาบตามคมจริง · หยุดเฟรมตอนโดน ================= */
+<script>/* ================= ท่าโจมตีใหม่ v3: ตัวละคร + สัตว์เลี้ยง สุ่มท่า 1/ท่า 2 · ขาก้าวตามจังหวะ · รอยดาบตามคมจริง · หยุดเฟรมตอนโดน ================= */
 (function(){
 if(typeof HW==='undefined'||typeof MW==='undefined')return;
 const ARENA=document.getElementById('arena'),NS='http://www.w3.org/2000/svg';
@@ -8576,7 +8576,7 @@ heroSwing=function(){
  if(!nh||!HW.classList.contains('nhm'))return _oldSwing.apply(this,arguments);
  const sp=SPD(),interval=1000/sp;
  const c=Math.random()*100<CRIT(),dmg=Math.floor(ATK()*(c?CRD():1)*(0.9+Math.random()*0.2));
- const v=hv;hv^=1;const M=NHM[v];
+ const v=Math.random()<.5?0:1;const M=NHM[v]; /* สุ่มท่า 1 หรือ 2 ทุกครั้ง */
  const D=Math.max(300,Math.min(M.dur,interval*.95)),rate=M.dur/D;
  hA.forEach(a=>{try{a.cancel()}catch(e){}});hT.forEach(clearTimeout);hA=[];hT=[];
  const gap=MW.offsetLeft-HW.offsetLeft-HW.offsetWidth,adv=Math.max(24,gap+HW.offsetWidth*.4);
@@ -8668,7 +8668,7 @@ const _oldPet=petAtk;
 petAtk=function(){const o=S.pets[S.pet],pe=$('pet');if(!o||!pe)return;
  const sv=ensureRig();if(!sv||!sv.dataset.nrig)return _oldPet.apply(this,arguments);
  const p=PT.find(x=>x.id===S.pet),d=Math.floor(ATK()*(.3+.012*o.lv+.08*o.st)),col=p.e;
- const v=pvv;pvv^=1;const M=NPM[v];
+ const v=Math.random()<.5?0:1;const M=NPM[v]; /* สุ่มท่า 1 หรือ 2 ทุกครั้ง */
  pA.forEach(a=>{try{a.cancel()}catch(e){}});pT.forEach(clearTimeout);pA=[];pT=[];
  const gap=MW.offsetLeft-pe.offsetLeft-pe.offsetWidth,target=Math.max(30,gap+pe.offsetWidth*.3);
  const kx=target/RX.p[v],ky=pe.offsetHeight/76;
