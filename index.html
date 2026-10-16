@@ -9236,20 +9236,11 @@ function frameLoop(){
  requestAnimationFrame(frameLoop);
 }
 let lastTypeSend=0;
-function onTyping(){
- const t=$('fxIn').value.trim().slice(0,80);
- const key=SELF;
- if(t)setBubble(key,t,true);else{BUB.delete(key);updateBubbles()}
- const now=Date.now();
- if(!t||now-lastTypeSend>400){
-  lastTypeSend=now;
-  try{if(ch&&joined)ch.send({type:'broadcast',event:'typing',payload:{uid,sid,text:t}})}catch(e){}
- }
-}
+/* ข้อความขึ้นเหนือหัว "หลังกดส่งเท่านั้น" · ระหว่างพิมพ์ไม่โชว์ ไม่ส่งข้อมูลกำลังพิมพ์ (ประหยัดการเชื่อมต่อด้วย) */
+function onTyping(){}
 function onRemoteTyping({payload}){
  const pk=payload&&(payload.sid||payload.uid);if(!pk||pk===sid)return;
- const t=String(payload.text||'').slice(0,80);
- if(t)setBubble(pk,t,true);else{BUB.delete(pk);updateBubbles()}
+ const b=BUB.get(pk);if(b&&b.draft){BUB.delete(pk);updateBubbles()} /* ล้างข้อความร่างจากเครื่องที่ยังเป็นเวอร์ชันเก่า */
 }
 function sendChat(){
  const inp=$('fxIn');if(!inp)return;
@@ -9259,10 +9250,7 @@ function sendChat(){
  const name=(S&&S.name)||'จอมยุทธ์';
  setBubble(SELF,text,false);
  logLine(`💬 <b>${esc(name)}</b>: ${esc(text)}`);
- try{if(ch&&joined){
-  ch.send({type:'broadcast',event:'chat',payload:{uid,sid,name,text}});
-  ch.send({type:'broadcast',event:'typing',payload:{uid,sid,text:''}});
- }}catch(e){}
+ try{if(ch&&joined)ch.send({type:'broadcast',event:'chat',payload:{uid,sid,name,text}})}catch(e){}
 }
 
 /* ---------- ตกปลา ---------- */
