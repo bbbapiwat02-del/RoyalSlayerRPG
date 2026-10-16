@@ -2482,6 +2482,100 @@ sched=function(){
   mStep++;mNext+=sp}
 };
 
+/* ================= เพลงพื้นหลังแนวแฟนตาซีผจญภัยโลกกว้าง (ออร์เคสตรา: เครื่องสาย ฮอร์น ฮาร์ป ทิมปานี) =================
+   แต่ละฉากมีคีย์ โหมด จังหวะ ทางคอร์ด และเครื่องดนตรีนำของตัวเอง · ฉากต่อสู้เร่งจังหวะ เพิ่มเครื่องสายสับ ทองเหลือง และกลอง */
+const FSC=[
+ {n:'ทุ่งกว้าง',r:62,m:'maj',b:92,p:[0,4,5,3],ld:'fl',e:0},
+ {n:'ป่าลึก',r:57,m:'dor',b:86,p:[0,6,3,0],ld:'fl',e:0},
+ {n:'หุบเขา',r:60,m:'mix',b:100,p:[0,6,3,0],ld:'hn',e:1},
+ {n:'ทะเลสาบ',r:65,m:'lyd',b:90,p:[0,1,4,0],ld:'st',e:1},
+ {n:'ปราการ',r:67,m:'maj',b:106,p:[0,3,4,5],ld:'hn',e:1},
+ {n:'ทะเลทราย',r:62,m:'min',b:102,p:[0,5,2,6],ld:'hn',e:1},
+ {n:'แดนมาร',r:64,m:'min',b:110,p:[0,5,3,4],ld:'hn',e:1},
+ {n:'หอคอย',r:62,m:'dor',b:120,p:[0,6,5,6],ld:'hn',e:2},
+ {n:'บอสโลก',r:57,m:'min',b:134,p:[0,5,6,4],ld:'hn',e:2},
+ {n:'บอสเทพ',r:59,m:'min',b:128,p:[0,5,3,4],ld:'hn',e:2},
+ {n:'ดันเจี้ยน',r:60,m:'min',b:124,p:[0,6,5,4],ld:'hn',e:2},
+ {n:'พักผ่อน',r:65,m:'maj',b:78,p:[0,3,0,4],ld:'bl',e:0},
+ {n:'บอสด่าน',r:64,m:'min',b:126,p:[0,5,6,4],ld:'hn',e:2},
+ {n:'ประลอง',r:62,m:'min',b:136,p:[0,6,5,4],ld:'hn',e:2}];
+const FMO={maj:[0,2,4,5,7,9,11],min:[0,2,3,5,7,8,10],dor:[0,2,3,5,7,9,10],lyd:[0,2,4,6,7,9,11],mix:[0,2,4,5,7,9,10]};
+const dg=(z,d)=>{const sc=FMO[z.m];return sc[((d%7)+7)%7]+12*Math.floor(d/7)};
+function fScene(){try{if(D&&D.duel)return 13}catch(e){}return sceneZ()}
+let REV=null,RS=null;
+function fBus(){if(REV||!AC)return;try{const len=AC.sampleRate*2.8|0,b=AC.createBuffer(2,len,AC.sampleRate);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6)}
+ REV=AC.createConvolver();REV.buffer=b;const rg=AC.createGain();rg.gain.value=.42;RS=AC.createGain();RS.gain.value=1;RS.connect(REV);REV.connect(rg);rg.connect(MU)}catch(e){REV=null;RS=null}}
+function out(g,w){g.connect(MU);if(RS&&w){const s=AC.createGain();s.gain.value=w;g.connect(s);s.connect(RS)}}
+/* เครื่องสาย (แพด) */
+function iStr(fs,t,dur,v){fs.forEach(f=>[-9,0,9].forEach(c=>{const o=AC.createOscillator(),fl=AC.createBiquadFilter(),g=AC.createGain();o.type='sawtooth';o.frequency.value=f;o.detune.value=c;fl.type='lowpass';fl.frequency.value=1150;fl.Q.value=.6;
+ g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+Math.min(.6,dur*.35));g.gain.setValueAtTime(v,t+dur*.8);g.gain.exponentialRampToValueAtTime(.0001,t+dur+.5);o.connect(fl);fl.connect(g);out(g,.55);o.start(t);o.stop(t+dur+.6)}))}
+/* ฮอร์น (ทำนองหลักแบบผจญภัย) */
+function iHorn(f,t,dur,v){dur=Math.max(.2,dur);const o=AC.createOscillator(),o2=AC.createOscillator(),fl=AC.createBiquadFilter(),g=AC.createGain(),l=AC.createOscillator(),lg=AC.createGain();
+ o.type='sawtooth';o2.type='triangle';o.frequency.setValueAtTime(f*.99,t);o.frequency.exponentialRampToValueAtTime(f,t+.06);o2.frequency.value=f/2;
+ l.frequency.value=5;lg.gain.setValueAtTime(0,t);lg.gain.linearRampToValueAtTime(f*.005,t+Math.min(.5,dur*.7));l.connect(lg);lg.connect(o.frequency);
+ fl.type='lowpass';fl.Q.value=1.2;fl.frequency.setValueAtTime(500,t);fl.frequency.linearRampToValueAtTime(1900,t+.07);fl.frequency.exponentialRampToValueAtTime(1150,t+.4);
+ const g2=AC.createGain();g2.gain.value=.5;o2.connect(g2);g2.connect(fl);o.connect(fl);fl.connect(g);
+ g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+.06);g.gain.setValueAtTime(v*.82,t+dur*.75);g.gain.exponentialRampToValueAtTime(.0001,t+dur+.25);out(g,.4);
+ [o,o2,l].forEach(x=>{x.start(t);x.stop(t+dur+.3)})}
+/* ฮาร์ป */
+function iHarp(f,t,v){const o=AC.createOscillator(),o2=AC.createOscillator(),g=AC.createGain(),fl=AC.createBiquadFilter();o.type='triangle';o2.type='sine';o.frequency.value=f;o2.frequency.value=f*2;
+ fl.type='lowpass';fl.frequency.setValueAtTime(4000,t);fl.frequency.exponentialRampToValueAtTime(900,t+1.2);const g2=AC.createGain();g2.gain.value=.25;o2.connect(g2);g2.connect(fl);o.connect(fl);fl.connect(g);
+ g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+.004);g.gain.exponentialRampToValueAtTime(.0001,t+1.6);out(g,.6);o.start(t);o2.start(t);o.stop(t+1.7);o2.stop(t+1.7)}
+/* ระฆังแก้ว/เซเลสตา */
+function iBell(f,t,v){[[1,1],[2.76,.28],[5.4,.1]].forEach(([r,k])=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=f*r;g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v*k,t+.003);g.gain.exponentialRampToValueAtTime(.0001,t+1.8/r+.2);o.connect(g);out(g,.7);o.start(t);o.stop(t+2.1)})}
+/* เครื่องสายสับ (ฉากต่อสู้) */
+function iStac(f,t,v){const o=AC.createOscillator(),fl=AC.createBiquadFilter(),g=AC.createGain();o.type='sawtooth';o.frequency.value=f;fl.type='lowpass';fl.frequency.value=1700;g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+.14);o.connect(fl);fl.connect(g);out(g,.25);o.start(t);o.stop(t+.16)}
+/* ทองเหลืองกระแทก */
+function iBrass(fs,t,dur,v){fs.forEach(f=>{const o=AC.createOscillator(),fl=AC.createBiquadFilter(),g=AC.createGain();o.type='sawtooth';o.frequency.value=f;fl.type='lowpass';fl.frequency.setValueAtTime(2600,t);fl.frequency.exponentialRampToValueAtTime(900,t+dur);
+ g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(fl);fl.connect(g);out(g,.45);o.start(t);o.stop(t+dur+.05)})}
+function iTimp(t,v,f){f=f||55;osc('sine',f*1.5,f,t,.8,v,MU,.003);nz(t,.12,v*.3,'lowpass',500,120,MU)}
+function iSnare(t,v){nz(t,.09,v,'bandpass',2200,1400,MU)}
+function iCym(t,v){nz(t,1.4,v,'highpass',6500,9000,MU)}
+function iSwell(t,dur,v){try{const s=AC.createBufferSource();s.buffer=NB;s.loop=true;const f=AC.createBiquadFilter(),g=AC.createGain();f.type='highpass';f.frequency.value=5000;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+dur);g.gain.exponentialRampToValueAtTime(.0001,t+dur+.08);s.connect(f);f.connect(g);g.connect(MU);s.start(t);s.stop(t+dur+.1)}catch(e){}}
+/* ทำนอง: ไดอาโทนิก โน้ตคอร์ดลงจังหวะหนัก เดินขั้นคู่ + กระโดดคู่ 5 แบบเพลงผจญภัย */
+const FRH=[[0,4],[0,2,4,6],[0,3,4,6],[0,3,6],[0,2,3,4,6],[0,4,6],[0,6]];
+function fChord(z,b){const k=z.p[b%4];return[k,k+2,k+4]}
+function fPhrase(z,endHome,heroic){const P=Array(32).fill(null);let d=7+Math.floor(Math.random()*3);
+ for(let b=0;b<4;b++){const ch=fChord(z,b).map(x=>((x%7)+7)%7);const rh=b===3?(Math.random()<.5?[0,4]:[0,2,4]):(b===0&&heroic?[0,3,4]:FRH[Math.floor(Math.random()*FRH.length)]);
+  rh.forEach((on,i)=>{if(i===0){let best=d,bd=99;for(let c=d-4;c<=d+4;c++){if(c<5||c>15)continue;if(ch.includes(((c%7)+7)%7)&&Math.abs(c-d)<bd){bd=Math.abs(c-d);best=c}}d=best}
+   else d=Math.max(5,Math.min(15,d+[-2,-1,-1,1,1,2,4][Math.floor(Math.random()*7)]));
+   if(heroic&&b===0&&i===1)d=Math.min(15,d+4);
+   const last=b===3&&i===rh.length-1;if(last&&endHome){d=d>=10?14:7}
+   P[b*8+on]={d,len:last?10:(i<rh.length-1?rh[i+1]:8)-on}})}
+ return P}
+let fSec=[],fStep=0,fNext=0,fZ=-1;
+function fBuild(z){const A=fPhrase(z,true,true),A2=fPhrase(z,false,true),B=fPhrase(z,false,false),C=fPhrase(z,true,false);fSec=A.concat(A2.slice(0,24).concat(A.slice(24)),B,C)}
+sched=function(){
+ if(!AC||!musicOn||AC.state!=='running')return;audioSetup();fBus();
+ const SZ=fScene(),z=FSC[SZ],e=z.e,sp=60/z.b/2;
+ if(fZ!==SZ||!fSec.length){fZ=SZ;fBuild(z);fStep=0;if(fNext>AC.currentTime+.05)fNext=AC.currentTime+.05}
+ if(fNext<AC.currentTime)fNext=AC.currentTime+.08;
+ while(fNext<AC.currentTime+.45){
+  const t=fNext,s=fStep%128,bar=Math.floor(s/8),st=s%8,R=z.r,ch=fChord(z,bar),root=dg(z,ch[0]);
+  if(s===0&&fStep>0)fBuild(z);
+  /* เครื่องสาย + เบส */
+  if(st===0){iStr(ch.map(x=>mf(R-12+dg(z,x))),t,sp*8,e===2?.016:.02);osc('sine',mf(R-24+root),mf(R-24+root),t,sp*7.5,e===2?.16:.12,MU,.05);osc('triangle',mf(R-36+root),mf(R-36+root),t,sp*7,.06,MU,.05)}
+  /* ฮาร์ปไล่คอร์ด */
+  const arp=[0,1,2,3,4,3,2,1],tone=i=>{const k=ch[i%3]+7*Math.floor(i/3);return mf(R-12+dg(z,k))};
+  if(e<2){if(e===0||st%2===0)iHarp(tone(arp[st]),t,e===0?.07:.055)}
+  else{iStac(mf(R-12+root+(st%4===2?12:0)),t,.05);iStac(mf(R-12+root+(st%2?7:0)),t+sp/2,.035)}
+  /* ทำนอง */
+  const n=fSec[s];if(n){const f=mf(R+dg(z,n.d)-(z.ld==='hn'?12:0)),du=sp*n.len*1.02;
+   if(z.ld==='hn')iHorn(f,t,du,e===2?.085:.075);else if(z.ld==='st')iStr([f],t,du,.03);else if(z.ld==='bl')iBell(f*2,t,.06);else mFlute(f,t,du,.1);
+   if(e===0&&n.len>=4&&Math.random()<.5)iBell(f*2,t,.025)}
+  /* เครื่องดนตรีนำรอง: ประกายเซเลสตาตอนจบวรรค */
+  if(bar%4===3&&st===4&&e<2)iBell(mf(R+12+dg(z,ch[2])),t,.035);
+  /* กลอง */
+  if(e===0){if(st===0&&bar%2===0)iTimp(t,.08,mf(R-24+root))}
+  else if(e===1){if(st===0)iTimp(t,.13,mf(R-24+root));if(st===4)iTimp(t,.07,mf(R-24+root));if(st===6&&bar%2===1)iSnare(t,.05);if(st===7)iSnare(t,.03)}
+  else{if(st===0||st===4)iTimp(t,.2,mf(R-24+root));if(st===2||st===6)iSnare(t,.08);if(st===7&&bar%2===1){iTimp(t,.1,mf(R-24+root));iTimp(t+sp/2,.12,mf(R-24+root))}
+   if(st===0&&bar%4===0){iBrass(ch.map(x=>mf(R-12+dg(z,x))),t,sp*1.6,.03);iCym(t,.12)}
+   if(st===0&&bar%4===2)iBrass(ch.map(x=>mf(R-12+dg(z,x))),t,sp*.9,.025)}
+  if(e>=1&&bar%4===3&&st===4)iSwell(t,sp*4,e===2?.12:.06);
+  if(e>=1&&s===0)iCym(t,.08);
+  fStep++;fNext+=sp}
+};
+
 /* ---- เสียงตีคริติคอล: หนัก แน่น ดัง ---- */
 let ccT=-9,ccN=0;
 critSfx=function(){audioSetup();const t=AC.currentTime,d=CRT||SG,n=t-ccT<1.6?Math.min(4,ccN+1):0;ccN=n;ccT=t;
@@ -2498,7 +2592,7 @@ critSfx=function(){audioSetup();const t=AC.currentTime,d=CRT||SG,n=t-ccT<1.6?Mat
 $('mbtn').style.display='none';$('sbtn').style.display='none';
 const _rgf=renderGf;
 renderGf=function(){_rgf();const b=$('gfb'),row=(l,d,k,cur,o)=>`<div class="grow"><span>${l}<small>${d}</small></span><div class="seg">${o.map(x=>`<button data-sk="${k}" data-v="${x[0]}" class="${cur===x[0]?'on':''}">${x[1]}</button>`).join('')}</div></div>`,oo=[[0,'ปิด'],[1,'เปิด']],lv=[[0,'เบา'],[1,'กลาง'],[2,'ดัง']];
- b.insertAdjacentHTML('afterbegin','<div class="tkr" style="text-align:left;margin:4px 0 2px">🔊 เสียง</div>'+row('🎵 เพลงพื้นหลัง','ดนตรีจีนโบราณ ฟังสบาย','m',musicOn?mv+1:0,[[0,'ปิด'],[1,'เบา'],[2,'กลาง'],[3,'ดัง']])+row('🔊 เสียงเอฟเฟกต์','เสียงตี คริติคอล เหรียญ','s',sfxOn?sv+1:0,[[0,'ปิด'],[1,'เบา'],[2,'กลาง'],[3,'ดัง']])+'<div class="tkr" style="text-align:left;margin:12px 0 2px">🎨 กราฟิก</div>');
+ b.insertAdjacentHTML('afterbegin','<div class="tkr" style="text-align:left;margin:4px 0 2px">🔊 เสียง</div>'+row('🎵 เพลงพื้นหลัง','ออร์เคสตราแฟนตาซีผจญภัย เปลี่ยนตามฉาก','m',musicOn?mv+1:0,[[0,'ปิด'],[1,'เบา'],[2,'กลาง'],[3,'ดัง']])+row('🔊 เสียงเอฟเฟกต์','เสียงตี คริติคอล เหรียญ','s',sfxOn?sv+1:0,[[0,'ปิด'],[1,'เบา'],[2,'กลาง'],[3,'ดัง']])+'<div class="tkr" style="text-align:left;margin:12px 0 2px">🎨 กราฟิก</div>');
  b.querySelectorAll('[data-sk]').forEach(x=>x.onclick=()=>{initAudio();audioSetup();const k=x.dataset.sk,v=+x.dataset.v;if(k==='m'){musicOn=!!v;if(v)mv=v-1}else if(k==='s'){sfxOn=!!v;if(v)sv=v-1}applyVol();saveSnd();if(k==='s'||k==='sv')sfx('crit');renderGf()})};
 
 /* ================= ซ่อนเปอร์เซ็นต์การสุ่มจากหน้าหลัก (ดูได้ในรายการสุ่มเมื่อจิ้ม) ================= */
