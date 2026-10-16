@@ -7211,9 +7211,10 @@ async function goOnline(){const GA=window.GameAuth;if(!GA||GA.mode==='local'||!G
  (data||[]).reverse().forEach(r=>add({n:r.name,lv:r.lv,t:r.text,me:r.user_id===u.id,uid:r.user_id,c:'#ffd9a0'},false));unread=0;cb.querySelector('em').textContent='';
  const ch=sb.channel('world_chat',{config:{presence:{key:u.id}}});
  ch.on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_messages'},p=>{const r=p.new;if(!r||r.user_id===u.id)return;add({n:r.name,lv:r.lv,t:r.text,uid:r.user_id,c:'#ffd9a0'},false)})
-   .on('presence',{event:'sync'},()=>{const n=Object.keys(ch.presenceState()).length;$('chon').textContent='● '+n+' ออนไลน์'})
-   .subscribe(st=>{if(st==='SUBSCRIBED')ch.track({n:S.name||'จอมยุทธ์',lv:S.lv||1})});
- net.ch=ch}
+   .on('presence',{event:'sync'},()=>{const n=Object.keys(ch.presenceState()).length;$('chon').textContent='● '+n+' ออนไลน์';try{window.__pvpPres&&window.__pvpPres()}catch(e){}})
+   .on('broadcast',{event:'pvp'},({payload:m})=>{try{m&&window.__pvpIn&&window.__pvpIn(m.ev,m.p)}catch(e){}})
+   .subscribe(st=>{if(st==='SUBSCRIBED'){ch.track({n:S.name||'จอมยุทธ์',lv:S.lv||1});window._wchatOk=true}else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'||st==='CLOSED')window._wchatOk=false});
+ net.ch=ch;window._wchat=ch}
 setTimeout(goOnline,1500);
 w.querySelector('form').onsubmit=async e=>{e.preventDefault();const t=inp.value.trim().slice(0,80);if(!t)return;
  if(Date.now()-lastSend<1500)return;lastSend=Date.now();inp.value='';
@@ -8937,7 +8938,8 @@ const DUR=90;
 let sb=null,me=null,lobby=null,online=new Map(),R=null,joining=false,lobbyOk=false,lobbyAt=0;
 /* จำผู้เล่นที่เคยเห็นในระบบประลอง 90 วิ กันสถานะกระพริบเวลาเน็ตสะดุด */
 const seen=new Map();
-function isOn(uid){const o=online.get(uid);if(o)return o;const s2=seen.get(uid);if(s2&&Date.now()-s2.t<90000)return Object.assign({},s2.o,{stale:1});return null}
+function chatPres(uid){try{const c=window._wchat;if(!c)return null;const a=(c.presenceState()||{})[uid];return a&&a.length?a[a.length-1]:null}catch(e){return null}}
+function isOn(uid){const o=online.get(uid);if(o)return o;const cp=chatPres(uid);if(cp)return{n:cp.n,lv:cp.lv,busy:false,chat:1};const s2=seen.get(uid);if(s2&&Date.now()-s2.t<90000)return Object.assign({},s2.o,{stale:1});return null}
 function syncP(c){try{const st=c.presenceState();const now=Date.now();online=new Map(Object.entries(st).map(([k,a])=>[k,a[a.length-1]]));online.forEach((o,k)=>seen.set(k,{o,t:now}));refreshBtn();pmRefresh()}catch(e){}}
 function dropLobby(){const c=lobby;lobby=null;lobbyOk=false;if(c){try{sb.removeChannel(c)}catch(e){}}}
 async function net(){try{const GA=window.GameAuth;if(!GA||GA.mode!=='online'||!GA.ready||!(await GA.ready)||!GA.sb)return false;const u=await GA.user();if(!u)return false;sb=GA.sb;me=u.id;return true}catch(e){return false}}
@@ -8950,9 +8952,9 @@ async function joinLobby(){if(lobby||joining)return;joining=true;try{if(!(await 
   .on('broadcast',{event:'ack'},({payload:p})=>{if(p&&p.to===me&&R&&R.room===p.room){R.acked=1;const l=document.querySelector('#pvwait h3');if(l)l.textContent='อีกฝ่ายได้รับคำท้าแล้ว'}})
   .on('broadcast',{event:'ping'},({payload:p})=>{if(p&&p.to===me)lsend('pong',{to:p.from,from:me,n:S.name||'จอมยุทธ์',lv:S.lv||1,busy:!!(R&&R.phase!=='wait')})})
   .on('broadcast',{event:'pong'},({payload:p})=>{if(p&&p.to===me){const o={n:p.n,lv:p.lv,busy:p.busy};online.set(p.from,o);seen.set(p.from,{o,t:Date.now()});refreshBtn();pmRefresh()}})
-  .on('broadcast',{event:'inv'},({payload:p})=>{if(p&&p.to===me)onInvite(p)})
-  .on('broadcast',{event:'resp'},({payload:p})=>{if(p&&p.to===me)onResp(p)})
-  .on('broadcast',{event:'cancel'},({payload:p})=>{if(p&&p.to===me)onCancel(p)})
+  .on('broadcast',{event:'inv'},({payload:p})=>window.__pvpIn('inv',p))
+  .on('broadcast',{event:'resp'},({payload:p})=>window.__pvpIn('resp',p))
+  .on('broadcast',{event:'cancel'},({payload:p})=>window.__pvpIn('cancel',p))
   .subscribe(st=>{if(lobby!==c)return;if(st==='SUBSCRIBED'){lobbyOk=true;track();setTimeout(()=>syncP(c),800)}else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'||st==='CLOSED'){dropLobby()}});
  }finally{joining=false}}
 function track(){try{lobby&&lobbyOk&&lobby.track({n:S.name||'จอมยุทธ์',lv:S.lv||1,busy:!!(R&&R.phase!=='wait')})}catch(e){}}
@@ -8964,11 +8966,20 @@ setInterval(()=>{if(document.getElementById('ss')||window._kicked)return;
 setInterval(()=>{if(lobby)track()},20000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(lobby&&lobby.state&&lobby.state!=='joined')dropLobby();if(!lobby)joinLobby();else track()}});
 window.addEventListener('online',()=>{dropLobby();joinLobby()});
-async function ensureLobby(){if(!lobby)joinLobby();for(let i=0;i<25&&!lobbyOk;i++)await new Promise(r=>setTimeout(r,200));return lobbyOk}
+async function ensureLobby(){if(!lobby)joinLobby();for(let i=0;i<25&&!lobbyOk&&!window._wchatOk;i++)await new Promise(r=>setTimeout(r,200));return lobbyOk||!!window._wchatOk}
 /* ถามตรงๆ ว่าอีกฝ่ายอยู่ไหม (ใช้ตอนเปิดเมนู/หน้าข้อมูล ถ้ายังไม่เห็นใน presence) */
 function ping(uid){if(uid&&uid!==me)lsend('ping',{to:uid,from:me})}
 function pmRefresh(){try{const m=document.getElementById('pmenu');if(m&&m._ref)m._ref()}catch(e){}}
-function lsend(ev,p){try{lobby&&lobby.send({type:'broadcast',event:ev,payload:p})}catch(e){}}
+function lsend(ev,p){try{lobby&&lobbyOk&&lobby.send({type:'broadcast',event:ev,payload:p})}catch(e){}
+ try{window._wchat&&window._wchatOk&&window._wchat.send({type:'broadcast',event:'pvp',payload:{ev,p}})}catch(e){}}
+/* รับข้อความประลองที่มาทางช่องแชทโลก */
+const H={inv:p=>onInvite(p),resp:p=>onResp(p),cancel:p=>onCancel(p),
+ ack:p=>{if(R&&R.room===p.room){R.acked=1;const l=document.querySelector('#pvwait h3');if(l)l.textContent='อีกฝ่ายได้รับคำท้าแล้ว'}},
+ ping:p=>lsend('pong',{to:p.from,from:me,n:S.name||'จอมยุทธ์',lv:S.lv||1,busy:!!(R&&R.phase!=='wait')}),
+ pong:p=>{const o={n:p.n,lv:p.lv,busy:p.busy};online.set(p.from,o);seen.set(p.from,{o,t:Date.now()});refreshBtn();pmRefresh()}};
+window.__pvpIn=(ev,p)=>{if(!p||!me||p.to!==me||!H[ev])return;const k=ev+'|'+p.from+'|'+(p.room||'')+'|'+(p.t||'');
+ if(ev!=='inv'&&ev!=='ping'&&ev!=='pong'&&ev!=='ack'){if(dup.has(k))return;dup.add(k);setTimeout(()=>dup.delete(k),5000)}H[ev](p)};
+const dup=new Set();window.__pvpPres=()=>{refreshBtn();pmRefresh()};
 /* ---------- UI ---------- */
 document.head.insertAdjacentHTML('beforeend',`<style>
 .pvx{position:fixed;inset:0;z-index:99990;display:flex;align-items:center;justify-content:center;background:#000a;padding:16px;animation:pvIn .25s ease-out}
