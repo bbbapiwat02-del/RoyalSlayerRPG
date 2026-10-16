@@ -705,7 +705,7 @@ body{display:flex;flex-direction:column;height:calc(100dvh - env(safe-area-inset
 <div class="sklots" id="skeq"></div><div class="skgrid" id="skown"></div><div id="skinfo"></div></div></div>
 <div id="bsw" class="win" hidden><div class="pnl" id="bsp"><button class="wc">✕</button>
 <div class="cst">👹 ท้าบอสอุปกรณ์เทพ</div>
-<div class="tkr">🎫 ตั๋ว <b id="bstk">0/5</b> · วันนี้เหลือ <b id="bsday">5/5</b> ครั้ง<small style="display:block">ใช้ตั๋วดันเจี้ยนใบละ 1 ครั้ง · โควตา 5 ครั้ง/วัน รีเซ็ตเที่ยงคืน</small></div>
+<div class="tkr">🎫 ตั๋ว <b id="bstk">0/5</b> · วันนี้เหลือ <b id="bsday">5/5</b> ครั้ง<small style="display:block">ใช้ตั๋วดันเจี้ยนใบละ 1 ครั้ง · โควตา 5 ครั้ง/วัน รีเซ็ตเที่ยงคืน · ซื้อรอบเพิ่มได้อีก 5 ครั้ง/วัน</small><div id="bsbuy"></div></div>
 <div class="bz-tabs" id="bztabs"></div><div id="bzres"></div><div id="bzmain"></div></div></div><div id="cvw" class="win" hidden><div class="pnl"><button class="wc">✕</button><div class="cst">🔍 ของในหีบสุ่ม</div>
 <div class="cvh"><button class="auto" id="cvm">◀</button><div id="cvl"></div><button class="auto" id="cvp">▶</button></div>
 <div id="cvlist"></div><button class="auto" id="cvb" style="width:100%;margin-top:8px">⬅ กลับไปหีบ</button></div></div><div id="svw" class="win" hidden><div class="pnl"><button class="wc">✕</button><div class="cst">🔍 รายการสกิลในหอคัมภีร์</div><div id="svh"></div><div id="svlist"></div><button class="auto" id="svb" style="width:100%;margin-top:8px">⬅ กลับไปหอคัมภีร์</button></div></div>
@@ -1660,8 +1660,12 @@ setInterval(petal,1300);cloud();setInterval(cloud,9000);
 
 /* ================= ท้าบอสอุปกรณ์เทพ (เซตเทพเจ้า) ================= */
 const BS_DAY=5,pcs=x=>Math.round(x*100)+'%';
+/* ซื้อรอบบอสเทพเพิ่มด้วยเพชร: เริ่ม 100 เพชร แพงขึ้นเท่าตัวทุกครั้ง (100/200/400/800/1600) จำกัด 5 ครั้งต่อวัน */
+const BS_BUY_MAX=5,BS_BUY_BASE=100;
+function bsLim(b){return BS_DAY+((b&&b.ex)||0)}
+function bsBuyPrice(b){return BS_BUY_BASE*Math.pow(2,(b&&b.buy)||0)}
 const bsDay=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
-function ensureBs(){if(!S.bs||typeof S.bs!=='object')S.bs={};const b=S.bs;if(!b.own)b.own={};if(!b.fail)b.fail={};const k=bsDay();if(b.day!==k){b.day=k;b.n=0}if(!Number.isFinite(b.n))b.n=0;return b}
+function ensureBs(){if(!S.bs||typeof S.bs!=='object')S.bs={};const b=S.bs;if(!b.own)b.own={};if(!b.fail)b.fail={};const k=bsDay();if(b.day!==k){b.day=k;b.n=0;b.ex=0;b.buy=0}if(!Number.isFinite(b.n))b.n=0;if(!Number.isFinite(b.ex))b.ex=0;if(!Number.isFinite(b.buy))b.buy=0;return b}
 const bsOwn=si=>{const b=ensureBs();return b.own[si]||(b.own[si]={})};
 let bsSel=0,bsFresh=false,gbCtx={L:1,p:0};
 const bonusLines=si=>{const m=SETS[si].bm;return[[2,'⚔️ พลังโจมตี +'+pcs(.2*m)],[3,'🧘 ลมปราณ +'+pcs(.25*m)],[4,'🎯 คริติคอล +'+Math.round(8*m)+'% · 💨 ความเร็ว +'+(.15*m).toFixed(2)+'x'],[5,'👑 โจมตี +'+pcs(.5*m)+' · ลมปราณ +'+pcs(.5*m)+' · 🪙 +'+pcs(.5*m)+' · คริ +5%']]};
@@ -1796,14 +1800,34 @@ function bsEquipAll(si){const b0=BP(),own=bsOwn(si);for(const k in own)bsEquip(s
 function bsCan(si){const st=SETS[si],b=ensureBs();
  if(S.lv<st.lv)return '🔒 ต้องถึง Lv.'+st.lv+' (ตอนนี้ Lv.'+S.lv+')';
  if(D)return '⚔️ กำลังต่อสู้อยู่';
- if(b.n>=BS_DAY)return '📅 โควตาวันนี้ครบแล้ว ('+BS_DAY+'/'+BS_DAY+') กลับมาใหม่พรุ่งนี้';
+ if(b.n>=bsLim(b))return '📅 โควตาวันนี้ครบแล้ว ('+b.n+'/'+bsLim(b)+')'+(b.buy<BS_BUY_MAX?' · ซื้อรอบเพิ่มด้วยเพชรได้':' กลับมาใหม่พรุ่งนี้');
  if((S.tk||0)<1)return '🎫 ตั๋วหมด (เพิ่มทุก 4 นาที หรือซื้อในร้านค้า)';
  return ''}
 
+/* ปุ่มซื้อรอบบอสเทพ (แตะ 2 ครั้งเพื่อยืนยัน กันกดพลาด) */
+let bsBuyArm=0;
+function renderBsBuy(b){
+ const el=$('bsbuy');if(!el)return;
+ const done=b.buy>=BS_BUY_MAX,pr=bsBuyPrice(b),dia=S.diamonds||0,arm=Date.now()<bsBuyArm;
+ el.innerHTML=`<button class="auto" id="bsbuyb" ${done?'disabled':''} style="width:100%;margin:6px 0 2px;${arm?'background:linear-gradient(#ff6b6b,#b3261e);color:#fff':''}">${done?'✅ ซื้อรอบเพิ่มครบ '+BS_BUY_MAX+'/'+BS_BUY_MAX+' แล้ววันนี้':arm?'แตะอีกครั้งเพื่อยืนยัน 💎 '+pr.toLocaleString():'➕ ซื้อรอบบอสเทพ +1 · 💎 '+pr.toLocaleString()}</button><small style="display:block;color:var(--mut);text-align:center">ซื้อแล้ววันนี้ ${b.buy}/${BS_BUY_MAX} ครั้ง · ราคาเพิ่มเท่าตัวทุกครั้ง · มีเพชร 💎 ${dia.toLocaleString()}</small>`;
+ const bt=$('bsbuyb');if(!bt||done)return;
+ bt.onclick=()=>{
+  const b2=ensureBs();if(b2.buy>=BS_BUY_MAX)return renderBs();
+  const p2=bsBuyPrice(b2);
+  if((S.diamonds||0)<p2){bsBuyArm=0;try{banner('💎 เพชรไม่พอ (ต้องใช้ '+p2.toLocaleString()+')')}catch(e){}renderBs();return}
+  if(Date.now()>=bsBuyArm){bsBuyArm=Date.now()+3000;renderBs();setTimeout(()=>{if(!$('bsw').hidden)renderBs()},3100);return}
+  bsBuyArm=0;S.diamonds-=p2;b2.buy++;b2.ex++;
+  try{localStorage.setItem('ml1',JSON.stringify(S))}catch(e){}
+  try{sfx&&sfx('coin')}catch(e){}try{banner('🐲 ซื้อรอบบอสเทพ +1 (💎 -'+p2.toLocaleString()+')')}catch(e){}
+  try{if(typeof render==='function')render()}catch(e){}
+  renderBs();
+ };
+}
 /* หน้าต่างท้าบอส */
 function renderBs(){
- const b=ensureBs(),st=SETS[bsSel],own=bsOwn(bsSel),tk=S.tk||0,left=Math.max(0,BS_DAY-b.n);
- $('bstk').textContent=tk+'/5';$('bsday').textContent=left+'/'+BS_DAY;
+ const b=ensureBs(),st=SETS[bsSel],own=bsOwn(bsSel),tk=S.tk||0,left=Math.max(0,bsLim(b)-b.n);
+ $('bstk').textContent=tk+'/5';$('bsday').textContent=left+'/'+bsLim(b);
+ renderBsBuy(b);
  $('bztabs').innerHTML=SETS.map((x,i)=>`<button class="bz-tab ${i===bsSel?'on':''}" data-i="${i}" style="--c:${x.c};--ca:${x.c}44"><span>${x.em}</span>${x.n.replace('ชุด','')}<small>${Object.keys(bsOwn(i)).length}/5 · Lv.${x.lv}</small></button>`).join('');
  const r=b.last;let rh='';
  if(r&&SETS[r.si]){const rs=SETS[r.si],rc=rs.c;
@@ -1877,8 +1901,8 @@ renderCs=function(){_renderCs();document.querySelectorAll('.slt').forEach(b=>b.o
 
 /* ปุ่มไอคอนมุมซ้ายล่าง + รีเฟรชสถานะ */
 $('bsb').onclick=()=>{bsFresh=false;openW('bsw')};
-setInterval(()=>{ensureBs();const left=BS_DAY-S.bs.n,rdy=!D&&left>0&&(S.tk||0)>=1&&S.lv>=SETS[0].lv;T('bsbn',S.tk||0);$('bsb').classList.toggle('rdy',rdy);
- const k=(S.tk||0)+'|'+(D?1:0)+'|'+S.bs.n+'|'+S.lv;if(!$('bsw').hidden&&_c.bsk!==k){_c.bsk=k;renderBs()}},700);
+setInterval(()=>{ensureBs();const left=bsLim(S.bs)-S.bs.n,rdy=!D&&left>0&&(S.tk||0)>=1&&S.lv>=SETS[0].lv;T('bsbn',S.tk||0);$('bsb').classList.toggle('rdy',rdy);
+ const k=(S.tk||0)+'|'+(D?1:0)+'|'+S.bs.n+'|'+S.bs.ex+'|'+S.lv;if(!$('bsw').hidden&&_c.bsk!==k){_c.bsk=k;renderBs()}},700);
 ensureBs();
 
 /* ================= สกิลใหม่: บัพ/ป้องกัน/ดูดเลือด/คริ/สตั้น/คอมโบ ================= */
@@ -8448,7 +8472,7 @@ body.fx-mode>*:not(#fx-dock):not(script):not(style){display:none!important}
 /* เปิดกระเป๋า/หน้าซื้อ: ซ่อนตัวละคร เอ็น จอย ไม่ให้ทะลุขึ้นมาบนหน้าต่าง */
 #fx-dock.fx-modal #fxPl,#fx-dock.fx-modal #fxBob,#fx-dock.fx-modal .fx-joy,#fx-dock.fx-modal .fx-alert{visibility:hidden}
 #fx-dock .fx-scene>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
-#fx-dock .fx-pl{position:absolute;width:0;height:0;transition:left .3s linear,top .3s linear}
+#fx-dock .fx-pl{position:absolute;width:0;height:0;transition:left .38s linear,top .38s linear}
 #fx-dock .fx-pl.me{transition:none}
 #fx-dock .fx-ch{position:absolute;left:-60px;bottom:0;width:120px;height:130px;transform-origin:50% 100%;pointer-events:none}
 #fx-dock .fx-ch:before{content:"";position:absolute;left:14px;right:14px;bottom:-5px;height:13px;border-radius:50%;background:radial-gradient(#0009,#0000 70%)}
@@ -8573,18 +8597,211 @@ body.fx-mode>*:not(#fx-dock):not(script):not(style){display:none!important}
 #fx-sell .fx-acts button:disabled{opacity:.4}
 :is(#fx-sell,#fx-buy) .fx-sellall:disabled{opacity:.5;filter:grayscale(.6)}
 :is(#fx-sell,#fx-buy) .fx-sellall{width:100%;margin-top:8px;padding:11px;border-radius:12px;border:2px solid #fff3b0;background:linear-gradient(#ffd23f,#ff8a1a 50%,#c8401a);color:#fff;font:inherit;font-weight:900}
+/* ===== รูปปลา / สมุดปลา / การ์ดจับได้ / บอส ===== */
+:is(#fx-sell,#fx-buy) .fx-tabs{display:flex;gap:6px;margin-bottom:8px}
+:is(#fx-sell,#fx-buy) .fx-tabs button{flex:1;padding:8px;border-radius:10px;border:2px solid #e5b94a66;background:#0006;color:#ffe9b0;font:inherit;font-weight:800;font-size:13px}
+:is(#fx-sell,#fx-buy) .fx-tabs button.on{background:linear-gradient(#ffd23f,#ff8a1a);color:#3a1400;border-color:#fff3b0}
+#fx-sell .fx-pic{flex:none;width:80px;display:flex;align-items:center;justify-content:center}
+#fx-sell .fx-item{border-left:4px solid var(--rc,#888)}
+#fx-sell .fx-item.boss{background:linear-gradient(90deg,#4a0a0a99,#0006);box-shadow:inset 0 0 12px #ff3a2a44}
+#fx-sell .fx-book{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px}
+#fx-sell .fx-card{display:flex;flex-direction:column;align-items:center;text-align:center;padding:6px 4px;border-radius:12px;background:#0007;border:1.5px solid var(--rc,#666);font-size:12px;min-width:0}
+#fx-sell .fx-card b{font-size:11.5px;line-height:1.25;margin-top:2px;word-break:break-word}
+#fx-sell .fx-card small{font-size:10px;color:#c9b99a;line-height:1.3}
+#fx-sell .fx-card.boss{background:radial-gradient(#5a0a0a,#120406);box-shadow:0 0 10px #ff3a2a55}
+#fx-sell .fx-card.lock svg{filter:brightness(0) opacity(.45)}
+#fx-sell .fx-card.lock svg *{animation:none!important}
+#fx-dock .fx-alert.boss{background:#ff2a2a;color:#fff;width:42px;height:42px;font-size:24px;box-shadow:0 0 18px #ff2a2a,0 4px 12px #000a}
+#fx-dock .fx-fight.boss{background:linear-gradient(#3a0608ee,#0a1210e6);box-shadow:0 0 0 2px #ff4a3a,0 0 18px #ff3a2a88}
+#fx-dock .fx-fight.boss .fx-zone{background:#ff8a6acc}
+#fx-dock .fx-catch{position:absolute;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;pointer-events:none;animation:fxCIn .35s ease-out}
+#fx-dock .fx-catch.out{opacity:0;transition:opacity .4s}
+#fx-dock .fx-cc{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:14px 22px 12px;border-radius:20px;background:radial-gradient(circle at 50% 35%,#2a3a30f4,#0a120ef4);border:3px solid var(--rc);box-shadow:0 0 28px var(--rc),0 10px 30px #000c;text-align:center;max-width:86%}
+#fx-dock .fx-cc b{font-size:20px;color:#fff;text-shadow:0 2px 4px #000}
+#fx-dock .fx-cc small{font-size:12px;color:#ffe9b0;font-weight:800}
+#fx-dock .fx-catch.boss .fx-cc{background:radial-gradient(circle at 50% 35%,#5a0a0af6,#120204f6);animation:fxBossGlow 1s ease-in-out infinite alternate}
+#fx-dock .fx-cbig{font-size:22px;font-weight:900;color:#ffd23f;text-shadow:0 0 12px #ff3a2a,0 2px 0 #7a1004;letter-spacing:.5px}
+#fx-dock .fx-new{position:absolute;right:-8px;top:-10px;background:#ff3a6a;color:#fff;font-weight:900;font-size:12px;padding:3px 9px;border-radius:999px;border:2px solid #fff;transform:rotate(8deg)}
+@keyframes fxCIn{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+@keyframes fxBossGlow{from{box-shadow:0 0 20px #ff3a2a,0 10px 30px #000c}to{box-shadow:0 0 50px #ffd23f,0 10px 30px #000c}}
+/* ===== ตอนพิมพ์แชต (คีย์บอร์ดขึ้น): ซ่อนปุ่มอื่น เลื่อนฉากให้เห็นตัวเองและข้อความเหนือหัว ===== */
+#fx-dock .fx-scene{transition:transform .2s ease-out}
+#fx-dock.fx-typing .fx-ctl,#fx-dock.fx-typing .fx-log,#fx-dock.fx-typing .fx-status,#fx-dock.fx-typing .fx-joy{display:none!important}
+#fx-dock.fx-typing .fx-bottom{background:#07100cee}
 </style>
 <script>
 /* ===== ท่าตกปลาออนไลน์ v5: โมเดลเดียว ไม่ซ้อน · ท่ายืน/เดิน/เหวี่ยง/สู้ปลา · ชนขอบบ่อไหลตามขอบ ===== */
 (function(){
-const FISH=[
- {name:'ปลาดุก',rarity:'ทั่วไป',w:50,tier:0,c:'#8a8f98',g:40,s:0,d:0},
- {name:'ปลาช่อน',rarity:'ทั่วไป',w:28,tier:1,c:'#9b9a6a',g:70,s:1,d:0},
- {name:'ปลาสวาย',rarity:'ดี',w:12,tier:2,c:'#6fb3d9',g:150,s:2,d:0},
- {name:'ปลาทับทิม',rarity:'หายาก',w:6,tier:2,hd:1.15,c:'#e0624a',g:320,s:5,d:1},
- {name:'ปลาทองคำ',rarity:'หายากมาก',w:3,tier:3,c:'#f2b233',g:900,s:15,d:5},
- {name:'มังกรน้ำ',rarity:'ตำนาน',w:0.8,tier:4,c:'#7f77dd',g:3000,s:40,d:20},
- {name:'คุนเผิง',rarity:'เทพ',w:0.2,tier:4,hd:1.3,c:'#2a6aff',g:12000,s:120,d:80}];
+/* ===== ปลา 50 ชนิด + บอสปลา 20 ตัว · ราคาขายตามระดับ (แพงขึ้น) · รูปวาดด้วย SVG ทุกตัว =====
+   [ชื่อ, ทรง, สีตัว, สีท้อง/ลาย, สีครีบ, ลวดลาย, ของพิเศษ]  ทรง: oval long eel round tall ray shark cat needle koi arow */
+const RAR=['ทั่วไป','ดี','หายาก','หายากมาก','ตำนาน','บอส'];
+const RCOL=['#b9c0c8','#7ed36b','#5fb4ff','#c77dff','#ffb02e','#ff4d4d'];
+const FISH_RAW=[
+ /* tier 0 ทั่วไป */[
+ ['ปลาดุก','cat','#6b6e75','#c9c3b5','#4a4c52','spot'],
+ ['ปลานิล','oval','#7f8f86','#d9e2da','#a0524e','stripe'],
+ ['ปลาตะเพียน','tall','#c8cfd6','#ffffff','#e0b040','scale'],
+ ['ปลาหมอ','oval','#6f7a52','#c9c79a','#5a6040','stripe'],
+ ['ปลาซิว','long','#c9d6e0','#ffffff','#ff8a6a','plain'],
+ ['ปลาสลิด','oval','#7a8c6a','#d8dcc0','#5f6e50','stripe'],
+ ['ปลากระดี่','tall','#8fa6b8','#e6eef2','#6a84a0','spot'],
+ ['ปลาไหลนา','eel','#6a5a3a','#c9b27a','#4a3e28','plain'],
+ ['ปลาเข็ม','needle','#a9c6c0','#ffffff','#6fa098','plain'],
+ ['ปลาแขยง','cat','#b59a62','#efe2c0','#8a7040','plain'],
+ ['ปลาบู่','oval','#8a7a5a','#d9ccaa','#6a5a3a','spot'],
+ ['ปลาหมอช้างเหยียบ','oval','#5f7f8a','#cfe0e0','#2f4f5a','stripe']],
+ /* tier 1 ดี */[
+ ['ปลาช่อน','long','#5a5f3a','#c9c79a','#3f4228','spot'],
+ ['ปลากราย','tall','#9aa3ad','#eef2f5','#6a737d','spot'],
+ ['ปลาชะโด','long','#4a5a3a','#e0d8a0','#e05a3a','stripe'],
+ ['ปลาสวาย','shark','#7c8a99','#e6ecf0','#5a6878','plain'],
+ ['ปลาเทโพ','shark','#5d6b78','#f0f2f4','#3f4a55','spot'],
+ ['ปลาสร้อยขาว','oval','#dfe6ec','#ffffff','#b0bcc8','scale'],
+ ['ปลากดเหลือง','cat','#c9a24a','#f5e6b0','#9a7a2a','plain'],
+ ['ปลาเค้าดำ','cat','#3a3a42','#8a8a92','#26262c','spot'],
+ ['ปลาปักเป้าน้ำจืด','round','#b8c26a','#f4f0c8','#8a9440','spot'],
+ ['ปลากระทิง','eel','#7a5a3a','#e8c890','#3a2a1a','spot'],
+ ['ปลาหางแดง','oval','#9aa8b4','#f0f4f8','#e83a2a','plain']],
+ /* tier 2 หายาก */[
+ ['ปลาทับทิม','oval','#e0624a','#ffc2b0','#c23a2a','scale'],
+ ['ปลาตะพัด','arow','#d9b46a','#fff0c8','#c08a2a','scale'],
+ ['ปลาเสือตอ','tall','#e8c24a','#fff2c0','#2a2216','stripe'],
+ ['ปลาคาร์ปแดง','koi','#f4f0ea','#ff5a2a','#ffd0b8','koi'],
+ ['ปลาบึกน้อย','shark','#8a9aaa','#e8eef4','#6a7a8a','plain'],
+ ['ปลาเทวดา','tall','#f0f0f4','#ffd23f','#2a2a3a','stripe'],
+ ['ปลาหมูอารีย์','oval','#e8d070','#fff6c8','#3a3a2a','stripe'],
+ ['ปลากัดสวรรค์','tall','#3a4ad9','#ff4a8a','#7a3aff','grad'],
+ ['ปลาปิรันย่าทอง','oval','#c9b26a','#ff6a3a','#8a7a3a','spot'],
+ ['ปลาสายรุ้ง','long','#6ad9ff','#ff9ad9','#ffd23f','grad']],
+ /* tier 3 หายากมาก */[
+ ['ปลาทองคำ','koi','#f2b233','#fff0a0','#ff8a1a','scale','glow'],
+ ['ปลาหยกมรกต','oval','#2fae7a','#b8f4d8','#1a7a50','scale','glow'],
+ ['ปลาคาร์ปเงินจันทรา','koi','#dfe8f5','#9fb4d9','#ffffff','scale','glow'],
+ ['ปลามังกรเกล็ดทอง','arow','#ffcf4a','#fff4c0','#e08a1a','scale','glow'],
+ ['ปลาเพลิงแดง','shark','#e8402a','#ffb04a','#ffd23f','grad','flame'],
+ ['ปลาน้ำแข็งพันปี','tall','#a8e8ff','#ffffff','#5ac8f0','scale','ice'],
+ ['ปลาสายฟ้า','eel','#3a4aff','#9fe8ff','#ffe94a','stripe','bolt'],
+ ['ปลาไข่มุกราตรี','round','#2a2a5a','#d8d0ff','#8a7aff','spot','glow'],
+ ['ปลาบุปผาซากุระ','tall','#ffc2da','#ffffff','#ff7aa8','spot','glow']],
+ /* tier 4 ตำนาน */[
+ ['มังกรน้ำ','eel','#7f77dd','#d8d4ff','#4a3fc0','scale','horn'],
+ ['ปลากิเลนวารี','arow','#2f8a7a','#ffd23f','#e0402a','scale','horn'],
+ ['ปลาหงส์ทองคำ','tall','#ffcf4a','#fff6d0','#ff6a2a','grad','flame'],
+ ['ปลาวิญญาณจันทร์','koi','#cfd8ff','#ffffff','#8a9aff','grad','glow'],
+ ['ปลาอสรพิษหยก','eel','#1fa06a','#c8ffd8','#0a5a3a','scale','glow'],
+ ['ปลาดาวตก','shark','#2a2f6a','#9fb4ff','#ffe94a','spot','star'],
+ ['ปลาเทพธิดาสมุทร','tall','#5ad9e8','#ffffff','#ff9ad9','grad','glow'],
+ ['ปลาเกราะทองแดง','oval','#b8662a','#f0b070','#7a3a1a','scale','spike']],
+ /* tier 5 บอส (ตกยากกว่าปกติมาก) */[
+ ['คุนเผิง','ray','#2a6aff','#9fd0ff','#0a2a8a','grad','boss:wing'],
+ ['ราชันมังกรทะเลลึก','eel','#1a3a8a','#6ad9ff','#ffd23f','scale','boss:dragon'],
+ ['จักรพรรดิปลาคาร์ปทอง','koi','#ffcf2a','#fff4b0','#ff6a1a','scale','boss:crown'],
+ ['ฉลามอสูรโลหิต','shark','#5a0a14','#ff4a3a','#2a0008','grad','boss:blood'],
+ ['ปลาหงส์เพลิงนิรันดร์','tall','#ff5a1a','#ffd23f','#ff2a0a','grad','boss:flame'],
+ ['วาฬสวรรค์','shark','#3a5ab8','#e8f0ff','#ffd23f','spot','boss:cloud'],
+ ['อสรพิษสายฟ้า','eel','#2a1a6a','#9f8aff','#ffe94a','stripe','boss:bolt'],
+ ['อสูรตะเกียงห้วงลึก','round','#14142a','#3a3a6a','#6ad9ff','spot','boss:lure'],
+ ['กระเบนราตรี','ray','#1a1430','#7a5aff','#ff4ad9','spot','boss:night'],
+ ['ราชาปลาบึก','shark','#6a7a8a','#dfe8f0','#ffd23f','plain','boss:crown'],
+ ['ปลาเกราะทมิฬ','oval','#1a1a1f','#5a5a6a','#ff3a2a','scale','boss:spike'],
+ ['ปลาน้ำแข็งอมตะ','arow','#bff0ff','#ffffff','#3ab0e8','scale','boss:ice'],
+ ['ปลามรกตพันปี','koi','#0f8a5a','#9fffd0','#ffd23f','scale','boss:jade'],
+ ['ปลาพยัคฆ์วารี','shark','#ff9a1a','#fff0d0','#1a1208','stripe','boss:tiger'],
+ ['ปลาจันทราเงิน','tall','#d8e0ff','#ffffff','#8a9aff','grad','boss:moon'],
+ ['ปลาเทพสุริยัน','arow','#ffb000','#fff6c0','#ff4a00','grad','boss:sun'],
+ ['ปลาอเวจี','oval','#2a0a2a','#8a1a5a','#ff2a6a','spot','boss:abyss'],
+ ['ปลาพายุหมุน','shark','#3a8aa8','#d8f4ff','#ffffff','stripe','boss:storm'],
+ ['ปลาเก้าหาง','koi','#ff7aa8','#ffe0ec','#ffffff','grad','boss:nine'],
+ ['ปลาหยินหยาง','tall','#111111','#f4f4f4','#888888','yin','boss:yy']]];
+const T_W=[52,27,13,5.5,1.6,0.9],T_G=[180,560,1700,5600,20000,120000],T_S=[0,3,10,30,100,500],T_D=[0,0,2,8,40,200];
+const FISH=[];
+FISH_RAW.forEach((arr,t)=>{
+ const wsum=arr.reduce((a,_,i)=>a+(1-i*0.06),0);
+ arr.forEach((r,i)=>{
+  const m=1+i*0.12,ex=r[6]||'';
+  FISH.push({name:r[0],shape:r[1],c:r[2],c2:r[3],cf:r[4],pat:r[5],ex,boss:t===5,tier:t,rarity:RAR[t],
+   w:T_W[t]*(1-i*0.06)/wsum,g:Math.round(T_G[t]*m/10)*10,s:Math.round(T_S[t]*(1+i*0.1)),d:Math.round(T_D[t]*(1+i*0.1)),
+   hd:t===5?1+i*0.015:(1+i*0.02)});
+ });
+});
+/* ---------- วาดรูปปลา (หันหัวไปทางขวา) ---------- */
+let fsvN=0;
+function fishSVG(f,w,extra){
+ const id='fq'+(++fsvN),boss=f.boss,ex=f.ex.replace('boss:','');
+ const S0={oval:[40,16],long:[48,11],eel:[50,7],round:[27,23],tall:[26,21],ray:[34,26],shark:[48,13],cat:[44,13],needle:[54,4.5],koi:[40,15],arow:[48,12]}[f.shape]||[40,16];
+ const L=S0[0],h=S0[1];
+ const vb=boss?'-78 -52 156 104':'-64 -38 128 76';
+ let defs=`<linearGradient id="${id}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${f.c}"/><stop offset=".55" stop-color="${f.c}"/><stop offset="1" stop-color="${f.c2}"/></linearGradient>`;
+ if(f.pat==='grad')defs=`<linearGradient id="${id}b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${f.c}"/><stop offset="1" stop-color="${f.c2}"/></linearGradient>`;
+ defs+=`<radialGradient id="${id}a"><stop offset="0" stop-color="${f.cf}" stop-opacity=".75"/><stop offset=".6" stop-color="${f.c}" stop-opacity=".25"/><stop offset="1" stop-color="${f.c}" stop-opacity="0"/></radialGradient>`;
+ let back='',body='',front='',pat='',aura='';
+ const OL='#1a1020';
+ /* ออร่าบอส / ปลาหายาก */
+ if(boss){aura+=`<ellipse cx="0" cy="0" rx="74" ry="48" fill="url(#${id}a)"><animate attributeName="opacity" values=".55;1;.55" dur="1.8s" repeatCount="indefinite"/></ellipse><g fill="none" stroke="${f.cf}" stroke-width="1.4" stroke-dasharray="3 7" opacity=".8"><ellipse rx="66" ry="40"><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="14s" repeatCount="indefinite"/></ellipse></g>`;
+  for(let i=0;i<8;i++){const a=i/8*6.283;aura+=`<circle cx="${(Math.cos(a)*60).toFixed(1)}" cy="${(Math.sin(a)*38).toFixed(1)}" r="1.8" fill="${f.cf}"><animate attributeName="opacity" values="0;1;0" dur="1.6s" begin="${(i*0.2).toFixed(1)}s" repeatCount="indefinite"/></circle>`}}
+ else if(/glow|flame|ice|bolt|star|horn|spike/.test(ex)&&f.tier>=3)back+=`<ellipse cx="0" cy="0" rx="58" ry="34" fill="url(#${id}a)" opacity=".8"/>`;
+ const sk=`stroke="${OL}" stroke-width="1.6" stroke-linejoin="round"`;
+ const tailN=ex==='nine'?9:1;
+ if(f.shape==='eel'){
+  const d=`M${L} 0C${L*.55} -14 ${L*.2} 12 -${L*.1} 0S-${L*.62} -12 -${L} 2`;
+  body=`<path d="${d}" stroke="${OL}" stroke-width="${h*2+3}" fill="none" stroke-linecap="round"/><path d="${d}" stroke="url(#${id}b)" stroke-width="${h*2}" fill="none" stroke-linecap="round"/><path d="${d}" stroke="${f.c2}" stroke-width="${(h*.6).toFixed(1)}" fill="none" stroke-linecap="round" opacity=".6" transform="translate(0 ${h*.5})"/><path d="M${L*.6} -9C${L*.2} -16 -${L*.3} -2 -${L*.8} -10" stroke="${f.cf}" stroke-width="2.5" fill="none" stroke-linecap="round" opacity=".9"/>`;
+  if(f.pat==='stripe'||f.pat==='spot'||f.pat==='scale')body+=`<path d="${d}" stroke="${f.cf}" stroke-width="${h*1.2}" fill="none" stroke-dasharray="${f.pat==='stripe'?'2 6':'1.5 5'}" stroke-linecap="round" opacity=".7"/>`;
+  front+=`<circle cx="${L-4}" cy="-2" r="2.6" fill="#fff" stroke="${OL}" stroke-width=".8"/><circle cx="${L-3.4}" cy="-2" r="1.4" fill="${boss?'#ff2a2a':OL}"/>`;
+ }else if(f.shape==='ray'){
+  body=`<path d="M-${L} 0Q-${L+22} 4 -${L+32} -6" stroke="${OL}" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M-${L} 0Q-${L+22} 4 -${L+32} -6" stroke="${f.cf}" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M${L} 0Q${L*.4} -${h*.5} 0 -${h*1.5}Q-${L*.5} -${h*.3} -${L} 0Q-${L*.5} ${h*.4} 0 ${h*1.3}Q${L*.4} ${h*.5} ${L} 0Z" fill="url(#${id}b)" ${sk}/>
+  <path d="M${L*.7} 0Q0 -${h*.3} -${L*.8} 0" stroke="${f.c2}" stroke-width="2" fill="none" opacity=".7"/>`;
+  front+=`<circle cx="${L*.55}" cy="-5" r="2.4" fill="#fff" stroke="${OL}" stroke-width=".8"/><circle cx="${L*.58}" cy="-5" r="1.3" fill="${boss?'#ff2a2a':OL}"/><circle cx="${L*.55}" cy="5" r="2.4" fill="#fff" stroke="${OL}" stroke-width=".8"/><circle cx="${L*.58}" cy="5" r="1.3" fill="${boss?'#ff2a2a':OL}"/>`;
+ }else{
+  const nose=f.shape==='shark'||f.shape==='needle'?1.2:f.shape==='round'?.85:1;
+  const bp=`M${L*nose} 0C${L*.6} -${h*1.3} -${L*.55} -${h*1.08} -${L} 0C-${L*.55} ${h*1.08} ${L*.6} ${h*1.3} ${L*nose} 0Z`;
+  defs+=`<clipPath id="${id}c"><path d="${bp}"/></clipPath>`;
+  /* หาง */
+  const T=f.shape==='tall'?20:f.shape==='needle'?10:f.shape==='koi'||f.shape==='arow'?22:f.shape==='round'?14:18;
+  for(let k=0;k<tailN;k++){const a=tailN>1?(k-(tailN-1)/2)*0.16:0;
+   const tp=f.shape==='shark'?`M-${L-4} 0L-${L+T} -${T*1.1}L-${L+T*.55} 0L-${L+T*.8} ${T*.8}Z`:`M-${L-4} 0Q-${L+T*.4} -${T*.4} -${L+T} -${T*.95}Q-${L+T*.6} 0 -${L+T} ${T*.95}Q-${L+T*.4} ${T*.4} -${L-4} 0Z`;
+   back+=`<path d="${tp}" fill="${f.cf}" ${sk} opacity="${tailN>1?.85:1}" transform="rotate(${(a*57).toFixed(1)} -${L} 0)">${ex==='flame'||ex==='nine'?`<animateTransform attributeName="transform" type="rotate" values="${(a*57-6).toFixed(1)} -${L} 0;${(a*57+6).toFixed(1)} -${L} 0;${(a*57-6).toFixed(1)} -${L} 0" dur="${(0.9+k*.07).toFixed(2)}s" repeatCount="indefinite"/>`:''}</path>`}
+  /* ครีบหลัง/ท้อง */
+  if(f.shape==='shark')back+=`<path d="M${L*.15} -${h*.9}L-${L*.1} -${h*2.6}L-${L*.32} -${h*.85}Z" fill="${f.cf}" ${sk}/>`;
+  else if(f.shape==='tall')back+=`<path d="M${L*.3} -${h*.9}Q-${L*.2} -${h*1.75} -${L*.9} -${h*.6}Z" fill="${f.cf}" ${sk}/><path d="M${L*.2} ${h*.9}Q-${L*.2} ${h*1.7} -${L*.9} ${h*.6}Z" fill="${f.cf}" ${sk}/>`;
+  else if(f.shape!=='needle')back+=`<path d="M${L*.35} -${h*.92}Q-${L*.05} -${h*1.85} -${L*.55} -${h*.75}Z" fill="${f.cf}" ${sk}/>`;
+  if(ex==='spike'||ex==='dragon'||ex==='tiger'||ex==='abyss')for(let i=0;i<6;i++){const x=L*.4-i*L*.16;back+=`<path d="M${x.toFixed(1)} -${h*.85}L${(x-4).toFixed(1)} -${h*1.75}L${(x-8).toFixed(1)} -${h*.75}Z" fill="${boss?f.cf:'#c9c3b5'}" ${sk}/>`}
+  body=`<path d="${bp}" fill="url(#${id}b)" ${sk}/>`;
+  /* ลวดลาย */
+  if(f.pat==='stripe')for(let i=0;i<5;i++)pat+=`<rect x="${(L*.45-i*L*.3).toFixed(1)}" y="-${h*1.5}" width="${(L*.09).toFixed(1)}" height="${h*3}" fill="${f.cf}" opacity=".55"/>`;
+  else if(f.pat==='spot')for(let i=0;i<9;i++)pat+=`<circle cx="${(L*.5-(i%5)*L*.28).toFixed(1)}" cy="${((i%3-1)*h*.5).toFixed(1)}" r="${(h*.14+1).toFixed(1)}" fill="${f.cf}" opacity=".6"/>`;
+  else if(f.pat==='scale')for(let r=-1;r<=1;r++)for(let i=0;i<7;i++)pat+=`<path d="M${(L*.45-i*L*.22).toFixed(1)} ${(r*h*.55-3).toFixed(1)}q-4 3 0 6" stroke="${f.c2}" stroke-width="1" fill="none" opacity=".7"/>`;
+  else if(f.pat==='koi')pat+=`<ellipse cx="${L*.2}" cy="-${h*.5}" rx="${L*.3}" ry="${h*.5}" fill="${f.c2}"/><ellipse cx="-${L*.4}" cy="-${h*.2}" rx="${L*.22}" ry="${h*.45}" fill="${f.c2}"/>`;
+  else if(f.pat==='yin')pat+=`<path d="M${L} 0H-${L}V${h*2}H${L}Z" fill="${f.c2}"/><circle cx="${L*.3}" cy="0" r="${h*.35}" fill="${f.c2}"/><circle cx="-${L*.3}" cy="0" r="${h*.35}" fill="${f.c}"/>`;
+  pat+=`<path d="M${L*.55} -${h*.9}C${L*.62} -${h*.3} ${L*.62} ${h*.3} ${L*.5} ${h*.85}" stroke="${OL}" stroke-width="1" fill="none" opacity=".35"/><ellipse cx="0" cy="-${h*.55}" rx="${L*.6}" ry="${h*.18}" fill="#fff" opacity=".22"/>`;
+  body+=`<g clip-path="url(#${id}c)">${pat}</g><path d="${bp}" fill="none" ${sk}/>`;
+  /* ครีบอก */
+  front+=`<path d="M${L*.3} ${h*.25}Q${L*.05} ${h*.95} -${L*.05} ${h*.55}Z" fill="${f.cf}" ${sk} opacity=".95"/>`;
+  /* ตา */
+  const er=Math.max(2.4,Math.min(5,h*.2)),ex0=L*nose*.66,ey=-h*.22;
+  front+=`<circle cx="${ex0.toFixed(1)}" cy="${ey.toFixed(1)}" r="${er.toFixed(1)}" fill="${boss?'#fff6a0':'#fff'}" stroke="${OL}" stroke-width=".9"/><circle cx="${(ex0+er*.25).toFixed(1)}" cy="${ey.toFixed(1)}" r="${(er*.55).toFixed(1)}" fill="${boss?'#ff2a2a':OL}"/><circle cx="${(ex0+er*.05).toFixed(1)}" cy="${(ey-er*.35).toFixed(1)}" r="${(er*.22).toFixed(1)}" fill="#fff"/>`;
+  if(boss)front+=`<circle cx="${ex0.toFixed(1)}" cy="${ey.toFixed(1)}" r="${(er*2).toFixed(1)}" fill="#ff3a2a" opacity=".35"><animate attributeName="r" values="${er};${er*2.4};${er}" dur="1.2s" repeatCount="indefinite"/></circle>`;
+  /* หนวด */
+  if(f.shape==='cat'||f.shape==='koi'||ex==='dragon')front+=`<path d="M${L*nose-2} ${h*.2}q8 6 16 2M${L*nose-3} ${h*.3}q6 10 12 12" stroke="${OL}" stroke-width="1.3" fill="none" stroke-linecap="round"/>`;
+  if(f.shape==='needle')front+=`<path d="M${L*1.2} 0L${L*1.2+14} -1" stroke="${OL}" stroke-width="2" stroke-linecap="round"/>`;
+  if(f.shape==='round'&&ex!=='lure')for(let i=0;i<10;i++){const a=i/10*6.283;front+=`<path d="M${(Math.cos(a)*L*.9).toFixed(1)} ${(Math.sin(a)*h*.95).toFixed(1)}l${(Math.cos(a)*5).toFixed(1)} ${(Math.sin(a)*5).toFixed(1)}" stroke="${OL}" stroke-width="1.4"/>`}
+ }
+ /* ของพิเศษ */
+ const hx=f.shape==='eel'?L-6:L*.5,hy=f.shape==='eel'?-8:-h*.95;
+ if(ex==='horn'||ex==='dragon')front+=`<path d="M${hx} ${hy}q-2 -12 -10 -16q4 8 2 16Z" fill="#ffd23f" ${sk}/><path d="M${hx-6} ${hy+1}q-4 -10 -12 -12q5 6 4 13Z" fill="#ffd23f" ${sk}/>`;
+ if(ex==='crown'||ex==='sun'||ex==='jade')front+=`<g transform="translate(${hx-4} ${hy-2})"><path d="M-9 0L-10 -11L-4 -5L0 -14L4 -5L10 -11L9 0Z" fill="${ex==='jade'?'#5affb0':'#ffd23f'}" ${sk}/><circle cx="0" cy="-6" r="2" fill="#ff2a4a"/></g>`;
+ if(ex==='lure')front+=`<path d="M${L*.4} -${h*.9}Q${L*.9} -${h*2.2} ${L*1.25} -${h*1.4}" stroke="${OL}" stroke-width="1.6" fill="none"/><circle cx="${L*1.25}" cy="-${h*1.4}" r="9" fill="#6ad9ff" opacity=".35"><animate attributeName="r" values="6;12;6" dur="1.4s" repeatCount="indefinite"/></circle><circle cx="${L*1.25}" cy="-${h*1.4}" r="3.6" fill="#e8ffff"/><path d="M${L*.85} 4L${L*.6} 9L${L*.75} 1M${L*.7} 6L${L*.45} 10" stroke="#fff" stroke-width="1.6"/>`;
+ if(ex==='wing'||ex==='cloud')back+=`<path d="M10 -10Q-6 -52 -40 -46Q-22 -34 -18 -12Z" fill="${ex==='cloud'?'#ffffff':f.c2}" ${sk} opacity=".95"><animateTransform attributeName="transform" type="rotate" values="0 0 -10;-8 0 -10;0 0 -10" dur="1.6s" repeatCount="indefinite"/></path>`;
+ if(ex==='flame'||ex==='blood'||ex==='sun')for(let i=0;i<5;i++)back+=`<path d="M${-L*.6+i*L*.25} -${h*.8}q-4 -10 2 -18q2 8 6 10q-2 -6 2 -12q6 10 -2 20Z" fill="${ex==='blood'?'#ff2a3a':'#ffb02e'}" opacity=".9"><animate attributeName="opacity" values=".5;1;.5" dur="${(0.6+i*.13).toFixed(2)}s" repeatCount="indefinite"/></path>`;
+ if(ex==='ice')for(let i=0;i<5;i++)front+=`<path d="M${-L*.5+i*L*.24} -${h*.75}l3 -9l3 9z" fill="#e8fbff" stroke="#5ac8f0" stroke-width=".8"/>`;
+ if(ex==='bolt'||ex==='storm')front+=`<path d="M-8 -${h+14}l-6 12h6l-5 12l13 -16h-7l5 -8z" fill="#ffe94a" stroke="${OL}" stroke-width="1"><animate attributeName="opacity" values="1;.2;1;1" dur="1s" repeatCount="indefinite"/></path>`;
+ if(ex==='star'||ex==='night'||ex==='moon')for(let i=0;i<5;i++)front+=`<path d="M${-L*.6+i*L*.3} ${(i%2?6:-6)}l1.4 3 3 1.4 -3 1.4 -1.4 3 -1.4 -3 -3 -1.4 3 -1.4z" fill="#fff6a0"><animate attributeName="opacity" values=".2;1;.2" dur="${(1+i*.2).toFixed(1)}s" repeatCount="indefinite"/></path>`;
+ if(ex==='moon')front+=`<path d="M0 -${h+22}a9 9 0 1 0 8 13a7 7 0 1 1 -8 -13z" fill="#fff6d0" stroke="${OL}" stroke-width=".8"/>`;
+ if(ex==='abyss'||ex==='yy'||ex==='night')back+=`<circle r="40" fill="none" stroke="${f.cf}" stroke-width="2" opacity=".5"><animate attributeName="r" values="20;56" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".7;0" dur="2s" repeatCount="indefinite"/></circle>`;
+ if(ex==='tiger')front+=`<path d="M${L*.55} -${h*.4}l6 -3M${L*.55} -${h*.1}l7 0" stroke="${OL}" stroke-width="1.4"/>`;
+ return `<svg class="fx-fishimg${boss?' boss':''}" viewBox="${vb}" width="${w}" height="${(w*(boss?104/156:76/128)).toFixed(0)}" ${extra||''} aria-hidden="true"><defs>${defs}</defs>${aura}${boss?`<g transform="scale(1.2)">${back}${body}${front}</g>`:back+body+front}</svg>`;
+}
+
 const NS='http://www.w3.org/2000/svg';
 const W=380,SC=0.85;
 const SELF='self';
@@ -8856,15 +9073,16 @@ function walkTo(x,y){
    ใช้ 2 ทางพร้อมกัน: presence (รายชื่อคนในท่า) + broadcast 'pos' (ตำแหน่งสด/heartbeat)
    ถ้าทางใดทางหนึ่งไม่ทำงาน ก็ยังเห็นผู้เล่นอื่นได้ · เห็นตัวทันทีด้วยตัวสำรอง แล้วค่อยเปลี่ยนเป็นโมเดลจริงเมื่อโหลดโปรไฟล์เสร็จ */
 let joined=false,lastTrack=0,lastBc=0,pubT=0,hbI=0,retryT=0;
-function myInfo(){return{uid,sid,name:(S&&S.name)||'จอมยุทธ์',lv:(S&&S.lv)||1,st,cid:cidOwn,px:Math.round(me.x),py:Math.round(me.y-CY),face:me.face,bx:bob?Math.round(bob.x):null,by:bob?Math.round(bob.y-CY):null}}
+function myInfo(){return{t:Date.now(),uid,sid,name:(S&&S.name)||'จอมยุทธ์',lv:(S&&S.lv)||1,st,cid:cidOwn,px:Math.round(me.x),py:Math.round(me.y-CY),face:me.face,bx:bob?Math.round(bob.x):null,by:bob?Math.round(bob.y-CY):null}}
 function sendPos(){if(!ch||!joined)return;try{ch.send({type:'broadcast',event:'pos',payload:myInfo()})}catch(e){}}
 function trackMe(){if(!ch||!joined)return;lastTrack=Date.now();try{ch.track(myInfo())}catch(e){}}
+/* ลดจำนวนข้อความ: ตำแหน่งส่งทุก 0.35 วิขณะเดิน (ฝั่งรับเลื่อนนุ่มด้วย transition) · presence track เฉพาะตอนเข้า/ทุก 30 วิ
+   (เดิมส่งถี่ 6 ครั้ง/วิ + track ทุก 1.2 วิ → โดนจำกัดอัตราจนหลุด และ track ใหม่ทำให้เกิด leave/join ตัวละครกระพริบ) */
 function publish(force){
  if(!ch||!joined)return;
  const now=Date.now();
- if(force||now-lastBc>=170){lastBc=now;sendPos()}
- if(force||now-lastTrack>=1200)trackMe();
- clearTimeout(pubT);pubT=setTimeout(()=>{sendPos();trackMe()},700); /* ส่งสถานะสุดท้ายหลังหยุดเดินเสมอ */
+ if(force||now-lastBc>=350){lastBc=now;sendPos()}
+ clearTimeout(pubT);pubT=setTimeout(sendPos,500); /* ส่งสถานะสุดท้ายหลังหยุดเดินเสมอ */
 }
 function updCount(){const cn=$('fxCnt');if(cn)cn.textContent='● ออนไลน์ที่ท่า '+(remotes.size+1)+' คน'}
 function removeRemote(k){remotes.delete(k);const o=els.get(k);if(o){clearTimeout(o.walkT);o.el.remove();els.delete(k)}const r=rods.get(k);if(r){r.g.remove();rods.delete(k)}BUB.delete(k);updCount()}
@@ -8872,10 +9090,11 @@ function applyRemote(p){
  if(!p||typeof p!=='object'||!$('fx-dock'))return;
  const key=p.sid||p.uid;if(!key||key===sid)return;
  const old=remotes.get(key);
+ if(old&&typeof p.t==='number'&&old.t&&p.t<=old.t){old.seen=Date.now();return} /* ข้อมูลเก่ากว่า (เช่น presence ค้าง) ไม่ต้องดึงตัวกลับ */
  const q=clampPos(typeof p.px==='number'?p.px:(old?old.x:190),typeof p.py==='number'?CY+p.py:(old?old.y:CY+P_SPAWN()));
  const moved=!!old&&(Math.abs(q.x-old.x)>0.5||Math.abs(q.y-old.y)>0.5);
  const r=old||{html:null};
- Object.assign(r,{uid:p.uid,name:String(p.name||r.name||'ผู้เล่น').slice(0,16),lv:p.lv||r.lv||1,st:p.st||'idle',cid:p.cid||0,x:q.x,y:q.y,face:p.face===-1?-1:1,
+ Object.assign(r,{uid:p.uid,name:String(p.name||r.name||'ผู้เล่น').slice(0,16),lv:p.lv||r.lv||1,st:p.st||'idle',cid:p.cid||0,x:q.x,y:q.y,face:p.face===-1?-1:1,t:typeof p.t==='number'?p.t:(r.t||0),
   bx:typeof p.bx==='number'?p.bx:null,by:typeof p.by==='number'?CY+p.by:null,seen:Date.now()});
  remotes.set(key,r);
  const o=ensureEl(key,r.html,r.name+' Lv.'+r.lv,false);
@@ -8889,14 +9108,14 @@ function applyRemote(p){
   fetchProfile(r.uid).then(pr=>{const z=remotes.get(key);if(!z)return;z.fetching=false;
    if(pr&&pr.html){z.html=pr.html;if(els.get(key))ensureEl(key,z.html,z.name+' Lv.'+z.lv,false)}else z.retryAt=Date.now()+15000}).catch(()=>{const z=remotes.get(key);if(z){z.fetching=false;z.retryAt=Date.now()+15000}});
  }
- if(!old)updCount();
+ if(!old){updCount();updateBubbles()}
 }
 function syncPresence(){
  if(!ch)return;let state={};try{state=ch.presenceState()||{}}catch(e){}
  const live=new Set();
  Object.keys(state).forEach(k=>{const arr=state[k];const p=arr&&arr[arr.length-1];if(!p||k===sid||p.sid===sid)return;if(!p.sid)p.sid=k;live.add(p.sid);applyRemote(p)});
  const now=Date.now();
- remotes.forEach((r,k)=>{if(!live.has(k)&&now-r.seen>8000)removeRemote(k)});
+ remotes.forEach((r,k)=>{if(!live.has(k)&&now-r.seen>15000)removeRemote(k)});
  updCount();drawRods();
 }
 function setSt(s){st=s;setPose(els.get(SELF),s);publish(true);drawRods()}
@@ -8918,11 +9137,13 @@ async function connect(){
  ch=c;
  c.on('presence',{event:'sync'},()=>{if(ch===c)syncPresence()})
   .on('presence',{event:'join'},({newPresences})=>{if(ch!==c)return;(newPresences||[]).forEach(applyRemote);drawRods()})
-  .on('presence',{event:'leave'},({key})=>{if(ch===c&&key&&key!==sid)removeRemote(key)})
+  .on('presence',{event:'leave'},({key})=>{ /* leave อาจมาคู่กับ join ตอนอัปเดต track → รอเช็กก่อนค่อยลบ ไม่ให้ตัวกระพริบ */
+   if(ch!==c||!key||key===sid)return;
+   setTimeout(()=>{if(ch!==c)return;let st0={};try{st0=c.presenceState()||{}}catch(e){}const r=remotes.get(key);if(!st0[key]&&r&&Date.now()-r.seen>5000)removeRemote(key)},2500)})
   .on('broadcast',{event:'pos'},({payload})=>{if(ch===c)applyRemote(payload)})
   .on('broadcast',{event:'hello'},({payload})=>{if(ch!==c)return;if(payload)applyRemote(payload);setTimeout(sendPos,rnd(100,600))})
   .on('broadcast',{event:'bye'},({payload})=>{const k=payload&&payload.sid;if(ch===c&&k&&k!==sid)removeRemote(k)})
-  .on('broadcast',{event:'catch'},({payload})=>{if(!payload)return;logLine(`<b>${esc(payload.name)}</b> ได้ ${esc(payload.fish)} (${esc(payload.rarity)})`)})
+  .on('broadcast',{event:'catch'},({payload})=>{if(!payload)return;logLine(`${payload.boss?'👑 ':''}<b>${esc(payload.name)}</b> ได้ ${esc(payload.fish)} (${esc(payload.rarity)})`);if(payload.boss)toast('👑 '+String(payload.name).slice(0,16)+' จับบอส '+String(payload.fish).slice(0,20)+'!')})
   .on('broadcast',{event:'chat'},({payload})=>{const pk=payload&&(payload.sid||payload.uid);if(!pk||pk===sid)return;const t=String(payload.text||'').slice(0,80);if(!t)return;sayBubble(pk,t);logLine(`💬 <b>${esc(payload.name||'ผู้เล่น')}</b>: ${esc(t)}`)})
   .on('broadcast',{event:'typing'},onRemoteTyping)
   .subscribe(s=>{
@@ -8936,7 +9157,7 @@ async function connect(){
     joined=false;
     if(!$('fx-dock'))return;
     setMsg('การเชื่อมต่อหลุด · กำลังเชื่อมใหม่…');
-    clearTimeout(retryT);retryT=setTimeout(()=>{if($('fx-dock')&&ch===c){ch=null;connect()}},3000);
+    clearTimeout(retryT);retryT=setTimeout(()=>{if($('fx-dock')&&ch===c&&!joined){ch=null;connect()}},4000); /* ให้ supabase ต่อเองก่อน ถ้ายังไม่ได้ค่อยสร้างช่องใหม่ */
    }
   });
  /* heartbeat: ส่งตำแหน่งทุก 3 วิ ให้คนที่เพิ่งเข้ามาเห็นทันที · ลบคนที่เงียบเกิน 20 วิ */
@@ -8944,9 +9165,10 @@ async function connect(){
  hbI=setInterval(()=>{
   if(!$('fx-dock')){clearInterval(hbI);return}
   if(ch!==c)return;
-  sendPos();if(Date.now()-lastTrack>15000)trackMe();
-  const now=Date.now();remotes.forEach((r,k)=>{if(now-r.seen>20000)removeRemote(k)});
- },3000);
+  if(!joined)return;
+  sendPos();if(Date.now()-lastTrack>30000)trackMe();
+  const now=Date.now();remotes.forEach((r,k)=>{if(now-r.seen>25000)removeRemote(k)});
+ },4000);
 }
 
 /* ---------- จอยสติ๊กเดินอิสระ ---------- */
@@ -9019,7 +9241,7 @@ function onTyping(){
  const key=SELF;
  if(t)setBubble(key,t,true);else{BUB.delete(key);updateBubbles()}
  const now=Date.now();
- if(!t||now-lastTypeSend>250){
+ if(!t||now-lastTypeSend>400){
   lastTypeSend=now;
   try{if(ch&&joined)ch.send({type:'broadcast',event:'typing',payload:{uid,sid,text:t}})}catch(e){}
  }
@@ -9080,19 +9302,22 @@ function bite(){
  if(st!=='waiting')return;
  fish=pickFish();setSt('biting');
  const a=$('fxAlert');a.style.left=(bob.x/W*100)+'%';a.style.top=(bob.y/H*100)+'%';a.style.display='flex';
- if(autoOn){setMsg('🤖 ซัดอัตโนมัติ');later(hook,500);return}
- const dd=diffOf(fish);btns('hook');setMsg('ปลาฮิตเบ็ด! กดซัดเลย ('+dd.stars+')');
+ a.classList.toggle('boss',!!fish.boss);a.textContent=fish.boss?'‼':'!';
+ if(fish.boss){toast('⚠️ บอสปลาฮุบเบ็ด!');ripple(bob.x,bob.y);ripple(bob.x+6,bob.y+2)}
+ if(autoOn){setMsg(fish.boss?'🤖 บอสปลา! ซัดอัตโนมัติ':'🤖 ซัดอัตโนมัติ');later(hook,fish.boss?700:500);return}
+ const dd=diffOf(fish);btns('hook');setMsg((fish.boss?'👑 บอสปลา! ':'ปลาฮิตเบ็ด! ')+'กดซัดเลย ('+dd.stars+')');
  later(missed,dd.bite); /* ปลายิ่งระดับสูง ยิ่งต้องซัดไว */
 }
 function missed(){if(st!=='biting')return;toast('ปลาหนีไปแล้ว');endCast()}
 function hook(){
  if(st!=='biting')return;
  $('fxAlert').style.display='none';setSt('fighting');btns(autoOn?'auto':'reel');
- setMsg('กำลังสู้กับ '+fish.name);
  const f=fish;
+ setMsg(f.boss?'👑 สู้กับบอส '+f.name+'!':'กำลังสู้กับ '+f.name);
  const d=diffOf(f),t0=performance.now();
  fight={progress:40,marker:50,center:50,width:d.w,d,t0,last:t0,limit:FIGHT_MS,raf:0,dart:0,dartV:0,dartAt:t0+rnd(600,1400),jerkV:0,jerkAt:t0+rnd(500,1200)};
- $('fxFight').style.display='block';$('fxFName').innerHTML=esc(f.name+' · '+f.rarity)+' <span style="color:#ffd23f">'+d.stars+'</span>';
+ $('fxFight').style.display='block';$('fxFName').innerHTML=(f.boss?'<b style="color:#ff5a4a">👑 บอส</b> ':'')+esc(f.name)+(f.boss?'':' · <span style="color:'+RCOL[f.tier]+'">'+esc(f.rarity)+'</span>')+' <span style="color:#ffd23f">'+d.stars+'</span>';
+ $('fxFight').classList.toggle('boss',!!f.boss);
  fight.raf=requestAnimationFrame(fightFrame);
 }
 function fightFrame(now){
@@ -9107,7 +9332,9 @@ function fightFrame(now){
  /* ปลากระชากสาย: ระดับสูงกระชากแรงและถี่ */
  if(now>f.jerkAt){f.jerkAt=now+rnd(450,1300)/(1+fish.tier*0.2);f.jerkV=(Math.random()<.5?-1:1)*d.jerk*rnd(.5,1)}
  f.jerkV*=Math.pow(0.996,dt);
- if(autoOn)reeling=f.marker<f.center;
+ if(autoOn){ /* ออโต้ตอบสนองช้ากว่าคน: ปลาระดับสูง/บอส มีโอกาสหลุด */
+  if(now>(f.autoAt||0)){f.autoAt=now+(fish.boss?110:40+fish.tier*18);reeling=f.marker<f.center+(fish.boss?rnd(-4,4):0)}
+ }
  f.marker+=(reeling?0.2:-0.075)*dt+f.jerkV*dt*0.02;
  f.marker=Math.max(0,Math.min(100,f.marker));
  const inZ=Math.abs(f.marker-f.center)<f.width/2;
@@ -9128,10 +9355,11 @@ const DIFF=[
  {w:28,zs:.0006,amp:22,jerk:1.0,gain:.010,dec:.005,bite:2300,stars:'★★'},
  {w:22,zs:.00085,amp:27,jerk:1.6,gain:.0085,dec:.0062,bite:2000,stars:'★★★'},
  {w:16,zs:.00115,amp:32,jerk:2.3,gain:.007,dec:.0076,bite:1700,stars:'★★★★'},
- {w:12,zs:.0015,amp:36,jerk:3.1,gain:.0058,dec:.009,bite:1400,stars:'★★★★★'}];
+ {w:12,zs:.0015,amp:36,jerk:3.1,gain:.0058,dec:.009,bite:1400,stars:'★★★★★'},
+ {w:10,zs:.0019,amp:40,jerk:4.0,gain:.0048,dec:.011,bite:1150,stars:'👑'}]; /* บอสปลา: ยากกว่าตำนานอีกขั้น */
 function diffOf(f){
- const d=Object.assign({},DIFF[Math.max(0,Math.min(4,f.tier|0))]),h=f.hd||1;
- d.w=Math.max(9,d.w/h);d.zs*=h;d.jerk*=h;d.dec*=h;d.gain/=Math.sqrt(h);d.bite=Math.round(d.bite/h);
+ const d=Object.assign({},DIFF[Math.max(0,Math.min(5,f.tier|0))]),h=f.hd||1;
+ d.w=Math.max(f.boss?7:9,d.w/h);d.zs*=h;d.jerk*=h;d.dec*=h;d.gain/=Math.sqrt(h);d.bite=Math.round(d.bite/h);
  return d;
 }
 function endCast(){
@@ -9175,21 +9403,33 @@ function toggleAuto(){
 function leapFx(x,y,f){
  const fx=$('fxFx');if(!fx)return;
  const g=document.createElementNS(NS,'g');
- g.innerHTML=`<path d="M0 0C6 -7 18 -7 24 0C18 7 6 7 0 0Z" fill="${f.c}"/><path d="M22 0L31 -6L31 6Z" fill="${f.c}"/><circle cx="5" cy="-1.5" r="1.1" fill="#26231e"/>`;
+ const w=f.boss?70:44;
+ g.innerHTML=fishSVG(f,w,`x="${-w/2}" y="${-w*0.3}"`);
  fx.appendChild(g);
  const t0=performance.now();
  (function fr(now){const t=Math.min(1,(now-t0)/900);g.setAttribute('transform',`translate(${x-12+t*2},${y-Math.sin(Math.PI*t)*50+t*4}) rotate(${-60*Math.sin(Math.PI*t)})`);g.setAttribute('opacity',t>.85?1-(t-.85)/.15:1);if(t<1)requestAnimationFrame(fr);else g.remove()})(t0);
 }
 function saveSave(){try{localStorage.setItem('ml1',JSON.stringify(S))}catch(e){}try{if(typeof render==='function')render()}catch(e){}}
+/* การ์ดโชว์ปลาที่จับได้ (บอสมีเอฟเฟกต์พิเศษ) */
+function showCatch(f,isNew){
+ const d=$('fx-dock');if(!d)return;
+ const old=$('fxCatch');if(old)old.remove();
+ const c=document.createElement('div');c.id='fxCatch';c.className='fx-catch'+(f.boss?' boss':'');
+ c.innerHTML=`<div class="fx-cc" style="--rc:${RCOL[f.tier]}">${f.boss?'<div class="fx-cbig">👑 พิชิตบอสปลา!</div>':''}${isNew?'<span class="fx-new">ใหม่!</span>':''}${fishSVG(f,f.boss?220:170)}<b>${esc(f.name)}</b><small style="color:${RCOL[f.tier]}">${esc(f.rarity)}</small><small>${priceTxt(f)}</small></div>`;
+ d.appendChild(c);
+ setTimeout(()=>{c.classList.add('out');setTimeout(()=>c.remove(),400)},f.boss?3000:1700);
+}
 function caught(){
  const f=fish;const x=bob?bob.x:POND.cx,y=bob?bob.y:POND.cy;
  leapFx(x,y,f);ripple(x,y);
  S.fishBag=S.fishBag||{};S.fishBag[f.name]=(S.fishBag[f.name]||0)+1;S.fish=(S.fish||0)+1;
+ S.fishSeen=S.fishSeen||{};const isNew=!S.fishSeen[f.name];S.fishSeen[f.name]=(S.fishSeen[f.name]||0)+1;
+ if(f.boss)S.fishBoss=(S.fishBoss||0)+1;
  saveSave();
  $('fxCount').textContent=S.fish;
- toast('ได้ '+f.name+' ลงกระเป๋าแล้ว');
- logLine(`คุณได้ <b>${esc(f.name)}</b> (${esc(f.rarity)})`);
- try{if(ch&&joined)ch.send({type:'broadcast',event:'catch',payload:{name:S.name||'จอมยุทธ์',fish:f.name,rarity:f.rarity}})}catch(e){}
+ showCatch(f,isNew);
+ logLine(`${f.boss?'👑 ':''}คุณได้ <b style="color:${RCOL[f.tier]}">${esc(f.name)}</b> (${esc(f.rarity)})`);
+ try{if(ch&&joined)ch.send({type:'broadcast',event:'catch',payload:{name:S.name||'จอมยุทธ์',fish:f.name,rarity:f.rarity,boss:!!f.boss}})}catch(e){}
  endCast();setMsg(autoOn?'🤖 ตกต่อเอง':'ตกต่อได้เลย หรือขายปลาในกระเป๋า');
 }
 function lost(){toast('ปลาหลุดจากเบ็ด');logLine('ปลาหลุดจากเบ็ด');endCast()}
@@ -9205,35 +9445,68 @@ function sellFish(name,all){
  S.fishBag[name]=have-n;if(S.fishBag[name]<=0)delete S.fishBag[name];
  saveSave();logLine(`ขาย <b>${esc(name)}</b> x${n}`);renderBag();
 }
-function sellAll(){
- let g=0,s2=0,d=0;
- FISH.forEach(f=>{const n=bagCount(f.name);if(!n)return;g+=f.g*n;s2+=f.s*n;d+=f.d*n;delete S.fishBag[f.name]});
- if(!g&&!s2&&!d){toast('ไม่มีปลาในกระเป๋า');return}
+function sellAll(){ /* ขายปลาทั้งหมด ยกเว้นบอสปลา (เก็บไว้โชว์ได้ ขายทีละตัวเอง) */
+ let g=0,s2=0,d=0,n0=0;
+ FISH.forEach(f=>{if(f.boss)return;const n=bagCount(f.name);if(!n)return;n0+=n;g+=f.g*n;s2+=f.s*n;d+=f.d*n;delete S.fishBag[f.name]});
+ if(!n0){toast('ไม่มีปลาธรรมดาในกระเป๋า');return}
  S.gold=(S.gold||0)+g;S.stone=(S.stone||0)+s2;S.diamonds=(S.diamonds||0)+d;
- saveSave();toast('ขายปลาทั้งหมดแล้ว');logLine(`ขายปลาทั้งหมด · 🪙 +${g.toLocaleString()} · 💠 +${s2} · 💎 +${d}`);renderBag();
+ saveSave();toast('ขายปลาแล้ว '+n0+' ตัว');logLine(`ขายปลา ${n0} ตัว · 🪙 +${g.toLocaleString()}${s2?' · 💠 +'+s2:''}${d?' · 💎 +'+d:''}`);renderBag();
 }
+let bagTab='bag';
 function renderBag(){
  const box=$('fx-sell');if(!box)return;
- let total=0,rows='';
- FISH.forEach((f,i)=>{const n=bagCount(f.name);total+=n;
-  rows+=`<div class="fx-item"><span class="fx-dot" style="background:${f.c}"></span><div class="fx-info"><b>${esc(f.name)}</b> <small>${esc(f.rarity)} · มี ${n} ตัว</small><small>${priceTxt(f)}</small></div><div class="fx-acts"><button data-i="${i}" data-m="1" ${n?'':'disabled'}>ขาย 1</button><button data-i="${i}" data-m="all" ${n?'':'disabled'}>ขายทั้งหมด</button></div></div>`});
+ box.querySelectorAll('.fx-tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===bagTab));
+ let total=0,rows='',worth=0;
+ const seen=S.fishSeen||{};
+ if(bagTab==='bag'){
+  FISH.map((f,i)=>[f,i]).sort((a,b)=>b[0].tier-a[0].tier||a[1]-b[1]).forEach(([f,i])=>{const n=bagCount(f.name);if(!n)return;total+=n;if(!f.boss)worth+=f.g*n;
+   rows+=`<div class="fx-item${f.boss?' boss':''}" style="--rc:${RCOL[f.tier]}"><div class="fx-pic">${fishSVG(f,f.boss?78:66)}</div><div class="fx-info"><b>${esc(f.name)}</b> <small><span style="color:${RCOL[f.tier]}">${esc(f.rarity)}</span> · มี ${n} ตัว</small><small>${priceTxt(f)}</small></div><div class="fx-acts"><button data-i="${i}" data-m="1">ขาย 1</button><button data-i="${i}" data-m="all">ขายหมด</button></div></div>`});
+  if(!rows)rows='<div class="fx-note" style="text-align:center;padding:24px 0">ยังไม่มีปลาในกระเป๋า · ไปตกปลากันเลย!</div>';
+  box.querySelector('.fx-count').textContent='ปลาในกระเป๋า '+total+' ตัว · ขายปลาธรรมดาทั้งหมดได้ 🪙 '+worth.toLocaleString()+' · บอสปลาต้องขายทีละตัว';
+  box.querySelector('.fx-list').className='fx-list';
+  $('fxSellAll').style.display='';
+ }else{
+  const got=FISH.filter(f=>seen[f.name]).length;
+  FISH.forEach(f=>{const ok=!!seen[f.name];
+   rows+=`<div class="fx-card${f.boss?' boss':''}${ok?'':' lock'}" style="--rc:${RCOL[f.tier]}">${fishSVG(f,f.boss?96:84)}<b>${ok?esc(f.name):'???'}</b><small style="color:${RCOL[f.tier]}">${esc(f.rarity)}</small><small>${ok?priceTxt(f):'ยังไม่เคยจับได้'}</small>${ok?`<small>จับได้ ${seen[f.name]} ครั้ง</small>`:''}</div>`});
+  box.querySelector('.fx-count').textContent='สมุดปลา · ค้นพบแล้ว '+got+'/'+FISH.length+' ชนิด (ปลา 50 · บอสปลา 20)';
+  box.querySelector('.fx-list').className='fx-list fx-book';
+  $('fxSellAll').style.display='none';
+ }
  box.querySelector('.fx-list').innerHTML=rows;
- box.querySelector('.fx-count').textContent='ปลาในกระเป๋า '+total+' ตัว';
  box.querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>sellFish(FISH[+b.dataset.i].name,b.dataset.m==='all'));
 }
 function openBag(){
  if($('fx-sell'))return;
  $('fx-dock').classList.add('fx-modal');
  const w=document.createElement('div');w.id='fx-sell';
- w.innerHTML=`<div class="fx-panel"><div class="fx-top"><span>🎒 กระเป๋าปลา</span><button class="fx-btn" id="fxSellX">ปิด</button></div><div class="fx-note fx-count"></div><div class="fx-list"></div><button class="fx-sellall" id="fxSellAll">ขายปลาทั้งหมด</button></div>`;
+ w.innerHTML=`<div class="fx-panel"><div class="fx-top"><span>🎒 ร้านขายปลา</span><button class="fx-btn" id="fxSellX">ปิด</button></div><div class="fx-tabs"><button data-t="bag">🎒 กระเป๋า</button><button data-t="book">📖 สมุดปลา</button></div><div class="fx-note fx-count"></div><div class="fx-list"></div><button class="fx-sellall" id="fxSellAll">ขายปลาธรรมดาทั้งหมด</button></div>`;
  $('fx-dock').appendChild(w);
  $('fxSellX').onclick=()=>closeModal('fx-sell');
  $('fxSellAll').onclick=sellAll;
+ w.querySelectorAll('.fx-tabs button').forEach(b=>b.onclick=()=>{bagTab=b.dataset.t;renderBag();w.querySelector('.fx-list').scrollTop=0});
  renderBag();
 }
 
 /* ---------- หน้าจอท่าตกปลา ---------- */
-let prevHold=false;
+let prevHold=false,stageH=0;
+/* ---------- ตอนพิมพ์: คีย์บอร์ดบังจอ → เลื่อนฉากให้ตัวเรา+ข้อความเหนือหัวอยู่เหนือช่องพิมพ์ ---------- */
+function fitTyping(){
+ const d=$('fx-dock'),sc=$('fxScene'),bt=$('fxBottom');if(!d||!sc||!bt)return;
+ if(!d.classList.contains('fx-typing')){sc.style.transform='';bt.style.bottom='';return}
+ const vv=window.visualViewport,dr=d.getBoundingClientRect();
+ const visBot=Math.min(dr.height,(vv?vv.height+vv.offsetTop:innerHeight)-dr.top);
+ bt.style.bottom=Math.max(0,Math.round(dr.height-visBot))+'px';
+ const barTop=visBot-bt.offsetHeight,feet=me.y/H*sc.offsetHeight;
+ let dy=Math.min(0,barTop-10-feet);
+ const headTop=feet-180+dy;if(headTop<54)dy+=54-headTop;if(dy>0)dy=0;
+ sc.style.transform='translateY('+Math.round(dy)+'px)';
+}
+function onVV(){fitTyping()}
+function onVis(){ /* กลับมาที่แอป/เน็ตกลับมา → ต่อใหม่ทันทีถ้าหลุด */
+ if(document.hidden||!$('fx-dock'))return;
+ if(!joined){clearTimeout(retryT);ch=null;connect()}else{sendPos();trackMe()}
+}
 window.openFish=function(){
  if($('fx-dock'))return;
  layout();
@@ -9243,17 +9516,17 @@ window.openFish=function(){
  prevHold=!!window._hold;window._hold=true;
  document.body.classList.add('fx-mode');
  try{window.scrollTo(0,0)}catch(e){}
- {const p0=clampPos(190+rnd(-150,150),CY+P_SPAWN()+rnd(-6,10));me.x=p0.x;me.y=p0.y}me.face=me.x>190?-1:1;me.target=null;st='idle';
+ {const p0=clampPos(rnd(130,340),CY+P_SPAWN()+rnd(-6,10)); /* ไม่เกิดทับจอยซ้ายล่าง */me.x=p0.x;me.y=p0.y}me.face=me.x>190?-1:1;me.target=null;st='idle';
  const w=document.createElement('div');w.id='fx-dock';
  w.innerHTML=`
  <div class="fx-scene" id="fxScene">${sceneSVG()}
   <svg id="fxFx" viewBox="0 0 ${W} ${H}" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none" aria-hidden="true"></svg>
   <div id="fxPl" style="position:absolute;inset:0;pointer-events:none"></div>
   <svg id="fxBob" viewBox="0 0 ${W} ${H}" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible" aria-hidden="true"></svg>
+  <div id="fxAlert" class="fx-alert" style="z-index:5000">!</div>
  </div>
  <div class="fx-head"><button class="fx-btn" id="fxBack">⬅ กลับเมือง</button><span class="fx-cnt" id="fxCnt">● ออนไลน์ที่ท่า 1 คน</span><button class="fx-btn gold" id="fxBag">🎒 ขายปลา</button></div>
  <div id="fxPower" class="fx-power"><i id="fxPowerFill"></i></div>
- <div id="fxAlert" class="fx-alert">!</div>
  <div id="fxFight" class="fx-fight">
   <div class="fx-lbl"><span id="fxFName">ปลากำลังดิ้น</span><span id="fxTime">21 วินาที</span></div>
   <div class="fx-track"><div id="fxZone" class="fx-zone"></div><div id="fxMk" class="fx-mk"></div></div>
@@ -9261,7 +9534,7 @@ window.openFish=function(){
  </div>
  <div id="fxTst" class="fx-toast"></div>
   <div id="fxJoy" class="fx-joy" aria-label="จอยสติ๊กเดิน"><i id="fxKnob" class="fx-knob"></i></div>
- <div class="fx-bottom">
+ <div class="fx-bottom" id="fxBottom">
   <div class="fx-status"><span id="fxMsg">กำลังเชื่อมต่อ…</span><span>🐟 <b id="fxCount">${S.fish||0}</b> ตัว</span></div>
   <div class="fx-ctl">
    <button id="fxCast">กดค้างเพื่อเหวี่ยง</button>
@@ -9272,6 +9545,8 @@ window.openFish=function(){
   <div class="fx-log" id="fxLog"></div>
  </div>`;
  document.body.appendChild(w);
+ /* ล็อกความสูงฉากเป็น px ตอนเปิด: คีย์บอร์ดขึ้นแล้วฉากไม่ยืด/หด ตำแหน่งตัวละครไม่เพี้ยน */
+ stageH=w.clientHeight;{const sc0=$('fxScene');sc0.style.bottom='auto';sc0.style.height=stageH+'px'}
  myHTML=heroHTML()||'';
  const mo=ensureEl(SELF,myHTML,((S&&S.name)||'จอมยุทธ์')+' (ท่าน)',true);
  mo.el.classList.add('me');
@@ -9284,6 +9559,10 @@ window.openFish=function(){
  $('fxSend').onclick=sendChat;
  $('fxIn').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat()});
  $('fxIn').addEventListener('input',onTyping);
+ $('fxIn').addEventListener('focus',()=>{const d=$('fx-dock');if(!d)return;d.classList.add('fx-typing');fitTyping();setTimeout(fitTyping,250);setTimeout(fitTyping,600)});
+ $('fxIn').addEventListener('blur',()=>setTimeout(()=>{const d=$('fx-dock');if(!d||document.activeElement===$('fxIn'))return;d.classList.remove('fx-typing');fitTyping();try{window.scrollTo(0,0)}catch(e){}},150));
+ try{if(window.visualViewport){visualViewport.addEventListener('resize',onVV);visualViewport.addEventListener('scroll',onVV)}}catch(e){}
+ document.addEventListener('visibilitychange',onVis);window.addEventListener('online',onVis);
  const sc=$('fxScene');
  sc.addEventListener('pointerdown',e=>{const r=sc.getBoundingClientRect();walkTo((e.clientX-r.left)/r.width*W,(e.clientY-r.top)/r.height*H)});
  const c=$('fxCast');
@@ -9304,6 +9583,8 @@ function closeFish(){
  const c0=ch;ch=null;joined=false;
  try{if(c0){try{c0.send({type:'broadcast',event:'bye',payload:{sid}})}catch(e){}c0.untrack&&c0.untrack();sb&&sb.removeChannel(c0)}}catch(e){}
  sid=null;remotes.clear();els.clear();st='idle';bob=null;fight=null;BUB.clear();rods.clear();seenCid.clear();me.target=null;
+ try{if(window.visualViewport){visualViewport.removeEventListener('resize',onVV);visualViewport.removeEventListener('scroll',onVV)}}catch(e){}
+ document.removeEventListener('visibilitychange',onVis);window.removeEventListener('online',onVis);
  const w=$('fx-dock');if(w)w.remove();
  document.body.classList.remove('fx-mode');
  window._hold=prevHold; /* กลับหน้าหลัก เกมเดินต่อ */
