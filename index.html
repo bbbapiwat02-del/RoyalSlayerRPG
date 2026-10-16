@@ -9337,6 +9337,133 @@ cfg();reset();
 })();
 </script>
 
+<script>/* ================= หอคอยสวรรค์: หน้าต่างใหม่ + แก้หลอดเลือดซ้อนตอนบอสตาย ================= */
+(function(){
+const hh=s=>{let h=7;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h};
+function art(f,big){const r=window._rig,a=window._monA;let s='';try{s=mkMon(hh('tw'+f+'b')%120,true).s}catch(e){}window._rig=r;window._monA=a;return s}
+const ring=(n,r,c1,c2)=>`<svg viewBox="-70 -70 140 140"><circle r="${r}" fill="none" stroke="${c1}" stroke-width="1.4" stroke-dasharray="4 5"/><circle r="${r-7}" fill="none" stroke="${c2}" stroke-width=".8" opacity=".7"/>${Array.from({length:n},(_,i)=>`<g transform="rotate(${i*360/n})"><path d="M0 ${-r-5}L3 ${-r}L0 ${-r+5}L-3 ${-r}Z" fill="${c1}"/></g>`).join('')}</svg>`;
+const pag=`<svg viewBox="0 0 90 150" preserveAspectRatio="xMidYMax meet"><g fill="currentColor"><path d="M45 0L50 14H40Z"/>${[0,1,2,3,4].map(i=>{const y=14+i*26,w=22+i*7;return `<path d="M${45-w-8} ${y+10}Q45 ${y-4} ${45+w+8} ${y+10}L${45+w} ${y+12}H${45-w}Z"/><rect x="${45-w+4}" y="${y+12}" width="${2*w-8}" height="14"/>`}).join('')}</g></svg>`;
+document.head.insertAdjacentHTML('beforeend',`<style>
+#twr .tz-top{position:relative;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;overflow:hidden;color:#ffe9c8;
+ background:radial-gradient(circle at 12% 50%,#ffd23f33,transparent 45%),linear-gradient(#2c1606,#120802);border:1.5px solid #c8902a;box-shadow:inset 0 0 14px #000b,0 3px 10px #0008}
+#twr .tz-em{flex:none;width:46px;height:56px;color:#ffd23f;filter:drop-shadow(0 0 8px #ff9a2a)}
+#twr .tz-em svg{width:100%;height:100%}
+#twr .tz-in{flex:1;min-width:0}
+#twr .tz-l1{display:flex;align-items:baseline;gap:6px;font-size:11px;color:#c8a87a}
+#twr .tz-l1 b{font-size:20px;font-weight:900;color:#fff;text-shadow:0 0 10px #ff9a2a}
+#twr .tz-l1 em{font-style:normal;margin-left:auto;font-weight:900;color:#ffe066;font-size:12px}
+#twr .tz-rl{font-size:11px;font-weight:800;margin:1px 0 5px}
+#twr .tz-bar{display:flex;gap:2px;height:10px}
+#twr .tz-bar i{flex:1;border-radius:3px;background:#0008;box-shadow:inset 0 0 0 1px #ffffff1a;position:relative;overflow:hidden}
+#twr .tz-bar i b{position:absolute;inset:0;right:auto;background:linear-gradient(#fff8,transparent 60%),var(--c);box-shadow:0 0 6px var(--c)}
+#twr .tz-card{position:relative;margin-top:10px;border-radius:20px;overflow:hidden;padding:12px 12px 12px;text-align:center;color:#fff;isolation:isolate;
+ background:radial-gradient(ellipse at 50% 38%,color-mix(in srgb,var(--c) 45%,transparent),transparent 62%),linear-gradient(180deg,color-mix(in srgb,var(--c) 22%,#0a0618),#07040e 70%);
+ border:2px solid transparent;background-clip:padding-box;box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 70%,#fff3b0),0 0 22px color-mix(in srgb,var(--c) 45%,transparent),inset 0 0 30px #000a}
+#twr .tz-card.big{box-shadow:0 0 0 2px #ffd23f,0 0 0 4px color-mix(in srgb,var(--c) 60%,#000),0 0 30px #ffd23f88,inset 0 0 30px #000a}
+#twr .tz-pg{position:absolute;bottom:0;width:70px;height:150px;color:color-mix(in srgb,var(--c) 30%,#000);opacity:.55;z-index:-1}
+#twr .tz-pg.l{left:-8px}#twr .tz-pg.r{right:-8px;transform:scaleX(-1)}
+#twr .tz-pg svg{width:100%;height:100%}
+#twr .tz-st{position:absolute;inset:0;z-index:-1;pointer-events:none}
+#twr .tz-st i{position:absolute;width:3px;height:3px;border-radius:50%;background:#fff;opacity:.6;animation:tzTw 2.4s ease-in-out infinite}
+#twr .tz-rib{display:inline-flex;align-items:center;gap:6px;padding:3px 14px;border-radius:12px;font-size:11px;font-weight:900;letter-spacing:.5px;
+ background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--c) 55%,#000) 20%,color-mix(in srgb,var(--c) 55%,#000) 80%,transparent);color:#fff;text-shadow:0 1px 2px #000}
+#twr .tz-tag{display:inline-block;margin-left:4px;padding:1px 8px;border-radius:8px;font-size:10px;background:#ffd23f;color:#3a1a00;text-shadow:none}
+#twr .tz-tag.m{background:#c8d8ff;color:#1a2a5a}
+#twr .tz-fl{display:flex;align-items:center;justify-content:center;gap:10px;margin:4px 0 0}
+#twr .tz-fl b{font-size:34px;font-weight:900;line-height:1;background:linear-gradient(#fff,#ffe9a0 45%,#ffb02e);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 #5a2a00) drop-shadow(0 0 10px #ff9a2a88)}
+#twr .tz-fl button{width:30px;height:30px;border-radius:50%;border:1.5px solid color-mix(in srgb,var(--c) 70%,#fff);background:#0008;color:#fff;font:inherit;font-weight:900;font-size:14px;cursor:pointer}
+#twr .tz-fl button:disabled{opacity:.25}
+#twr .tz-stage{position:relative;height:150px;margin:2px auto 0;width:180px}
+#twr .tz-stage .rg{position:absolute;left:50%;top:50%;width:150px;height:150px;margin:-75px 0 0 -75px;animation:tzSpin 18s linear infinite;opacity:.9}
+#twr .tz-stage .rg.b{width:118px;height:118px;margin:-59px 0 0 -59px;animation-direction:reverse;animation-duration:12s}
+#twr .tz-stage .rg svg{width:100%;height:100%}
+#twr .tz-stage .ray{position:absolute;left:50%;top:50%;width:260px;height:260px;margin:-130px 0 0 -130px;border-radius:50%;background:repeating-conic-gradient(from 0deg,color-mix(in srgb,var(--c) 30%,transparent) 0 6deg,transparent 6deg 18deg);-webkit-mask:radial-gradient(circle,#000 20%,transparent 68%);mask:radial-gradient(circle,#000 20%,transparent 68%);animation:tzSpin 40s linear infinite}
+#twr .tz-stage .base{position:absolute;left:50%;bottom:6px;width:140px;height:26px;margin-left:-70px;border-radius:50%;background:radial-gradient(ellipse,color-mix(in srgb,var(--c) 60%,transparent),transparent 70%);box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 50%,transparent)}
+#twr .tz-stage .mo{position:absolute;left:50%;bottom:12px;width:120px;height:120px;margin-left:-60px;animation:tzBob 2.6s ease-in-out infinite;filter:drop-shadow(0 6px 6px #000a) drop-shadow(0 0 10px color-mix(in srgb,var(--c) 60%,transparent))}
+#twr .tz-stage .mo svg{width:100%!important;height:100%!important;overflow:visible}
+#twr .tz-stage .mo .emj{font-size:84px;line-height:120px}
+#twr .tz-nm{font-size:16px;font-weight:900;margin-top:2px;text-shadow:0 0 10px var(--c),0 2px 2px #000}
+#twr .tz-g4{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:8px}
+#twr .tz-g4 div{padding:5px 2px;border-radius:10px;background:#0009;border:1px solid color-mix(in srgb,var(--c) 45%,#5a3a1a);font-size:9.5px;color:#c8b8a8}
+#twr .tz-g4 div i{display:block;font-style:normal;font-size:15px;line-height:1.1}
+#twr .tz-g4 div b{display:block;font-size:12px;color:#ffe066}
+#twr .tz-rw{margin-top:8px;padding:7px 8px 8px;border-radius:12px;background:linear-gradient(90deg,#ffd23f14,#ffd23f2a,#ffd23f14);border-top:1px solid #ffd23f66;border-bottom:1px solid #ffd23f66}
+#twr .tz-rw small{display:block;font-size:10.5px;color:#ffe9a0;font-weight:800;margin-bottom:4px}
+#twr .tz-rw .it{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+#twr .tz-rw .it span{display:flex;align-items:center;gap:4px;padding:3px 9px;border-radius:10px;background:#000a;border:1px solid #c8902a;font-size:12px;font-weight:900;color:#fff}
+#twr .tz-rw.done{background:#1f7a3a33;border-color:#5ad97a66}#twr .tz-rw.done small{color:#a8ffb8}
+#twr #twgo.tz-go{margin-top:10px;width:100%;padding:14px;border-radius:16px;font-size:17px;font-weight:900}
+#twr .tz-ls{position:relative;margin-top:12px;padding:10px 8px 10px 8px;border-radius:16px;background:linear-gradient(#1c0f06,#0e0703);border:1.5px solid #6a4a22;max-height:360px;overflow-y:auto;overscroll-behavior:contain}
+#twr .tz-rm{position:sticky;top:-10px;z-index:2;margin:6px -2px 6px;padding:5px 8px;border-radius:10px;text-align:center;font-size:11.5px;font-weight:900;color:#fff;text-shadow:0 1px 2px #000;
+ background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--c) 60%,#120802) 15%,color-mix(in srgb,var(--c) 60%,#120802) 85%,transparent);backdrop-filter:blur(2px)}
+#twr .tz-rm small{font-weight:600;opacity:.8;margin-left:4px}
+#twr .tz-r{position:relative;display:flex;align-items:center;gap:9px;width:100%;margin:0 0 5px;padding:6px 10px 6px 6px;border-radius:12px;font:inherit;text-align:left;cursor:pointer;color:#ffe9c8;
+ background:linear-gradient(90deg,#2a180a,#1a0e06);border:1px solid #4a321a}
+#twr .tz-r::before{content:'';position:absolute;left:23px;top:-6px;bottom:-6px;width:3px;background:linear-gradient(var(--c),color-mix(in srgb,var(--c) 30%,transparent));opacity:.5;z-index:0}
+#twr .tz-r .nd{position:relative;z-index:1;flex:none;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;color:#fff;
+ background:radial-gradient(circle at 40% 35%,color-mix(in srgb,var(--c) 70%,#fff),color-mix(in srgb,var(--c) 60%,#000));border:2px solid #0008;box-shadow:0 0 0 1.5px color-mix(in srgb,var(--c) 70%,#fff)}
+#twr .tz-r.big .nd{width:40px;height:40px;margin:-2px;border-color:#ffd23f;box-shadow:0 0 0 2px #ffd23f,0 0 12px #ffd23f}
+#twr .tz-r.big .nd::after{content:'👑';position:absolute;top:-13px;font-size:13px}
+#twr .tz-r.mini .nd{border-color:#c8d8ff}
+#twr .tz-r .tx{flex:1;min-width:0;font-size:12.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#twr .tz-r .tx small{display:block;font-size:10px;font-weight:600;color:#b8987a;overflow:hidden;text-overflow:ellipsis}
+#twr .tz-r .sx{flex:none;font-size:11px;font-weight:900;padding:3px 8px;border-radius:9px}
+#twr .tz-r.done .sx{background:#1f7a3a;color:#c8ffd0}
+#twr .tz-r.now .sx{background:linear-gradient(#ff7a5a,#b3261e);color:#fff;animation:tzPulse 1.4s ease-in-out infinite}
+#twr .tz-r.lock{opacity:.5}#twr .tz-r.lock .nd{filter:grayscale(.8)}#twr .tz-r.lock .sx{color:#aaa}
+#twr .tz-r.big{background:linear-gradient(90deg,#3a2408,#1e1206);border-color:#c8902a}
+#twr .tz-r.sel{border-color:#ffd23f;box-shadow:0 0 0 1px #ffd23f,0 0 12px #ffd23f66;background:linear-gradient(90deg,#4a2e0c,#241406)}
+@keyframes tzSpin{to{transform:rotate(360deg)}}@keyframes tzBob{50%{transform:translateY(-6px)}}
+@keyframes tzTw{50%{opacity:.1}}@keyframes tzPulse{50%{box-shadow:0 0 10px #ff5a3a}}
+/* บอสตาย: ไม่ให้หลอดเลือดปกติโผล่ซ้อน */
+#arena.bmd #mb{display:none!important}
+</style>`);
+const TT=TW_MAX;
+renderTw=function(){
+ const b=ensureTw();if(!twSel)twSel=Math.min(TT,b.best+1);twSel=Math.max(1,Math.min(TT,twSel));
+ const I=twInfo(twSel),r=I.r,c=r.c,cleared=twSel<=b.best,cur=twInfo(Math.min(TT,b.best+1));
+ /* หัว: ความคืบหน้า 10 ภพ */
+ $('twh').innerHTML=`<div class="tz-top"><div class="tz-em">${pag}</div><div class="tz-in"><div class="tz-l1">ชั้นสูงสุด <b>${b.best}</b>/ ${TT}<em>${Math.round(b.best/TT*100)}%</em></div>
+  <div class="tz-rl" style="color:${cur.r.c}">🗼 ${b.best>=TT?'พิชิตยอดหอแล้ว!':'กำลังบุก: '+cur.r.n}</div>
+  <div class="tz-bar">${TWR.map((x,i)=>{const p=Math.max(0,Math.min(1,(b.best-i*10)/10));return `<i style="--c:${x.c}"><b style="width:${p*100}%"></b></i>`}).join('')}</div></div></div>`;
+ /* ผลรอบล่าสุด (คงเดิม) */
+ const t=b.last;let rh='';
+ if(t){const I2=twInfo(t.f);
+  rh=t.win?`<div class="bz-res won ${twFresh?'fresh':''}" style="--c:${I2.r.c};--ca:${I2.r.c}44"><div class="bzbig" style="color:${I2.r.c}">🏆 พิชิตชั้น ${t.f}!</div><small>${I2.nm}<br>🪙 +${fmt(t.gold||0)}${t.first?'<br><b>🎁 รางวัลครั้งแรก:</b> '+twRw(I2):'<br>(ซ้ำ: รับเหรียญ 40%)'}</small></div>`
+   :`<div class="bz-res ${twFresh?'fresh':''}" style="--c:#e5534b;--ca:#e5534b44"><div class="bzbig">${t.timeout?'⌛ หมดเวลา':'💀 พ่ายแพ้'} · ชั้น ${t.f}</div><small>เพิ่มพลังแล้วลองใหม่ได้ไม่จำกัด</small></div>`}
+ twFresh=false;$('twres').innerHTML=rh;
+ const why=twCan(twSel),a=art(twSel,I.big);
+ const stars=Array.from({length:14},(_,i)=>`<i style="left:${(i*53+7)%100}%;top:${(i*37+5)%70}%;animation-delay:${(i*.27).toFixed(2)}s"></i>`).join('');
+ const rw=[['💎',I.gem]];if(I.skf)rw.push(['📜',I.skf]);if(I.egg)rw.push(['🥚',I.egg]);if(I.key)rw.push(['🔑',I.key]);
+ $('twcur').innerHTML=`<div class="tz-card ${I.big?'big':''}" style="--c:${c}"><div class="tz-st">${stars}</div><div class="tz-pg l">${pag}</div><div class="tz-pg r">${pag}</div>
+  <div class="tz-rib">${r.n}${I.big?'<span class="tz-tag">👑 เจ้าแห่งภพ</span>':I.mini?'<span class="tz-tag m">⭐ ผู้คุมชั้น</span>':''}</div>
+  <div class="tz-fl"><button id="tzp" ${twSel<=1?'disabled':''}>◀</button><b>ชั้น ${twSel}</b><button id="tzn" ${twSel>=Math.min(TT,b.best+1)?'disabled':''}>▶</button></div>
+  <div class="tz-stage"><div class="ray"></div><div class="rg">${ring(10,62,'#ffd23f',c)}</div><div class="rg b">${ring(6,50,c,'#fff3b0')}</div><div class="base"></div><div class="mo">${a||`<div class="emj">${I.em}</div>`}</div></div>
+  <div class="tz-nm">${I.nm}</div>
+  <div class="tz-g4"><div><i>⏱️</i>เวลา<b>${I.t} วิ</b></div><div><i>❤️</i>เลือด<b>x${I.hpm}</b></div><div><i>💢</i>ดาเมจ<b>x${I.dm.toFixed(2)}</b></div><div><i>⚔️</i>ระดับ<b>ด่าน ${I.abs}</b></div></div>
+  <div class="tz-rw ${cleared?'done':''}">${cleared?'<small>✅ ผ่านชั้นนี้แล้ว · ท้าซ้ำได้รับ 🪙 เหรียญ 40%</small>':`<small>🎁 รางวัลผ่านครั้งแรก</small><div class="it">${rw.map(([e,n])=>`<span>${e} ${n}</span>`).join('')}</div>`}</div></div>
+  <button class="skill bz-go tz-go" id="twgo" ${why?'disabled':''}>⚔️ ${cleared?'ท้าซ้ำ':'ท้าทาย'}ชั้น ${twSel}</button>${why?`<div class="bz-why">${why}</div>`:''}`;
+ $('tzp').onclick=()=>{twSel=Math.max(1,twSel-1);twScroll=true;renderTw()};
+ $('tzn').onclick=()=>{twSel=Math.min(TT,b.best+1,twSel+1);twScroll=true;renderTw()};
+ /* รายชั้นแบบหอคอย */
+ let h='',last=-1;
+ for(let f=Math.min(TT,b.best+10);f>=1;f--){const x=twInfo(f),ri=Math.floor((f-1)/10);
+  if(ri!==last){last=ri;h+=`<div class="tz-rm" style="--c:${x.r.c}">${x.r.n}<small>ชั้น ${ri*10+1}-${ri*10+10}</small></div>`}
+  const st=f<=b.best?'done':f===b.best+1?'now':'lock';
+  const rr=`💎 ${x.gem}${x.skf?' · 📜'+x.skf:''}${x.egg?' · 🥚'+x.egg:''}${x.key?' · 🔑'+x.key:''}`;
+  h+=`<button class="tz-r ${x.big?'big':x.mini?'mini':''} ${st} ${f===twSel?'sel':''}" data-f="${f}" style="--c:${x.r.c}"><span class="nd">${f}</span><span class="tx">${x.nm}<small>${x.big?'👑 เจ้าแห่งภพ · ':x.mini?'⭐ ผู้คุมชั้น · ':''}${rr}</small></span><span class="sx">${st==='done'?'✅ ผ่าน':st==='now'?'⚔️ ท้า':'🔒'}</span></button>`}
+ $('twlist').innerHTML=`<div class="tz-ls" id="twl">${h}</div>`;
+ $('twlist').querySelectorAll('.tz-r').forEach(x=>x.onclick=()=>{const f=+x.dataset.f;if(f>b.best+1){banner('🔒 ต้องผ่านชั้น '+(b.best+1)+' ก่อน');return}twSel=f;twScroll=false;renderTw()});
+ $('twgo').onclick=()=>enterTower(twSel);
+ if(twScroll){const L=$('twl'),sel=L.querySelector('.sel');if(sel)L.scrollTop=Math.max(0,sel.offsetTop-L.clientHeight/2+sel.offsetHeight/2);twScroll=false}
+};
+/* แก้บัค: บอสตาย (หอคอย/ดัน/บอส) ไม่ให้หลอดเลือดปกติโผล่ซ้อนกับหลอดบอส */
+let wasB=false;
+(function lp(){requestAnimationFrame(lp);try{const A=document.getElementById('arena');if(!A)return;
+ if(mState!=='dying'){wasB=A.classList.contains('bm');if(A.classList.contains('bmd'))A.classList.remove('bmd')}
+ else if(wasB&&!A.classList.contains('bmd'))A.classList.add('bmd')}catch(e){}})();
+})();
+</script>
 <style id="fx-css">
 body.fx-mode>*:not(#fx-dock):not(script):not(style){display:none!important}
 #fx-dock{position:fixed;inset:0;z-index:960;background:#07100c;overflow:hidden;color:#f5eedc;user-select:none;-webkit-user-select:none;contain:layout paint}
