@@ -2322,8 +2322,8 @@ $('pvb').onclick=()=>openW('ptw');
 const _rpt=renderPt;
 renderPt=function(){_rpt();$('pti').insertAdjacentHTML('beforeend',`<button class="auto" id="pvbtn" style="width:100%;margin-top:6px">🔍 ดูรายการสัตว์เลี้ยงที่ฟักได้ · จิ้มดูสถานะ</button>`);$('pvbtn').onclick=()=>openW('pvw')};
 
-/* ================= หอคอยสวรรค์ 100 ชั้น ================= */
-const TW_MAX=100;
+/* ================= หอคอยสวรรค์ 300 ชั้น ================= */
+const TW_MAX=300;
 const TWR=[
 {n:'หอคอยหมอกเมฆ',c:'#9ad0ff',em:['🐺','🦅','🐲'],nm:['อสูรหมอก','ผู้คุมชั้นหมอก','มังกรเมฆา']},
 {n:'พงพิษมรณะ',c:'#5dd36b',em:['🐍','🦂','🐉'],nm:['งูพิษป่า','ผู้คุมชั้นพิษ','พญานาคพิษ']},
@@ -2334,10 +2334,31 @@ const TWR=[
 {n:'วิมานสวรรค์',c:'#ffd96b',em:['🦄','🦚','🐲'],nm:['กิเลนวิมาน','หงส์สวรรค์','มังกรทองวิมาน']},
 {n:'ดินแดนเทพเจ้า',c:'#ff9ad5',em:['🐯','🦁','🐲'],nm:['อสูรเทพ','ผู้คุมชั้นเทพ','มังกรเทพเจ้า']},
 {n:'ประตูฟ้านภา',c:'#7fb5ff',em:['🤖','👽','🛸'],nm:['เกราะกลฟ้า','ผู้คุมประตูฟ้า','ยานปราบฟ้า']},
-{n:'ยอดหอปฐมกาล',c:'#ffffff',em:['🐙','🦑','🐲'],nm:['อสูรปฐมกาล','ผู้คุมปฐมกาล','มังกรปฐมกาล']}];
-const twInfo=f=>{const r=TWR[Math.min(9,Math.floor((f-1)/10))],big=f%10===0,mini=!big&&f%5===0,k=big?2:mini?1:0;
- return{f,r,big,mini,k,em:r.em[k],nm:r.nm[k]+' ชั้น '+f,abs:Math.round(1+f*1.1),hpm:big?4:mini?2.5:1.8,dm:(1+f*.006)*(big?1.25:mini?1.1:1),t:70+(mini?10:0)+(big?20:0),
-  gem:3+f+(mini?8:0)+(big?20:0),skf:(mini||big)?1:0,egg:big?1:0,key:big?2:0}};
+{n:'ยอดหอปฐมกาล',c:'#ffffff',em:['🐙','🦑','🐲'],nm:['อสูรปฐมกาล','ผู้คุมปฐมกาล','มังกรปฐมกาล']},
+{n:'เกาะลอยฟ้าทมิฬ',c:'#6ad0c8',em:['🦇','🗿','🐲'],nm:['ค้างคาวทมิฬ','ผู้คุมเกาะลอย','มังกรทมิฬ']},
+{n:'ทะเลทรายวิญญาณ',c:'#e8b05a',em:['🦂','🐫','🐉'],nm:['แมงป่องทราย','ผู้คุมทะเลทราย','พญามังกรทราย']},
+{n:'ป่าวิญญาณพันปี',c:'#7ae07a',em:['🌳','🦌','🐲'],nm:['พฤกษาวิญญาณ','กวางเทพพันปี','มังกรพงไพร']},
+{n:'ห้วงสมุทรลึก',c:'#3a8aff',em:['🦈','🐙','🐉'],nm:['ฉลามห้วงลึก','ผู้คุมห้วงสมุทร','มังกรสมุทร']},
+{n:'ภูเขาไฟโลกันต์',c:'#ff4a1a',em:['🦎','🌋','🐲'],nm:['กิ้งก่าลาวา','ผู้คุมภูเขาไฟ','มังกรโลกันต์']},
+{n:'สุสานจักรพรรดิ',c:'#c8a060',em:['💀','🧟','👑'],nm:['ทหารผีโบราณ','แม่ทัพสุสาน','จักรพรรดิวิญญาณ']},
+{n:'วังวนกาลเวลา',c:'#a07aff',em:['⏳','🌀','🐲'],nm:['ภูตกาลเวลา','ผู้คุมวังวน','มังกรกาลเวลา']},
+{n:'แดนผลึกนิรันดร์',c:'#9af0ff',em:['💎','🦄','🐉'],nm:['ผลึกพิทักษ์','กิเลนผลึก','มังกรผลึก']},
+{n:'ปราสาทอสูรราตรี',c:'#d04a8a',em:['🧛','🦇','👹'],nm:['อสูรราตรี','เคานต์ราตรี','ราชาอสูรราตรี']},
+{n:'สวนดอกบัวสวรรค์',c:'#ffb0e0',em:['🪷','🦚','🐲'],nm:['ภูตบัวทิพย์','หงส์บัวสวรรค์','มังกรบัวทอง']},
+{n:'สมรภูมิเทพอสูร',c:'#ff6a6a',em:['⚔️','🐯','👹'],nm:['ทหารเทพอสูร','แม่ทัพเทพอสูร','จอมทัพอสูรเทพ']},
+{n:'ดาราจักรเงิน',c:'#c8d8ff',em:['🌠','🪐','🐉'],nm:['ภูตดารา','ผู้คุมดาราจักร','มังกรดาราจักร']},
+{n:'บัลลังก์สายฟ้า',c:'#ffe85a',em:['⚡','🦅','🐲'],nm:['ภูตสายฟ้า','อินทรีเทพสายฟ้า','มังกรบัลลังก์ฟ้า']},
+{n:'นรกเยือกแข็ง',c:'#7ac8ff',em:['❄️','🐻‍❄️','🐉'],nm:['ภูตน้ำแข็ง','หมีน้ำแข็งนรก','มังกรน้ำแข็งนรก']},
+{n:'หุบเขามังกรร้อยตัว',c:'#5aff9a',em:['🐉','🐲','🐉'],nm:['มังกรหนุ่ม','มังกรผู้เฒ่า','ราชันมังกรร้อยตัว']},
+{n:'วิหารแสงสุริยัน',c:'#ffcf3a',em:['☀️','🦁','🐲'],nm:['ภูตสุริยัน','สิงห์สุริยะ','มังกรสุริยเทพ']},
+{n:'วิหารจันทราดับ',c:'#b8a8ff',em:['🌙','🐺','🐉'],nm:['ภูตจันทรา','หมาป่าจันทร์ดับ','มังกรจันทรา']},
+{n:'ใจกลางจักรวาล',c:'#ff5ab0',em:['🌌','👁️','🐲'],nm:['ภูตจักรวาล','ดวงตาจักรวาล','มังกรจักรวาล']},
+{n:'ประตูนิรันดร์กาล',c:'#5affff',em:['🚪','🗿','🐉'],nm:['ผู้เฝ้าประตู','ยักษ์นิรันดร์','มังกรนิรันดร์กาล']},
+{n:'บัลลังก์ปฐมกาล',c:'#ff3a3a',em:['👑','🔥','🐲'],nm:['องครักษ์ปฐมกาล','จอมเทพปฐมกาล','มังกรต้นกำเนิด']}];
+const twInfo=f=>{const r=TWR[Math.min(TWR.length-1,Math.floor((f-1)/10))],big=f%10===0,mini=!big&&f%5===0,k=big?2:mini?1:0,o1=Math.max(0,f-100),o2=Math.max(0,f-200);
+ /* บอสโหดขึ้น: เลเวล/เลือด/ดาเมจสูงขึ้นทุกชั้น และเร่งขึ้นอีกหลังชั้น 100 และ 200 */
+ return{f,r,big,mini,k,em:r.em[k],nm:r.nm[k]+' ชั้น '+f,abs:Math.round(1+f*1.25+o1*1.6+o2*2.4),hpm:+((big?5:mini?3:2.1)*(1+f/120+o1/60+o2/40)).toFixed(2),dm:+((1+f*.008+o1*.012+o2*.02)*(big?1.35:mini?1.15:1)).toFixed(2),t:70+(mini?10:0)+(big?20:0)+(f>100?10:0),
+  gem:3+f+(mini?8:0)+(big?20:0)+Math.floor(o1*.5)+o2,skf:(mini||big)?1:0,egg:big?1:0,key:big?2:0}};
 const twRw=I=>`💎 ${I.gem}${I.skf?' · 📜 สุ่มสกิลฟรี '+I.skf:''}${I.egg?' · 🥚 ไข่ '+I.egg:''}${I.key?' · 🔑 กุญแจ '+I.key:''}`;
 function ensureTw(){if(!S.tw||typeof S.tw!=='object')S.tw={best:0};if(!Number.isFinite(S.tw.best))S.tw.best=0;return S.tw}
 let twSel=0,twFresh=false,twScroll=true,twQ=false;
@@ -8709,7 +8730,7 @@ window.pfRenderHero=function(d){
   S.wg=d.wg||0;S.wl=d.wl||0;S.sex=d.sex||'m';S.wgSk=d.wgSk||0;try{const h0=document.querySelector('#hs svg.nh');if(h0){if(S.sex==='f')femNh(h0);else unFemNh(h0)}}catch(e){}
   window._wk=undefined;
   updateHero();
-  try{window.nhFs&&window.nhFs(document.querySelector('#hs svg.nh'))}catch(e){}
+  try{window.nhFs&&window.nhFs(document.querySelector('#hs svg.nh'))}catch(e){}try{window.nhWs&&window.nhWs(document.querySelector('#hs svg.nh'))}catch(e){}
   const hw=document.getElementById('hero');out=window.pfPrefix(hw?hw.innerHTML:hs.innerHTML);
   window._pfHeroCls=hw?hw.className.replace(/\b(ch|atk|lvl|hit|bobbing)\b/g,'').trim():'';
  }catch(e){console.error('[pfRenderHero]',e)}
@@ -8717,7 +8738,7 @@ window.pfRenderHero=function(d){
   Object.assign(S,keep);try{const h0=document.querySelector('#hs svg.nh');if(h0){if(S.sex==='f')femNh(h0);else unFemNh(h0)}}catch(e){}
   window._wk=undefined;
   try{updateHero()}catch(e){}
-  try{window.nhFs&&window.nhFs(document.querySelector('#hs svg.nh'))}catch(e){}
+  try{window.nhFs&&window.nhFs(document.querySelector('#hs svg.nh'))}catch(e){}try{window.nhWs&&window.nhWs(document.querySelector('#hs svg.nh'))}catch(e){}
  }
  window._pfLastHero=out;
  return out;
@@ -10593,7 +10614,7 @@ ${sakura(18,CY+P.ry+64,.95,false)}${sakura(368,CY+P.ry+86,.85,true)}
 }
 
 /* ---------- ตัวละคร: ใช้เฉพาะโมเดลหันข้าง (svg.nh) ตัวเดียว · ไม่เอาโมเดลเก่าที่ซ้อนอยู่ใต้มัน ---------- */
-const ROD='<g class="fxq"><path d="M-16 0L30 -1" stroke="#2a140c" stroke-width="4.4" stroke-linecap="round"/><path d="M-16 0L30 -1" stroke="#8a5a2e" stroke-width="2.6" stroke-linecap="round"/><path d="M30 -1Q70 -30 104 4" stroke="#2a140c" stroke-width="2.8" fill="none" stroke-linecap="round"/><path d="M30 -1Q70 -30 104 4" stroke="#d9b27a" stroke-width="1.4" fill="none" stroke-linecap="round"/><circle cx="6" cy="5" r="3.6" fill="#b9bfc7" stroke="#2a140c" stroke-width=".8"/><circle cx="50" cy="-12.5" r="1.4" fill="none" stroke="#2a140c" stroke-width=".7"/><circle cx="80" cy="-13" r="1.1" fill="none" stroke="#2a140c" stroke-width=".6"/><circle class="fx-tip" cx="104" cy="4" r="1.6" fill="#0000"/></g>';
+const ROD='<g class="fxq"><path d="M-16 0L30 -1" stroke="#2a140c" stroke-width="4.4" stroke-linecap="round"/><path d="M-16 0L30 -1" stroke="#8a5a2e" stroke-width="2.6" stroke-linecap="round"/><path d="M30 -1L84 -5.5Q97 -7 106 -2" stroke="#2a140c" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M30 -1L84 -5.5Q97 -7 106 -2" stroke="#d9b27a" stroke-width="1.4" fill="none" stroke-linecap="round"/><circle cx="6" cy="5" r="3.6" fill="#b9bfc7" stroke="#2a140c" stroke-width=".8"/><circle cx="52" cy="-3.2" r="1.4" fill="none" stroke="#2a140c" stroke-width=".7"/><circle cx="78" cy="-5" r="1.1" fill="none" stroke="#2a140c" stroke-width=".6"/><circle class="fx-tip" cx="106" cy="-2" r="1.6" fill="#0000"/></g>';
 function nhOnly(html,tag){
  try{
   const d=document.createElement('div');d.innerHTML=html;
