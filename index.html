@@ -1272,8 +1272,8 @@ function renderDg(){
 tkTick();
 setInterval(()=>{tkTick();const k=S.tk+'|'+(D?1:0)+'|'+S.lv;if(_c.dk!==k){_c.dk=k;renderDg()}T('tkn',S.tk+'/'+5);const r=Math.max(0,240000-(Date.now()-S.tkT));T('tkt',S.tk<5?'  · ถัดไปใน '+Math.floor(r/60000)+':'+String(Math.floor(r%60000/1000)).padStart(2,'0'):'')},1000);
 function effTxt(i,e){const v=e.v*(S.eq[i]===e&&typeof ENHM==='function'?1+ENHM(i):1);
- if(i===0){const a=ATK();return `พลังโจมตี +${fmt(a-Math.floor(a/(1+v)))} (+${Math.round(v*100)}%)`}
- if(i===1){const h=MHP();return `HP +${fmt(h-Math.floor(h/(1+v)))} (+${Math.round(v*100)}%)`}
+ if(i===0||i===1){const f=i?MHP:ATK,o=S.eq[i];let w,wo;if(o===e){w=f();S.eq[i]=null;wo=f();S.eq[i]=o}else{S.eq[i]=e;w=f();S.eq[i]=o;wo=f()}
+  return `${i?'HP':'พลังโจมตี'} ${w>=wo?'+':'−'}${fmt(Math.abs(w-wo))} <small>(ค่าจริงที่ได้ · +${Math.round(v*100)}% บวกกับค่าพื้นฐาน)</small>`}
  if(i===2)return `โอกาสคริติคอล +${v.toFixed(1)}%`;
  if(i===3)return `ความเร็วโจมตี +${v.toFixed(2)}x`;
  return `เหรียญที่ได้ +${Math.round(v*100)}%`}
