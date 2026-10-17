@@ -11388,6 +11388,20 @@ new MutationObserver(()=>{const m=$('gfs'),c=$('gfsc');if(!m||!c||$('gfsg'))retu
  m.insertBefore(b,m.firstChild);b.onclick=e=>{e.stopPropagation();m.remove();if(S.wg>0)try{pv=WGD()}catch(e){}openW('wgw')}}).observe(document.body,{childList:true});
 })();
 </script>
+<script>
+/* ================= ตัวละครยืนตรงเงา + โปรไฟล์: ตัวละครอยู่กึ่งกลางวงกลม ================= */
+document.head.insertAdjacentHTML('beforeend','<style>#hs svg.nh{transform:translate(-6%,10%)!important}</style>');
+window.pfAlign=function(){
+ const hero=document.querySelector('#pfbd .pfx .hero');const w=hero&&hero.querySelector('.pfhero');if(!w)return;
+ w.style.translate='0px 0px';const au=w.querySelector('.enaura');if(au)au.style.translate='0px 0px';
+ const F=['.n-lff','.n-lbf'].map(s=>w.querySelector('#pv_hs '+s)).filter(Boolean).map(e=>e.getBoundingClientRect()).filter(r=>r.width);
+ const hr=hero.getBoundingClientRect();if(!hr.width)return;
+ let dx=0,dy=0;
+ if(F.length){const l=Math.min(...F.map(r=>r.left)),r=Math.max(...F.map(r=>r.right)),b=Math.max(...F.map(r=>r.bottom));dx=(hr.left+hr.right)/2-(l+r)/2;dy=(hr.bottom-19-2)-b}
+ else{const T=w.querySelector('#pv_hs svg');if(!T)return;const tr=T.getBoundingClientRect();dx=(hr.left+hr.right)/2-(tr.left+tr.right)/2}
+ w.style.translate=dx.toFixed(1)+'px '+dy.toFixed(1)+'px';
+ if(au){const ar=au.getBoundingClientRect();if(ar.width){const fx=(hr.left+hr.right)/2;au.style.translate=(fx-(ar.left+ar.right)/2).toFixed(1)+'px 0px'}}};
+</script>
 </body></html>
 
 
