@@ -11544,7 +11544,7 @@ const PICK='<g class="mnpk"><path d="M-16 0L44 0" stroke="#2a140c" stroke-width=
 function heroSvg(){try{const nh=document.querySelector('#hs svg.nh');if(!nh)return '';let h=window.pfPrefix?window.pfPrefix(nh.outerHTML):nh.outerHTML;const d=document.createElement('div');d.innerHTML=h;const s=d.querySelector('svg.nh');s.removeAttribute('style');
  const fa=s.querySelector('.n-farm');if(fa){fa.querySelectorAll('.nwsx,.nwsd,.sw-drag').forEach(e=>e.remove());const sw=[...fa.children].find(e=>/rotate\(-28\)/.test(e.getAttribute('transform')||''));if(sw){sw.removeAttribute('style');sw.style.display='';sw.setAttribute('transform','translate(136.2 125) rotate(-28) scale(1.1)');sw.innerHTML=PICK}}
  s.querySelectorAll('.n-wg').forEach(e=>e.innerHTML='');return s.outerHTML.replace(/pv_/g,'pmn_')}catch(e){return ''}}
-function place(inst){const p=$$('mnP');if(!p)return;p.style.transition=inst?'none':'left .15s linear,top .15s linear';p.style.left=(me.x*T+T/2)+'px';p.style.top=((me.y+.82)*T)+'px';p.classList.toggle('lf',me.face<0);p.style.transform=`translateY(-100%) translateZ(${solid(me.x,me.y)?Math.round(T*.36)+2:2}px) rotateX(-34deg)`;
+function place(inst){const p=$$('mnP');if(!p)return;p.style.transition=inst?'none':'left .22s linear,top .22s linear';p.style.left=(me.x*T+T/2)+'px';p.style.top=((me.y+.82)*T)+'px';p.classList.toggle('lf',me.face<0);p.style.transform=`translateY(-100%) translateZ(${solid(me.x,me.y)?Math.round(T*.36)+2:2}px) rotateX(-34deg)`;
   const sc=$$('mnSc'),gw=$$('mnGw');if(sc&&gw){const ty=0;}}
 function pose(c,ms){const p=$$('mnP');if(!p)return;p.classList.remove('dig','digd','walk','hurt');void p.offsetWidth;p.classList.add(c);clearTimeout(p._t);p._t=setTimeout(()=>p.classList.remove(c),ms)}
 /* ---------- มอนสเตอร์ ---------- */
@@ -11580,7 +11580,7 @@ function step(dx,dy){const now=performance.now();if(me.hp<=0||me.busy>now)return
  me.dir=[dx,dy];if(dx)me.face=dx>0?1:-1;target();
  const nx=me.x+dx,ny=me.y+dy;
  if(nx<0||nx>=COLS||ny<0||ny>=ROWS||mobAt(nx,ny)>=0||bossAt(nx,ny)){me.busy=now+110;return}
- me.x=nx;me.y=ny;place(false);pose('walk',180);snd('step');me.busy=now+150;target();
+ me.x=nx;me.y=ny;place(false);pose('walk',260);snd('step');me.busy=now+230;target();
  const c=grid[ny][nx];if(c.t==='x'){if(boss&&boss.hp>0){float('👹 ต้องปราบบอสก่อน!',nx,ny,'#ff6a6a');return}nextFloor();return}
  if(boss&&!boss.wake&&Math.abs(me.x-boss.x)+Math.abs(me.y-boss.y)<=4){boss.wake=true;drawMobs();snd('boss');shakeS();banner2('👹 บอสเหมืองตื่นแล้ว!','ปราบบอสเพื่อเปิดบันไดลงชั้นถัดไป')}}
 function dig(){const now=performance.now();if(me.hp<=0||me.busy>now)return;
