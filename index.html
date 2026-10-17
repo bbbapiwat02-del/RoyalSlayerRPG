@@ -951,7 +951,7 @@ function render(){
  T('stage',D?(D.duel?'⚔️ ประลอง vs '+D.nm+' · ⏱'+Math.max(0,Math.ceil(D.ct||0))+'s':D.bs||D.tw||D.wb?(D.tw?'🗼 ':D.wb?'🌍 ':'👹 ')+D.nm+' · ⏱'+Math.ceil(D.t)+'s':'🪙 '+DG[D.i].n+' · คลื่น '+D.w+'/'+D.n+' · ⏱'+Math.ceil(D.t)+'s · +'+fmt(D.gold)):(isBoss()?'👹 ผู้นำสำนักมาร · ':'')+Z[Math.floor((S.stage-1)/10)%Z.length]+' ด่าน '+S.stage+(isBoss()?'':'  ('+S.kills+'/5)'));
  W('hbw',Math.round(Math.max(0,hp/MHP()*100))+'%');W('mbw',Math.round(Math.max(0,mhp/mmax*100))+'%');
  T('sA',fmtS(ATK()));T('sH',fmtS(hp)+'/'+fmtS(MHP()));T('sC',(+CRIT().toFixed(1))+'%'+(CRIT()>100?'(x'+CRD().toFixed(1)+')':''));T('sS','x'+SPD().toFixed(2));
- skTick();if(!$('shopw').hidden)renderShop();
+ skTick();if(!$('shopw').hidden)shopTick();
  for(const k in UPS){const b=$('u'+k),mx=UPS[k].max&&S.up[k]>=UPS[k].max,c=cost(k);
   const h='<span>'+UPS[k].n+'<small>เลเวล '+S.up[k]+(UPS[k].max?'/'+UPS[k].max:'')+(mx?' (MAX)':'')+'</small><small class="uv">'+upVal(k,mx)+'</small></span><span class="c">'+(mx?'—':'🪙 '+fmt(c))+'</span>';
   if(b._h!==h){b._h=h;b.innerHTML=h}
@@ -986,6 +986,9 @@ function roll(){const o=odds();let r=Math.random(),t=0;for(;t<o.length-1;t++){r-
 const istat=e=>{const eqd=S.eq&&S.eq[e.s]===e&&typeof ENHM==='function',m=eqd?1+ENHM(e.s):1,fm=x=>e.s===2?'+'+x.toFixed(1)+'%':e.s===3?'+'+x.toFixed(2)+'x':'+'+Math.round(x*100)+'%';return SL[e.s].t+' '+fm(e.v*m)+(m>1?` <small style="color:#7dffb0;font-weight:700;font-size:11px;display:block;line-height:1.3">(พื้นฐาน ${fm(e.v)} · ตีบวก +${S.enh[e.s]} เพิ่ม ${Math.round((m-1)*100)}%)</small>`:'')};
 const DIAMOND_PACKS=[{g:500,d:10,n:'ถุงเพชรเล็ก',i:'💎'},{g:2000,d:50,n:'หีบเพชร',i:'💎💎'},{g:5000,d:150,n:'คลังเพชรเซียน',i:'💎✨'}];
 const DIAMOND_ITEMS=[{id:'key',n:'กุญแจหีบ',i:'🔑',d:'ใช้เปิดหีบฟรี 1 ครั้ง',c:15},{id:'ticket',n:'ตั๋วดันเจี้ยน',i:'🎟️',d:'เพิ่มตั๋วดันเจี้ยน 1 ใบ',c:12},{id:'egg',n:'ไข่สัตว์วิญญาณ',i:'🥚',d:'รับไข่สุ่มสัตว์เลี้ยง 1 ฟอง',c:25},{id:'skill',n:'คัมภีร์สกิล',i:'📜',d:'รับสิทธิ์สุ่มสกิลฟรี 1 ครั้ง',c:35}];
+let shopK='';
+function shopTick(){let k;try{k=[S.diamonds,S.keys,S.tk,S.egg,S.skf,S.stone,S.dfree,JSON.stringify(S.dpb||0),DIAMOND_PACKS.map(p=>(S.gold>=p.g?1:0)+fmt(p.g)).join(',')].join('|')}catch(e){k=Math.random()}
+ if(k===shopK)return;shopK=k;const w=$('shopw'),sc=[...w.querySelectorAll('*')].filter(e=>e.scrollTop>0).map(e=>[e,e.scrollTop]);renderShop();sc.forEach(([e,t])=>{e.scrollTop=t})}
 function renderShop(){
  $('shopdiamonds').textContent=fmt(S.diamonds);
  const _dk=new Date().toDateString();if(!S.dpb||S.dpb.d!==_dk)S.dpb={d:_dk,b:{}};$('diamondpacks').innerHTML='<div class="tkr" style="margin:0 0 6px"><small>🕛 แต่ละแพ็กซื้อได้วันละ 1 ครั้ง · รีเซ็ตเที่ยงคืน</small></div>'+DIAMOND_PACKS.map((p,i)=>{const done=S.dpb.b[i];return `<div class="shoprow" ${done?'style="opacity:.55"':''}><div class="si">${p.i}</div><div class="stx"><b>${p.n}</b><small>รับ ${p.d} เพชร · ${done?'✅ ซื้อแล้ววันนี้':'เหลือ 1/1 วันนี้'}</small></div><button data-pack="${i}" ${done||S.gold<p.g?'disabled':''}>${done?'พรุ่งนี้':'🪙 '+fmt(p.g)}</button></div>`}).join('');
@@ -9266,6 +9269,7 @@ window.addEventListener('online',()=>{dropLobby();joinLobby()});
 async function ensureLobby(){if(!lobby)joinLobby();for(let i=0;i<25&&!lobbyOk&&!window._wchatOk;i++)await new Promise(r=>setTimeout(r,200));return lobbyOk||!!window._wchatOk}
 /* ถามตรงๆ ว่าอีกฝ่ายอยู่ไหม (ใช้ตอนเปิดเมนู/หน้าข้อมูล ถ้ายังไม่เห็นใน presence) */
 function ping(uid){if(uid&&uid!==me)lsend('ping',{to:uid,from:me})}
+window.pvpIsOn=uid=>{try{return isOn(uid)}catch(e){return null}};window.pmClose=()=>{try{pmClose()}catch(e){}};
 function pmRefresh(){try{const m=document.getElementById('pmenu');if(m&&m._ref)m._ref()}catch(e){}}
 function lsend(ev,p){try{lobby&&lobbyOk&&lobby.send({type:'broadcast',event:ev,payload:p})}catch(e){}
  try{window._wchat&&window._wchatOk&&window._wchat.send({type:'broadcast',event:'pvp',payload:{ev,p}})}catch(e){}}
@@ -9542,7 +9546,7 @@ function nameOf(el){const pick=n=>{if(!n)return'';const c=n.cloneNode(true);c.qu
  return(t||'ผู้เล่น').slice(0,24)}
 async function pmOpen(uid,name,x,y){pmClose();
  if(!lobby)joinLobby();
- const m=document.createElement('div');m.id='pmenu';
+ const m=document.createElement('div');m.id='pmenu';m._uid=uid;
  m.innerHTML=`<div class="ph"><span class="av">🧙</span><span><b>${esc(name)}</b><small class="st"></small></span></div>
   <div class="pb"><button data-a="view"><i>👤</i>ข้อมูล</button>
   <button class="duel" data-a="duel"><i>⚔️</i>ท้าสู้<small class="ds"></small></button>
@@ -11566,10 +11570,10 @@ function give(kind,x,y){const f=curF();
  if(kind==='c'){const d=5+Math.floor(f/3),st=2+Math.floor(f/6);S.diamonds=(S.diamonds||0)+d;loot.d+=d;S.stone=(S.stone||0)+st;loot.s+=st;float('🎁 💎'+d+' 💠'+st,x,y,'#ffb0ff');snd('gem');
   if(f>=15&&R()<.12+f*.001&&window.bagAddBox){window.bagAddBox(f>=40&&R()<.5?'fdm':R()<.5?'wbw':'wbp',1);loot.b++;float('🎁 กล่องเข้ากระเป๋า!',x,y-1,'#ffd23f')}}
  if(kind==='mob'){const g=Math.floor(gpk0()*(3+f*.4));S.gold+=g;loot.g+=g;float('+🪙'+fm(g),x,y,'#ffd23f');try{gainExp(Math.floor(3*Math.pow(1.1,Math.min(f,120))))}catch(e){}if(R()<.25){const d=1+Math.floor(f/10);S.diamonds=(S.diamonds||0)+d;loot.d+=d;float('+💎'+d,x,y-.6,'#8ae8ff')}}
- if(kind==='boss'){const d=20+f*2,st=6+Math.floor(f/2),g=Math.floor(gpk0()*(40+f*3));S.diamonds=(S.diamonds||0)+d;S.gold+=g;S.stone=(S.stone||0)+st;loot.d+=d;loot.g+=g;loot.s+=st;
-  let box='';if(window.bagAddBox){const n=f>=50?2:1;const k=f>=30?'fdm':(f/5)%2?'wbw':'wbp';if(f>=10||R()<.4){window.bagAddBox(k,n);loot.b+=n;box=' · 🎁x'+n}}
+ if(kind==='boss'){const st=6+Math.floor(f/2),g=Math.floor(gpk0()*(40+f*3));S.gold+=g;S.stone=(S.stone||0)+st;loot.g+=g;loot.s+=st;
+  let box='';if(window.bagAddBox){const n=f>=50?2:1;const k=(f/5)%2?'wbw':'wbp';if(f>=10||R()<.4){window.bagAddBox(k,n);loot.b+=n;box=' · 🎁x'+n}}
   try{gainExp(Math.floor(40*Math.pow(1.1,Math.min(f,120))))}catch(e){}
-  banner2(`🏆 พิชิตบอสเหมืองชั้น ${f}!`,`💎 ${d} · 🪙 ${fm(g)} · 💠 ${st}${box}`);snd('lvl')}
+  banner2(`🏆 พิชิตบอสเหมืองชั้น ${f}!`,`🪙 ${fm(g)} · 💠 ${st}${box}`);snd('lvl')}
  hud()}
 function banner2(a,b){const L=$$('mnSc');if(!L)return;const e=document.createElement('div');e.className='mbn';e.innerHTML=`<b>${a}</b>${b?'<small>'+b+'</small>':''}`;L.appendChild(e);setTimeout(()=>e.remove(),2600)}
 /* ---------- การกระทำ ---------- */
@@ -11810,7 +11814,7 @@ async function heroOf(uid){if(heroCache.has(uid))return heroCache.get(uid);heroC
   heroCache.set(uid,h||'');return h||''}catch(e){return ''}}
 /* ---------- ช่องทางเชิญ (ผ่านแชทโลก) ---------- */
 function wsend(ev,payload){try{if(window._wchat&&window._wchatOk){window._wchat.send({type:'broadcast',event:'party',payload:Object.assign({ev},payload)});return true}}catch(e){}return false}
-window.__partyIn=async function(m){if(!m)return;if(!ME)await net();if(m.to!==ME)return;
+window.__partyIn=async function(m){if(!m)return;if(!ME)await net();if(m.to!==ME)return;if(m.ev==='no'&&P&&P.pend){Object.keys(P.pend).forEach(k=>{if(P.pend[k].n===m.n)delete P.pend[k]});hud()}
  if(m.ev==='inv')showInvite(m);
  if(m.ev==='no')toast('❌ '+esc(m.n)+' ปฏิเสธคำเชิญ');};
 function showInvite(m){const o=$$('ptInv');if(o)o.remove();if(P){wsend('no',{to:m.from,n:myInfo().n});return}
@@ -11824,7 +11828,7 @@ function mkChan(lead){const ch=SB.channel('mparty_'+lead,{config:{broadcast:{sel
  ch.on('broadcast',{event:'m'},({payload:x})=>onMsg(x))
    .on('presence',{event:'sync'},()=>{const st=ch.presenceState();if(!P)return;const ids=Object.keys(st);
      Object.keys(P.mem).forEach(u=>{if(u!==ME&&!ids.includes(u)){if(u===P.lead&&!isLeader()){toast('👋 หัวปาร์ตี้ออกจากปาร์ตี้แล้ว');leave(true);return}delete P.mem[u];drawOthers()}});
-     ids.forEach(u=>{const a=st[u][st[u].length-1]||{};if(!P.mem[u])P.mem[u]={uid:u,n:a.n,lv:a.lv,hp:1,mhp:1,x:4,y:0};else{P.mem[u].n=a.n||P.mem[u].n;P.mem[u].lv=a.lv||P.mem[u].lv}});hud()})
+     ids.forEach(u=>{const a=st[u][st[u].length-1]||{};if(P.pend&&P.pend[u]){teamSys((a.n||P.pend[u].n)+' เข้าร่วมปาร์ตี้แล้ว');delete P.pend[u]}if(!P.mem[u])P.mem[u]={uid:u,n:a.n,lv:a.lv,hp:1,mhp:1,x:4,y:0};else{P.mem[u].n=a.n||P.mem[u].n;P.mem[u].lv=a.lv||P.mem[u].lv}});hud()})
    .subscribe(st=>{if(st==='SUBSCRIBED'){ch.track({n:myInfo().n,lv:myInfo().lv});P.ok=true;send('hello',state());if(isLeader())syncAll()}});
  return ch}
 function send(t,d){if(!P||!P.ch||!P.ok)return;try{P.ch.send({type:'broadcast',event:'m',payload:Object.assign({t,u:ME},d||{})})}catch(e){}}
@@ -11845,8 +11849,8 @@ async function join(lead,ln){if(!(await net()))return;if(P)leave();P={lead,mem:{
  try{if(!window.mnApi.isOpen())window.openMine()}catch(e){}teamSys('เข้าร่วมปาร์ตี้ของ '+(ln||'เพื่อน')+' แล้ว');hud()}
 function leave(silent){if(!P)return;try{send('bye',{});P.ch&&P.ch.unsubscribe&&P.ch.unsubscribe();SB&&SB.removeChannel&&SB.removeChannel(P.ch)}catch(e){}const wasMem=!isLeader();P=null;drawOthers();hud();
  if(wasMem){try{window.mnApi.leaveParty()}catch(e){}}if(!silent)teamSys('ออกจากปาร์ตี้แล้ว')}
-function invite(uid,n){if(!P)return;if(Object.keys(P.mem).length>=MAXP)return toast('ปาร์ตี้เต็มแล้ว ('+MAXP+' คน)');
- if(!isLeader())return toast('เฉพาะหัวปาร์ตี้ที่เชิญได้');const i=myInfo();if(wsend('inv',{to:uid,from:ME,n:i.n,lv:i.lv}))toast('📨 ส่งคำเชิญถึง '+n+' แล้ว');else toast('⚠️ ยังไม่เชื่อมต่อแชทโลก ลองใหม่อีกครั้ง')}
+async function invite(uid,n){if(!P){await create();if(!P)return}if(Object.keys(P.mem).length>=MAXP)return toast('ปาร์ตี้เต็มแล้ว ('+MAXP+' คน)');
+ if(!isLeader())return toast('เฉพาะหัวปาร์ตี้ที่เชิญได้');const i=myInfo();if(wsend('inv',{to:uid,from:ME,n:i.n,lv:i.lv})){toast('📨 ส่งคำเชิญถึง '+n+' แล้ว');P.pend=P.pend||{};P.pend[uid]={n,t:Date.now()};teamSys('ส่งคำเชิญถึง '+n+' แล้ว · รอตอบรับ');hud()}else toast('⚠️ ยังไม่เชื่อมต่อแชทโลก ลองใหม่อีกครั้ง')}
 /* ---------- เชื่อมกับเหมือง ---------- */
 window.mnNet={inParty:()=>!!P,isLeader,
  dug:(x,y)=>{if(!P)return;const A=window.mnApi;send('dug',{x,y,f:A.floor()})},
@@ -11869,7 +11873,8 @@ function hud(){const D=window.mnApi&&mnApi.isOpen()?mnApi.dock():null;if(!D)retu
  if(!P){h.innerHTML='';h.style.display='none';return}h.style.display='';
  const mine=state();const rows=Object.values(P.mem).map(m=>{const me=m.uid===ME,s=me?mine:m,pc=Math.max(0,Math.min(100,(s.hp||0)/(s.mhp||1)*100));
   return `<div class="pr ${me?'me':''}"><span class="cr">${m.uid===P.lead?'👑':'⛏️'}</span><span class="tx"><b>${esc(me?mine.n:(m.n||'...'))}</b><i>Lv.${me?mine.lv:(m.lv||'?')}</i></span><u><b style="width:${pc}%"></b></u></div>`}).join('');
- h.innerHTML=`<div class="ph">👥 ปาร์ตี้ ${Object.keys(P.mem).length}/${MAXP}${isLeader()?'':' · ชั้นตามหัวปาร์ตี้'}</div>`+rows}
+ const pend=P.pend?Object.values(P.pend).filter(x=>Date.now()-x.t<60000).map(x=>`<div class="pr pd"><span class="cr">⏳</span><span class="tx"><b>${esc(x.n)}</b><i>รอตอบรับ</i></span><u></u></div>`).join(''):'';
+ h.innerHTML=`<div class="ph">👥 ปาร์ตี้ ${Object.keys(P.mem).length}/${MAXP}${isLeader()?'':' · ชั้นตามหัวปาร์ตี้'}</div>`+rows+pend}
 /* ---------- ปุ่ม/หน้าต่างปาร์ตี้ + แชทในเหมือง ---------- */
 function ui(){const D=window.mnApi&&mnApi.isOpen()?mnApi.dock():null;if(!D||$$('ptBtn'))return;const head=D.querySelector('.mh');const help=$$('mnI');
  const b=document.createElement('button');b.id='ptBtn';b.textContent='👥';head.insertBefore(b,help);b.onclick=panel;
@@ -11880,16 +11885,16 @@ async function panel(){const o=$$('ptPn');if(o){o.remove();return}const ok=await
  const draw=async()=>{let h=`<div class="bx"><div class="hd">👥 ปาร์ตี้ขุดเหมือง<button class="x">✕</button></div>`;
   if(!ok)h+='<p class="em">⚠️ ต้องเชื่อมต่อออนไลน์ถึงจะใช้ปาร์ตี้ได้</p>';
   else if(!P)h+=`<p class="em">ชวนเพื่อนมาขุดด้วยกัน · ชั้นเหมืองนับตามหัวปาร์ตี้</p><button class="go" id="ptMk">✨ สร้างปาร์ตี้</button>`;
-  else{h+=`<div class="sub">สมาชิก ${Object.keys(P.mem).length}/${MAXP}</div>`+Object.values(P.mem).map(m=>`<div class="row"><span>${m.uid===P.lead?'👑':'⛏️'} <b>${esc(m.uid===ME?myInfo().n:m.n||'...')}</b> <i>Lv.${m.uid===ME?myInfo().lv:m.lv||'?'}</i></span></div>`).join('');
+  else{h+=`<div class="sub">สมาชิก ${Object.keys(P.mem).length}/${MAXP}</div>`+Object.values(P.mem).map(m=>`<div class="row"><span>${m.uid===P.lead?'👑':'⛏️'} <b>${esc(m.uid===ME?myInfo().n:m.n||'...')}</b> <i>Lv.${m.uid===ME?myInfo().lv:m.lv||'?'}</i></span></div>`).join('')+(P.pend?Object.values(P.pend).map(x=>`<div class="row off"><span>⏳ <b>${esc(x.n)}</b> <i>รอตอบรับ</i></span></div>`).join(''):'');
    if(isLeader()){h+=`<div class="sub">เชิญเพื่อนที่ออนไลน์</div><div id="ptFr" class="fl"><p class="em">กำลังโหลด…</p></div>`}
    h+=`<button class="lv" id="ptLv">${isLeader()?'🚪 ยุบปาร์ตี้':'🚪 ออกจากปาร์ตี้'}</button>`}
   d.innerHTML=h+'</div>';d.querySelector('.x').onclick=()=>d.remove();d.onclick=e=>{if(e.target===d)d.remove()};
   const mk=$$('ptMk');if(mk)mk.onclick=async()=>{await create();draw()};
   const lv=$$('ptLv');if(lv)lv.onclick=()=>{leave();d.remove()};
   const fl=$$('ptFr');if(fl){try{if(window.socFrLoad)await socFrLoad()}catch(e){}const fr=(window.socFrList?socFrList():[])||[];const pres=(window._wchat&&window._wchat.presenceState&&window._wchat.presenceState())||{};
-   const on=fr.filter(f=>pres[f.uid]&&!P.mem[f.uid]),off=fr.filter(f=>!pres[f.uid]&&!P.mem[f.uid]);
-   fl.innerHTML=(on.length?on.map(f=>`<div class="row"><span><i class="dot on"></i><b>${esc(f.name)}</b> <i>Lv.${f.lv||1}</i></span><button data-u="${f.uid}" data-n="${esc(f.name)}">📨 เชิญ</button></div>`).join(''):'<p class="em">ยังไม่มีเพื่อนออนไลน์</p>')+off.slice(0,8).map(f=>`<div class="row off"><span><i class="dot"></i>${esc(f.name)} <i>Lv.${f.lv||1}</i></span><small>ออฟไลน์</small></div>`).join('');
-   fl.querySelectorAll('button[data-u]').forEach(x=>x.onclick=()=>{invite(x.dataset.u,x.dataset.n);x.disabled=true;x.textContent='ส่งแล้ว'})}};
+   const isOn=f=>!!pres[f.uid]||(window.pvpIsOn&&!!pvpIsOn(f.uid))||(f.at&&Date.now()-new Date(f.at).getTime()<180000);const on=fr.filter(f=>isOn(f)&&!P.mem[f.uid]),off=fr.filter(f=>!isOn(f)&&!P.mem[f.uid]);
+   fl.innerHTML=(on.length?on.map(f=>`<div class="row"><span><i class="dot on"></i><b>${esc(f.name)}</b> <i>Lv.${f.lv||1}</i></span><button data-u="${f.uid}" data-n="${esc(f.name)}">📨 เชิญ</button></div>`).join(''):'<p class="em">ยังไม่มีเพื่อนออนไลน์</p>')+off.slice(0,12).map(f=>`<div class="row off"><span><i class="dot"></i>${esc(f.name)} <i>Lv.${f.lv||1}</i></span><button data-u="${f.uid}" data-n="${esc(f.name)}">📨 เชิญ</button></div>`).join('')+(fr.length?'':'<p class="em">ยังไม่มีเพื่อน · เพิ่มเพื่อนได้จากการกดชื่อผู้เล่นในแชท</p>');
+   fl.querySelectorAll('button[data-u]').forEach(x=>{if(P.pend&&P.pend[x.dataset.u]){x.disabled=true;x.textContent='รอตอบรับ'}x.onclick=()=>{invite(x.dataset.u,x.dataset.n);x.disabled=true;x.textContent='รอตอบรับ'}})}};
  draw()}
 /* ---------- แชท: แท็บโลก/ทีม (ในเหมือง และในแชทโลกหลัก) ---------- */
 function teamAdd(m){TEAM.push(m);TEAM=TEAM.slice(-60);renderTeam();const w=$$('chw');if(w&&w.hidden||!w){}const e=$$('ptChB');if(e&&!$$('ptCh')){const em=e.querySelector('em');em.textContent=(+em.textContent||0)+1}
@@ -11919,6 +11924,11 @@ function mainTabs(){const w=$$('chw'),T=$$('chtabs');if(!w||!T||$$('chTmB'))retu
  T.querySelectorAll('button:not(#chTmB)').forEach(b=>b.addEventListener('click',()=>{on=false;TL.style.display='none';btn.classList.remove('on')}));
  f.addEventListener('submit',e=>{if(!on)return;e.preventDefault();e.stopImmediatePropagation();const i=f.querySelector('input');sendTeam(i.value);i.value=''},true)}
 setInterval(mainTabs,1000);
+/* ปุ่มเชิญปาร์ตี้ในเมนูชื่อผู้เล่น */
+new MutationObserver(()=>{const m=$$('pmenu');if(!m||m.querySelector('[data-a=party]'))return;const pb=m.querySelector('.pb');if(!pb)return;
+ const nm=(m.querySelector('.ph b')||{}).textContent||'เพื่อน';const uid=m._uid;
+ const b=document.createElement('button');b.dataset.a='party';b.className='party';b.innerHTML='<i>⛏️</i>ชวนขุด';pb.appendChild(b);
+ b.onclick=async e=>{e.stopPropagation();const u=m._uid;if(!u){return}if(P&&!isLeader()){toast('เฉพาะหัวปาร์ตี้ที่เชิญได้');return}b.disabled=true;b.innerHTML='<i>⏳</i>ส่งแล้ว';await invite(u,nm);setTimeout(()=>{try{window.pmClose&&pmClose()}catch(_){}},700)}}).observe(document.body,{childList:true});
 /* ---------- วนรอบ: ส่งสถานะ / UI ---------- */
 setInterval(()=>{ui();if(!P)return;const s=state(),k=JSON.stringify(s);const now=Date.now();if(k!==lastSt||now-stT>3000){lastSt=k;stT=now;send('st',s)}drawOthers();hud()},250);
 window.partyApi={create,join,leave,invite,state:()=>P};
@@ -11932,7 +11942,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #ptHud .pr{display:grid;grid-template-columns:14px 1fr;grid-template-rows:auto 5px;column-gap:4px;margin-bottom:3px}
 #ptHud .pr .cr{grid-row:1/3;font-size:11px;line-height:18px}
 #ptHud .pr .tx{display:flex;gap:4px;align-items:baseline;min-width:0}#ptHud .pr .tx b{font-size:10.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#ptHud .pr .tx i{font-style:normal;font-size:8.5px;color:#ffd23f}
-#ptHud .pr.me .tx b{color:#7ad8ff}
+#ptHud .pr.me .tx b{color:#7ad8ff}#ptHud .pr.pd{opacity:.75}#ptHud .pr.pd .tx i{color:#7dffb0}
 #ptHud .pr u{display:block;height:5px;border-radius:3px;background:#3a0a08;overflow:hidden}#ptHud .pr u b{display:block;height:100%;background:linear-gradient(#8aff8a,#2aa83a)}
 .mnOp{position:absolute;width:calc(var(--T)*1.7);height:calc(var(--T)*1.84);margin-left:calc(var(--T)*-.85);transform-origin:50% 100%;transform:translateY(-100%) translateZ(calc(var(--T)*.2)) rotateX(-34deg);transition:left .25s linear,top .25s linear;pointer-events:none}
 .mnOp svg.nh{position:absolute;inset:0;width:100%;height:100%;overflow:visible;opacity:.96}.mnOp.lf svg.nh{transform:scaleX(-1)}
