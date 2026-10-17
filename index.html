@@ -4334,7 +4334,7 @@ window.GameAuth=(function(){
   const u=await G.user();if(u)await G.sb.from('saves').upsert({user_id:u.id,username:id,data:{name:'',t:Date.now()},updated_at:new Date().toISOString()});
   mark(id);return{ok:true}}catch(e){return{ok:false,msg:msgOf(e)}}};
  let lastSave=0,pend=null,tmr=null;
- const push=async(id,json)=>{try{const u=await G.user();if(!u)return;lastSave=Date.now();
+ const push=async(id,json)=>{try{const u=await G.user();if(!u)return;const un=u.user_metadata&&u.user_metadata.username;if(un&&un!==id)return;lastSave=Date.now();
   await G.sb.from('saves').upsert({user_id:u.id,username:id,data:JSON.parse(json),updated_at:new Date().toISOString()})}catch(e){}};
  G.save=async(id,json,now)=>{try{LS.setItem('ml_sv_'+id,json)}catch(e){}
   pend=[id,json];if(now||Date.now()-lastSave>15000){clearTimeout(tmr);tmr=null;const p=pend;pend=null;return push(p[0],p[1])}
@@ -4369,7 +4369,7 @@ const card=ss.querySelector('.ss-card'),go=$('ssg');let tab='login',autoSel=null
 const info=s=>s?`ด่าน ${s.stage||1} · Lv.${s.lv||1}`:'ยังไม่มีข้อมูล';
 const slot=id=>{try{return JSON.parse(LS.getItem('ml_sv_'+id)||'null')}catch(e){return null}};
 const legacy=()=>{if(cur||Object.keys(getA()).length)return null;try{const d=JSON.parse(LS.getItem('ml1')||'null');return d&&(d.stage>1||d.lv>1)?d:null}catch(e){return null}};
-function enter(){if(!S.sex&&window.charCreate){window.charCreate(enter);return}initAudio();window._hold=false;ss.classList.add('go');setTimeout(()=>ss.remove(),800);setTimeout(()=>{sfx('stage');banner('⚔️ ยินดีต้อนรับ '+(S.name||'จอมยุทธ์'))},350);try{SS.removeItem('ml_go')}catch(e){}}
+function enter(){if(!S.sex&&window.charCreate&&!$('ccw')){try{window.charCreate(enter);return}catch(e){console.error('[charCreate]',e);S.sex=S.sex||'m'}}else if($('ccw'))return;initAudio();window._hold=false;ss.classList.add('go');setTimeout(()=>ss.remove(),800);setTimeout(()=>{sfx('stage');banner('⚔️ ยินดีต้อนรับ '+(S.name||'จอมยุทธ์'))},350);try{SS.removeItem('ml_go')}catch(e){}}
 function switchTo(id,fresh,name){saveCur();
  const fin=d=>{try{LS.setItem('ml1',d||JSON.stringify({name:fresh?name:id,t:Date.now()}));LS.setItem('ml_cur',id);SS.setItem('ml_go',id)}catch(e){}cur=null;location.reload()};
  if(fresh){try{LS.removeItem('ml_sv_'+id)}catch(e){}fin(null)}else GameAuth.load(id).then(fin).catch(()=>fin(null))}
@@ -4403,7 +4403,7 @@ let busy=0;
 go.onclick=submit;
 if(GameAuth.ready)GameAuth.ready.then(()=>{const e=$('lgsrv');if(e)render()});
 /* ออนไลน์: ถ้า session หลุด ให้กลับไปหน้าล็อกอิน */
-if(GameAuth.mode!=='local'&&GameAuth.ready)GameAuth.ready.then(async ok=>{if(!ok||!cur)return;const u=await GameAuth.user();if(!u){try{LS.removeItem('ml_cur');SS.removeItem('ml_go')}catch(e){}autoSel=cur;cur=null;if(document.body.contains(ss))render()}});
+if(GameAuth.mode!=='local'&&GameAuth.ready)GameAuth.ready.then(async ok=>{if(!ok||!cur)return;let u=null;for(let k=0;k<6&&!u;k++){try{u=await GameAuth.user()}catch(e){}if(!u)await new Promise(r=>setTimeout(r,900))}if(!u){try{LS.removeItem('ml_cur');SS.removeItem('ml_go')}catch(e){}autoSel=cur;cur=null;if(document.body.contains(ss))render()}});
 let auto=null;try{auto=SS.getItem('ml_go');const la=SS.getItem('ml_last');if(la){autoSel=la;SS.removeItem('ml_last')}}catch(e){}
 if(auto&&cur===auto&&getA()[cur]){render();setTimeout(enter,60)}else{if(!cur&&Object.keys(getA()).length===0)tab='new';render()}
 // ปุ่มออกจากระบบในหน้าตั้งค่า
@@ -4732,7 +4732,7 @@ window.charCreate=function(done){if($('ccw'))return;let sex='m';const base=docum
  w.querySelectorAll('.ccc').forEach(c=>c.onclick=()=>{sex=c.dataset.s;w.querySelectorAll('.ccc').forEach(x=>x.classList.toggle('on',x===c))});
  $('ccd').onclick=()=>{const L=sex==='f'?FN:MN;nm.value=L[Math.floor(Math.random()*L.length)]};
  const go=()=>{const n=(nm.value||'').trim();if(!n){$('cce').textContent='⚠️ กรุณาตั้งชื่อตัวละคร';return}
-  S.name=n.slice(0,14);S.sex=sex;try{gDefault()}catch(e){}applySex();try{const cur=localStorage.getItem('ml_cur'),A=JSON.parse(localStorage.getItem('ml_accts')||'{}');if(cur&&A[cur]){A[cur].nm=S.name;localStorage.setItem('ml_accts',JSON.stringify(A))}localStorage.setItem('ml1',JSON.stringify(S))}catch(e){}
+  S.name=n.slice(0,14);S.sex=sex;if(!S.starter){S.starter=1;S.diamonds=(S.diamonds||0)+5000;S.gold=(S.gold||0)+1000000;setTimeout(()=>{try{banner('🎁 ของขวัญผู้เล่นใหม่: 💎 5,000 · 🪙 1,000,000')}catch(e){}},1600)}try{gDefault()}catch(e){}applySex();try{const cur=localStorage.getItem('ml_cur'),A=JSON.parse(localStorage.getItem('ml_accts')||'{}');if(cur&&A[cur]){A[cur].nm=S.name;localStorage.setItem('ml_accts',JSON.stringify(A))}localStorage.setItem('ml1',JSON.stringify(S))}catch(e){}
   w.remove();done&&done()};
  $('ccgo').onclick=go;nm.addEventListener('keydown',e=>{if(e.key==='Enter')go()})};
 })();
