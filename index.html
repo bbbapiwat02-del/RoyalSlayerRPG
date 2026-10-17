@@ -1658,7 +1658,7 @@ function skPull(n){
  if(n===1){if(free>0)uf=1;else{cost=p;if(S.gold<cost)return}}else{cost=p*9;if(S.gold<cost)return}
  skBusy=true;if(uf)S.skf--;S.gold-=cost;
  const res=[];for(let i=0;i<n;i++)res.push(rollSk());S.skh=(S.skh||0)+n;
- const auto=[],notes=res.map(k=>{const o=S.skills[k.id];if(!o){S.skills[k.id]={lv:1};return 'new'}if(o.lv<SKMAX){o.lv++;return 'up'}const g=Math.floor(p*(1+k.r)*.5);S.gold+=g;return 'g'+g});
+ const auto=[],notes=res.map(k=>{const o=S.skills[k.id];if(!o){S.skills[k.id]={lv:1};return 'new'}if(o.lv<SKMAX){o.lv++;return 'up'}return 'g0'});
  res.forEach((k,i)=>{if(notes[i]==='new'&&!S.sk.includes(k.id)){const e=S.sk.indexOf(null);if(e>=0){S.sk[e]=k.id;auto.push(k.id)}}});
  const best=res.reduce((a,b)=>b.r>a.r?b:a),bi=res.indexOf(best),rc=RC[best.r],ST=$('sstg');
  $('scard').innerHTML='';$('sitm').className='';ST.classList.remove('rv');ST.classList.add('chg');ST.style.setProperty('--rc','#d9b8ff');ST.style.setProperty('--ag','#8a5cff99');
@@ -1669,7 +1669,7 @@ function skPull(n){
   if(best.r>=3){ST.insertAdjacentHTML('beforeend',`<div class="hbn" style="--c:${rc}">${best.r>=4?'✨ ':''}${RN[best.r]}!${best.r>=4?' ✨':''}</div>`);setTimeout(()=>{const h=ST.querySelector('.hbn');if(h)h.remove()},1900);for(let i=1;i<=2;i++)setTimeout(()=>wfx(rc,ST),i*320)}
   if(best.r>=4)shake();
   setTimeout(()=>{
-   const nt=(k,i)=>notes[i]==='new'?(auto.includes(k.id)?'🆕 ติดตั้งแล้ว':'🆕 ใหม่!'):notes[i]==='up'?'⬆️ Lv.'+S.skills[k.id].lv:'🪙 '+fmt(+notes[i].slice(1));
+   const nt=(k,i)=>notes[i]==='new'?(auto.includes(k.id)?'🆕 ติดตั้งแล้ว':'🆕 ใหม่!'):notes[i]==='up'?'⬆️ Lv.'+S.skills[k.id].lv:'✅ MAX';
    if(n===1){const k=res[0],c=RC[k.r];$('scard').innerHTML=`<div class="rcard" style="--c:${c}">${notes[0]==='new'?'<span class="rtag">NEW</span>':''}<div class="rpl">${skPlate(k,76)}</div><b class="rname" style="color:${c}">${k.n}</b><span class="pill" style="background:${c}">${RN[k.r]}</span><div class="rst">${nt(k,0)}</div><small>${skDesc(k,S.skills[k.id])}</small><small>⏱️ ${k.cd} วินาที · เลเวล ${S.skills[k.id].lv}/${SKMAX}</small></div>`}
    else{const nw=notes.filter(x=>x==='new').length,up=notes.filter(x=>x==='up').length;
     $('scard').innerHTML=`<div class="rcard" style="--c:${rc}"><div class="sg10">${res.map((k,i)=>`<div class="fc ${i===bi?'best':''}" style="--i:${i};--c:${RC[k.r]}">${i===bi?'<em class="crown">👑</em>':''}${skPlate(k,44)}<span>${nt(k,i)}</span></div>`).join('')}</div><small style="margin-top:8px">🆕 สกิลใหม่ ${nw} · ⬆️ เลเวลอัป ${up} · ดีที่สุด: ${RN[best.r]}</small></div>`;
@@ -2251,7 +2251,7 @@ skPull=function(n){
  if(n===1){if(free>0)uf=1;else{cost=p;if(S.gold<cost)return}}else{cost=Math.floor(p*BATP[n]);if(S.gold<cost)return}
  skBusy=true;if(uf)S.skf--;S.gold-=cost;
  const res=[];for(let i=0;i<n;i++)res.push(rollSk());S.skh=(S.skh||0)+n;
- let gsum=0;const auto=[],notes=res.map(k=>{const o=S.skills[k.id];if(!o){S.skills[k.id]={lv:1};return 'new'}if(o.lv<SKMAX){o.lv++;return 'up'}const g=Math.floor(p*(1+k.r)*.5);S.gold+=g;gsum+=g;return 'g'+g});
+ let gsum=0;const auto=[],notes=res.map(k=>{const o=S.skills[k.id];if(!o){S.skills[k.id]={lv:1};return 'new'}if(o.lv<SKMAX){o.lv++;return 'up'}return 'g0'});
  res.forEach((k,i)=>{if(notes[i]==='new'&&!S.sk.includes(k.id)){const e=S.sk.indexOf(null);if(e>=0){S.sk[e]=k.id;auto.push(k.id)}}});
  const best=res.reduce((a,b)=>b.r>a.r?b:a),bi=res.indexOf(best),rc=RC[best.r],ST=$('sstg');
  $('scard').innerHTML='';$('sitm').className='';ST.classList.remove('rv');ST.classList.add('chg');ST.style.setProperty('--rc','#d9b8ff');ST.style.setProperty('--ag','#8a5cff99');
@@ -2262,7 +2262,7 @@ skPull=function(n){
   if(best.r>=3){ST.insertAdjacentHTML('beforeend',`<div class="hbn" style="--c:${rc}">${best.r>=4?'✨ ':''}${RN[best.r]}!${best.r>=4?' ✨':''}</div>`);setTimeout(()=>{const h=ST.querySelector('.hbn');if(h)h.remove()},1900);for(let i=1;i<=2;i++)setTimeout(()=>wfx(rc,ST),i*320)}
   if(best.r>=4)shake();
   setTimeout(()=>{
-   const nt=(k,i)=>notes[i]==='new'?(auto.includes(k.id)?'🆕 ติดตั้งแล้ว':'🆕 ใหม่!'):notes[i]==='up'?'⬆️ Lv.'+S.skills[k.id].lv:'🪙 '+fmt(+notes[i].slice(1));
+   const nt=(k,i)=>notes[i]==='new'?(auto.includes(k.id)?'🆕 ติดตั้งแล้ว':'🆕 ใหม่!'):notes[i]==='up'?'⬆️ Lv.'+S.skills[k.id].lv:'✅ MAX';
    if(n===1){const k=res[0],c=RC[k.r];$('scard').innerHTML=`<div class="rcard" style="--c:${c}">${notes[0]==='new'?'<span class="rtag">NEW</span>':''}<div class="rpl">${skPlate(k,76)}</div><b class="rname" style="color:${c}">${k.n}</b><span class="pill" style="background:${c}">${RN[k.r]}</span><div class="rst">${nt(k,0)}</div><small>${skDesc(k,S.skills[k.id])}</small><small>⏱️ ${k.cd} วินาที · เลเวล ${S.skills[k.id].lv}/${SKMAX}</small></div>`}
    else{const nw=notes.filter(x=>x==='new').length,up=notes.filter(x=>x==='up').length,cnt=Array(6).fill(0);res.forEach(k=>cnt[k.r]++);
     const grid=n>10?`<div class="sg50" id="sg50h"></div>`:`<div class="sg10">${res.map((k,i)=>`<div class="fc ${i===bi?'best':''}" style="--i:${i};--c:${RC[k.r]}">${i===bi?'<em class="crown">👑</em>':''}${skPlate(k,44)}<span>${nt(k,i)}</span></div>`).join('')}</div>`;
@@ -2379,7 +2379,7 @@ function renderTw(){
  $('twcur').innerHTML=`<div class="tw-cur" style="--c:${c};--c2a:${c}66;--ca:${c}44"><div class="tw-fl">${r.n}${I.big?' · เจ้าแห่งภพ':I.mini?' · ผู้คุมชั้น':''}</div><div class="tw-n">ชั้น ${twSel}</div><div class="tw-bo">${I.em}</div><div class="tw-nm">${I.nm}</div>
   <div class="tw-tg"><span>⏱ ${I.t} วิ</span><span>❤️ เลือด x${I.hpm}</span><span>💢 ดาเมจ x${I.dm.toFixed(2)}</span><span>⚔️ ระดับ ด่าน ${I.abs}</span></div>
   <div class="tw-rw">${cleared?'✅ ผ่านแล้ว · ซ้ำได้รับ 🪙 เหรียญ 40%':'🎁 รางวัลครั้งแรก: '+twRw(I)}</div></div>
-  <button class="skill bz-go" id="twgo" ${why?'disabled':''}>⚔️ ${cleared?'ท้าซ้ำ':'ท้าทาย'}ชั้น ${twSel}</button>${why?`<div class="bz-why">${why}</div>`:''}`;
+  <button class="skill bz-go" id="twgo" ${why?'disabled':''}>${cleared?'✅ ผ่านแล้ว':'⚔️ ท้าทาย'} ชั้น ${twSel}</button>${why?`<div class="bz-why">${why}</div>`:''}`;
  let h='';let lastRealm=-1;
  for(let f=Math.min(TW_MAX,b.best+10);f>=1;f--){const x=twInfo(f),ri=Math.floor((f-1)/10);
   if(ri!==lastRealm&&(f%10===0||f===Math.min(TW_MAX,b.best+10))){lastRealm=ri;h+=`<div class="tw-rm" style="--c:${x.r.c}">━━ ${x.r.n} (ชั้น ${ri*10+1}-${ri*10+10}) ━━</div>`}
@@ -2390,7 +2390,7 @@ function renderTw(){
  $('twgo').onclick=()=>enterTower(twSel);
  if(twScroll){const sel=$('twl').querySelector('.sel');if(sel)$('twl').scrollTop=Math.max(0,sel.offsetTop-$('twl').offsetTop-80);twScroll=false}
 }
-function twCan(f){const b=ensureTw();if(f>b.best+1)return '🔒 ต้องผ่านชั้น '+(b.best+1)+' ก่อน';if(D)return '⚔️ กำลังต่อสู้อยู่';return ''}
+function twCan(f){const b=ensureTw();if(f<=b.best)return '✅ ผ่านชั้นนี้แล้ว (ลงหอซ้ำไม่ได้)';if(f>b.best+1)return '🔒 ต้องผ่านชั้น '+(b.best+1)+' ก่อน';if(D)return '⚔️ กำลังต่อสู้อยู่';return ''}
 function enterTower(f){
  const why=twCan(f);if(why)return;
  if(mState==='dying'){if(!twQ){twQ=true;setTimeout(()=>{twQ=false;enterTower(f)},350)}return}
@@ -9739,8 +9739,8 @@ renderTw=function(){
   <div class="tz-stage"><div class="ray"></div><div class="rg">${ring(10,62,'#ffd23f',c)}</div><div class="rg b">${ring(6,50,c,'#fff3b0')}</div><div class="base"></div><div class="mo">${a||`<div class="emj">${I.em}</div>`}</div></div>
   <div class="tz-nm">${I.nm}</div>
   <div class="tz-g4"><div><i>⏱️</i>เวลา<b>${I.t} วิ</b></div><div><i>❤️</i>เลือด<b>x${I.hpm}</b></div><div><i>💢</i>ดาเมจ<b>x${I.dm.toFixed(2)}</b></div><div><i>⚔️</i>ระดับ<b>ด่าน ${I.abs}</b></div></div>
-  <div class="tz-rw ${cleared?'done':''}">${cleared?'<small>✅ ผ่านชั้นนี้แล้ว · ท้าซ้ำได้รับ 🪙 เหรียญ 40%</small>':`<small>🎁 รางวัลผ่านครั้งแรก</small><div class="it">${rw.map(([e,n])=>`<span>${e} ${n}</span>`).join('')}</div>`}</div></div>
-  <button class="skill bz-go tz-go" id="twgo" ${why?'disabled':''}>⚔️ ${cleared?'ท้าซ้ำ':'ท้าทาย'}ชั้น ${twSel}</button>${why?`<div class="bz-why">${why}</div>`:''}`;
+  <div class="tz-rw ${cleared?'done':''}">${cleared?'<small>✅ ผ่านชั้นนี้แล้ว · ลงซ้ำไม่ได้ ไปท้าชั้นถัดไปได้เลย</small>':`<small>🎁 รางวัลผ่านครั้งแรก</small><div class="it">${rw.map(([e,n])=>`<span>${e} ${n}</span>`).join('')}</div>`}</div></div>
+  <button class="skill bz-go tz-go" id="twgo" ${why?'disabled':''}>${cleared?'✅ ผ่านแล้ว':'⚔️ ท้าทาย'} ชั้น ${twSel}</button>${why?`<div class="bz-why">${why}</div>`:''}`;
  $('tzp').onclick=()=>{twSel=Math.max(1,twSel-1);twScroll=true;renderTw()};
  $('tzn').onclick=()=>{twSel=Math.min(TT,b.best+1,twSel+1);twScroll=true;renderTw()};
  /* รายชั้นแบบหอคอย */
@@ -12098,6 +12098,7 @@ const maxG=()=>{let m=0;GR.forEach((g,i)=>{if(clv()>=g.lv)m=i});return m};
 const nLock=()=>E().rows.filter(r=>r.lock).length;
 const rrCost=()=>Math.round(10*(1+.5*nLock()));
 const lkCost=()=>30*(nLock()+1);
+const LKN='🔒 ล็อก: ใช้เพชร 30/60/90/120 ต่อครั้ง';
 const fv=v=>'+'+(Math.round(v*10)/10)+'%';
 function rollRow(){const m=maxG();const W=GR.slice(0,m+1).map(g=>g.w),T=W.reduce((a,b)=>a+b,0);let x=Math.random()*T,g=0;for(;g<m;g++){x-=W[g];if(x<0)break}
  const o=OP[(Math.random()*OP.length)|0],[a,b]=o.r[g];return{k:o.k,g,v:Math.round((a+Math.random()*(b-a))*10)/10,lock:0}}
@@ -12145,6 +12146,32 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #fow .fo-gl{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:8px 12px 0}
 #fow .fo-gl div{padding:5px 2px;border-radius:9px;text-align:center;font-size:11px;font-weight:900;color:var(--c);background:#0006;border:1.5px solid var(--c)}#fow .fo-gl div small{display:block;font-size:9.5px;font-weight:700;color:#e8d8b8}
 #fow .fo-gl div.fo-off{opacity:.42;filter:grayscale(.7)}
+#fow .fo-list{gap:5px!important;padding:6px 12px!important}
+#fow .fo-slot{min-height:0!important;height:38px;padding:0 4px 0 4px!important;gap:6px!important;border-radius:19px!important;border-width:1.5px!important;overflow:hidden;background:#0d0703!important;box-shadow:inset 0 2px 6px #000a,0 0 8px color-mix(in srgb,var(--c) 30%,transparent)!important}
+#fow .fo-slot .fo-fill{position:absolute;left:0;top:0;bottom:0;width:var(--p,50%);border-radius:19px;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 15%,transparent),color-mix(in srgb,var(--c) 45%,transparent));box-shadow:inset -2px 0 0 color-mix(in srgb,var(--c) 70%,transparent);transition:width .5s}
+#fow .fo-slot .fo-fill::after{content:"";position:absolute;inset:0 0 50% 0;border-radius:19px 19px 0 0;background:linear-gradient(#ffffff2a,transparent)}
+#fow .fo-slot>*:not(.fo-fill){position:relative;z-index:1}
+#fow .fo-slot.fo-l{border-color:#ffd23f!important}
+#fow .fo-slot.fo-l .fo-fill{background:linear-gradient(90deg,#ffd23f22,#ffd23f55)}
+#fow .fo-no{width:22px!important;height:22px!important;font-size:11px!important}
+#fow .fo-ic{width:auto!important;height:auto!important;border:0!important;background:none!important;font-size:17px!important}
+#fow .fo-in{display:flex;align-items:center;gap:5px;line-height:1}
+#fow .fo-in .fo-gr{flex:none;padding:2px 6px!important;font-size:9px!important;border-radius:9px!important}
+#fow .fo-in .fo-nm{margin:0!important;font-size:12.5px!important}
+#fow .fo-in .fo-rg{display:none!important}
+#fow .fo-val{font-size:15px!important}
+#fow .fo-lk{min-width:0!important;width:30px;height:30px;padding:0!important;border-radius:50%!important;font-size:14px!important;line-height:1!important}
+#fow .fo-lk small{display:none}
+#fow .fo-slot.fo-e{height:38px;justify-content:flex-start}
+#fow .fo-emt{font-size:11px!important}
+#fow .fo-allb{display:block;width:calc(100% - 24px);margin:8px 12px 0;padding:8px;border-radius:12px;border:1.5px solid #c8902a;background:linear-gradient(#4a2c12,#2a1606);color:#ffe9a0;font:inherit;font-weight:900;font-size:12.5px}
+#fow .fo-all{margin:6px 12px 0;border-radius:12px;background:#0007;border:1px solid #8a5a2a;overflow:hidden}
+#fow .fo-all table{width:100%;border-collapse:collapse;font-size:10px}
+#fow .fo-all th{padding:5px 2px;background:#3a2410;color:#ffe9a0;font-size:9.5px;position:sticky;top:0}
+#fow .fo-all td{padding:4px 2px;text-align:center;border-top:1px solid #ffffff12;color:#e8d8b8;white-space:nowrap}
+#fow .fo-all td:first-child{text-align:left;padding-left:6px;color:#fff;font-weight:800}
+#fow .fo-all th.fo-off,#fow .fo-all td.fo-off{opacity:.35}
+#fow .fo-all .fo-cap{padding:6px 8px;font-size:10px;color:#c8b090}
 #fow .fo-nt{margin:8px 12px 0;font-size:10px;color:#c8b090;line-height:1.6}
 </style>`);
 const HD=`<svg viewBox="0 0 400 84" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="foSun"><stop offset="0" stop-color="#fff8c8"/><stop offset=".6" stop-color="#ffd23f"/><stop offset="1" stop-color="#ffd23f" stop-opacity="0"/></radialGradient></defs>
@@ -12154,22 +12181,26 @@ const HD=`<svg viewBox="0 0 400 84" preserveAspectRatio="xMidYMid slice"><defs><
 ${Array.from({length:22},(_,i)=>`<path d="M${i*19+4} 84Q${i*19+2} 72 ${i*19+6} 66M${i*19+8} 84Q${i*19+10} 74 ${i*19+14} 70" stroke="#2a7a24" stroke-width="2" fill="none"><animateTransform attributeName="transform" type="rotate" values="0 ${i*19+6} 84;${i%2?3:-3} ${i*19+6} 84;0 ${i*19+6} 84" dur="${2+i%3}s" repeatCount="indefinite"/></path>`).join('')}
 <text x="30" y="76" font-size="16">🌷</text><text x="356" y="78" font-size="16">🌻</text><text x="300" y="74" font-size="13">🍀</text>
 <text font-size="13">🦋<animateMotion dur="9s" repeatCount="indefinite" path="M20 60Q90 20 160 50T320 40T390 60T200 70T20 60"/></text></svg>`;
-let fresh=[];
+let fresh=[],showAll=false;
 function render(m){const w=document.getElementById('fow');if(!w)return;const o=E(),mg=maxG(),rc=rrCost(),nl=nLock();
  const rows=o.rows.map((r,i)=>{if(!r.k)return `<div class="fo-slot fo-e"><span class="fo-no">${i+1}</span><span class="fo-emt">— ช่องว่าง · กดรีออฟชั่นเพื่อสุ่ม —</span></div>`;
   const op=OPK[r.k],G=GR[r.g],[a,b]=op.r[r.g];
-  return `<div class="fo-slot ${r.lock?'fo-l':''} ${fresh.includes(i)?'fo-n':''}" style="--c:${G.c}"><span class="fo-no">${i+1}</span><span class="fo-ic">${op.ic}</span><span class="fo-in"><span class="fo-gr">${G.n}</span><span class="fo-nm">${op.n}</span><span class="fo-rg">ต่ำสุด ${a}% · สูงสุด ${b}%</span></span><span class="fo-val">${fv(r.v)}</span><button class="fo-lk" data-i="${i}">${r.lock?'🔒<br>ล็อกอยู่':(nl>=MAXL?'ล็อก<br>เต็ม':'🔓 ล็อก<br>💎 '+lkCost())}</button></div>`}).join('');
+  const pc=b>a?Math.max(8,Math.min(100,(r.v-a)/(b-a)*100)):100;
+  return `<div class="fo-slot ${r.lock?'fo-l':''} ${fresh.includes(i)?'fo-n':''}" style="--c:${G.c};--p:${pc.toFixed(0)}%" title="ช่วงค่า ${a}% – ${b}%"><i class="fo-fill"></i><span class="fo-no">${i+1}</span><span class="fo-ic">${op.ic}</span><span class="fo-in"><span class="fo-gr">${G.n}</span><span class="fo-nm">${op.n}</span><span class="fo-rg"></span></span><span class="fo-val">${fv(r.v)}</span><button class="fo-lk" data-i="${i}" title="${r.lock?'ปลดล็อก':'ล็อก 💎 '+lkCost()}">${r.lock?'🔒':'🔓'}</button></div>`}).join('');
  const S2=sum(),tot=OP.filter(x=>S2[x.k]).map(x=>`${x.ic} ${x.n} <b>${fv(S2[x.k])}</b>`).join(' · ')||'ยังไม่มีโบนัส';
  w.querySelector('.fo-bx').innerHTML=`<div class="fo-hd">${HD}<div class="fo-tt">🔮 ออฟชั่นสวน</div><button class="fo-x">✕</button></div>
- <div class="fo-st"><div>แต้มสวน<b>🌱 ${fmt(o.pt)}</b></div><div>สุ่มได้ถึงระดับ<b style="color:${GR[mg].c}">${GR[mg].n}</b></div><div>ล็อกแล้ว<b>🔒 ${nl}/${MAXL}</b></div></div>
+ <div class="fo-st"><div>แต้มสวน<b>🌱 ${fmt(o.pt)}</b></div><div>สุ่มได้ถึงระดับ<b style="color:${GR[mg].c}">${GR[mg].n}</b></div><div>ล็อกแล้ว<b>🔒 ${nl}/${MAXL}</b><small style="font-size:9px;color:#d8c090">${nl>=MAXL?'ล็อกครบแล้ว':'ล็อกถัดไป 💎 '+lkCost()}</small></div></div>
  <div class="fo-list">${rows}</div>
  <button class="fo-rr" id="foRR" ${o.pt<rc||nl>=ROWS?'disabled':''}>🎲 รีออฟชั่น<small>ใช้ 🌱 ${rc} แต้ม${nl?' · ล็อกอยู่ '+nl+' ช่อง':''}</small></button>
  <div class="fo-msg">${m||''}</div>
  <div class="fo-tot">✅ โบนัสรวมตอนนี้: ${tot}</div>
+ <button class="fo-allb" id="foAllB">📜 ${showAll?'ซ่อน':'ดู'}ออฟชั่นทั้งหมดที่สุ่มได้</button>
+ ${showAll?`<div class="fo-all"><table><tr><th>ออฟชั่น</th>${GR.map((g,gi)=>`<th class="${gi>mg?'fo-off':''}" style="color:${g.c}">${g.n}</th>`).join('')}</tr>${OP.map(o=>`<tr><td>${o.ic} ${o.n}</td>${o.r.map((x,gi)=>`<td class="${gi>mg?'fo-off':''}">${x[0]}–${x[1]}%</td>`).join('')}</tr>`).join('')}</table><div class="fo-cap">โอกาสออกแต่ละระดับ: ${GR.map(g=>g.n+' '+g.w+'%').join(' · ')} · ระดับที่จางยังไม่ปลด (ต้องเลเวลฟาร์มตามที่กำหนด)</div></div>`:''}
  <div class="fo-gl">${GR.map((g,i)=>`<div class="${i>mg?'fo-off':''}" style="--c:${g.c}">${g.n}<small>${i>mg?'🔒 ':'✅ '}ฟาร์ม Lv.${g.lv}</small></div>`).join('')}</div>
  <div class="fo-nt">🌱 แต้มจากการเก็บผัก (ต่อแปลง): ${Object.entries(PT).map(([k,v])=>CI[k]+' '+v).join(' · ')}<br>🔒 ล็อกช่องที่ชอบได้สูงสุด ${MAXL} ช่อง · ใช้เพชรทุกครั้งที่ล็อก (30 / 60 / 90 / 120) · ปลดล็อกฟรี<br>⬆️ เลเวลฟาร์มสูงขึ้น ปลดระดับออฟชั่นที่แรงขึ้น · ค่าที่ได้สุ่มระหว่างต่ำสุด–สูงสุดของระดับนั้น</div>`;
  fresh=[];
  w.querySelector('.fo-x').onclick=()=>w.remove();
+ const ab=document.getElementById('foAllB');if(ab)ab.onclick=()=>{showAll=!showAll;render()};
  w.querySelectorAll('.fo-lk').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,r=o.rows[i];if(!r.k)return;
   if(r.lock){r.lock=0;save();render('🔓 ปลดล็อกช่อง '+(i+1)+' แล้ว');return}
   if(nLock()>=MAXL)return render('ล็อกได้สูงสุด '+MAXL+' ช่อง');const c=lkCost();if((S.diamonds||0)<c)return render('💎 เพชรไม่พอ (ต้องใช้ '+c+')');
@@ -12339,6 +12370,22 @@ document.addEventListener('submit',e=>{const form=e.target;if(!form||!form.close
  const f=H[c];if(!f)return;e.preventDefault();e.stopImmediatePropagation();inp.value='';
  Promise.resolve(f(t.slice(2))).catch(err=>say('❌ GM: '+(err&&err.message||err),true))},true);
 window.gmItemFind=find;
+})();
+</script><script>/* ================= เข้าสวน/เมือง = ออกจากหน้าหลัก (ซ่อนฉากต่อสู้ทั้งหมด) ================= */
+(function(){
+const KEEP=['cityw','farmw','cpn','pvpsoon','fow','fpick','pmenu','pfw','pvtoast','bagtoast','ptInv','bagpop','banLock','subToast','mn-dock'];
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.sub-mode>*:not(script):not(style)${KEEP.map(k=>':not(#'+k+')').join('')}{display:none!important}
+body.sub-mode>#pfw[hidden]{display:none!important}
+#subToast{position:fixed;left:50%;top:18%;transform:translateX(-50%);z-index:99990;max-width:86vw;padding:9px 18px;border-radius:14px;background:linear-gradient(#5a2a0a,#2a1004);border:2px solid #ffd23f;color:#ffe9a0;font-weight:900;font-size:14px;text-align:center;box-shadow:0 6px 18px #000a;pointer-events:none;animation:stIn 2.2s ease forwards}
+@keyframes stIn{0%{opacity:0;transform:translate(-50%,-10px) scale(.9)}10%{opacity:1;transform:translate(-50%,0) scale(1)}85%{opacity:1}100%{opacity:0;transform:translate(-50%,-14px)}}
+</style>`);
+const on=()=>!!(document.getElementById('cityw')||document.getElementById('farmw'));
+let st=null;
+function sync(){const v=on()&&!document.body.classList.contains('mn-mode');if(v===st)return;st=v;document.body.classList.toggle('sub-mode',v)}
+new MutationObserver(sync).observe(document.body,{childList:true});sync();
+/* ข้อความแจ้งเตือนตอนอยู่ในสวน/เมือง (ปกติแสดงในฉากต่อสู้ที่ถูกซ่อน) */
+const _b=fx;fx=function(cls,t){if(cls==='banner'&&document.body.classList.contains('sub-mode')){let e=document.getElementById('subToast');if(e)e.remove();e=document.createElement('div');e.id='subToast';e.textContent=t;document.body.appendChild(e);setTimeout(()=>{if(e.isConnected)e.remove()},2300);return}return _b.apply(this,arguments)};
 })();
 </script></body></html>
 
