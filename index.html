@@ -3909,7 +3909,9 @@ const _r=renderSkw;renderSkw=function(){_r.apply(this,arguments);
 /* ===== รีเซตคูลดาวน์สกิลทั้งหมดหลังมอน/บอสตาย ===== */
 (function(){const rs=()=>{for(let i=0;i<6;i++)skCds[i]=0;skG=0;try{_skc={}}catch(e){}};
 const _k0=kill;kill=function(){const du=D&&D.duel;const r=_k0.apply(this,arguments);if(!du)rs();return r};
-const _dk0=dgKill;dgKill=function(){const du=D&&D.duel;const r=_dk0.apply(this,arguments);if(!du)rs();return r};})();
+const _dk0=dgKill;dgKill=function(){const du=D&&D.duel;const r=_dk0.apply(this,arguments);if(!du)rs();return r};
+const _die0=die;die=function(){const r=_die0.apply(this,arguments);rs();return r};
+const _de0=dgEnd;dgEnd=function(w){const r=_de0.apply(this,arguments);if(!w)rs();return r};})();
 /* ===== ป๊อปอัพสกิล: อัปเลเวล + ติดตั้ง ===== */
 (function(){const _o=openSkInfo;openSkInfo=function(k){_o(k);const o=S.skills[k.id],g=$('gzpop');if(!o||!g)return;const bt=g.querySelector('.gz-btns');if(!bt)return;
 const mx=o.lv>=SKMAX,c=skUpCost(k,o),b=document.createElement('button');b.className='up';b.id='gzup';b.disabled=mx||S.gold<c;b.style.cssText='justify-content:center;font-weight:700;flex:1 1 100%';
