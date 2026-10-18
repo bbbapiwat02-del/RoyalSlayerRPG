@@ -908,7 +908,7 @@ function EQF1(e,k,s){if(!e)return 0;s=s==null?e.s:s;const T=EQT(e),pq=EQPQ(e),L=
  else if(k==='h'){const x=.6*L;b=.08*RM[T]*(50+18*x)*Math.pow(1.016,x);c=30}
  else if(k==='df'){const x=.6*L;b=(.05+.05*T)*3.2*(6+5*x+5*(L-1))*Math.pow(1.013,Math.min(x,400));c=3}
  else{const x=.6*L,y=.2*L;b=(.05+.05*T)*3.4*(5+4*x+3*y+4*(L-1))*Math.pow(1.013,Math.min(x+y,500));c=3}
- return Math.floor((1.35*b+c*RM[T])*pq*w)}
+ return Math.floor((1.35*b+c*RM[T])*pq*w*(k==='h'?2:1))}
 /* ค่ารองของอุปกรณ์: แม่นยำ(กระบี่) หลบหลีก(เสื้อ) ต้านคริ(หมวก) ลดความเร็วโจมตีศัตรู(รองเท้า) คริ/ดาเมจคริ(สร้อย) */
 const EQXS={acc:0,eva:1,cres:2,slow:3,crit:4,cdmg:4};
 function EQX1(e,k,s){if(!e)return 0;s=s==null?e.s:s;if(EQXS[k]!==s)return 0;let T=0,pq=1;try{T=EQT(e);pq=EQPQ(e)}catch(er){}
@@ -919,7 +919,7 @@ function CRES(){return Math.min(60,EQX('cres')+(S.st?S.st.vit:0)*.03)}
 function SLOW(){return Math.min(40,EQX('slow')+(S.st?S.st.agi:0)*.02)}
 function EQF(k){let v=0;try{for(let i=0;i<5;i++){const e=S.eq[i];if(e)v+=EQF1(e,k,i)||0}}catch(er){return 0}return v}
 function EPL(l){l=l||0;return .06*l+.007*l*l+(l>=10?.1:0)+(l>=15?.2:0)+(l>=20?.5:0)}
-function EQP1(i,k,l){return EQW[k][i]*EPL(l==null?((S.enh&&S.enh[i])||0):l)}
+function EQP1(i,k,l){return EQW[k][i]*EPL(l==null?((S.enh&&S.enh[i])||0):l)*(k==='h'?2:1)}
 function EQP(k){let v=0;for(let i=0;i<5;i++)if(S.eq[i])v+=EQP1(i,k);return v}
 const ev=i=>{const e=S.eq[i];let v=0;if(i===0)v=EQP('a');else if(i===1)v=EQP('h');else if(i===2)v=EQX('crit');else if(i===3&&e)v=e.v*EQM*(1+ENHM(i));if(S.eq.some(x=>x&&x.set!=null)){const q=i===0?'a':i===1?'h':i===2?'c':i===3?'s':'g';v+=setBon()[q]}return v};
 const ATK=()=>Math.floor(((5+S.up.atk*3)*Math.pow(1.016,S.up.atk)+EQF('a'))*(1+ev(0)+WV('a')+PV('a')+FSV('a'))*(1+0.06*(S.lv-1))*(1+BF.a));
@@ -1649,7 +1649,7 @@ const SK=[
 const SW=[43,27,16,8.5,3.6,1.2,.5,.2],SKMAX=30;
 var skTab=1,skSel=0,skPick='',skBusy=false,_skc={};
 const skMul=o=>1+.12*((o?o.lv:1)-1);
-const skPrice=()=>Math.floor(1350*Math.pow(1.12,Math.min(S.skh||0,60)));
+const skPrice=()=>copen();
 function skPlate(k,sz,lk){return `<div class="skp ${lk?'lk':''}" style="--c:${RC[k.r]};width:${sz}px;height:${sz}px;font-size:${Math.round(sz*.56)}px"><i>${k.i}</i></div>`}
 function skDesc(k,o){const L=skMul(o);
  if(k.k==='d')return `ดาเมจรวม ${fmt(ATK()*k.m*L)} (x${(k.m*L).toFixed(1)} พลังโจมตี${k.h>1?' · '+k.h+' ครั้ง':''})`;
@@ -9427,7 +9427,7 @@ function onResp(p){if(!R||R.room!==p.room||R.phase!=='wait')return;clearInterval
  R.phase='ready';openRoom()}
 function onCancel(p){const w=document.getElementById('pvinv');if(w&&w.dataset.room===p.room){close('pvinv');toast('อีกฝ่ายยกเลิกคำท้าแล้ว')}}
 /* ---------- ห้องประลอง ---------- */
-function snap(){return{n:S.name||'จอมยุทธ์',lv:S.lv,max:MHP(),def:+defR().toFixed(3),mdef:+mdefR().toFixed(3),st:S.st||{},atk:ATK(),pet:(S.pet&&S.pets&&S.pets[S.pet])?S.pet:''}}
+function snap(){return{n:S.name||'จอมยุทธ์',lv:S.lv,max:MHP(),def:+defR().toFixed(3),mdef:+mdefR().toFixed(3),dg:+stDodge().toFixed(2),cr:+CRES().toFixed(2),ac:+((S.st?S.st.dex:0)*.5+EQX('acc')).toFixed(2),cm:+CRD().toFixed(3),st:S.st||{},atk:ATK(),pet:(S.pet&&S.pets&&S.pets[S.pet])?S.pet:''}}
 function send(t,p){if(!R||!R.ch)return;try{R.ch.send({type:'broadcast',event:'m',payload:Object.assign({t,f:me},p||{})})}catch(e){}}
 async function openRoom(){
  try{closeW()}catch(e){}try{const fb=document.getElementById('fxBack');if(fb)fb.click()}catch(e){}
@@ -9509,7 +9509,7 @@ const _dk=dgKill;dgKill=function(){if(D&&D.duel){mhp=Math.max(1,mhp);if(mState==
 const _de=dgEnd;dgEnd=function(w){if(D&&D.duel){if(!w&&R&&R.phase==='fight'){send('dead');finish(false,'ko')}return}return _de.apply(this,arguments)};
 const _dm=dmgMon;dmgMon=function(d,crit,kind){if(!(D&&D.duel))return _dm.apply(this,arguments);if(waitPh())return;
  if(!R||R.phase!=='fight'||mState!=='idle')return;
- const raw=Math.max(1,Math.floor(d));send('hit',{d:raw,c:crit?1:0,k:kind||''});R.dealt+=raw;
+ const raw=Math.max(1,Math.floor(d));send('hit',{d:raw,c:crit?1:0,k:kind||'',ac:+((S.st?S.st.dex:0)*.5+EQX('acc')).toFixed(2),cm:+CRD().toFixed(3)});R.dealt+=raw;
  const red=kind==='s'?(R.opp.mdef||0):(R.opp.def||0);return _dm.call(this,Math.max(1,Math.floor(raw*(1-red))),crit,kind)};
 /* ระหว่างนับถอยหลัง: ยืนหายใจเฉยๆ ห้ามตี/ใช้สกิล/สัตว์เลี้ยงโจมตี */
 const waitPh=()=>D&&D.duel&&(!R||R.phase!=='fight');
@@ -9544,9 +9544,12 @@ const _pa=petAtk;petAtk=function(){if(waitPh())return;window._nPa=null;const r=_
 function oppFx(p){try{const big=p.r>=3;fx('slash',p.i,'left:6%;top:18%;font-size:'+(big?96:80)+'px');burst(20,52,p.c,big?28:18);if(big)shake()}catch(e){}}
 let stT=0;function stSoon(){const n=Date.now();if(n-stT<120){clearTimeout(stSoon.h);stSoon.h=setTimeout(()=>{stT=Date.now();send('st',{hp:Math.max(0,Math.floor(hp)),max:MHP()})},120);return}stT=n;send('st',{hp:Math.max(0,Math.floor(hp)),max:MHP()})}
 function oppHit(p){
- const dodge=(()=>{try{return stDodge()}catch(e){return 0}})();
+ /* หักลบสเตตัสฝ่ายตรงข้ามเสมอ: หลบหลีกของเรา − ความแม่นยำของเขา · ต้านคริของเรา · กันกาย/กันเวทของเรา */
+ const dodge=(()=>{try{return Math.max(0,stDodge()-(+p.ac||0))}catch(e){return 0}})();
  if(Math.random()*100<dodge){fl('MISS','miss','h');return}
- const v=Math.max(1,Math.floor((+p.d||0)*(1-(p.k==='s'?mdefR():defR()))));
+ let dd=+p.d||0;
+ try{if(p.c&&Math.random()*100<Math.min(60,CRES())){dd=dd/Math.max(1,+p.cm||2);p.c=0}}catch(e){}
+ const v=Math.max(1,Math.floor(dd*(1-(p.k==='s'?mdefR():defR()))));
  hp-=v;R.taken+=v;try{dmgNum(v,'h','h')}catch(e){}
  try{HW.animate([{filter:'brightness(1)'},{filter:'brightness(2.2) saturate(.4)',offset:.25},{filter:'brightness(1)'}],{duration:220});if(p.k==='p')burst(22,55,'#ffd23f',6);if(p.c)shake()}catch(e){}
  if(hp<=0){hp=0;send('st',{hp:0,max:MHP()});send('dead');finish(false,'ko');return}
@@ -13168,6 +13171,41 @@ window.gameLoad=function(done){
   fin=true;clearInterval(tt);try{sfx&&sfx('reveal',3)}catch(e){}
   setTimeout(()=>{try{done&&done()}catch(e){console.error(e)}w.classList.add('out');setTimeout(()=>w.remove(),650)},380)};
  tick()};
+})();
+</script>
+<script>/* ===== แก้ตัวละครกระพริบ/หาย เวลาเปิด-ปิดระบบอื่น (หน้าต่าง/เมือง/สวน/เหมือง) ===== */
+(function(){
+const $=id=>document.getElementById(id);
+document.head.insertAdjacentHTML('beforeend','<style>#hero,#pet{filter:none!important}#hero,#hs,#hs svg.nh{-webkit-backface-visibility:hidden;backface-visibility:hidden}</style>');
+const alive=()=>{try{return !(typeof hp==='number')||hp>0}catch(e){return true}};
+const away=()=>document.body.classList.contains('away')||document.body.classList.contains('sub-mode')||document.body.classList.contains('mn-mode');
+function heal(){
+ const A=$('arena'),H=$('hero'),HS=$('hs');if(!A||!H||!HS)return;
+ if(A.style.visibility==='hidden'||document.hidden||away()||$('ss'))return;
+ if(H.style.visibility==='hidden')H.style.visibility='';
+ if(HS.style.visibility==='hidden')HS.style.visibility='';
+ if(!H.classList.contains('nhm')&&HS.querySelector('svg.nh'))H.classList.add('nhm');
+ const nh=HS.querySelector('svg.nh');
+ if(nh&&H.classList.contains('nhm')){const cs=getComputedStyle(nh);if(cs.display==='none')nh.style.display='block';if(cs.visibility==='hidden')nh.style.visibility='visible'}
+ if(alive()){const o=parseFloat(getComputedStyle(H).opacity);if(o<.05&&!(typeof mState!=='undefined'&&mState==='dying'))H.style.opacity=''}
+}
+let busy=0;
+function repaint(){
+ if(busy)return;busy=1;
+ const H=$('hero'),P=$('pet');
+ try{_acC=null}catch(e){}
+ [H,P].forEach(e=>{if(e)e.style.willChange='transform,opacity'});
+ requestAnimationFrame(()=>{heal();requestAnimationFrame(()=>{heal();[H,P].forEach(e=>{if(e)e.style.willChange=''});busy=0;setTimeout(heal,120);setTimeout(heal,400)})});
+}
+let lastHidden=null;
+function watch(){const A=$('arena');if(!A)return setTimeout(watch,300);
+ lastHidden=A.style.visibility==='hidden';
+ new MutationObserver(()=>{const h=A.style.visibility==='hidden';if(lastHidden&&!h)repaint();lastHidden=h}).observe(A,{attributes:true,attributeFilter:['style']});
+ let was=away();new MutationObserver(()=>{const a=away();if(was&&!a)setTimeout(repaint,60);was=a}).observe(document.body,{attributes:true,attributeFilter:['class']});
+}
+watch();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(repaint,80)});
+setInterval(heal,800);
 })();
 </script>
 </body></html>
