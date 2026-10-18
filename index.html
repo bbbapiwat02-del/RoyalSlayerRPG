@@ -4081,6 +4081,14 @@ const lay=document.createElement('div');lay.className='lay ft';lay.innerHTML=sv+
 const gnd=document.querySelector('#bg .gnd');if(gnd)gnd.insertAdjacentElement('beforebegin',lay);
 try{curZ=-1;setZone()}catch(e){}
 })();
+/* ===== รัศมีตรงกลางดวงอาทิตย์ + เกาะลอยขยับนุ่มนวล ===== */
+(function(){
+const st=document.createElement('style');
+st.textContent=`.fxr{right:calc(16% + var(--cs,44px)/2)!important;top:calc(12% + var(--cs,44px)/2)!important}
+.isl{animation-name:islf!important;animation-duration:10s!important;animation-timing-function:ease-in-out!important}
+@keyframes islf{from{transform:translateY(-2px)}to{transform:translateY(3px)}}`;
+document.head.appendChild(st);
+})();
 /* ================= กรอบหน้าต่างนิ่ง ไม่เคลื่อนไหว ================= */
 (function(){
 document.head.insertAdjacentHTML('beforeend',`<style>
