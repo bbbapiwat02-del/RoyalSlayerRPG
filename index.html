@@ -4055,6 +4055,32 @@ const A=$('arena');if(!A)return;
 const sync=()=>document.body.classList.toggle('wopen',A.style.visibility==='hidden');
 new MutationObserver(sync).observe(A,{attributes:true,attributeFilter:['style']});sync();
 })();
+/* ===== แนวต้นไม้ไกลๆ ด้านหลัง เลื่อนตามฉาก + โอนเอนตามลม (แทนขอบก้อนกลมที่ไม่ขยับ) ===== */
+(function(){
+const Z=[['#3f8f4a','#86d46c','#6b4423',1,0,0],['#b0702f','#eaa458','#6b4423',1,0,0],['#1f6a68','#46c8a6','#3a3050',1,0,0],['#6f8f30','#b0c85a','#8a5a30',0,1,0],['#4a7a6a','#dcf0f2','#5a4a3a',1,0,0],['#3a1c20','#7a3a36','#2a1418',0,0,1],['#3a1c20','#7a3a36','#2a1418',0,0,1]];
+try{for(let i=0;i<ZV.length;i++){const c=Z[Math.min(i,Z.length-1)];Object.assign(ZV[i],{ft:c[0],ftl:c[1],ftt:c[2],fa:c[3],fb:c[4],fc:c[5]})}}catch(e){}
+const st=document.createElement('style');
+st.textContent=`.gnd::before{content:none!important;display:none!important}
+.lay.ft{bottom:32.5%;height:17%;animation-duration:42s;pointer-events:none;fill:none}
+#arena.walk .lay.ft{animation-duration:12s}
+.lay.ft svg{overflow:visible}
+.lay.ft .tw{animation-duration:7s}
+.lay.ft g.v{transition:opacity .6s}`;
+document.head.appendChild(st);
+const F='var(--ft,#3f8f4a)',FL='var(--ftl,#86d46c)',FT='var(--ftt,#6b4423)';
+const round=(x,h)=>`<rect x="${x-1.6}" y="${100-h*.42}" width="3.2" height="${h*.42}" rx="1" fill="${FT}"/><g fill="${F}"><circle cx="${x}" cy="${100-h*.64}" r="${h*.3}"/><circle cx="${x-h*.21}" cy="${100-h*.48}" r="${h*.2}"/><circle cx="${x+h*.21}" cy="${100-h*.48}" r="${h*.2}"/></g><circle cx="${x-h*.1}" cy="${100-h*.74}" r="${h*.13}" fill="${FL}" opacity=".55"/><ellipse cx="${x+h*.1}" cy="${100-h*.4}" rx="${h*.22}" ry="${h*.08}" fill="#000" opacity=".12"/>`;
+const pine=(x,h)=>`<rect x="${x-1.4}" y="${100-h*.3}" width="2.8" height="${h*.3}" fill="${FT}"/><g fill="${F}"><path d="M${x} ${100-h}L${x-h*.2} ${100-h*.62}H${x+h*.2}Z"/><path d="M${x} ${100-h*.82}L${x-h*.27} ${100-h*.42}H${x+h*.27}Z"/><path d="M${x} ${100-h*.6}L${x-h*.33} ${100-h*.2}H${x+h*.33}Z"/></g><path d="M${x} ${100-h}L${x-h*.2} ${100-h*.62}H${x-h*.04}Z" fill="${FL}" opacity=".45"/>`;
+const palm=(x,h)=>{const cx=x+h*.12,cy=100-h*.92;let f='';[0,-38,38,180,218,142,-12,192].forEach((a,i)=>{const s=i<3||i>5?1:1;f+=`<path d="M${cx} ${cy}Q${cx+h*.16} ${cy-h*.2} ${cx+h*.36} ${cy+h*.1}Q${cx+h*.16} ${cy-h*.04} ${cx} ${cy}Z" transform="rotate(${a} ${cx} ${cy})" fill="${F}"/>`});
+return `<path d="M${x-1.8} 100Q${x+2} ${100-h*.5} ${cx-1} ${cy}L${cx+1.4} ${cy}Q${x+4.2} ${100-h*.5} ${x+1.8} 100Z" fill="${FT}"/>${f}<circle cx="${cx-1.5}" cy="${cy+2}" r="${h*.04}" fill="${FL}"/><circle cx="${cx+2}" cy="${cy+3}" r="${h*.04}" fill="${FL}"/>`};
+const dead=(x,h)=>`<path d="M${x-2.2} 100L${x-1} ${100-h*.5}L${x-h*.2} ${100-h*.74}L${x-h*.23} ${100-h*.69}L${x+.2} ${100-h*.42}L${x+h*.16} ${100-h*.8}L${x+h*.2} ${100-h*.75}L${x+1.6} ${100-h*.52}L${x+.8} ${100-h}L${x+3} 100Z" fill="${FT}"/><path d="M${x-h*.2} ${100-h*.74}L${x-h*.32} ${100-h*.86}L${x-h*.26} ${100-h*.7}Z" fill="${FT}"/>`;
+const X=[10,38,66,94,122,150,178,208,236,264,292,320,348,376],H=[44,58,40,52,62,42,56,46,60,40,54,48,64,42];
+let g='';X.forEach((x,i)=>{const h=H[i],d=-(i*.83%6),A=(i%3===1)?pine(x,h):round(x,h),B=palm(x,h*1.15),C=dead(x,h*1.05);
+g+=`<g class="tw" style="animation-delay:${d}s"><g class="v" style="opacity:var(--fa,1)">${A}</g><g class="v" style="opacity:var(--fb,0)">${B}</g><g class="v" style="opacity:var(--fc,0)">${C}</g></g>`});
+const sv=`<svg viewBox="0 0 400 100" preserveAspectRatio="none">${g}</svg>`;
+const lay=document.createElement('div');lay.className='lay ft';lay.innerHTML=sv+sv;
+const gnd=document.querySelector('#bg .gnd');if(gnd)gnd.insertAdjacentElement('beforebegin',lay);
+try{curZ=-1;setZone()}catch(e){}
+})();
 /* ================= กรอบหน้าต่างนิ่ง ไม่เคลื่อนไหว ================= */
 (function(){
 document.head.insertAdjacentHTML('beforeend',`<style>
