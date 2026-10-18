@@ -3899,12 +3899,17 @@ window.skPop=function(id){close();const k=SK.find(x=>x.id===id),o=k&&S.skills[id
  d.querySelectorAll('.sl button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;close();if(i===j)return;skSel=i;skEquip(id)});
 };
 const _r=renderSkw;renderSkw=function(){_r.apply(this,arguments);
- $('skown').querySelectorAll('button').forEach(b=>b.onclick=()=>{skPick=b.dataset.i;renderSkw();if(S.skills[skPick])skPop(skPick)});
+ $('skown').querySelectorAll('button').forEach(b=>b.onclick=()=>{skPick=b.dataset.i;renderSkw()});
  const eb=$('skeb');if(eb)eb.onclick=()=>skPop(skPick);
- $('skeq').querySelectorAll('button').forEach(b=>{const o=b.onclick;b.onclick=()=>{o&&o();const id=S.sk[+b.dataset.i];if(id)skPop(id)}});
+ {const kk=SK.find(x=>x.id===skPick),ic=$('skinfo').querySelector('.icard');if(kk&&ic&&!$('skdt')){const bt=document.createElement('button');bt.id='skdt';bt.className='auto';bt.style.cssText='width:100%;margin-top:6px;justify-content:center;font-weight:700';bt.textContent='🔍 ดูรายละเอียดสกิล';bt.onclick=()=>openSkInfo(kk);ic.appendChild(bt)}}
+ $('skeq').querySelectorAll('button').forEach(b=>{const o=b.onclick;b.onclick=()=>{o&&o();}});
 };
 })();
 
+/* ===== รีเซตคูลดาวน์สกิลทั้งหมดหลังมอน/บอสตาย ===== */
+(function(){const rs=()=>{for(let i=0;i<6;i++)skCds[i]=0;skG=0;try{_skc={}}catch(e){}};
+const _k0=kill;kill=function(){const du=D&&D.duel;const r=_k0.apply(this,arguments);if(!du)rs();return r};
+const _dk0=dgKill;dgKill=function(){const du=D&&D.duel;const r=_dk0.apply(this,arguments);if(!du)rs();return r};})();
 /* ================= กรอบหน้าต่างนิ่ง ไม่เคลื่อนไหว ================= */
 (function(){
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -12552,8 +12557,8 @@ const TOP=[{d:60,b:0,p:29,i:'💎'},{d:300,b:30,p:149,i:'💎💎'},{d:980,b:120
 const IT=[
  {c:'enh',id:'stone10',n:'หินตีบวก x10',i:'💠',d:'ใช้ตีบวกอุปกรณ์',p:400,g:()=>{S.stone=(S.stone||0)+10},o:()=>S.stone},
  {c:'enh',id:'stone50',n:'หินตีบวก x50',i:'💠',d:'ชุดใหญ่ คุ้มกว่า 10%',p:1800,g:()=>{S.stone=(S.stone||0)+50},o:()=>S.stone,tag:'คุ้ม'},
- {c:'enh',id:'lst',n:'หินนำโชค',i:'🍀',d:'+15% โอกาสตีบวกสำเร็จ (ใช้ครั้งละ 1)',p:2000,g:()=>{S.lst=(S.lst||0)+1},o:()=>S.lst,tag:'หายาก',r:4},
- {c:'enh',id:'pst',n:'หินกันแตก',i:'🛡️',d:'ตีบวก +10 ขึ้นไปล้มเหลวไม่ลดขั้น (ใช้ครั้งละ 1)',p:3500,g:()=>{S.pst=(S.pst||0)+1},o:()=>S.pst,tag:'หายากมาก',r:5},
+ {c:'enh',id:'lst',n:'หินนำโชค',i:'🍀',d:'+15% โอกาสตีบวกสำเร็จ (ใช้ครั้งละ 1)',p:500,g:()=>{S.lst=(S.lst||0)+1},o:()=>S.lst,tag:'หายาก',r:4},
+ {c:'enh',id:'pst',n:'หินกันแตก',i:'🛡️',d:'ตีบวก +10 ขึ้นไปล้มเหลวไม่ลดขั้น (ใช้ครั้งละ 1)',p:500,g:()=>{S.pst=(S.pst||0)+1},o:()=>S.pst,tag:'หายากมาก',r:5},
  {c:'itm',id:'key',n:'กุญแจหีบสมบัติ',i:'🔑',d:'เปิดหีบสุ่มอุปกรณ์ฟรี 1 ครั้ง',p:150,g:()=>{S.keys=(S.keys||0)+1},o:()=>S.keys},
  {c:'itm',id:'tk',n:'ตั๋วดันเจี้ยน',i:'🎫',d:'เข้าดันเจี้ยน/บอสเทพ 1 ครั้ง',p:120,g:()=>{S.tk=Math.min(99,(S.tk||0)+1)},o:()=>S.tk},
  {c:'itm',id:'tk5',n:'ตั๋วดันเจี้ยน x5',i:'🎫',d:'ชุดคุ้ม 5 ใบ ถูกกว่า 10%',p:540,g:()=>{S.tk=Math.min(99,(S.tk||0)+5)},o:()=>S.tk,tag:'คุ้ม'},
