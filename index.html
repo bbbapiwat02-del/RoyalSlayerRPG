@@ -4125,7 +4125,7 @@ document.head.appendChild(st);
 let lk='';
 function align(){try{const a=HW.querySelector(':scope>.enaura');if(!a||!HS)return;
 const w=a.offsetWidth;if(!w)return;
-const cx=HS.offsetLeft+HS.offsetWidth/2,fy=HS.offsetTop+HS.offsetHeight*.9;
+const cx=HS.offsetLeft+HS.offsetWidth*.545,fy=HS.offsetTop+HS.offsetHeight*.935;
 const k=[cx.toFixed(1),fy.toFixed(1),w].join();if(k===lk&&a.style.top)return;lk=k;
 a.style.left=(cx-w/2).toFixed(1)+'px';a.style.top=(fy-w*.93).toFixed(1)+'px'}catch(e){}}
 new MutationObserver(()=>{lk='';align()}).observe(HW,{childList:true});
@@ -4199,6 +4199,14 @@ body .isl+.isl,body .isl~.isl{animation-duration:7.5s!important;animation-delay:
 .cel .fxr i:nth-child(6){transform:rotate(298deg)!important;height:140px!important;top:-140px!important}
 .g-nosc .fxr,.g-nosc .isl{display:none!important}
 `;
+document.head.appendChild(st);
+})();
+/* ===== รัศมีหมุนอยู่หลังดวงอาทิตย์ ===== */
+(function(){
+const st=document.createElement('style');
+st.textContent=`.cel{isolation:isolate;background:none!important}
+.cel::after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--cel,#fff1b8) 70%);z-index:1}
+.cel .fxr{z-index:-1!important}`;
 document.head.appendChild(st);
 })();
 /* ================= กรอบหน้าต่างนิ่ง ไม่เคลื่อนไหว ================= */
