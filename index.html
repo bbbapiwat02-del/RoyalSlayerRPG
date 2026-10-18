@@ -903,12 +903,13 @@ const EQW={a:[.74,0,0,0,.26],h:[0,.55,.3,.15,0],df:[0,.55,0,.45,0],md:[0,.5,0,.5
 function EQT(e){return e.t!=null?e.t:(e.set!=null&&SETS[e.set]?SETS[e.set].bt:0)}
 function EQPQ(e){const T=EQT(e),b=SL[e.s].b*RMV(e.s,T);return b>0?e.v/b:1}
 function EQL(e){return e.set!=null&&SETS[e.set]?SETS[e.set].lv:10*EQT(e)+5}
+const EQMUL=k=>({a:.5,h:2,df:2,md:2})[k]||1;
 function EQF1(e,k,s){if(!e)return 0;s=s==null?e.s:s;const T=EQT(e),pq=EQPQ(e),L=EQL(e),w=EQW[k][s];let b,c;
  if(k==='a'){const x=.8*L;b=.08*RM[T]*(5+3*x)*Math.pow(1.016,x);c=4}
  else if(k==='h'){const x=.6*L;b=.08*RM[T]*(50+18*x)*Math.pow(1.016,x);c=30}
  else if(k==='df'){const x=.6*L;b=(.05+.05*T)*3.2*(6+5*x+5*(L-1))*Math.pow(1.013,Math.min(x,400));c=3}
  else{const x=.6*L,y=.2*L;b=(.05+.05*T)*3.4*(5+4*x+3*y+4*(L-1))*Math.pow(1.013,Math.min(x+y,500));c=3}
- return Math.floor((1.35*b+c*RM[T])*pq*w*(k==='h'?2:1))}
+ return Math.floor((1.35*b+c*RM[T])*pq*w*EQMUL(k))}
 /* ค่ารองของอุปกรณ์: แม่นยำ(กระบี่) หลบหลีก(เสื้อ) ต้านคริ(หมวก) ลดความเร็วโจมตีศัตรู(รองเท้า) คริ/ดาเมจคริ(สร้อย) */
 const EQXS={acc:0,eva:1,cres:2,slow:3,crit:4,cdmg:4};
 function EQX1(e,k,s){if(!e)return 0;s=s==null?e.s:s;if(EQXS[k]!==s)return 0;let T=0,pq=1;try{T=EQT(e);pq=EQPQ(e)}catch(er){}
@@ -919,7 +920,7 @@ function CRES(){return Math.min(60,EQX('cres')+(S.st?S.st.vit:0)*.03)}
 function SLOW(){return Math.min(40,EQX('slow')+(S.st?S.st.agi:0)*.02)}
 function EQF(k){let v=0;try{for(let i=0;i<5;i++){const e=S.eq[i];if(e)v+=EQF1(e,k,i)||0}}catch(er){return 0}return v}
 function EPL(l){l=l||0;return .06*l+.007*l*l+(l>=10?.1:0)+(l>=15?.2:0)+(l>=20?.5:0)}
-function EQP1(i,k,l){return EQW[k][i]*EPL(l==null?((S.enh&&S.enh[i])||0):l)*(k==='h'?2:1)}
+function EQP1(i,k,l){return EQW[k][i]*EPL(l==null?((S.enh&&S.enh[i])||0):l)*EQMUL(k)}
 function EQP(k){let v=0;for(let i=0;i<5;i++)if(S.eq[i])v+=EQP1(i,k);return v}
 const ev=i=>{const e=S.eq[i];let v=0;if(i===0)v=EQP('a');else if(i===1)v=EQP('h');else if(i===2)v=EQX('crit');else if(i===3&&e)v=e.v*EQM*(1+ENHM(i));if(S.eq.some(x=>x&&x.set!=null)){const q=i===0?'a':i===1?'h':i===2?'c':i===3?'s':'g';v+=setBon()[q]}return v};
 const ATK=()=>Math.floor(((5+S.up.atk*3)*Math.pow(1.016,S.up.atk)+EQF('a'))*(1+ev(0)+WV('a')+PV('a')+FSV('a'))*(1+0.06*(S.lv-1))*(1+BF.a));
@@ -2130,6 +2131,7 @@ SK.push(
 {id:'s49',n:'หนึ่งดาบสะท้านจักรวาล',i:'🌙',r:7,k:'c',m:80,h:1,cd:22,c:'#d6c8ff'},
 {id:'s50',n:'อมตะคืนชีพ',i:'🕊️',r:7,k:'h',p:1,cd:40,c:'#a0ffc8'});
 
+const SKDMG=.5;
 const skDfv=(k,o)=>Math.min(.85,(k.df||0)*(1+.04*((o?o.lv:1)-1))),skLsv=(k,o)=>Math.min(.6,(k.ls||0)*skMul(o));
 function buTick(dt){let a=0,s=0,c=0,ls=0,df=0,any=0;for(const id in BU){const b=BU[id];b.t-=dt;if(b.t<=0){delete BU[id];continue}a+=b.a;s+=b.s;c+=b.c;ls+=b.ls;df+=b.df;any=1}
  BF.a=a;BF.s=s;BF.c=c;BF.ls=Math.min(.7,ls);BF.df=Math.min(.85,df);BF.t=any?1:0}
@@ -2142,7 +2144,7 @@ renderSlots=function(){
  $('sslots').querySelectorAll('.ssl').forEach(b=>b.onclick=()=>castSk(+b.dataset.i));_skc={}};
 
 /* คำอธิบาย / BP */
-skDesc=function(k,o){const L=skMul(o),A=ATK();
+skDesc=function(k,o){const L=skMul(o),A=ATK()*SKDMG;
  if(k.k==='d')return `ดาเมจรวม ${fmt(A*k.m*L)} (x${(k.m*L).toFixed(1)} พลังโจมตี${k.h>1?' · '+k.h+' ครั้ง':''})`;
  if(k.k==='c')return `ตีติดคริติคอลทุกครั้ง ดาเมจรวม ${fmt(A*k.m*L*CRD())} (x${(k.m*L*CRD()).toFixed(1)}${k.h>1?' · '+k.h+' ครั้ง':''})`;
  if(k.k==='t')return `ดาเมจ ${fmt(A*k.m*L)} (x${(k.m*L).toFixed(1)}${k.h>1?' · '+k.h+' ครั้ง':''}) + 💫 สตั้นมอนสเตอร์ ${k.sd} วิ (บอสครึ่งหนึ่ง)`;
@@ -2150,7 +2152,7 @@ skDesc=function(k,o){const L=skMul(o),A=ATK();
  if(k.k==='h')return `ฟื้นลมปราณ ${Math.round(k.p*L*100)}% (${fmt(MHP()*k.p*L)})`;
  const p=[];if(k.a)p.push('⚔️ โจมตี +'+Math.round(k.a*L*100)+'%');if(k.s)p.push('💨 ความเร็วโจมตี +'+k.s.toFixed(2)+'x');if(k.c2)p.push('🎯 คริ +'+k.c2+'%');if(k.ls)p.push('🩸 ดูดเลือด '+Math.round(skLsv(k,o)*100)+'% ของดาเมจ');if(k.df)p.push('🛡️ ลดดาเมจรับ '+Math.round(skDfv(k,o)*100)+'%');
  return p.join(' · ')+' นาน '+k.t+' วิ'};
-skBP=function(){let v=0;for(const id of (S.sk||[])){if(!id)continue;const k=SK.find(x=>x.id===id),o=S.skills[id];if(!k||!o)continue;const L=skMul(o),A=ATK(),H=MHP();
+skBP=function(){let v=0;for(const id of (S.sk||[])){if(!id)continue;const k=SK.find(x=>x.id===id),o=S.skills[id];if(!k||!o)continue;const L=skMul(o),A=ATK()*SKDMG,H=MHP();
  if(k.k==='d'||k.k==='x')v+=A*k.m*L/k.cd;else if(k.k==='c')v+=A*k.m*L*CRD()/k.cd;else if(k.k==='t')v+=A*k.m*L*1.15/k.cd;else if(k.k==='h')v+=H*k.p*L/k.cd*.6;
  else{const f=k.t/k.cd;v+=A*(k.a||0)*L*f*.5+A*(k.s||0)*f*.6+A*(k.c2||0)/100*f*.5+H*skLsv(k,o)*f*.4+H*skDfv(k,o)*f*.4}}
  return Math.floor(v*6)};
@@ -2170,7 +2172,7 @@ castSk=function(i){
  if(k.k==='h'){const hl=MHP()*k.p*L;hp=Math.min(MHP(),hp+hl);fl('+'+fmt(hl),'hl','h');burst(20,52,'#6dff8a',16);fx('ring');sfx('lvl')}
  else if(k.k==='b'){BU[k.id]={t:k.t*1000,a:(k.a||0)*L,s:k.s||0,c:k.c2||0,ls:skLsv(k,o),df:skDfv(k,o),i:k.i,col:k.c||RC[k.r],n:k.n};buTick(0);fx('ring');buffFx(k);sfx('lvl')}
  else{
-  const n=k.h||1,tot=ATK()*k.m*L*(k.k==='c'?CRD():1),gap=Math.min(110,420/n);castFx(k);
+  const n=k.h||1,tot=ATK()*k.m*L*SKDMG*(k.k==='c'?CRD():1),gap=Math.min(110,420/n);castFx(k);
   const w=[];if(k.k==='x'&&n>1){let sm=0;for(let j=0;j<n;j++){const x=1+(k.g||.6)*j;w.push(x);sm+=x}for(let j=0;j<n;j++)w[j]=w[j]/sm}
   else for(let j=0;j<n;j++)w.push(n===1?1:(j===n-1?.5:.5/(n-1)));
   for(let j=0;j<n;j++){const last=j===n-1,dmg=tot*w[j];
@@ -8180,20 +8182,21 @@ function placeWb(){const ic=$('wbb')||$('bsb'),sc=$('wbsc'),lv=$('wblv');if(!ic)
  if(lv&&!lv.hidden)lv.style.setProperty('top',t+'px','important')}
 setInterval(placeWb,250);
 /* หลอดเลือดบอสตามตัว */
-let bsv=null,bb=null;
+let bsv=null,bb=null,_sx=null,_sy=null;
 function artBox(sv){if(sv!==bsv){bsv=sv;bb=null;try{let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;const root=sv.querySelector(':scope > g.dbd')||sv.querySelector(':scope > g')||sv;const els=root===sv?[...sv.children]:[root];
  els.forEach(e=>{const tg=e.tagName.toLowerCase();if(tg==='defs'||/gradient|filter|pattern|mask|clippath|style/.test(tg))return;const b=e.getBBox();if(!b.width&&!b.height)return;x0=Math.min(x0,b.x);y0=Math.min(y0,b.y);x1=Math.max(x1,b.x+b.width);y1=Math.max(y1,b.y+b.height)});if(x0<1e9)bb={x:x0,y:y0,w:x1-x0,h:y1-y0}}catch(e){}}return bb}
 const SC=.55;
 function loop(){requestAnimationFrame(loop);if(document.hidden||document.body.classList.contains('away'))return;
- try{const B=$('bbar'),on=B&&!B.hasAttribute('hidden');if(!on)return;B.classList.add('bfw');
+ try{const B=$('bbar'),on=B&&!B.hasAttribute('hidden');if(!on){_sx=null;return}B.classList.add('bfw');
   const sv=MS.querySelector('svg');if(!sv||!sv.getScreenCTM)return;const b=artBox(sv),m=sv.getScreenCTM();if(!b||!m)return;
   const cx=b.x+b.w/2,P=new DOMPoint(cx,b.y).matrixTransform(m),Q=new DOMPoint(cx,b.y+b.h).matrixTransform(m),top=Math.min(P.y,Q.y),x=(P.x+Q.x)/2;
   const r=A.getBoundingClientRect(),W=A.clientWidth,w=(B.offsetWidth||370)*SC,h=(B.offsetHeight||110)*SC;
-  let l=x-r.left-A.clientLeft-w/2;l=Math.max(2,Math.min(W-w-2,l));let t=top-r.top-A.clientTop-h-6;t=Math.max(4,t);
+  let l=x-r.left-A.clientLeft-w/2;l=Math.max(2,Math.min(W-w-2,l));let t=top-r.top-A.clientTop-h-24;t=Math.max(2,t);
   /* ไม่ให้ทับหลอดเลือด/ชื่อของตัวละคร */
   [$('hb'),$('hn')].forEach(H=>{if(!H||!H.offsetWidth||getComputedStyle(H).display==='none')return;const q=H.getBoundingClientRect(),qt=q.top-r.top,qb=q.bottom-r.top,ql=q.left-r.left,qr=q.right-r.left;
    if(t<qb+2&&t+h>qt-2&&l<qr+4&&l+w>ql-4){const nl=qr+6;if(nl<=W-w-2)l=nl;else t=Math.max(4,qt-h-4)}});
-  B.style.transform=`translate(${l.toFixed(1)}px,${t.toFixed(1)}px) scale(${SC})`;B.style.opacity=getComputedStyle(MW).opacity}catch(e){}}
+  if(_sx==null||Math.abs(l-_sx)>120||Math.abs(t-_sy)>120){_sx=l;_sy=t}else{_sx+=(l-_sx)*.045;_sy+=(t-_sy)*.045}
+   B.style.transform=`translate(${_sx.toFixed(1)}px,${_sy.toFixed(1)}px) scale(${SC})`;B.style.opacity=getComputedStyle(MW).opacity}catch(e){}}
 requestAnimationFrame(loop);
 })();
 </script>
@@ -13208,6 +13211,9 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout
 setInterval(heal,800);
 })();
 </script>
+<style>/* หลอดเลือดบอสไม่สั่น/เด้งเวลาโดนตี */
+.bbar.hit .bb-main,.bbar.dz.hit .dzw,.bbar.dz.hit .dzjw,#bfb.hit .f{animation:none!important;transform:none!important}
+</style>
 </body></html>
 
 
