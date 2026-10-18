@@ -4130,7 +4130,7 @@ const hr=HS.getBoundingClientRect();if(!hr.width||!HS.offsetWidth)return;
 let nx=.545,ny=.935;
 const legs=[...HS.querySelectorAll('.leg')].map(e=>e.getBoundingClientRect()).filter(r=>r.width>2&&r.height>2);
 if(legs.length){const l=Math.min(...legs.map(r=>r.left)),r2=Math.max(...legs.map(r=>r.right)),bt=Math.max(...legs.map(r=>r.bottom));
-nx=((l+r2)/2-hr.left)/hr.width;ny=(bt-hr.top)/hr.height-.012}
+nx=((l+r2)/2-hr.left)/hr.width;ny=(bt-hr.top)/hr.height+.036}
 rx=rx===null?nx:rx+(nx-rx)*.25;ry=ry===null?ny:ry+(ny-ry)*.25;
 const cx=HS.offsetLeft+HS.offsetWidth*rx,fy=HS.offsetTop+HS.offsetHeight*ry;
 a.style.left=(cx-w/2).toFixed(1)+'px';a.style.top=(fy-w*.93).toFixed(1)+'px'}catch(e){}}
@@ -4215,6 +4215,8 @@ st.textContent=`.cel{isolation:isolate;background:none!important}
 .cel .fxr{z-index:-1!important}`;
 document.head.appendChild(st);
 })();
+/* ===== ขยับตัวละคร/มอน/สัตว์เลี้ยงลงอีกนิด ===== */
+(function(){const st=document.createElement('style');st.textContent='#hero,#mon{bottom:calc(22% - 8px)!important}#pet{bottom:calc(18% - 8px)!important}';document.head.appendChild(st)})();
 /* ================= กรอบหน้าต่างนิ่ง ไม่เคลื่อนไหว ================= */
 (function(){
 document.head.insertAdjacentHTML('beforeend',`<style>
