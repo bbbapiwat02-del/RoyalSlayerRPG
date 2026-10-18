@@ -783,7 +783,7 @@ body{display:flex;flex-direction:column;height:calc(100dvh - env(safe-area-inset
 <div id="eqp"><b id="clv"></b><div class="odds" id="codds"></div><button class="auto" id="cview" style="width:100%;margin:4px 0">🔍 ดูของในหีบ · จิ้มดูสถานะอุปกรณ์</button>
 <div id="stg"><div id="rays"></div><div id="cico">📦</div><div id="itm"></div></div>
 <div id="card"></div>
-<div class="row"><button class="skill" id="open"></button><button class="auto" id="keyb"></button></div><div class="row"><button class="auto" id="open10"></button><button class="auto" id="open50"></button></div>
+<div class="row"><button class="skill" id="open"></button><button class="auto" id="keyb"></button></div><div class="row"><button class="auto" id="open10"></button><button class="auto" id="open50"></button></div><div class="row"><button class="auto kopen" id="kopen10"></button><button class="auto kopen" id="kopen50"></button></div>
 </div>
 <div id="skp" hidden>
 <div class="od" id="sodds"></div>
@@ -2193,8 +2193,8 @@ const pillsOf=(cnt,names,cols)=>cnt.map((n,t)=>n?`<span class="pill" style="back
 
 /* ---------- หีบอุปกรณ์ ---------- */
 function openMulti(n){
- if(S.pend||mcBusy)return;const c=Math.floor(copen()*BATP[n]);if(S.gold<c)return;
- mcBusy=true;S.gold-=c;dailyProgress('chest',n);
+ if(S.pend||mcBusy)return;const kk=arguments[1]===true,c=kk?0:Math.floor(copen()*BATP[n]);if(kk?(S.keys||0)<n:S.gold<c)return;
+ mcBusy=true;if(kk)S.keys-=n;else S.gold-=c;dailyProgress('chest',n);
  const items=[];for(let i=0;i<n;i++)items.push(roll());
  const b0=BP(),cnt=Array(NT).fill(0);items.forEach(x=>cnt[x.t]++);
  const best=items.reduce((a,b)=>(b.t>a.t||(b.t===a.t&&b.v>a.v))?b:a);
@@ -2211,14 +2211,14 @@ function openMulti(n){
   $('itm').innerHTML=icon(best.s,best.t,100);$('itm').style.filter=`drop-shadow(0 0 16px ${rc})`;anim($('itm'),'pop');
   setTimeout(()=>{
    const sorted=items.slice().sort((a,b)=>b.t-a.t||b.v-a.v),b1=BP(),db=b1-b0;
-   $('card').innerHTML=`<div class="icard" style="border-color:${rc};box-shadow:0 0 14px ${rc};text-align:center"><b>🎁 เปิดหีบ x${n} · ใช้ 🪙 ${fmt(c)}</b><div class="mrp">${pillsOf(cnt,RN,RC)}</div><div class="mrg" id="mrgE"></div><div class="bpr">⚡ BP ${fmt(b0)} → <b>${fmt(b1)}</b> <b style="color:${db>=0?'#2ea043':'#e5534b'}">${db>=0?'▲ +':'▼ −'}${fmt(Math.abs(db))}</b></div><small>⭐ ดีที่สุด [${RN[best.t]}] ${SL[best.s].n}${AD[best.t]} · สวมใส่ใหม่ ${eqd} ช่อง (✔ = ชิ้นที่สวมให้) · ชิ้นที่เหลือทิ้งไป${lockedSet?' · ข้ามช่องที่สวมชุดเซตเทพไว้ '+lockedSet+' ช่อง':''}<br>จิ้มไอคอนเพื่อดูสถานะ</small></div>`;
+   $('card').innerHTML=`<div class="icard" style="border-color:${rc};box-shadow:0 0 14px ${rc};text-align:center"><b>🎁 เปิดหีบ x${n} · ใช้ ${kk?'🔑 '+n+' ดอก':'🪙 '+fmt(c)}</b><div class="mrp">${pillsOf(cnt,RN,RC)}</div><div class="mrg" id="mrgE"></div><div class="bpr">⚡ BP ${fmt(b0)} → <b>${fmt(b1)}</b> <b style="color:${db>=0?'#2ea043':'#e5534b'}">${db>=0?'▲ +':'▼ −'}${fmt(Math.abs(db))}</b></div><small>⭐ ดีที่สุด [${RN[best.t]}] ${SL[best.s].n}${AD[best.t]} · สวมใส่ใหม่ ${eqd} ช่อง (✔ = ชิ้นที่สวมให้) · ชิ้นที่เหลือทิ้งไป${lockedSet?' · ข้ามช่องที่สวมชุดเซตเทพไว้ '+lockedSet+' ช่อง':''}<br>จิ้มไอคอนเพื่อดูสถานะ</small></div>`;
    {const _h=sorted.map((x,i)=>`<button class="mri ${kept.has(x)?'kp':''}" data-i="${i}" style="--c:${RC[x.t]}">${iconLite(x.s,x.t,n>10?34:40)}</button>`).join('');const _m=$('mrgE');_m.onclick=e=>{const b=e.target.closest('.mri');if(!b)return;const it=sorted[+b.dataset.i];openGear(it,S.eq[it.s]===it?'eq':'rl')};appendChunked(_m,_h,()=>$('card').scrollIntoView({behavior:'smooth',block:'center'}))}
    updateHero();renderGear();mcBusy=false},800);
  },700);
 }
-$('open10').onclick=()=>openMulti(10);$('open50').onclick=()=>openMulti(50);
+$('open10').onclick=()=>openMulti(10);$('open50').onclick=()=>openMulti(50);$('kopen10').onclick=()=>openMulti(10,true);$('kopen50').onclick=()=>openMulti(50,true);
 const _rg2=renderGear;
-renderGear=function(){_rg2();const c=copen();$('open10').innerHTML=`🎁 เปิด x10<small>🪙 ${fmt(Math.floor(c*9))} · ลด 10%</small>`;$('open50').innerHTML=`🎁 เปิด x50<small>🪙 ${fmt(Math.floor(c*40))} · ลด 20%</small>`};
+renderGear=function(){_rg2();const c=copen();$('open10').innerHTML=`🎁 เปิด x10<small>🪙 ${fmt(Math.floor(c*9))} · ลด 10%</small>`;$('open50').innerHTML=`🎁 เปิด x50<small>🪙 ${fmt(Math.floor(c*40))} · ลด 20%</small>`;const k=S.keys||0;$('kopen10').innerHTML=`🔑 ใช้กุญแจ x10<small>มี 🔑 ${fmt(k)}</small>`;$('kopen50').innerHTML=`🔑 ใช้กุญแจ x50<small>มี 🔑 ${fmt(k)}</small>`;$('kopen10').disabled=k<10;$('kopen50').disabled=k<50};
 renderGear();
 
 /* ---------- สัตว์เลี้ยง ---------- */
@@ -3332,7 +3332,8 @@ const EL=i=>(S.enh&&S.enh[i])||0,EMAX=20,ER=[100,100,100,100,100,90,80,70,60,50,
 const enS=l=>1+Math.floor(l*1.5),enG=l=>Math.floor(300*Math.pow(1.45,l));
 const enB=(i,l)=>{const o=S.enh[i];S.enh[i]=l;const v=ENHM(i);S.enh[i]=o;return v};
 function addStone(n){S.stone=(S.stone||0)+n;fl('+💠'+n,'g','m')}
-let enhSel=0,enhLast=null,enhBusy=false;
+let enhSel=0,enhLast=null,enhBusy=false;const enOpt={p:0,l:0};window.enOpt=enOpt;
+const enLuck=()=>enOpt.l&&(S.lst||0)>0?15:0,enProt=l=>!!(enOpt.p&&(S.pst||0)>0&&l>=10);
 function renderEnh(){const box=$('enh');if(!box)return;if(!Array.isArray(S.enh))S.enh=[0,0,0,0,0];
  const i=enhSel,e=S.eq[i],l=EL(i),cs=enS(l),cg=enG(l),mx=l>=EMAX,can=!!e&&!mx&&(S.stone||0)>=cs&&S.gold>=cg&&!enhBusy;
  const nm=e?(e.set!=null?SETS[e.set].pn[i]:SL[i].n+AD[e.t]):SL[i].n;
@@ -3342,17 +3343,20 @@ function renderEnh(){const box=$('enh');if(!box)return;if(!Array.isArray(S.enh))
  ${enhLast&&enhLast.s===i?`<div class="enres ${enhLast.ok?'ok':'ng'}">${enhLast.t}</div>`:''}
  <div class="eninfo"><b>${nm} +${l}</b>${e?'':' <span style="color:#e5534b">· ต้องสวมอุปกรณ์ในช่องนี้ก่อน</span>'}<br>
  ✨ โบนัสช่องนี้: <b>+${Math.round(enB(i,l)*100)}%</b>${mx?' (สูงสุด)':` → <b style="color:#2ea043">+${Math.round(enB(i,l+1)*100)}%</b>`}<br>
- ${mx?'🏆 ตีบวกถึงขั้นสูงสุดแล้ว':`🎯 โอกาสสำเร็จ <b>${ER[l]}%</b> · ใช้ 💠 ${cs} + 🪙 ${fmt(cg)}`}<br>
+ ${mx?'🏆 ตีบวกถึงขั้นสูงสุดแล้ว':`🎯 โอกาสสำเร็จ <b>${Math.min(100,ER[l]+enLuck())}%</b>${enLuck()?' <span style="color:#2ea043">(+15% หินนำโชค)</span>':''} · ใช้ 💠 ${cs} + 🪙 ${fmt(cg)}`}<br>
  <small style="color:var(--mut)">ระดับบวกผูกกับช่อง เปลี่ยนอุปกรณ์ใหม่ก็ไม่หาย · ตั้งแต่ +10 ถ้าล้มเหลวจะลดลง 1 ขั้น · ครบ +10/+15/+20 ได้โบนัสพิเศษ · หาหินได้จากมอนสเตอร์ บอส ดันเจี้ยน หอคอย และร้านค้า</small></div>
+ <div class="enopt"><label class="${(S.lst||0)>0?'':'off'}"><input type="checkbox" id="enoL" ${enOpt.l?'checked':''}><span class="ei">🍀</span><span><b>หินนำโชค</b><small>+15% โอกาสสำเร็จ · มี ${fmt(S.lst||0)}</small></span></label><label class="${(S.pst||0)>0?'':'off'}"><input type="checkbox" id="enoP" ${enOpt.p?'checked':''}><span class="ei">🛡️</span><span><b>หินกันแตก</b><small>ล้มเหลวไม่ลดขั้น (+10 ขึ้นไป) · มี ${fmt(S.pst||0)}</small></span></label></div>
  <button class="skill" id="enbtn" style="width:100%;margin-top:8px" ${can?'':'disabled'}>🔨 ตีบวก ${mx?'(MAX)':'+'+l+' → +'+(l+1)}</button>`;
  box.querySelectorAll('.enb2').forEach(b=>b.onclick=()=>{if(enhBusy)return;enhSel=+b.dataset.s;renderEnh()});
- $('enbtn').onclick=doEnh}
+ $('enbtn').onclick=doEnh;
+ {const a=$('enoL'),b=$('enoP');if(a)a.onchange=()=>{if(a.checked&&!(S.lst>0)){a.checked=false;try{banner('🍀 ไม่มีหินนำโชค · ซื้อได้ที่ร้านค้า')}catch(e){}return}enOpt.l=a.checked?1:0;renderEnh()};if(b)b.onchange=()=>{if(b.checked&&!(S.pst>0)){b.checked=false;try{banner('🛡️ ไม่มีหินกันแตก · ซื้อได้ที่ร้านค้า')}catch(e){}return}enOpt.p=b.checked?1:0;renderEnh()}}}
 function doEnh(){const i=enhSel,e=S.eq[i],l=EL(i),cs=enS(l),cg=enG(l);if(enhBusy||!e||l>=EMAX||(S.stone||0)<cs||S.gold<cg)return;
- enhBusy=true;S.stone-=cs;S.gold-=cg;const b0=BP();enhLast=null;$('enbtn').disabled=true;
+ const lk=enLuck(),pr=enProt(l);enhBusy=true;S.stone-=cs;S.gold-=cg;if(lk)S.lst--;if(pr)S.pst--;const b0=BP();enhLast=null;$('enbtn').disabled=true;
  sfx('rattle');$('hmr').classList.add('sw');
- setTimeout(()=>{const ok=Math.random()*100<ER[l],st=$('enst');
+ setTimeout(()=>{const ok=Math.random()*100<Math.min(100,ER[l]+lk),st=$('enst');
   if(ok){S.enh[i]=l+1;enhLast={s:i,ok:1,t:`✨ สำเร็จ! ${SL[i].n} +${l+1}`};sfx('reveal',Math.min(8,3+Math.floor(l/3)))}
-  else{if(l>=10)S.enh[i]=l-1;enhLast={s:i,ok:0,t:l>=10?`💥 ล้มเหลว... ลดลงเหลือ +${l-1}`:'💨 ล้มเหลว... ระดับคงเดิม'};sfx('die')}
+  else{if(l>=10&&!pr)S.enh[i]=l-1;enhLast={s:i,ok:0,t:pr?'🛡️ ล้มเหลว... หินกันแตกป้องกันไว้ ระดับคงเดิม':l>=10?`💥 ล้มเหลว... ลดลงเหลือ +${l-1}`:'💨 ล้มเหลว... ระดับคงเดิม'};sfx('die')}
+  if(enOpt.l&&!(S.lst>0))enOpt.l=0;if(enOpt.p&&!(S.pst>0))enOpt.p=0;
   enhBusy=false;renderEnh();if(!$('cs').hidden)renderCs();const st2=$('enst');if(st2){st2.classList.add('hit');const col=ok?(l>=9?'#ffd23f':'#7dffb0'):'#9a9a9a';
    for(let k=0;k<(ok?22:10);k++){const a=Math.random()*6.28,r=40+Math.random()*80,x=document.createElement('div');x.className='sp';x.textContent=ok?'✦':'●';x.style.cssText=`color:${col};--dx:${Math.cos(a)*r}px;--dy:${Math.sin(a)*r-20}px;font-size:${10+Math.random()*14}px;z-index:5`;st2.appendChild(x);setTimeout(()=>x.remove(),1000)}
    if(ok)bpToast(BP()-b0,st2)}
@@ -6201,7 +6205,7 @@ function rankH(tab){const d=new Date(),seed0=d.getFullYear()*400+d.getMonth()*32
  const me=tab?S.stage:BP(),rows=NM.map((n,i)=>{const f=Math.pow(1-i/NM.length,2.2)*3.2+.15+R()*.2;return{n,v:Math.max(1,Math.floor((tab?Math.max(10,me):Math.max(1000,me))*f))}});
  rows.push({n:(S.name||'จอมยุทธ์')+' (ท่าน)',v:me,me:1});rows.sort((a,b)=>b.v-a.v);
  const md=['🥇','🥈','🥉'];return `<div class="tb"><button data-t="0" class="${tab?'':'on'}">⚡ พลังรบ</button><button data-t="1" class="${tab?'on':''}">🏔️ ด่านสูงสุด</button></div>`+rows.slice(0,30).map((r,i)=>`<div class="rk ${r.me?'me':''}"><i>${md[i]||i+1}</i><b>${r.n}</b><span>${tab?'ด่าน '+r.v:'BP '+fmtS(r.v)}</span></div>`).join('')+(rows.findIndex(r=>r.me)>=30?`<div class="rk me"><i>${rows.findIndex(r=>r.me)+1}</i><b>${S.name||'ท่าน'}</b><span>${tab?'ด่าน '+me:'BP '+fmtS(me)}</span></div>`:'')}
-function showRank(t){panel('🏆 หออันดับ',rankH(t),w=>w.querySelectorAll('.tb button').forEach(b=>b.onclick=()=>showRank(+b.dataset.t)))}
+function showRank(t){if(window.openRankOnline)return openRankOnline();panel('🏆 หออันดับ',rankH(t),w=>w.querySelectorAll('.tb button').forEach(b=>b.onclick=()=>showRank(+b.dataset.t)))}
 const SOON={guild:['🏯','สมาคมกิลด์',['สร้างหรือเข้าร่วมกิลด์กับเพื่อน','บริจาคเหรียญ อัปเลเวลกิลด์ รับบัพทั้งกิลด์','บอสกิลด์ร่วมกันตี แจกรางวัลตามดาเมจ','ร้านค้ากิลด์แลกของหายาก']],
  mine:['⛏️','เหมืองแร่',['ส่งคนงานขุดแร่ได้เองแม้ออฟไลน์','ได้หินตีบวก เหรียญ และอัญมณีหายาก','อัปเกรดเหมืองเพื่อขุดเร็วขึ้น','มีโอกาสขุดเจอหีบสมบัติ']],
  garden:['🌸','สวน',['ปลูกสมุนไพรวิเศษในแปลง รอโต แล้วเก็บเกี่ยว','นำไปปรุงยาเพิ่มพลังโจมตี/HP ชั่วคราว','รดน้ำเพื่อเร่งการเติบโต','ปลดล็อกแปลงเพิ่มตามเลเวล']],
@@ -7644,6 +7648,8 @@ function snap(){const s={};try{
  s.wg=S.wg||0;s.wl=S.wl||0;s.wgn=S.wg&&typeof WG!=='undefined'&&WG[S.wg-1]?WG[S.wg-1].n:'';
  const pt=S.pet&&typeof PT!=='undefined'?PT.find(x=>x.id===S.pet):null;s.pet=pt?{id:pt.id,n:pt.n,r:pt.r,lv:(S.pets[S.pet]||{}).lv||1,st:(S.pets[S.pet]||{}).st||0}:null;
  s.fs=S.fs&&S.fs.eq||'';s.av=window.smallAv?smallAv():null;s.fsx=(S.fs&&S.fs.eq)?{id:S.fs.eq,st:((S.fs.own||{})[S.fs.eq]||{}).st||0}:null;s.wsx=(S.ws&&S.ws.eq)?{id:S.ws.eq,st:((S.ws.own||{})[S.ws.eq]||{}).st||0}:null;s.hero=null;s.wgSk=S.wgSk||0;
+ s.tw=(S.tw&&S.tw.best)||0;s.mn=(S.mn&&Math.max(S.mn.all||0,S.mn.best||0))||0;s.fl=(S.farm&&S.farm.lv)||1;
+ try{s.pts=window.rankScore?rankScore('pet'):0;s.fsc=window.rankScore?rankScore('fs'):0;s.wgs=window.rankScore?rankScore('wg'):0}catch(e){}
 }catch(e){}return s}
 let lastPub=0;
 async function publish(force){if(!force&&Date.now()-lastPub<60000)return;const c=await net();if(!c)return;lastPub=Date.now();
@@ -11856,7 +11862,7 @@ window.__partyIn=async function(m){if(!m)return;if(!ME)await net();if(m.to!==ME)
  if(m.ev==='inv')showInvite(m);
  if(m.ev==='no')toast('❌ '+esc(m.n)+' ปฏิเสธคำเชิญ');};
 function showInvite(m){const o=$$('ptInv');if(o)o.remove();if(P){wsend('no',{to:m.from,n:myInfo().n});return}
- const d=document.createElement('div');d.id='ptInv';d.innerHTML=`<div class="bx"><div class="ic">⛏️👥</div><b>${esc(m.n)} <small>Lv.${m.lv}</small></b><p>เชิญคุณเข้าปาร์ตี้ขุดเหมืองด้วยกัน</p><div class="bt"><button class="no">ปฏิเสธ</button><button class="ok">✅ เข้าร่วม</button></div></div>`;
+ const d=document.createElement('div');d.id='ptInv';d.innerHTML=`<div class="bx"><div class="ic">👥</div><b>${esc(m.n)} <small>Lv.${m.lv}</small></b><p>เชิญคุณเข้าปาร์ตี้ (เล่นด้วยกัน · ขุดเหมืองด้วยกัน</p><div class="bt"><button class="no">ปฏิเสธ</button><button class="ok">✅ เข้าร่วม</button></div></div>`;
  document.body.appendChild(d);try{sfx('reveal',2)}catch(e){}
  d.querySelector('.no').onclick=()=>{d.remove();wsend('no',{to:m.from,n:myInfo().n})};
  d.querySelector('.ok').onclick=()=>{d.remove();join(m.from,m.n)};
@@ -11871,7 +11877,7 @@ function mkChan(lead){const ch=SB.channel('mparty_'+lead,{config:{broadcast:{sel
  return ch}
 function send(t,d){if(!P||!P.ch||!P.ok)return;try{P.ch.send({type:'broadcast',event:'m',payload:Object.assign({t,u:ME},d||{})})}catch(e){}}
 const isLeader=()=>!!P&&P.lead===ME;
-function state(){const A=window.mnApi,me=A&&A.isOpen()?A.me():null,i=myInfo();return{n:i.n,lv:i.lv,hp:me?Math.max(0,Math.round(me.hp)):1,mhp:me?Math.round(me.mhp):1,x:me?me.x:4,y:me?me.y:0,fc:me?me.face:1,in:A&&A.isOpen()?1:0,f:A&&A.isOpen()?A.floor():0}}
+function state(){const A=window.mnApi,me=A&&A.isOpen()?A.me():null,i=myInfo();let mh=1,mm=1;try{mm=Math.max(1,Math.round(MHP()));mh=Math.max(0,Math.round(typeof hp==='number'?hp:mm))}catch(e){}return{n:i.n,lv:i.lv,hp:me?Math.max(0,Math.round(me.hp)):mh,mhp:me?Math.round(me.mhp):mm,x:me?me.x:4,y:me?me.y:0,fc:me?me.face:1,in:A&&A.isOpen()?1:0,f:A&&A.isOpen()?A.floor():0}}
 function syncAll(){const A=window.mnApi;if(!A||!A.isOpen())return;send('sync',{g:A.exportGrid()})}
 function needHero(u,m){if(m.real||m.busy||(m.tried&&Date.now()-m.tried<8000))return;m.busy=1;m.tried=Date.now();
  if(!m.hero)m.hero=lookHero({sex:'m'},u+'d');
@@ -11892,7 +11898,7 @@ function onMsg(x){if(!P||!x||x.u===ME)return;const u=x.u;const m=P.mem[u]||(P.me
  else if(x.t==='bye'){if(u===P.lead&&!isLeader()){toast('👋 หัวปาร์ตี้ยุบปาร์ตี้แล้ว');leave(true)}else{delete P.mem[u];drawOthers();hud()}}}
 async function create(){if(!(await net()))return toast('⚠️ ต้องเชื่อมต่อออนไลน์ก่อน');if(P)return;P={lead:ME,mem:{},ch:null,ok:false};P.mem[ME]=Object.assign({uid:ME},myInfo());P.ch=mkChan(ME);hud();teamSys('สร้างปาร์ตี้แล้ว · เชิญเพื่อนได้สูงสุด '+(MAXP-1)+' คน')}
 async function join(lead,ln){if(!(await net()))return;if(P)leave();P={lead,mem:{},ch:null,ok:false,ln};P.mem[ME]=Object.assign({uid:ME},myInfo());P.ch=mkChan(lead);
- try{if(!window.mnApi.isOpen())window.openMine()}catch(e){}teamSys('เข้าร่วมปาร์ตี้ของ '+(ln||'เพื่อน')+' แล้ว');hud()}
+ teamSys('เข้าร่วมปาร์ตี้ของ '+(ln||'เพื่อน')+' แล้ว');hud()}
 function leave(silent){if(!P)return;try{send('bye',{});P.ch&&P.ch.unsubscribe&&P.ch.unsubscribe();SB&&SB.removeChannel&&SB.removeChannel(P.ch)}catch(e){}const wasMem=!isLeader();P=null;drawOthers();hud();
  if(wasMem){try{window.mnApi.leaveParty()}catch(e){}}if(!silent)teamSys('ออกจากปาร์ตี้แล้ว')}
 async function invite(uid,n){if(!P){await create();if(!P)return}if(Object.keys(P.mem).length>=MAXP)return toast('ปาร์ตี้เต็มแล้ว ('+MAXP+' คน)');
@@ -11933,9 +11939,9 @@ function ui(){const D=window.mnApi&&mnApi.isOpen()?mnApi.dock():null;if(!D||$$('
  hud();drawOthers()}
 async function panel(){const o=$$('ptPn');if(o){o.remove();return}const ok=await net();
  const d=document.createElement('div');d.id='ptPn';(window.mnApi.dock()||document.body).appendChild(d);
- const draw=async()=>{let h=`<div class="bx"><div class="hd">👥 ปาร์ตี้ขุดเหมือง<button class="x">✕</button></div>`;
+ const draw=async()=>{let h=`<div class="bx"><div class="hd">👥 ปาร์ตี้<button class="x">✕</button></div>`;
   if(!ok)h+='<p class="em">⚠️ ต้องเชื่อมต่อออนไลน์ถึงจะใช้ปาร์ตี้ได้</p>';
-  else if(!P)h+=`<p class="em">ชวนเพื่อนมาขุดด้วยกัน · ชั้นเหมืองนับตามหัวปาร์ตี้</p><button class="go" id="ptMk">✨ สร้างปาร์ตี้</button>`;
+  else if(!P)h+=`<p class="em">ชวนเพื่อนมาเล่นด้วยกันได้สูงสุด 4 คน · เข้าเหมืองแล้วขุดด้วยกัน ชั้นนับตามหัวปาร์ตี้</p><button class="go" id="ptMk">✨ สร้างปาร์ตี้</button>`;
   else{h+=`<div class="sub">สมาชิก ${Object.keys(P.mem).length}/${MAXP}</div>`+Object.values(P.mem).map(m=>`<div class="row"><span>${m.uid===P.lead?'👑':'⛏️'} <b>${esc(m.uid===ME?myInfo().n:m.n||'...')}</b> <i>Lv.${m.uid===ME?myInfo().lv:m.lv||'?'}</i></span></div>`).join('')+(P.pend?Object.values(P.pend).map(x=>`<div class="row off"><span>⏳ <b>${esc(x.n)}</b> <i>รอตอบรับ</i></span></div>`).join(''):'');
    if(isLeader()){h+=`<div class="sub">เชิญเพื่อนที่ออนไลน์</div><div id="ptFr" class="fl"><p class="em">กำลังโหลด…</p></div>`}
    h+=`<button class="lv" id="ptLv">${isLeader()?'🚪 ยุบปาร์ตี้':'🚪 ออกจากปาร์ตี้'}</button>`}
@@ -11989,9 +11995,27 @@ const fitPm=()=>{const m=$$('pmenu');if(!m)return;const r=m.getBoundingClientRec
 new MutationObserver(()=>{requestAnimationFrame(()=>{fitPm();setTimeout(fitPm,60)})}).observe(document.body,{childList:true});
 new MutationObserver(()=>{const m=$$('pmenu');if(!m||m.querySelector('[data-a=party]'))return;const pb=m.querySelector('.pb');if(!pb)return;
  const nm=(m.querySelector('.ph b')||{}).textContent||'เพื่อน';const uid=m._uid;
- const b=document.createElement('button');b.dataset.a='party';b.className='party';b.innerHTML='<i>⛏️</i>ชวนขุด';pb.appendChild(b);
+ const b=document.createElement('button');b.dataset.a='party';b.className='party';b.innerHTML='<i>👥</i>ชวนปาร์ตี้';pb.appendChild(b);
  b.onclick=async e=>{e.stopPropagation();const u=m._uid;if(!u){return}if(P&&!isLeader()){toast('เฉพาะหัวปาร์ตี้ที่เชิญได้');return}b.disabled=true;b.innerHTML='<i>⏳</i>ส่งแล้ว';await invite(u,nm);setTimeout(()=>{try{window.pmClose&&pmClose()}catch(_){}},700)}}).observe(document.body,{childList:true});
 document.addEventListener('pointerdown',e=>{if(e.target.closest&&e.target.closest('#mn-dock .pmx'))e.stopPropagation()},true);
+/* ---------- ปาร์ตี้ที่หน้าจอหลัก: กรอบเล็ก ลากย้ายได้ ---------- */
+function mainHud(){const inMine=window.mnApi&&mnApi.isOpen();let h=$$('ptMain');
+ if(inMine||document.body.classList.contains('sub-mode')||document.getElementById('ss')){if(h)h.style.display='none';return}
+ if(!h){h=document.createElement('div');h.id='ptMain';document.body.appendChild(h);let pos=null;try{pos=JSON.parse(localStorage.getItem('ptMainPos')||'null')}catch(e){}
+  const place=(x,y)=>{const W=innerWidth,H=innerHeight,r=h.getBoundingClientRect();x=Math.max(2,Math.min(W-r.width-2,x));y=Math.max(2,Math.min(H-r.height-2,y));h.style.left=x+'px';h.style.top=y+'px';return[x,y]};
+  h._place=place;setTimeout(()=>place(pos?pos[0]:6,pos?pos[1]:Math.round(innerHeight*.36)),0);
+  let drag=null;h.addEventListener('pointerdown',e=>{if(e.target.closest('button,.pmx'))return;const r=h.getBoundingClientRect();drag={dx:e.clientX-r.left,dy:e.clientY-r.top,id:e.pointerId,mv:0};h.setPointerCapture(e.pointerId);h.classList.add('drag')});
+  h.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;drag.mv=1;place(e.clientX-drag.dx,e.clientY-drag.dy)});
+  const up=e=>{if(!drag)return;const r=h.getBoundingClientRect();try{localStorage.setItem('ptMainPos',JSON.stringify([Math.round(r.left),Math.round(r.top)]))}catch(_){}drag=null;h.classList.remove('drag')};
+  h.addEventListener('pointerup',up);h.addEventListener('pointercancel',up);
+  h.addEventListener('click',e=>{const b=e.target.closest('button[data-a]');if(!b)return;e.stopPropagation();const a=b.dataset.a;if(a==='pn')panel();if(a==='mine'){try{window.openMine()}catch(_){}}if(a==='min'){P_min=!P_min;try{localStorage.setItem('ptMainMin',P_min?'1':'')}catch(_){}mainHud()}})}
+ h.style.display='';const k=P?JSON.stringify([P_min,Object.values(P.mem).map(m=>[m.uid,m.n,m.lv,m.hp,m.mhp]),state().hp,P.pend&&Object.keys(P.pend).length]):'none'+P_min;if(h._k===k)return;h._k=k;
+ if(!P){h.className='solo';h.innerHTML=`<button data-a="pn" class="solo">👥 ปาร์ตี้</button>`;return}
+ const mine=state(),mem=Object.values(P.mem);h.className=P_min?'mini':'';
+ const rows=P_min?'':mem.map(m=>{const me=m.uid===ME,s=me?mine:m,pc=Math.max(0,Math.min(100,(s.hp||0)/(s.mhp||1)*100));return `<div class="pr ${me?'me':''}"><span class="cr">${m.uid===P.lead?'👑':'⚔️'}</span><span class="tx${me?'':' pmx'}" ${me?'':'data-uid="'+esc(m.uid)+'"'}><b>${esc(me?mine.n:(m.n||'...'))}</b><i>Lv.${me?mine.lv:(m.lv||'?')}</i></span><u><b style="width:${pc}%"></b></u></div>`}).join('');
+ h.innerHTML=`<div class="ph"><span class="gr">⠿</span>👥 ${mem.length}/${MAXP}<button data-a="pn" title="จัดการ/เชิญ">＋</button><button data-a="mine" title="ไปเหมือง">⛏️</button><button data-a="min" title="ย่อ/ขยาย">${P_min?'▸':'▾'}</button></div>${rows}`}
+let P_min=false;try{P_min=localStorage.getItem('ptMainMin')==='1'}catch(e){}
+setInterval(mainHud,400);addEventListener('resize',()=>{const h=$$('ptMain');if(h&&h._place){const r=h.getBoundingClientRect();h._place(r.left,r.top)}});
 /* ---------- วนรอบ: ส่งสถานะ / UI ---------- */
 setInterval(()=>{ui();if(!P)return;const s=state(),k=JSON.stringify(s);const now=Date.now();if(k!==lastSt||now-stT>3000){lastSt=k;stT=now;send('st',s)}drawOthers();hud()},250);
 window.partyApi={create,join,leave,invite,state:()=>P};
@@ -12001,7 +12025,22 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #mn-dock .mh #ptBtn,#mn-dock .mh #ptChB{position:relative;padding:7px 10px;font-size:16px}
 #ptChB em{position:absolute;right:-5px;top:-6px;min-width:16px;height:16px;border-radius:8px;background:#e5252d;border:1.5px solid #fff;font-style:normal;font-size:9px;line-height:13px;color:#fff;text-align:center}#ptChB em:empty{display:none}
 #ptHud{position:absolute;left:4px;top:4px;z-index:9;width:104px;padding:3px 4px;border-radius:8px;background:linear-gradient(#1a0c06dd,#0a0402dd);border:1.5px solid #c8902a;box-shadow:0 2px 6px #000a;pointer-events:none;opacity:.92}
-#pmenu .pb{flex-wrap:wrap;justify-content:center}#ptHud .pmx{pointer-events:auto;cursor:pointer}#ptHud .ph{font-size:8px;font-weight:900;color:#ffe066;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pmenu .pb{flex-wrap:wrap;justify-content:center}#ptMain{position:fixed;z-index:880;width:112px;padding:3px 4px 4px;border-radius:9px;background:linear-gradient(#1a0c06e6,#0a0402e6);border:1.5px solid #c8902a;box-shadow:0 2px 8px #000a;color:#fff;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+#ptMain.drag{cursor:grabbing;opacity:.85;box-shadow:0 0 12px #ffd23f}
+#ptMain.solo{width:auto;padding:0;border:0;background:none;box-shadow:none}
+#ptMain button.solo{padding:5px 10px;border-radius:14px;border:1.5px solid #ffd23f;background:linear-gradient(#5a2a0a,#2a1004);color:#ffe066;font:inherit;font-size:11px;font-weight:900;box-shadow:0 2px 6px #000a}
+#ptMain .ph{display:flex;align-items:center;gap:2px;font-size:8.5px;font-weight:900;color:#ffe066;margin-bottom:2px}
+#ptMain .ph .gr{color:#8a6a3a;font-size:10px;margin-right:1px}
+#ptMain .ph button{margin-left:auto;width:17px;height:16px;padding:0;border-radius:5px;border:1px solid #c8902a;background:#2a1406;color:#ffe9a0;font:inherit;font-size:9px;line-height:14px}
+#ptMain .ph button+button{margin-left:2px}
+#ptMain.mini{width:auto}#ptMain.mini .ph{margin:0}
+#ptMain .pr{display:grid;grid-template-columns:10px 1fr;grid-template-rows:auto 3px;column-gap:3px;margin-bottom:2px}
+#ptMain .pr .cr{grid-row:1/3;font-size:8.5px;line-height:13px}
+#ptMain .pr .tx{display:flex;gap:3px;align-items:baseline;min-width:0}#ptMain .pr .tx b{font-size:8.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#ptMain .pr .tx i{font-style:normal;font-size:7px;color:#ffd23f}
+#ptMain .pr.me .tx b{color:#7ad8ff}#ptMain .pmx{cursor:pointer}
+#ptMain .pr u{display:block;height:3px;border-radius:2px;background:#3a0a08;overflow:hidden}#ptMain .pr u b{display:block;height:100%;background:linear-gradient(#8aff8a,#2aa83a)}
+body>#ptPn{position:fixed;z-index:990}
+#ptHud .pmx{pointer-events:auto;cursor:pointer}#ptHud .ph{font-size:8px;font-weight:900;color:#ffe066;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #ptHud .pr{display:grid;grid-template-columns:10px 1fr;grid-template-rows:auto 3px;column-gap:3px;margin-bottom:2px}
 #ptHud .pr .cr{grid-row:1/3;font-size:8.5px;line-height:13px}
 #ptHud .pr .tx{display:flex;gap:4px;align-items:baseline;min-width:0}#ptHud .pr .tx b{font-size:8.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#ptHud .pr .tx i{font-style:normal;font-size:7px;color:#ffd23f}
@@ -12373,7 +12412,7 @@ window.gmItemFind=find;
 })();
 </script><script>/* ================= เข้าสวน/เมือง = ออกจากหน้าหลัก (ซ่อนฉากต่อสู้ทั้งหมด) ================= */
 (function(){
-const KEEP=['cityw','farmw','cpn','pvpsoon','fow','fpick','pmenu','pfw','pvtoast','bagtoast','ptInv','bagpop','banLock','subToast','mn-dock'];
+const KEEP=['cityw','farmw','cpn','pvpsoon','rkw','fow','fpick','pmenu','pfw','pvtoast','bagtoast','ptInv','bagpop','banLock','subToast','mn-dock'];
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.sub-mode>*:not(script):not(style)${KEEP.map(k=>':not(#'+k+')').join('')}{display:none!important}
 body.sub-mode>#pfw[hidden]{display:none!important}
@@ -12386,6 +12425,202 @@ function sync(){const v=on()&&!document.body.classList.contains('mn-mode');if(v=
 new MutationObserver(sync).observe(document.body,{childList:true});sync();
 /* ข้อความแจ้งเตือนตอนอยู่ในสวน/เมือง (ปกติแสดงในฉากต่อสู้ที่ถูกซ่อน) */
 const _b=fx;fx=function(cls,t){if(cls==='banner'&&document.body.classList.contains('sub-mode')){let e=document.getElementById('subToast');if(e)e.remove();e=document.createElement('div');e.id='subToast';e.textContent=t;document.body.appendChild(e);setTimeout(()=>{if(e.isConnected)e.remove()},2300);return}return _b.apply(this,arguments)};
+})();
+</script><script>/* ================= 🏪 ร้านค้าเซียน (ออกแบบใหม่): หมวดหมู่ · เติมเพชร · ทุกอย่างซื้อด้วยเพชร · หินกันแตก/หินนำโชค ================= */
+(function(){
+const W=document.getElementById('shopw');if(!W)return;const P=W.querySelector('.pnl');
+const fmt2=n=>{try{return fmt(n)}catch(e){return String(n)}};
+const shortN=n=>{const u=[[1e12,'T'],[1e9,'B'],[1e6,'M'],[1e3,'K']];for(const [v,k] of u)if(n>=v)return (n/v).toFixed(n/v>=100?0:1).replace(/\.0$/,'')+k;return String(Math.floor(n))};
+const sv=()=>{try{localStorage.setItem('ml1',JSON.stringify(S))}catch(e){}};
+/* แพ็กเติมเพชร (ระบบชำระเงินยังไม่เปิด) */
+const TOP=[{d:60,b:0,p:29,i:'💎'},{d:300,b:30,p:149,i:'💎💎'},{d:980,b:120,p:459,i:'💰',hot:1},{d:1980,b:300,p:899,i:'👜'},{d:3280,b:600,p:1490,i:'🧰'},{d:6480,b:1500,p:2890,i:'👑',best:1}];
+/* สินค้า (ราคาเพชรทั้งหมด) */
+const IT=[
+ {c:'enh',id:'stone10',n:'หินตีบวก x10',i:'💠',d:'ใช้ตีบวกอุปกรณ์',p:400,g:()=>{S.stone=(S.stone||0)+10},o:()=>S.stone},
+ {c:'enh',id:'stone50',n:'หินตีบวก x50',i:'💠',d:'ชุดใหญ่ คุ้มกว่า 10%',p:1800,g:()=>{S.stone=(S.stone||0)+50},o:()=>S.stone,tag:'คุ้ม'},
+ {c:'enh',id:'lst',n:'หินนำโชค',i:'🍀',d:'+15% โอกาสตีบวกสำเร็จ (ใช้ครั้งละ 1)',p:2000,g:()=>{S.lst=(S.lst||0)+1},o:()=>S.lst,tag:'หายาก',r:4},
+ {c:'enh',id:'pst',n:'หินกันแตก',i:'🛡️',d:'ตีบวก +10 ขึ้นไปล้มเหลวไม่ลดขั้น (ใช้ครั้งละ 1)',p:3500,g:()=>{S.pst=(S.pst||0)+1},o:()=>S.pst,tag:'หายากมาก',r:5},
+ {c:'itm',id:'key',n:'กุญแจหีบสมบัติ',i:'🔑',d:'เปิดหีบสุ่มอุปกรณ์ฟรี 1 ครั้ง',p:150,g:()=>{S.keys=(S.keys||0)+1},o:()=>S.keys},
+ {c:'itm',id:'tk',n:'ตั๋วท้าทาย',i:'🎫',d:'เข้าดันเจี้ยน/บอสเทพ 1 ครั้ง',p:120,g:()=>{S.tk=Math.min(99,(S.tk||0)+1)},o:()=>S.tk},
+ {c:'itm',id:'egg',n:'ไข่สัตว์เลี้ยง',i:'🥚',d:'ฟักเป็นสัตว์เลี้ยงสุ่มระดับ',p:300,g:()=>{S.egg=(S.egg||0)+1},o:()=>S.egg},
+ {c:'itm',id:'skf',n:'คัมภีร์สุ่มสกิล',i:'📜',d:'สุ่มสกิลที่หอคัมภีร์ฟรี 1 ครั้ง',p:250,g:()=>{S.skf=(S.skf||0)+1},o:()=>S.skf},
+ {c:'box',id:'wbw',n:'กล่องปีกเทพ',i:'🪽',d:'ได้ปีกแรก / วิวัฒนาการปีก / ดาวปีก',p:3000,g:()=>{window.bagAddBox&&bagAddBox('wbw',1)},r:4},
+ {c:'box',id:'wbp',n:'กล่องสัตว์เทพ',i:'🐲',d:'ได้สัตว์เลี้ยงระดับเทพขึ้นไป',p:3000,g:()=>{window.bagAddBox&&bagAddBox('wbp',1)},r:4}];
+/*ART*/
+/* ---------- ภาพไอเทมแบบวาดเอง (SVG) ---------- */
+let _u=0;
+function ART(k){const u='sa'+(++_u),G=(id,a,b,c)=>`<linearGradient id="${u}${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/>${c?`<stop offset=".55" stop-color="${b}"/><stop offset="1" stop-color="${c}"/>`:`<stop offset="1" stop-color="${b}"/>`}</linearGradient>`,R=(id,a,b)=>`<radialGradient id="${u}${id}" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></radialGradient>`,f=id=>`url(#${u}${id})`,O='#1a0a06';
+ const sp=(x,y,r)=>`<path d="M${x} ${y-r}L${x+r*.25} ${y-r*.25}L${x+r} ${y}L${x+r*.25} ${y+r*.25}L${x} ${y+r}L${x-r*.25} ${y+r*.25}L${x-r} ${y}L${x-r*.25} ${y-r*.25}Z" fill="#fff"/>`;
+ const gem=(cx,cy,s,a,b,c)=>`<g transform="translate(${cx} ${cy}) scale(${s})"><path d="M-14 -6L-7 -15H7L14 -6L0 16Z" fill="${b}" stroke="${O}" stroke-width="1.6" stroke-linejoin="round"/><path d="M-14 -6H14L0 16Z" fill="${c}"/><path d="M-7 -15L-4 -6L0 -15L4 -6L7 -15" fill="${a}" opacity=".9"/><path d="M-14 -6L-4 -6L0 16ZM4 -6L14 -6L0 16" fill="#fff" opacity=".18"/><path d="M-9 -12L-6 -7" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></g>`;
+ const A={
+ stone10:`<defs>${G('a','#d8fbff','#36c8ff','#0a4a9a')}</defs><ellipse cx="32" cy="56" rx="16" ry="4" fill="#0006"/><path d="M32 6L48 22L42 50L22 50L16 22Z" fill="${f('a')}" stroke="${O}" stroke-width="2" stroke-linejoin="round"/><path d="M32 6L36 24L42 50M32 6L28 24L22 50M16 22L28 24L36 24L48 22" stroke="#fff" stroke-width="1.2" fill="none" opacity=".55"/><path d="M28 24L36 24L32 40Z" fill="#fff" opacity=".35"/>${sp(46,12,4)}${sp(18,40,3)}`,
+ stone50:`<defs>${G('a','#d8fbff','#36c8ff','#0a4a9a')}${G('b','#f0d0ff','#a86aff','#3a0a8a')}</defs><ellipse cx="32" cy="57" rx="24" ry="4" fill="#0006"/><path d="M14 54L8 34L16 22L24 34L22 54Z" fill="${f('b')}" stroke="${O}" stroke-width="1.8" stroke-linejoin="round"/><path d="M50 54L56 36L48 24L40 36L42 54Z" fill="${f('b')}" stroke="${O}" stroke-width="1.8" stroke-linejoin="round"/><path d="M32 4L46 20L42 54L22 54L18 20Z" fill="${f('a')}" stroke="${O}" stroke-width="2" stroke-linejoin="round"/><path d="M32 4L35 22L42 54M32 4L29 22L22 54M18 20L29 22L35 22L46 20" stroke="#fff" stroke-width="1.2" fill="none" opacity=".55"/>${sp(48,10,4)}${sp(12,18,3)}${sp(54,46,2.6)}`,
+ lst:`<defs>${R('a','#d8ffd8','#1a8a3a')}${G('b','#fff3b0','#e8a020','#7a4a00')}</defs><ellipse cx="32" cy="57" rx="15" ry="4" fill="#0006"/><circle cx="32" cy="30" r="24" fill="#5aff7a" opacity=".18"/>${[0,90,180,270].map(a=>`<g transform="rotate(${a+45} 32 30)"><path d="M32 30C22 26 18 12 26 8C30 6 32 10 32 14C32 10 34 6 38 8C46 12 42 26 32 30Z" fill="${f('a')}" stroke="${O}" stroke-width="1.6"/><path d="M32 28L32 14" stroke="#0a5a1a" stroke-width="1.2"/></g>`).join('')}<circle cx="32" cy="30" r="6" fill="${f('b')}" stroke="${O}" stroke-width="1.6"/><path d="M32 36Q34 46 30 54" stroke="#2a7a2a" stroke-width="3" fill="none" stroke-linecap="round"/>${sp(50,10,4)}${sp(12,46,3)}`,
+ pst:`<defs>${G('a','#fff6c8','#ffc23a','#8a4a00')}${G('b','#ffe0e0','#ff3a4a','#7a0010')}${G('c','#8a2a1a','#3a0a04')}</defs><ellipse cx="32" cy="58" rx="16" ry="4" fill="#0006"/><path d="M32 4L54 12V30C54 44 44 52 32 58C20 52 10 44 10 30V12Z" fill="${f('a')}" stroke="${O}" stroke-width="2.2" stroke-linejoin="round"/><path d="M32 10L48 16V30C48 40 41 47 32 51C23 47 16 40 16 30V16Z" fill="${f('c')}"/><path d="M32 10V51M16 28H48" stroke="#ffd23f" stroke-width="1.4" opacity=".5"/>${gem(32,29,.75,'#ffd0d0','#ff3a4a','#9a0018')}<path d="M14 14L20 12" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".8"/>${sp(52,6,4)}`,
+ key:`<defs>${G('a','#fff6c8','#ffc23a','#8a4a00')}</defs><ellipse cx="32" cy="57" rx="18" ry="3.5" fill="#0006"/><g transform="rotate(-35 32 32)"><circle cx="32" cy="14" r="10" fill="none" stroke="${O}" stroke-width="8"/><circle cx="32" cy="14" r="10" fill="none" stroke="${f('a')}" stroke-width="5"/><circle cx="32" cy="14" r="3" fill="#ff3a4a" stroke="${O}"/><rect x="29" y="22" width="6" height="32" rx="2" fill="${f('a')}" stroke="${O}" stroke-width="1.8"/><path d="M35 42H42V46H35ZM35 49H40V53H35Z" fill="${f('a')}" stroke="${O}" stroke-width="1.6"/><path d="M31 24V50" stroke="#fff" stroke-width="1.2" opacity=".6"/></g>${sp(50,10,4)}`,
+ tk:`<defs>${G('a','#ff8a6a','#d8201a','#7a0a04')}</defs><ellipse cx="32" cy="56" rx="22" ry="4" fill="#0006"/><g transform="rotate(-12 32 32)"><path d="M6 18H58V27A5 5 0 0 0 58 37V46H6V37A5 5 0 0 0 6 27Z" fill="${f('a')}" stroke="${O}" stroke-width="2" stroke-linejoin="round"/><path d="M44 18V46" stroke="#ffd23f" stroke-width="1.4" stroke-dasharray="3 3"/><rect x="10" y="22" width="30" height="20" rx="2" fill="none" stroke="#ffd23f" stroke-width="1.2"/><text x="25" y="37" font-size="12" font-weight="900" fill="#ffe066" text-anchor="middle" stroke="${O}" stroke-width=".6">VIP</text><circle cx="51" cy="32" r="4" fill="#ffd23f" stroke="${O}"/></g>${sp(54,10,4)}`,
+ egg:`<defs>${R('a','#fffbe8','#e8b860')}</defs><ellipse cx="32" cy="57" rx="14" ry="4" fill="#0006"/><circle cx="32" cy="34" r="24" fill="#ffe066" opacity=".18"/><path d="M32 6C44 6 52 26 52 38C52 50 43 56 32 56C21 56 12 50 12 38C12 26 20 6 32 6Z" fill="${f('a')}" stroke="${O}" stroke-width="2"/><g fill="#5ac8ff" stroke="${O}" stroke-width="1"><circle cx="24" cy="26" r="4"/><circle cx="40" cy="36" r="5"/><circle cx="28" cy="46" r="3.2"/><circle cx="42" cy="20" r="2.6"/></g><path d="M18 30Q22 14 30 10" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".8"/><path d="M22 42L27 38L31 43L36 37L41 42" stroke="#8a5a2a" stroke-width="1.6" fill="none"/>${sp(52,12,4)}`,
+ skf:`<defs>${G('a','#fff6e0','#e8c890','#a87a40')}${G('b','#c8402a','#6a0a04')}</defs><ellipse cx="32" cy="57" rx="20" ry="4" fill="#0006"/><rect x="12" y="12" width="40" height="38" rx="3" fill="${f('a')}" stroke="${O}" stroke-width="2"/><g stroke="#8a5a2a" stroke-width="1.6"><path d="M18 20H46M18 26H40M18 32H44M18 38H36"/></g><rect x="6" y="8" width="52" height="8" rx="4" fill="${f('b')}" stroke="${O}" stroke-width="1.8"/><rect x="6" y="46" width="52" height="8" rx="4" fill="${f('b')}" stroke="${O}" stroke-width="1.8"/><circle cx="6" cy="12" r="3" fill="#ffd23f" stroke="${O}"/><circle cx="58" cy="12" r="3" fill="#ffd23f" stroke="${O}"/><circle cx="6" cy="50" r="3" fill="#ffd23f" stroke="${O}"/><circle cx="58" cy="50" r="3" fill="#ffd23f" stroke="${O}"/><circle cx="44" cy="40" r="7" fill="#d8201a" stroke="${O}" stroke-width="1.6"/><text x="44" y="44" font-size="9" font-weight="900" fill="#ffe066" text-anchor="middle">法</text>${sp(54,26,3.5)}`,
+ wbw:`<defs>${G('a','#a86a3a','#5a2a0a')}${G('b','#fff6c8','#ffc23a','#8a4a00')}${G('w','#ffffff','#bfe8ff')}</defs><ellipse cx="32" cy="58" rx="22" ry="4" fill="#0006"/><path d="M14 30Q2 18 4 6Q12 14 16 14Q10 20 18 26Z" fill="${f('w')}" stroke="${O}" stroke-width="1.4"/><path d="M50 30Q62 18 60 6Q52 14 48 14Q54 20 46 26Z" fill="${f('w')}" stroke="${O}" stroke-width="1.4"/><rect x="12" y="30" width="40" height="24" rx="3" fill="${f('a')}" stroke="${O}" stroke-width="2"/><path d="M12 30Q32 14 52 30Z" fill="${f('a')}" stroke="${O}" stroke-width="2"/><path d="M12 36H52M30 22V54M34 22V54" stroke="${f('b')}" stroke-width="3"/><rect x="27" y="34" width="10" height="10" rx="2" fill="${f('b')}" stroke="${O}" stroke-width="1.4"/><circle cx="32" cy="39" r="2" fill="#5ac8ff"/><circle cx="32" cy="26" r="14" fill="#5ac8ff" opacity=".2"/>${sp(54,40,3.5)}`,
+ wbp:`<defs>${G('a','#7a3a8a','#2a0a3a')}${G('b','#fff6c8','#ffc23a','#8a4a00')}${G('d','#ff8a9a','#c8102a')}</defs><ellipse cx="32" cy="58" rx="22" ry="4" fill="#0006"/><rect x="12" y="30" width="40" height="24" rx="3" fill="${f('a')}" stroke="${O}" stroke-width="2"/><path d="M12 30Q32 14 52 30Z" fill="${f('a')}" stroke="${O}" stroke-width="2"/><path d="M12 36H52M30 22V54M34 22V54" stroke="${f('b')}" stroke-width="3"/><path d="M22 24Q18 8 30 6Q26 12 32 14Q38 10 36 4Q48 10 42 24" fill="${f('d')}" stroke="${O}" stroke-width="1.6"/><circle cx="28" cy="14" r="1.6" fill="#ffd23f"/><circle cx="37" cy="13" r="1.6" fill="#ffd23f"/><rect x="27" y="34" width="10" height="10" rx="2" fill="${f('b')}" stroke="${O}" stroke-width="1.4"/><circle cx="32" cy="39" r="2" fill="#ff4fb8"/>${sp(54,40,3.5)}`,
+ gift:`<defs>${G('a','#ff6a8a','#c8102a')}${G('b','#fff6c8','#ffc23a','#8a4a00')}</defs><ellipse cx="32" cy="57" rx="18" ry="4" fill="#0006"/><rect x="12" y="26" width="40" height="28" rx="3" fill="${f('a')}" stroke="${O}" stroke-width="2"/><rect x="8" y="18" width="48" height="10" rx="3" fill="${f('a')}" stroke="${O}" stroke-width="2"/><rect x="28" y="18" width="8" height="36" fill="${f('b')}" stroke="${O}" stroke-width="1.4"/><path d="M32 18C24 6 14 10 20 16C22 18 28 18 32 18C36 18 42 18 44 16C50 10 40 6 32 18Z" fill="${f('b')}" stroke="${O}" stroke-width="1.6"/>${gem(46,40,.45,'#d8fbff','#36c8ff','#0a4a9a')}${sp(52,8,4)}`,
+ card:`<defs>${G('a','#5a6a8a','#1a2a4a')}${G('b','#fff6c8','#ffc23a','#8a4a00')}</defs><g transform="rotate(-10 32 32)"><rect x="6" y="16" width="52" height="34" rx="5" fill="${f('a')}" stroke="${O}" stroke-width="2"/><rect x="6" y="22" width="52" height="6" fill="#0a0a1a"/><rect x="12" y="33" width="10" height="8" rx="1.5" fill="${f('b')}" stroke="${O}"/><path d="M28 40H50M28 44H42" stroke="#bfe8ff" stroke-width="1.6"/></g>${gem(50,48,.6,'#d8fbff','#36c8ff','#0a4a9a')}`};
+ const top=n=>{const g=(x,y,s)=>gem(x,y,s,'#d8fbff','#36c8ff','#0a4a9a');
+  if(n===0)return g(32,32,1.4)+sp(50,12,4);
+  if(n===1)return g(24,34,1.1)+g(42,30,1.2)+sp(52,10,4)+sp(12,16,3);
+  if(n===2)return `<defs>${G('s','#e8c890','#8a5a2a')}</defs><path d="M14 30Q10 56 32 56Q54 56 50 30Q46 22 32 22Q18 22 14 30Z" fill="${f('s')}" stroke="${O}" stroke-width="2"/><path d="M22 22Q32 14 42 22" stroke="#c8202a" stroke-width="4" fill="none"/>`+g(26,18,.7)+g(38,16,.8)+g(32,40,.8)+sp(52,10,4);
+  if(n===3)return `<defs>${G('s','#ff6a8a','#8a0a2a')}</defs><path d="M10 28H54L50 56H14Z" fill="${f('s')}" stroke="${O}" stroke-width="2"/><path d="M22 28Q22 14 32 14Q42 14 42 28" stroke="#ffd23f" stroke-width="3" fill="none"/>`+g(24,26,.6)+g(34,22,.7)+g(44,26,.6)+`<path d="M10 36H54" stroke="#ffd23f" stroke-width="2"/>`+sp(54,10,4);
+  if(n===4)return `<defs>${G('s','#a86a3a','#4a1a04')}${G('b','#fff6c8','#ffc23a','#8a4a00')}</defs><rect x="8" y="30" width="48" height="26" rx="3" fill="${f('s')}" stroke="${O}" stroke-width="2"/>`+g(20,26,.7)+g(32,22,.9)+g(44,26,.7)+`<path d="M8 30H56" stroke="${f('b')}" stroke-width="4"/><rect x="28" y="34" width="8" height="9" rx="1.5" fill="${f('b')}" stroke="${O}"/>`+sp(54,10,4)+sp(10,14,3);
+  return `<defs>${G('b','#fff6c8','#ffc23a','#8a4a00')}${G('s','#7a2a9a','#2a0a3a')}</defs><rect x="8" y="34" width="48" height="22" rx="3" fill="${f('s')}" stroke="${O}" stroke-width="2"/>`+g(18,30,.7)+g(32,28,.9)+g(46,30,.7)+`<path d="M14 22L20 8L28 18L32 4L36 18L44 8L50 22Z" fill="${f('b')}" stroke="${O}" stroke-width="1.8" stroke-linejoin="round"/><circle cx="32" cy="14" r="2.4" fill="#ff3a4a"/><path d="M8 34H56" stroke="${f('b')}" stroke-width="4"/>`+sp(56,8,4.5)+sp(8,12,3.5)};
+ const body=k.startsWith('top')?top(+k.slice(3)):A[k]||'';return `<svg viewBox="0 0 64 64" class="sa">${body}</svg>`}
+const CAT=[['hot','⭐','แนะนำ'],['top','💳','เติมเพชร'],['enh','🔨','ตีบวก'],['itm','🎒','ไอเทม'],['box','🎁','กล่อง']];
+let cat='hot',msg='',fl=null;
+const day=()=>new Date().toDateString();
+P.innerHTML=`<button class="wc">✕</button><div id="shN"></div>`;P.querySelector('.wc').onclick=()=>{try{closeW()}catch(e){W.hidden=true}};
+document.head.insertAdjacentHTML('beforeend',`<style>
+#shopw .pnl{padding:0!important;overflow:hidden;background:linear-gradient(#2a0e04,#120502)!important;border:3px solid #e8b040!important;box-shadow:0 0 0 2px #4a1a04,0 0 40px #ffb02e55!important;max-height:92vh;display:flex;flex-direction:column}
+#shopw .pnl>.wc{z-index:5}
+#shN{display:flex;flex-direction:column;min-height:0;flex:1}
+#shN .sh-hd{position:relative;flex:none;height:132px;overflow:hidden;background:radial-gradient(120% 90% at 50% 0%,#ffcf5a,#c8501a 45%,#5a1404 80%)}
+#shN .sh-hd .ry{position:absolute;left:50%;top:40%;width:420px;height:420px;margin:-210px 0 0 -210px;background:repeating-conic-gradient(#fff3 0 8deg,transparent 8deg 20deg);animation:shR 24s linear infinite;opacity:.55}@keyframes shR{to{transform:rotate(360deg)}}
+#shN .sh-hd .rf{position:absolute;left:-10px;right:-10px;top:-6px;height:30px;background:linear-gradient(#c8201a,#7a0a04);clip-path:polygon(0 0,100% 0,96% 100%,88% 60%,80% 100%,72% 60%,64% 100%,56% 60%,48% 100%,40% 60%,32% 100%,24% 60%,16% 100%,8% 60%,4% 100%);box-shadow:0 3px 0 #ffd23f}
+#shN .sh-hd .lt{position:absolute;top:22px;font-size:22px;animation:shL 2.4s ease-in-out infinite;transform-origin:50% 0}#shN .sh-hd .lt.a{left:14px}#shN .sh-hd .lt.b{right:14px;animation-delay:-1.2s}@keyframes shL{50%{transform:rotate(8deg)}}
+#shN .sh-tt{position:absolute;left:50%;top:28px;transform:translateX(-50%);padding:5px 26px 7px;border-radius:12px;background:linear-gradient(#5a1404,#2a0602);border:2.5px solid #ffd23f;box-shadow:0 4px 0 #1a0402,0 0 18px #ffd23f88;font-size:20px;font-weight:900;color:#ffe066;text-shadow:0 2px 0 #3a0a02,0 0 10px #ffb02e;white-space:nowrap}
+#shN .sh-bal{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);display:flex;gap:8px}
+#shN .sh-bal span{display:flex;align-items:center;gap:5px;padding:4px 12px;border-radius:14px;background:#000a;border:1.5px solid #5ad8ff;color:#bdf2ff;font-weight:900;font-size:14px;box-shadow:0 0 10px #36d6ff66}
+#shN .sh-bal span.g{border-color:#ffd23f;color:#ffe9a0;box-shadow:0 0 10px #ffd23f55}
+#shN .sh-tb{flex:none;display:flex;gap:4px;padding:8px 8px 6px;background:linear-gradient(#3a1406,#220a03);border-bottom:2px solid #8a4a1a;overflow-x:auto}
+#shN .sh-tb button{flex:1 0 auto;min-width:60px;display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 6px;border-radius:12px;border:1.5px solid #6a3a14;background:linear-gradient(#2a1006,#160602);color:#e8c890;font:inherit;font-size:10.5px;font-weight:900}
+#shN .sh-tb button i{font-style:normal;font-size:19px}
+#shN .sh-tb button.on{background:linear-gradient(#ffd23f,#e8801a);border-color:#fff3b0;color:#3a1404;box-shadow:0 0 12px #ffb02e99;transform:translateY(-1px)}
+#shN .sh-bd{flex:1;overflow-y:auto;padding:10px;min-height:200px}
+#shN .sh-sec{margin:2px 2px 8px;font-size:12px;font-weight:900;color:#ffd080;display:flex;align-items:center;gap:6px}#shN .sh-sec::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,#c8902a,transparent)}
+#shN .sh-gr{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+#shN .sh-c{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;padding:10px 7px 8px;border-radius:14px;background:linear-gradient(#3a1a08,#1a0a04);border:1.5px solid var(--c,#8a5a2a);box-shadow:inset 0 0 18px #0008,0 3px 0 #0006;overflow:hidden}
+#shN .sh-c::before{content:"";position:absolute;left:50%;top:26px;width:90px;height:90px;margin-left:-45px;border-radius:50%;background:radial-gradient(color-mix(in srgb,var(--c,#ffb02e) 55%,transparent),transparent 70%);animation:shG 2.8s ease-in-out infinite}@keyframes shG{50%{transform:scale(1.15);opacity:.6}}
+#shN .sh-c .ic{position:relative;width:62px;height:62px;line-height:0;filter:drop-shadow(0 4px 4px #0008);animation:shB 2.4s ease-in-out infinite}@keyframes shB{50%{transform:translateY(-3px)}}
+#shN .sh-c b{position:relative;font-size:13px;color:#fff3d0;margin-top:2px}#shN .sh-c small{position:relative;display:block;min-height:26px;font-size:10px;color:#c8a878;line-height:1.3;margin:2px 0 6px}
+#shN .sh-c .own{position:absolute;left:6px;top:6px;font-size:9.5px;font-weight:900;color:#bdf2ff;background:#000a;border-radius:7px;padding:1px 6px}
+#shN .sh-c .tg{position:absolute;right:-24px;top:9px;transform:rotate(38deg);width:96px;text-align:center;font-size:9px;font-weight:900;color:#fff;background:linear-gradient(#ff4a5a,#b3101e);box-shadow:0 2px 4px #0008}
+#shN .sh-c .bt{position:relative;display:flex;gap:4px;width:100%}
+#shN .sh-c .bt button{flex:1;padding:6px 2px;border-radius:10px;border:1.5px solid #bdf2ff;background:linear-gradient(#36d6ff,#1a6ab8);color:#fff;font:inherit;font-weight:900;font-size:11.5px;text-shadow:0 1px 0 #0a2a5a;box-shadow:0 3px 0 #0a2a5a}
+#shN .sh-c .bt button.x10{background:linear-gradient(#b86bff,#5a1aa8);border-color:#e8d0ff;box-shadow:0 3px 0 #2a0a50}
+#shN .sh-c .bt button:disabled{filter:grayscale(1);opacity:.5}
+#shN .sh-c .bt button:active{transform:translateY(2px);box-shadow:0 1px 0 #0a2a5a}
+#shN .sh-c.r4{--c:#b86bff}#shN .sh-c.r5{--c:#ff4a6a}#shN .sh-c.r5 .ic{filter:drop-shadow(0 0 10px #ff4a6a)}
+#shN .sh-top .sh-c{--c:#36d6ff}#shN .sh-top .sh-c .ic{width:58px;height:58px}
+#shN svg.sa{width:100%;height:100%;display:block;overflow:visible}
+#shN .sh-top .sh-c .bn{position:relative;font-size:10px;font-weight:900;color:#7dffb0}
+#shN .sh-top .sh-c .pay{position:relative;width:100%;padding:7px 2px;border-radius:10px;border:1.5px solid #fff3b0;background:linear-gradient(#5ad97a,#1f7a3a);color:#fff;font:inherit;font-weight:900;font-size:13px;box-shadow:0 3px 0 #0a3a14}
+#shN .sh-top .sh-c.hot{--c:#ffb02e}#shN .sh-top .sh-c.best{--c:#ff4a6a}
+#shN .sh-note{margin:8px 2px 0;padding:8px 10px;border-radius:10px;background:#0006;border:1px dashed #8a5a2a;font-size:10.5px;color:#d8b888;line-height:1.6}
+#shN .sh-free{display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:10px;border-radius:14px;background:linear-gradient(90deg,#0a3a5a,#123a2a);border:2px solid #5ad8ff;box-shadow:0 0 14px #36d6ff55}
+#shN .sh-free .ic{width:46px;height:46px;flex:none;animation:shB 1.6s ease-in-out infinite}#shN .sh-free div{flex:1}#shN .sh-free b{display:block;color:#bdf2ff;font-size:14px}#shN .sh-free small{color:#a8d8e8;font-size:10.5px}
+#shN .sh-free button{padding:8px 14px;border-radius:11px;border:2px solid #fff3b0;background:linear-gradient(#ffd23f,#e8801a);color:#3a1404;font:inherit;font-weight:900}#shN .sh-free button:disabled{filter:grayscale(1);opacity:.55}
+#shN .sh-bnr{position:relative;display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:10px;border-radius:14px;overflow:hidden;background:linear-gradient(110deg,#7a0a2a,#c8301a 50%,#7a0a2a);background-size:200% 100%;animation:shBg 5s linear infinite;border:2px solid #ffd23f;cursor:pointer}@keyframes shBg{to{background-position:-200% 0}}
+#shN .sh-bnr .ic{width:50px;height:50px;flex:none}#shN .sh-bnr b{display:block;color:#ffe066;font-size:15px;text-shadow:0 2px 0 #3a0a02}#shN .sh-bnr small{color:#ffd8c8;font-size:10.5px}
+#shN .sh-msg{flex:none;min-height:20px;padding:4px 10px 8px;text-align:center;font-size:12px;font-weight:900;color:#ffe066}
+#shN .sh-pop{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;background:#000a}
+#shN .sh-pop .bx{width:80%;max-width:280px;padding:16px;border-radius:16px;text-align:center;background:linear-gradient(#3a1a08,#1a0a04);border:2px solid #ffd23f;color:#fff3d0}
+#shN .sh-pop .bx .ic{width:70px;height:70px;margin:0 auto}#shN .sh-pop .bx p{font-size:12.5px;line-height:1.6;margin:8px 0}#shN .sh-pop .bx button{padding:8px 20px;border-radius:10px;border:2px solid #fff3b0;background:linear-gradient(#ffd23f,#e8801a);color:#3a1404;font:inherit;font-weight:900}
+.enopt{display:flex;gap:6px;margin-top:8px}.enopt label{flex:1;display:flex;align-items:center;gap:6px;padding:6px 7px;border-radius:10px;background:#0003;border:1.5px solid #c8902a88;cursor:pointer;font-size:11px;line-height:1.25}
+.enopt label.off{opacity:.55}.enopt input{width:16px;height:16px;accent-color:#2ea043;flex:none}.enopt .ei{font-size:18px}.enopt b{display:block;font-size:11.5px}.enopt small{font-size:9.5px;color:var(--mut,#a88)}
+.enopt label:has(input:checked){background:linear-gradient(#2ea04333,#0003);border-color:#2ea043}
+</style>`);
+function card(x){const o=x.o?x.o():null,can1=(S.diamonds||0)>=x.p,stk=x.c!=='box';
+ return `<div class="sh-c ${x.r?'r'+x.r:''}">${x.tag?`<span class="tg">${x.tag}</span>`:''}${o!=null?`<span class="own">มี ${fmt2(o||0)}</span>`:''}<span class="ic">${ART(x.id)}</span><b>${x.n}</b><small>${x.d}</small><div class="bt"><button data-b="${x.id}" data-q="1" ${can1?'':'disabled'}>💎 ${fmt2(x.p)}</button>${stk?`<button class="x10" data-b="${x.id}" data-q="10" ${(S.diamonds||0)>=x.p*10?'':'disabled'}>x10</button>`:''}</div></div>`}
+function body(){const d=day(),got=S.dfree===d;
+ if(cat==='top')return `<div class="sh-sec">💳 เติมเพชร</div><div class="sh-gr sh-top">${TOP.map((t,i)=>`<div class="sh-c ${t.hot?'hot':''} ${t.best?'best':''}">${t.hot?'<span class="tg">ยอดนิยม</span>':t.best?'<span class="tg">คุ้มสุด</span>':''}<span class="ic">${ART('top'+i)}</span><b>💎 ${fmt2(t.d)}</b><span class="bn">${t.b?'+ โบนัส '+fmt2(t.b)+' 💎':'&nbsp;'}</span><small></small><button class="pay" data-top="${i}">฿ ${fmt2(t.p)}</button></div>`).join('')}</div>
+  <div class="sh-note">💳 ระบบเติมเงินกำลังจะเปิดให้บริการเร็ว ๆ นี้ · ตอนนี้ยังกดชำระเงินจริงไม่ได้<br>💎 หาเพชรฟรีได้จาก: รับฟรีประจำวัน · หีบสมบัติเพชรจากเหมือง · หอคอยผ่านชั้นครั้งแรก · ภารกิจรายวัน</div>`;
+ if(cat==='hot')return `<div class="sh-free"><span class="ic">${ART('gift')}</span><div><b>เพชรฟรีประจำวัน</b><small>รับ 💎 10 ฟรีทุกวัน · ${got?'✅ รับแล้ววันนี้':'พร้อมรับ!'}</small></div><button id="shFree" ${got?'disabled':''}>${got?'รับแล้ว':'รับฟรี'}</button></div>
+  <div class="sh-bnr" id="shGoTop"><span class="ic">${ART('card')}</span><div><b>เติมเพชร รับโบนัสสูงสุด +1,500</b><small>แตะเพื่อดูแพ็กเติมเพชรทั้งหมด</small></div></div>
+  <div class="sh-sec">🔥 สินค้าแนะนำ</div><div class="sh-gr">${['pst','lst','stone50','wbw'].map(id=>card(IT.find(x=>x.id===id))).join('')}</div>`;
+ const L=IT.filter(x=>x.c===cat),t=CAT.find(c=>c[0]===cat);
+ return `<div class="sh-sec">${t[1]} ${t[2]}</div><div class="sh-gr">${L.map(card).join('')}</div>${cat==='enh'?'<div class="sh-note">🍀 หินนำโชค และ 🛡️ หินกันแตก ติ๊กเลือกใช้ได้ในหน้าตีบวก · ใช้ครั้งละ 1 ก้อนต่อการตี 1 ครั้ง</div>':''}`}
+function render(){const N=document.getElementById('shN');if(!N)return;const sc=N.querySelector('.sh-bd'),top=sc?sc.scrollTop:0;
+ N.innerHTML=`<div class="sh-hd"><div class="ry"></div><div class="rf"></div><span class="lt a">🏮</span><span class="lt b">🏮</span><div class="sh-tt">🏪 ร้านค้าเซียน</div><div class="sh-bal"><span>💎 <b id="shopdiamonds">${fmt2(S.diamonds||0)}</b></span><span class="g">🪙 ${shortN(S.gold||0)}</span></div></div>
+ <div class="sh-tb">${CAT.map(c=>`<button data-c="${c[0]}" class="${cat===c[0]?'on':''}"><i>${c[1]}</i>${c[2]}</button>`).join('')}</div>
+ <div class="sh-bd">${body()}</div><div class="sh-msg" id="shopmsg">${msg}</div>`;
+ const b2=N.querySelector('.sh-bd');if(b2&&fl===cat)b2.scrollTop=top;fl=cat;
+ N.querySelectorAll('.sh-tb button').forEach(b=>b.onclick=()=>{cat=b.dataset.c;msg='';render()});
+ N.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{const x=IT.find(y=>y.id===b.dataset.b),q=+b.dataset.q,c=x.p*q;if((S.diamonds||0)<c){msg='💎 เพชรไม่พอ (ต้องใช้ '+fmt2(c)+')';render();return}
+  S.diamonds-=c;for(let i=0;i<q;i++)x.g();sv();try{sfx('equip')}catch(e){}msg=`✅ ซื้อ ${x.n}${q>1?' x'+q:''} สำเร็จ! (💎 -${fmt2(c)})`;render();try{window.render&&window.render()}catch(e){}});
+ N.querySelectorAll('[data-top]').forEach(b=>b.onclick=()=>{const t=TOP[+b.dataset.top];const pop=document.createElement('div');pop.className='sh-pop';pop.innerHTML=`<div class="bx"><div class="ic">${ART('top'+b.dataset.top)}</div><b>เติม 💎 ${fmt2(t.d+t.b)} · ฿${fmt2(t.p)}</b><p>ระบบเติมเงินกำลังจะเปิดให้บริการเร็ว ๆ นี้<br>ขอบคุณที่สนับสนุนเกมครับ 🙏</p><button>ตกลง</button></div>`;N.appendChild(pop);pop.onclick=e=>{if(e.target===pop||e.target.tagName==='BUTTON')pop.remove()}});
+ const fr=document.getElementById('shFree');if(fr)fr.onclick=()=>{const d=day();if(S.dfree===d)return;S.dfree=d;S.diamonds=(S.diamonds||0)+10;sv();try{sfx('coin')}catch(e){}msg='🎁 ได้รับ 💎 10 เพชรฟรี!';render()};
+ const gt=document.getElementById('shGoTop');if(gt)gt.onclick=()=>{cat='top';render()}}
+renderShop=function(){render()};
+window.shopOpenCat=c=>{cat=c;render()};
+render();
+})();
+</script><script>/* ================= 🏆 หออันดับออนไลน์ (ผู้เล่นจริง · รีเฟรชทุก 1 นาที · ไม่มีบอท) ================= */
+(function(){
+const esc=t=>String(t==null?'':t).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+const fm=n=>{try{return fmt(n)}catch(e){return String(n)}},fs2=n=>{try{return fmtS(n)}catch(e){return fm(n)}};
+/* คะแนนรวมของสัตว์เลี้ยง / แฟชั่น / ปีก */
+window.rankScore=function(k){try{
+ if(k==='pet'){let b=0;const o=S.pets||{};for(const id in o){const p=PT.find(x=>x.id===id);if(!p)continue;const v=(p.r+1)*1000+(o[id].lv||1)*10+(o[id].st||0)*50;if(v>b)b=v}return b}
+ if(k==='fs'){let v=0;const o=(S.fs&&S.fs.own)||{};for(const id in o){const f=FS.find(x=>x.id===id);if(f)v+=Math.round(Math.pow(f.t+1,2)*(1+.2*(o[id].st||0)))}const w=(S.ws&&S.ws.own)||{};for(const id in w){const f=WSK.find(x=>x.id===id);if(f)v+=Math.round(Math.pow(f.t+1,2)*(1+.2*(w[id].st||0)))}return v}
+ if(k==='wg')return (S.wg||0)*1000+(S.wl||0)}catch(e){}return 0};
+const CAT=[
+ {k:'bp',ic:'⚡',n:'พลังรบ',g:p=>p.bp||(p.data&&p.data.bp)||0,me:()=>Math.floor(BP()),f:v=>'BP '+fs2(v)},
+ {k:'stage',ic:'🏔️',n:'ด่าน',g:p=>(p.data&&p.data.stage)||0,me:()=>S.stage||1,f:v=>'ด่าน '+fm(v)},
+ {k:'tw',ic:'🗼',n:'หอคอย',g:p=>(p.data&&p.data.tw)||0,me:()=>(S.tw&&S.tw.best)||0,f:v=>'ชั้น '+fm(v)},
+ {k:'mn',ic:'⛏️',n:'เหมือง',g:p=>(p.data&&p.data.mn)||0,me:()=>(S.mn&&Math.max(S.mn.all||0,S.mn.best||0))||0,f:v=>'ชั้น '+fm(v)},
+ {k:'fl',ic:'🌸',n:'ฟาร์ม',g:p=>(p.data&&p.data.fl)||0,me:()=>(S.farm&&S.farm.lv)||1,f:v=>'ฟาร์ม Lv.'+v},
+ {k:'lv',ic:'🎚️',n:'เลเวล',g:p=>p.lv||(p.data&&p.data.lv)||0,me:()=>S.lv||1,f:v=>'Lv.'+fm(v)},
+ {k:'pts',ic:'🐾',n:'สัตว์เลี้ยง',g:p=>(p.data&&p.data.pts)||0,me:()=>rankScore('pet'),f:v=>'⭐ '+fm(v)},
+ {k:'fsc',ic:'👘',n:'แฟชั่น',g:p=>(p.data&&p.data.fsc)||0,me:()=>rankScore('fs'),f:v=>'⭐ '+fm(v)},
+ {k:'wgs',ic:'🪽',n:'ปีก',g:p=>(p.data&&p.data.wgs)||0,me:()=>rankScore('wg'),f:v=>v?'ขั้น '+Math.floor(v/1000)+' · Lv.'+(v%1000):'ยังไม่มีปีก'}];
+let cat='bp',rows=null,lastF=0,busy=false,state='',ME=null,tmr=null;
+async function fetchAll(){if(busy)return;busy=true;try{const G=window.GameAuth;if(!G||G.mode==='local'||!G.ready||!(await G.ready)){state='off';return}
+ const u=await G.user();ME=u&&u.id;try{window.socPublish&&(await socPublish(true))}catch(e){}
+ const {data,error}=await G.sb.from('public_profiles').select('user_id,name,lv,bp,data,updated_at').order('bp',{ascending:false}).limit(1000);
+ if(error){state='err';return}rows=Array.isArray(data)?data:[];state='ok';lastF=Date.now()}catch(e){state='err'}finally{busy=false;lastF=Date.now();draw()}}
+document.head.insertAdjacentHTML('beforeend',`<style>
+#rkw{position:fixed;inset:0;z-index:985;display:flex;align-items:center;justify-content:center;padding:10px;background:radial-gradient(circle,#2a1206cc,#050100ee);animation:gofi .2s}
+#rkw .bx{position:relative;width:100%;max-width:410px;height:min(92vh,760px);display:flex;flex-direction:column;border-radius:18px;overflow:hidden;background:linear-gradient(#2a1206,#120602);border:3px solid #e8b040;box-shadow:0 0 0 2px #4a1a04,0 0 36px #ffb02e55}
+#rkw .hd{position:relative;flex:none;height:96px;overflow:hidden;background:radial-gradient(120% 100% at 50% 0%,#ffd86a,#c8701a 45%,#4a1404 85%)}
+#rkw .hd .ry{position:absolute;left:50%;top:30%;width:400px;height:400px;margin:-200px 0 0 -200px;background:repeating-conic-gradient(#fff3 0 7deg,transparent 7deg 18deg);animation:shR 26s linear infinite;opacity:.5}
+#rkw .tt{position:absolute;left:50%;top:14px;transform:translateX(-50%);padding:4px 22px 6px;border-radius:12px;background:linear-gradient(#5a1404,#2a0602);border:2.5px solid #ffd23f;box-shadow:0 4px 0 #1a0402,0 0 16px #ffd23f88;color:#ffe066;font-size:19px;font-weight:900;white-space:nowrap;text-shadow:0 2px 0 #3a0a02}
+#rkw .lv{position:absolute;left:50%;bottom:9px;transform:translateX(-50%);display:flex;gap:6px;align-items:center;padding:3px 12px;border-radius:12px;background:#000a;color:#ffe9c8;font-size:11px;font-weight:800;white-space:nowrap}
+#rkw .lv i{width:8px;height:8px;border-radius:50%;background:#ff3a3a;box-shadow:0 0 8px #ff3a3a;animation:rkB 1.2s ease-in-out infinite}@keyframes rkB{50%{opacity:.3}}
+#rkw .x{position:absolute;right:8px;top:8px;width:30px;height:30px;border-radius:50%;border:2px solid #ffe9a0;background:#5a1a0a;color:#ffe9a0;font-weight:900;z-index:3}
+#rkw .tb{flex:none;display:flex;gap:4px;padding:7px 7px 6px;overflow-x:auto;background:#220a03;border-bottom:2px solid #8a4a1a;scrollbar-width:none}
+#rkw .tb button{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;min-width:54px;padding:4px 6px;border-radius:11px;border:1.5px solid #6a3a14;background:linear-gradient(#2a1006,#160602);color:#e8c890;font:inherit;font-size:10px;font-weight:900}
+#rkw .tb button i{font-style:normal;font-size:17px}
+#rkw .tb button.on{background:linear-gradient(#ffd23f,#e8801a);color:#3a1404;border-color:#fff3b0;box-shadow:0 0 10px #ffb02e99}
+#rkw .ls{flex:1;overflow-y:auto;padding:8px}
+#rkw .pd{display:flex;align-items:flex-end;justify-content:center;gap:6px;margin:4px 0 10px}
+#rkw .pd .p{flex:1;max-width:120px;display:flex;flex-direction:column;align-items:center;text-align:center;padding:8px 4px;border-radius:14px 14px 6px 6px;background:linear-gradient(color-mix(in srgb,var(--c) 30%,#1a0a04),#140804);border:2px solid var(--c);box-shadow:0 0 14px color-mix(in srgb,var(--c) 45%,transparent)}
+#rkw .pd .p.r1{--c:#ffd23f;min-height:118px}#rkw .pd .p.r2{--c:#d8e4f0;min-height:100px}#rkw .pd .p.r3{--c:#e8945a;min-height:90px}
+#rkw .pd .p .md{font-size:28px;filter:drop-shadow(0 2px 3px #000a)}#rkw .pd .p b{font-size:12px;color:#fff;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#rkw .pd .p small{font-size:10px;color:var(--c);font-weight:900}#rkw .pd .p em{font-style:normal;font-size:9px;color:#c8a878}
+#rkw .r{display:flex;align-items:center;gap:8px;padding:7px 9px;margin-bottom:4px;border-radius:11px;background:linear-gradient(90deg,#3a1a08,#1a0a04);border:1px solid #6a3a1488}
+#rkw .r .n{width:28px;text-align:center;font-weight:900;color:#ffd080;font-size:13px}
+#rkw .r .nm{flex:1;min-width:0}#rkw .r .nm b{display:block;color:#fff3d0;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#rkw .r .nm small{font-size:9.5px;color:#a88a68}
+#rkw .r .v{font-weight:900;color:#ffd23f;font-size:12px;white-space:nowrap}
+#rkw .r.me,#rkw .pd .p.me{box-shadow:0 0 0 2px #5ad8ff,0 0 12px #36d6ff88}
+#rkw .pmx{cursor:pointer}
+#rkw .mine{flex:none;padding:7px 8px;background:linear-gradient(#0a2a3a,#061a26);border-top:2px solid #5ad8ff}#rkw .mine .r{margin:0;background:linear-gradient(90deg,#0e3a5a,#0a1a2a);border-color:#5ad8ff}
+#rkw .em{text-align:center;color:#c8a878;font-size:12px;padding:30px 10px;line-height:1.7}
+</style>`);
+function list(){const C=CAT.find(c=>c.k===cat);let L=(rows||[]).map(p=>({uid:p.user_id,n:p.name||'ผู้เล่น',lv:p.lv||(p.data&&p.data.lv)||1,v:Number(C.g(p))||0,at:p.updated_at}));
+ L=L.filter(x=>x.uid!==ME);L.push({uid:ME||'me',n:S.name||'คุณ',lv:S.lv||1,v:Number(C.me())||0,me:1});
+ L.sort((a,b)=>b.v-a.v||(b.me?1:0)-(a.me?1:0));return{C,L}}
+function draw(){const w=document.getElementById('rkw');if(!w)return;const left=Math.max(0,60-Math.floor((Date.now()-lastF)/1000));
+ const lvEl=w.querySelector('.lv');if(lvEl)lvEl.innerHTML=state==='ok'?`<i></i>ออนไลน์ · ผู้เล่น ${fm((rows||[]).length+((rows||[]).some(r=>r.user_id===ME)?0:1))} คน · รีเซ็ตใน ${left} วิ`:state==='off'?'⚠️ ต้องเล่นแบบออนไลน์ถึงจะเห็นอันดับผู้เล่นทั้งหมด':state==='err'?'⚠️ โหลดอันดับไม่สำเร็จ จะลองใหม่อัตโนมัติ':'⏳ กำลังโหลด…';
+ const ls=w.querySelector('.ls');if(!ls)return;if(ls._k===cat+'|'+lastF+'|'+state)return;ls._k=cat+'|'+lastF+'|'+state;
+ const {C,L}=list(),mi=L.findIndex(x=>x.me),md=['🥇','🥈','🥉'];
+ const top3=L.slice(0,3),rest=L.slice(3,100);
+ const pod=[1,0,2].filter(i=>top3[i]).map(i=>{const x=top3[i];return `<div class="p r${i+1} ${x.me?'me':''}"><span class="md">${md[i]}</span><b class="${x.me?'':'pmx'}" ${x.me?'':`data-uid="${esc(x.uid)}"`}>${esc(x.n)}</b><small>${C.f(x.v)}</small><em>Lv.${x.lv}</em></div>`}).join('');
+ const row=(x,i)=>`<div class="r ${x.me?'me':''}"><span class="n">${i+1}</span><span class="nm"><b class="${x.me?'':'pmx'}" ${x.me?'':`data-uid="${esc(x.uid)}"`}>${x.me?'⭐ ':''}${esc(x.n)}</b><small>Lv.${x.lv}</small></span><span class="v">${C.f(x.v)}</span></div>`;
+ ls.innerHTML=(L.length<=1&&state!=='ok'?`<div class="em">${state==='off'?'เล่นแบบออนไลน์เพื่อดูอันดับผู้เล่นจริงทั้งเซิร์ฟเวอร์':'กำลังโหลดอันดับผู้เล่น…'}</div>`:'')+`<div class="pd">${pod}</div>`+rest.map((x,j)=>row(x,j+3)).join('');
+ w.querySelector('.mine').innerHTML=row(L[mi],mi)}
+window.openRankOnline=function(){let w=document.getElementById('rkw');if(w)w.remove();w=document.createElement('div');w.id='rkw';
+ w.innerHTML=`<div class="bx"><div class="hd"><div class="ry"></div><div class="tt">🏆 หออันดับ</div><div class="lv"></div><button class="x">✕</button></div><div class="tb">${CAT.map(c=>`<button data-k="${c.k}" class="${c.k===cat?'on':''}"><i>${c.ic}</i>${c.n}</button>`).join('')}</div><div class="ls"></div><div class="mine"></div></div>`;
+ document.body.appendChild(w);w.querySelector('.x').onclick=close;w.addEventListener('pointerdown',e=>{if(e.target===w)close()});
+ w.querySelectorAll('.tb button').forEach(b=>b.onclick=()=>{cat=b.dataset.k;w.querySelectorAll('.tb button').forEach(x=>x.classList.toggle('on',x===b));const ls=w.querySelector('.ls');ls._k='';ls.scrollTop=0;draw()});
+ draw();if(Date.now()-lastF>55000)fetchAll();clearInterval(tmr);tmr=setInterval(()=>{if(!document.getElementById('rkw')){clearInterval(tmr);return}if(Date.now()-lastF>=60000)fetchAll();draw()},1000)};
+function close(){const w=document.getElementById('rkw');if(w)w.remove();clearInterval(tmr)}
 })();
 </script></body></html>
 
