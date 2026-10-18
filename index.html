@@ -8189,8 +8189,14 @@ function artBox(sv){if(sv!==bsv){bsv=sv;bb=null;try{let x0=1e9,y0=1e9,x1=-1e9,y1
 const SC=.55;
 function loop(){requestAnimationFrame(loop);if(document.hidden||document.body.classList.contains('away'))return;
  try{const B=$('bbar'),on=B&&!B.hasAttribute('hidden');if(!on){_sx=null;return}B.classList.add('bfw');
-  const sv=MS.querySelector('svg');if(!sv||!sv.getScreenCTM)return;const b=artBox(sv),m=sv.getScreenCTM();if(!b||!m)return;
-  const cx=b.x+b.w/2,P=new DOMPoint(cx,b.y).matrixTransform(m),Q=new DOMPoint(cx,b.y+b.h).matrixTransform(m),top=Math.min(P.y,Q.y),x=(P.x+Q.x)/2;
+  const sv=MS.querySelector('svg');let top=0,x=0,ok=false;
+   const sr=MS.getBoundingClientRect(),mr=sr.width>4&&sr.height>4?sr:MW.getBoundingClientRect();
+   if(sv&&sv.getScreenCTM){try{const bx=artBox(sv),m=sv.getScreenCTM();
+    if(bx&&m&&isFinite(bx.w)&&isFinite(bx.h)&&bx.w>2&&bx.h>2){const cx=bx.x+bx.w/2,P=new DOMPoint(cx,bx.y).matrixTransform(m),Q=new DOMPoint(cx,bx.y+bx.h).matrixTransform(m);top=Math.min(P.y,Q.y);x=(P.x+Q.x)/2;
+     /* ค่าต้องอยู่แถวๆ ตัวบอสจริง ไม่งั้นถือว่าวัดผิด (บอสบางตัวมีเงา/ออร่ากว้าง) */
+     ok=isFinite(top)&&isFinite(x)&&top>mr.top-mr.height*1.2&&top<mr.bottom&&x>mr.left-mr.width&&x<mr.right+mr.width}}catch(e){}}
+   /* บอสที่เป็นอีโมจิ/วัดขนาดไม่ได้: ใช้กรอบของตัวบอสแทน (กันหลอดไปค้างมุมซ้ายบน) */
+   if(!ok){if(!(mr.width>4))return;top=mr.top;x=mr.left+mr.width/2}
   const r=A.getBoundingClientRect(),W=A.clientWidth,w=(B.offsetWidth||370)*SC,h=(B.offsetHeight||110)*SC;
   let l=x-r.left-A.clientLeft-w/2;l=Math.max(2,Math.min(W-w-2,l));let t=top-r.top-A.clientTop-h-24;t=Math.max(2,t);
   /* ไม่ให้ทับหลอดเลือด/ชื่อของตัวละคร */
