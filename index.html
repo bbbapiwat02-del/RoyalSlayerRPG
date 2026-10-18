@@ -2132,10 +2132,13 @@ SK.push(
 {id:'s49',n:'หนึ่งดาบสะท้านจักรวาล',i:'🌙',r:7,k:'c',m:80,h:1,cd:22,c:'#d6c8ff'},
 {id:'s50',n:'อมตะคืนชีพ',i:'🕊️',r:7,k:'h',p:1,cd:40,c:'#a0ffc8'});
 
+/* ปรับสมดุล: บัพทุกตัวแรงน้อยลง (โจมตี/ความเร็ว/คริ/ดูดเลือด/ลดดาเมจ เหลือ 60%) — ปรับตัวเลข BUFF_NERF ได้ที่นี่ */
+const BUFF_NERF=.6;
+SK.forEach(k=>{if(k.k!=='b'||k._nf)return;k._nf=1;['a','s','ls','df'].forEach(f=>{if(k[f])k[f]=+(k[f]*BUFF_NERF).toFixed(3)});if(k.c2)k.c2=Math.max(1,Math.round(k.c2*BUFF_NERF))});
 const SKDMG=.5;
-const skDfv=(k,o)=>Math.min(.85,(k.df||0)*(1+.04*((o?o.lv:1)-1))),skLsv=(k,o)=>Math.min(.6,(k.ls||0)*skMul(o));
+const skDfv=(k,o)=>Math.min(.6,(k.df||0)*(1+.04*((o?o.lv:1)-1))),skLsv=(k,o)=>Math.min(.35,(k.ls||0)*skMul(o));
 function buTick(dt){let a=0,s=0,c=0,ls=0,df=0,any=0;for(const id in BU){const b=BU[id];b.t-=dt;if(b.t<=0){delete BU[id];continue}a+=b.a;s+=b.s;c+=b.c;ls+=b.ls;df+=b.df;any=1}
- BF.a=a;BF.s=s;BF.c=c;BF.ls=Math.min(.7,ls);BF.df=Math.min(.85,df);BF.t=any?1:0}
+ BF.a=a;BF.s=s;BF.c=c;BF.ls=Math.min(.4,ls);BF.df=Math.min(.6,df);BF.t=any?1:0}
 
 /* ไอคอนสกิล */
 skPlate=function(k,sz,lk){const c=k.c||RC[k.r],rc=RC[k.r];
@@ -8187,28 +8190,25 @@ let bsv=null,bb=null,_sx=null,_sy=null,_rt=null,_rx=null,_ls=null;
 function artBox(sv){if(sv!==bsv){bsv=sv;bb=null;try{let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;const root=sv.querySelector(':scope > g.dbd')||sv.querySelector(':scope > g')||sv;const els=root===sv?[...sv.children]:[root];
  els.forEach(e=>{const tg=e.tagName.toLowerCase();if(tg==='defs'||/gradient|filter|pattern|mask|clippath|style/.test(tg))return;const b=e.getBBox();if(!b.width&&!b.height)return;x0=Math.min(x0,b.x);y0=Math.min(y0,b.y);x1=Math.max(x1,b.x+b.width);y1=Math.max(y1,b.y+b.height)});if(x0<1e9)bb={x:x0,y:y0,w:x1-x0,h:y1-y0}}catch(e){}}return bb}
 const SC=.55;
+/* ตำแหน่งหัวบอส: วัดจากกรอบตัวบอส (#mon) ซึ่งขยับตามตัวจริงเวลาเดิน/พุ่งโจมตี
+   ระยะ "หัวบอสสูงกว่ากรอบเท่าไร" วัดจาก SVG แค่ช่วงแรกแล้วจำไว้ ไม่วัดทุกเฟรม (กันหลอดเด้งตามท่าทางบอส) */
+let _hd=null,_hn=0;
 function loop(){requestAnimationFrame(loop);if(document.hidden||document.body.classList.contains('away'))return;
- try{const B=$('bbar'),on=B&&!B.hasAttribute('hidden');if(!on){_sx=null;_rt=null;return}B.classList.add('bfw');
-  const sv=MS.querySelector('svg');let top=0,x=0,ok=false;
-   const sr=MS.getBoundingClientRect(),mr=sr.width>4&&sr.height>4?sr:MW.getBoundingClientRect();
-   if(sv&&sv.getScreenCTM){try{const bx=artBox(sv),m=sv.getScreenCTM();
-    if(bx&&m&&isFinite(bx.w)&&isFinite(bx.h)&&bx.w>2&&bx.h>2){const cx=bx.x+bx.w/2,P=new DOMPoint(cx,bx.y).matrixTransform(m),Q=new DOMPoint(cx,bx.y+bx.h).matrixTransform(m);top=Math.min(P.y,Q.y);x=(P.x+Q.x)/2;
-     /* ค่าต้องอยู่แถวๆ ตัวบอสจริง ไม่งั้นถือว่าวัดผิด (บอสบางตัวมีเงา/ออร่ากว้าง) */
-     ok=isFinite(top)&&isFinite(x)&&top>mr.top-mr.height*1.2&&top<mr.bottom&&x>mr.left-mr.width&&x<mr.right+mr.width}}catch(e){}}
-   /* บอสที่เป็นอีโมจิ/วัดขนาดไม่ได้: ใช้กรอบของตัวบอสแทน (กันหลอดไปค้างมุมซ้ายบน) */
-   if(!ok){if(!(mr.width>4))return;top=mr.top;x=mr.left+mr.width/2}
-   /* กันหลอดเด้งตอนบอสโจมตี (บอสบางตัวตัวยืด/หมุน ทำให้ค่าที่วัดกระโดด): จำตำแหน่งนิ่งไว้ แล้วจำกัดให้ขยับได้แค่ ±6px */
-   if(sv!==_ls){_ls=sv;_rt=null}
-   if(_rt==null||Math.abs(top-_rt)>150||Math.abs(x-_rx)>150){_rt=top;_rx=x}
-   top=Math.max(_rt-6,Math.min(_rt+6,top));x=Math.max(_rx-8,Math.min(_rx+8,x));
-   _rt+=(top-_rt)*.08;_rx+=(x-_rx)*.08;
+ try{const B=$('bbar'),on=B&&!B.hasAttribute('hidden');if(!on){_sx=null;_ls=null;return}B.classList.add('bfw');
+  const sv=MS.querySelector('svg'),mr=MW.getBoundingClientRect();if(!(mr.width>4&&mr.height>4))return;
+  if(sv!==_ls){_ls=sv;_hd=null;_hn=0}
+  if(_hn<24&&sv&&sv.getScreenCTM){_hn++;try{const bx=artBox(sv),m=sv.getScreenCTM();
+    if(bx&&m&&bx.w>2&&bx.h>2){const cx=bx.x+bx.w/2,P=new DOMPoint(cx,bx.y).matrixTransform(m),Q=new DOMPoint(cx,bx.y+bx.h).matrixTransform(m),d=Math.min(P.y,Q.y)-mr.top;
+     if(isFinite(d)&&d>-mr.height*1.1&&d<mr.height*.6)_hd=_hd==null?d:Math.min(_hd,d)}}catch(e){}}
+  const top=mr.top+(_hd==null?0:_hd),x=mr.left+mr.width/2;
   const r=A.getBoundingClientRect(),W=A.clientWidth,w=(B.offsetWidth||370)*SC,h=(B.offsetHeight||110)*SC;
-  let l=x-r.left-A.clientLeft-w/2;l=Math.max(2,Math.min(W-w-2,l));let t=top-r.top-A.clientTop-h-24;t=Math.max(2,t);
-  /* ไม่ให้ทับหลอดเลือด/ชื่อของตัวละคร */
+  let l=x-r.left-A.clientLeft-w/2;l=Math.max(2,Math.min(W-w-2,l));let t=top-r.top-A.clientTop-h-10;t=Math.max(2,t);
+  /* ไม่ให้ทับหลอดเลือด/ชื่อของตัวละคร: ยกหลอดบอสขึ้นเหนือแทน (ไม่สลับซ้าย-ขวา จะได้ไม่กระโดด) */
   [$('hb'),$('hn')].forEach(H=>{if(!H||!H.offsetWidth||getComputedStyle(H).display==='none')return;const q=H.getBoundingClientRect(),qt=q.top-r.top,qb=q.bottom-r.top,ql=q.left-r.left,qr=q.right-r.left;
-   if(t<qb+2&&t+h>qt-2&&l<qr+4&&l+w>ql-4){const nl=qr+6;if(nl<=W-w-2)l=nl;else t=Math.max(4,qt-h-4)}});
-  _sx=l;_sy=t;
-   B.style.transform=`translate(${_sx.toFixed(1)}px,${_sy.toFixed(1)}px) scale(${SC})`;B.style.opacity=getComputedStyle(MW).opacity}catch(e){}}
+   if(t<qb+8&&t+h>qt-8&&l<qr+70&&l+w>ql-70)t=Math.max(2,Math.min(t,qt-h-6))});
+  /* ขยับนุ่มๆ แต่ตามทัน */
+  if(_sx==null||Math.abs(l-_sx)>220||Math.abs(t-_sy)>220){_sx=l;_sy=t}else{_sx+=(l-_sx)*.35;_sy+=(t-_sy)*.35}
+  B.style.transform=`translate(${_sx.toFixed(1)}px,${_sy.toFixed(1)}px) scale(${SC})`;B.style.opacity=getComputedStyle(MW).opacity}catch(e){}}
 requestAnimationFrame(loop);
 })();
 </script>
@@ -13028,8 +13028,53 @@ const _en=enterDg;enterDg=function(i){const before=D;
   D.t0=D.t;try{renderDg()}catch(e){}}
  return r};
 function buyRun(i){const o=dgd(),b=o.b[i]||0;if(b>=DGBUY){say('🚫 วันนี้เข้าดันนี้ครบแล้ว · พรุ่งนี้มาใหม่นะ');return}
- const c=BUYC[b];if(!confirm(`ซื้อรอบดันเจี้ยนเพิ่ม 1 รอบ ใช้ 💎 ${c} ?\n(ซื้อได้อีก ${DGBUY-b} ครั้งวันนี้)`))return;
- if((S.diamonds||0)<c){say('💎 เพชรไม่พอ');return}S.diamonds-=c;o.b[i]=b+1;try{sfx('coin')}catch(e){}say('✅ ซื้อรอบเพิ่มแล้ว · เหลือ '+dgLeft(i)+' รอบ');try{renderDg()}catch(e){}}
+ const c=BUYC[b],dg=DG[i]||{n:'ดันเจี้ยน',i:'🌀'},have=S.diamonds||0,ok=have>=c,old=$('dgBuy');if(old)old.remove();
+ const pips=BUYC.map((p,k)=>`<div class="db-pp ${k<b?'ok':k===b?'on':''}"><small>ครั้งที่ ${k+1}</small><b>${k<b?'✓ ซื้อแล้ว':'💎 '+p}</b></div>`).join('');
+ const w=document.createElement('div');w.id='dgBuy';
+ w.innerHTML=`<div class="bx"><i class="db-cn a"></i><i class="db-cn b"></i><i class="db-cn c"></i><i class="db-cn d"></i>
+  <div class="db-md"><span>${dg.i}</span></div>
+  <div class="db-tl">ซื้อรอบเพิ่ม</div><div class="db-dn">${dg.n}</div>
+  <div class="db-st"><span>รอบวันนี้</span><b>หมดแล้ว 0/${DGLIM+b}</b><em>→</em><b class="g">+1 รอบ</b></div>
+  <div class="db-pps">${pips}</div>
+  <div class="db-wl"><span>เพชรของคุณ</span><b>💎 ${fm(have)}</b>${ok?`<em>→ 💎 ${fm(have-c)}</em>`:'<em class="no">ขาดอีก 💎 '+fm(c-have)+'</em>'}</div>
+  <div class="db-bt"><button class="db-x">ยกเลิก</button><button class="db-y" ${ok?'':'disabled'}>${ok?'ยืนยันซื้อ · 💎 '+c:'เพชรไม่พอ'}</button></div></div>`;
+ document.body.appendChild(w);try{sfx('click')}catch(e){}
+ const close=()=>{w.classList.add('out');setTimeout(()=>w.remove(),160)};
+ w.onclick=e=>{if(e.target===w)close()};w.querySelector('.db-x').onclick=close;
+ w.querySelector('.db-y').onclick=()=>{const o2=dgd(),b2=o2.b[i]||0,c2=BUYC[b2];if(b2>=DGBUY||(S.diamonds||0)<c2){close();say('💎 เพชรไม่พอ');return}
+  S.diamonds-=c2;o2.b[i]=b2+1;try{sfx('coin')}catch(e){}close();say('✅ ซื้อรอบเพิ่มแล้ว · เหลือ '+dgLeft(i)+' รอบ');try{renderDg()}catch(e){}}}
+document.head.insertAdjacentHTML('beforeend',`<style>
+#dgBuy{position:fixed;inset:0;z-index:99981;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 50% 45%,#2a0e04d0,#000e 75%);animation:dbIn .2s ease-out}
+#dgBuy.out{animation:dbOut .16s ease-in forwards}@keyframes dbIn{from{opacity:0}}@keyframes dbOut{to{opacity:0}}
+#dgBuy .bx{position:relative;width:100%;max-width:318px;padding:46px 16px 14px;border-radius:16px;text-align:center;color:#f8e8d4;
+ background:linear-gradient(#3e1a08,#1c0a04 60%,#120602) padding-box,linear-gradient(160deg,#fff3b0,#c8902a 30%,#6a4008 55%,#e8b84a 80%,#fff3b0) border-box;
+ border:2.5px solid transparent;box-shadow:0 10px 40px #000c,0 0 26px #ffb02e44,inset 0 0 0 1px #ffd23f22;animation:dbPop .28s cubic-bezier(.2,1.4,.4,1)}
+@keyframes dbPop{from{transform:scale(.82)}}
+#dgBuy .bx::before{content:"";position:absolute;inset:6px;border-radius:11px;border:1px solid #ffd23f33;pointer-events:none}
+#dgBuy .db-cn{position:absolute;width:14px;height:14px;border:2px solid #ffd23f;pointer-events:none}
+#dgBuy .db-cn.a{left:9px;top:9px;border-right:0;border-bottom:0;border-radius:6px 0 0 0}#dgBuy .db-cn.b{right:9px;top:9px;border-left:0;border-bottom:0;border-radius:0 6px 0 0}
+#dgBuy .db-cn.c{left:9px;bottom:9px;border-right:0;border-top:0;border-radius:0 0 0 6px}#dgBuy .db-cn.d{right:9px;bottom:9px;border-left:0;border-top:0;border-radius:0 0 6px 0}
+#dgBuy .db-md{position:absolute;left:50%;top:-34px;width:68px;height:68px;margin-left:-34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+ background:radial-gradient(circle at 50% 38%,#8a4a14,#3a1606 70%);border:2.5px solid #ffd23f;box-shadow:0 0 0 3px #3a1606,0 0 0 4.5px #c8902a,0 0 22px #ffb02e88}
+#dgBuy .db-md span{font-size:34px;line-height:1;filter:drop-shadow(0 2px 2px #000)}
+#dgBuy .db-tl{font-size:20px;font-weight:900;letter-spacing:.5px;background:linear-gradient(#fffbe0,#ffd23f 50%,#ff9a2a);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 #4a1600)}
+#dgBuy .db-dn{font-size:12px;color:#d8b890;margin:1px 0 10px}
+#dgBuy .db-st{display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 8px;border-radius:10px;background:#0007;border:1px solid #6a3a14;font-size:11.5px}
+#dgBuy .db-st span{color:#c8a880}#dgBuy .db-st b{color:#ffb0a8}#dgBuy .db-st b.g{color:#9aff7a}#dgBuy .db-st em{font-style:normal;color:#ffd23f}
+#dgBuy .db-pps{display:flex;gap:6px;margin:8px 0}
+#dgBuy .db-pp{position:relative;flex:1;padding:6px 4px;border-radius:10px;background:#0006;border:1px dashed #6a3a14;opacity:.55}
+#dgBuy .db-pp small{display:block;font-size:9.5px;color:#c8a880}#dgBuy .db-pp b{font-size:12.5px;color:#e8d0b0}
+#dgBuy .db-pp.ok{opacity:.75;border-style:solid;border-color:#3a6a2a}#dgBuy .db-pp.ok b{color:#9aff7a}
+#dgBuy .db-pp.on{opacity:1;border:1.5px solid #ffd23f;background:linear-gradient(#5a2a0a,#2a1004);box-shadow:0 0 10px #ffd23f55}#dgBuy .db-pp.on b{color:#ffe066}
+#dgBuy .db-wl{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11.5px;margin:2px 0 12px}
+#dgBuy .db-wl span{color:#c8a880}#dgBuy .db-wl b{color:#8ae8ff}#dgBuy .db-wl em{font-style:normal;color:#d8c0a0}#dgBuy .db-wl em.no{color:#ff7a6a;font-weight:900}
+#dgBuy .db-bt{display:flex;gap:8px}
+#dgBuy button{font:inherit;font-weight:900;border-radius:11px;padding:10px 6px;font-size:13.5px;cursor:pointer}
+#dgBuy .db-x{flex:.8;border:1.5px solid #8a6a4a;background:linear-gradient(#4a3020,#2a1a10);color:#e8d0b0}
+#dgBuy .db-y{flex:1.4;border:2px solid #fff3b0;background:linear-gradient(#ffcf3a,#e8801a 55%,#b0400e);color:#fff;text-shadow:0 1px 2px #6a2000;box-shadow:0 3px 0 #6a2a06,0 0 12px #ffb02e66}
+#dgBuy .db-y:active{transform:translateY(2px);box-shadow:0 1px 0 #6a2a06}
+#dgBuy .db-y[disabled]{filter:grayscale(.85) brightness(.75);box-shadow:none;cursor:default}
+</style>`);
 /* ป้ายจำนวนรอบบนการ์ดดัน */
 document.head.insertAdjacentHTML('beforeend',`<style>
 .dgq{display:inline-block;margin-top:3px;padding:1px 7px;border-radius:8px;background:#0008;border:1px solid var(--c,#ffd23f);color:#ffe9a0;font-size:10px;font-weight:900}
