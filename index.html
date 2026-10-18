@@ -3899,7 +3899,7 @@ window.skPop=function(id){close();const k=SK.find(x=>x.id===id),o=k&&S.skills[id
  d.querySelectorAll('.sl button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;close();if(i===j)return;skSel=i;skEquip(id)});
 };
 const _r=renderSkw;renderSkw=function(){_r.apply(this,arguments);
- $('skown').querySelectorAll('button').forEach(b=>b.onclick=()=>{skPick=b.dataset.i;renderSkw()});
+ $('skown').querySelectorAll('button').forEach(b=>b.onclick=()=>{skPick=b.dataset.i;renderSkw();openSkInfo(SK.find(x=>x.id===skPick))});
  const eb=$('skeb');if(eb)eb.onclick=()=>skPop(skPick);
  {const kk=SK.find(x=>x.id===skPick),ic=$('skinfo').querySelector('.icard');if(kk&&ic&&!$('skdt')){const bt=document.createElement('button');bt.id='skdt';bt.className='auto';bt.style.cssText='width:100%;margin-top:6px;justify-content:center;font-weight:700';bt.textContent='🔍 ดูรายละเอียดสกิล';bt.onclick=()=>openSkInfo(kk);ic.appendChild(bt)}}
  $('skeq').querySelectorAll('button').forEach(b=>{const o=b.onclick;b.onclick=()=>{o&&o();}});
@@ -3910,6 +3910,13 @@ const _r=renderSkw;renderSkw=function(){_r.apply(this,arguments);
 (function(){const rs=()=>{for(let i=0;i<6;i++)skCds[i]=0;skG=0;try{_skc={}}catch(e){}};
 const _k0=kill;kill=function(){const du=D&&D.duel;const r=_k0.apply(this,arguments);if(!du)rs();return r};
 const _dk0=dgKill;dgKill=function(){const du=D&&D.duel;const r=_dk0.apply(this,arguments);if(!du)rs();return r};})();
+/* ===== ป๊อปอัพสกิล: อัปเลเวล + ติดตั้ง ===== */
+(function(){const _o=openSkInfo;openSkInfo=function(k){_o(k);const o=S.skills[k.id],g=$('gzpop');if(!o||!g)return;const bt=g.querySelector('.gz-btns');if(!bt)return;
+const mx=o.lv>=SKMAX,c=skUpCost(k,o),b=document.createElement('button');b.className='up';b.id='gzup';b.disabled=mx||S.gold<c;b.style.cssText='justify-content:center;font-weight:700;flex:1 1 100%';
+b.textContent=mx?'⬆️ เลเวลสูงสุดแล้ว (Lv.'+SKMAX+')':'⬆️ อัปเลเวล Lv.'+o.lv+' → '+(o.lv+1)+' · 🪙 '+fmt(c);
+b.onclick=()=>{if(o.lv>=SKMAX||S.gold<skUpCost(k,o))return;S.gold-=skUpCost(k,o);o.lv++;sfx('lvl');renderSlots();renderSkw();openSkInfo(k)};
+bt.style.flexWrap='wrap';bt.insertBefore(b,bt.firstChild);
+const gs=$('gzsk');if(gs){gs.textContent='⚙️ ติดตั้ง / เปลี่ยนช่อง';gs.onclick=()=>{g.hidden=true;skPick=k.id;skPop(k.id)}}}})();
 /* ================= กรอบหน้าต่างนิ่ง ไม่เคลื่อนไหว ================= */
 (function(){
 document.head.insertAdjacentHTML('beforeend',`<style>
