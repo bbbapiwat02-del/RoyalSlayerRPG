@@ -923,8 +923,10 @@ function EPL(l){l=l||0;return .06*l+.007*l*l+(l>=10?.1:0)+(l>=15?.2:0)+(l>=20?.5
 function EQP1(i,k,l){return EQW[k][i]*EPL(l==null?((S.enh&&S.enh[i])||0):l)*EQMUL(k)}
 function EQP(k){let v=0;for(let i=0;i<5;i++)if(S.eq[i])v+=EQP1(i,k);return v}
 const ev=i=>{const e=S.eq[i];let v=0;if(i===0)v=EQP('a');else if(i===1)v=EQP('h');else if(i===2)v=EQX('crit');else if(i===3&&e)v=e.v*EQM*(1+ENHM(i));if(S.eq.some(x=>x&&x.set!=null)){const q=i===0?'a':i===1?'h':i===2?'c':i===3?'s':'g';v+=setBon()[q]}return v};
-const ATK=()=>Math.floor(((5+S.up.atk*3)*Math.pow(1.016,S.up.atk)+EQF('a'))*(1+ev(0)+WV('a')+PV('a')+FSV('a'))*(1+0.06*(S.lv-1))*(1+BF.a));
-const MHP=()=>Math.floor(((50+S.up.hp*18)*Math.pow(1.016,S.up.hp)+EQF('h'))*(1+ev(1)+WV('h')+PV('h')+FSV('h'))*(1+0.08*(S.lv-1)));
+/* โบนัสต่อเลเวล: เลือดขึ้นมากสุด · ป้องกันรองลงมา · โจมตีขึ้นน้อยสุด */
+var LV_HP=.10,LV_DEF=.07,LV_ATK=.04;
+const ATK=()=>Math.floor(((5+S.up.atk*3)*Math.pow(1.016,S.up.atk)+(S.lv-1)+EQF('a'))*(1+ev(0)+WV('a')+PV('a')+FSV('a'))*(1+LV_ATK*(S.lv-1))*(1+BF.a));
+const MHP=()=>Math.floor(((50+S.up.hp*18)*Math.pow(1.016,S.up.hp)+10*(S.lv-1)+EQF('h'))*(1+ev(1)+WV('h')+PV('h')+FSV('h'))*(1+LV_HP*(S.lv-1)));
 const SPD=()=>1+spdB()+ev(3)+WV('s')+PV('s')+BF.s, CRIT=()=>5+S.up.crit+ev(2)+WV('c')+PV('c')+BF.c;
 const isBoss=()=>D?D.w>=D.n:S.stage%10===0;
 const MON=['🥷','🐍','🐺','🐅','🦅','🐒','🦂','👺','🕷️','🦇'],BOSS=['👺','🐅','🐉','👹'],Z=['ป่าไผ่เงียบงัน','เขาเสาซาน','ถ้ำพิศวง','ทะเลทรายตะวันตก','ยอดเขาหิมะ','วิหารมารเลือด'];
@@ -1346,7 +1348,7 @@ function renderCs(){
  +hd('สเตตัส (พ้อยเหลือ '+stPts()+')')
  +STK.map(k=>r(STI[k].i,STI[k].n,S.st[k],STI[k].d)).join('')+r('🛡️','ป้องกันกายภาพ',fmtF(DEFV()),'ลดดาเมจ '+(defR()*100).toFixed(1)+'%')+r('✨','ป้องกันเวท',fmtF(MDEFV()),'ลดดาเมจเวท '+(mdefR()*100).toFixed(1)+'%')+r('🌪️','หลบหลีก / แม่นยำ',stDodge().toFixed(1)+'% / '+(100-stMiss()).toFixed(1)+'%','')+r('🔮','โจมตีเวท',fmtF(stMatk()),'เพิ่มดาเมจสกิล')
  +hd('ความคืบหน้า')
- +r('⭐','โบนัสเลเวล','ATK +'+(6*(S.lv-1))+'%','HP +'+(8*(S.lv-1))+'%')
+ +r('⭐','โบนัสเลเวล','HP +'+Math.round(LV_HP*100*(S.lv-1))+'% · ป้องกัน +'+Math.round(LV_DEF*100*(S.lv-1))+'%','ATK +'+Math.round(LV_ATK*100*(S.lv-1))+'%')
  +r('🏔️','ด่านปัจจุบัน',S.stage,Z[Math.floor((S.stage-1)/10)%Z.length])
  +r('🐲','สัตว์เลี้ยง',S.pet?PT.find(x=>x.id===S.pet).n:'ยังไม่มี',S.pet&&S.pets[S.pet]?'Lv.'+S.pets[S.pet].lv+' ★'+S.pets[S.pet].st:'ไปที่ไอคอนสัตว์เลี้ยง')
  +r('🪽','ปีก',S.wg?WG[S.wg-1].n:'ยังไม่มี',S.wg?'★'+S.wl+'/10':'ไปที่ไอคอนปีก')
@@ -4699,7 +4701,7 @@ function stEns(){if(!S.st||typeof S.st!=='object'){
 const stTot=()=>5+2*S.lv+(S.stb||0),stUsed=()=>STK.reduce((a,k)=>a+(S.st[k]||0),0),stPts=()=>Math.max(0,stTot()-stUsed());
 function stSync(){const s=stEns();S.up.atk=s.str;S.up.hp=s.vit;S.up.spd=Math.min(200,s.agi);S.up.crit=s.luk*.6}
 const stDodge=()=>Math.min(45,(S.st?S.st.agi:0)*.3+EQX('eva')),stDef=()=>{const v=S.st?S.st.vit:0;return v/(v+150)*.6},stMdef=()=>{const v=S.st?S.st.vit:0;return v/(v+200)*.5};
-const stMatk=()=>{const n=S.st?S.st.int:0;return Math.floor((n*3.5*Math.pow(1.016,n)+(n>0?EQF('a')*.5:0))*(1+ev(0)+WV('a')+PV('a'))*(1+0.06*(S.lv-1))*(1+BF.a))};
+const stMatk=()=>{const n=S.st?S.st.int:0;return Math.floor((n*3.5*Math.pow(1.016,n)+(n>0?EQF('a')*.5:0))*(1+ev(0)+WV('a')+PV('a'))*(1+LV_ATK*(S.lv-1))*(1+BF.a))};
 const stEva=()=>Math.min(D&&D.tw?10:30,3+ES()*.12),stMiss=()=>Math.max(0,stEva()-(S.st?S.st.dex:0)*.5-EQX('acc')),stRng=()=>1+(S.st?S.st.dex:0)*.014;
 function stDmgIn(d){if(Math.random()*100<stDodge())return -1;const r=isBoss()?(.5*stDef()+.5*stMdef()):stDef();return Math.max(1,Math.floor(d*(1-r)))}
 stEns();stSync();
@@ -5667,8 +5669,8 @@ const _F=FSV;FSV=function(k){if(k!=='df'&&k!=='md')return _F(k);let v=0;const f=
  try{if(f&&f.eq&&FS){const o=FS.find(x=>x.id===f.eq),w=f.own[f.eq];if(o&&w)v+=FTR[o.t].b*1.5*(1+.2*(w.st||0))}}catch(e){}
  try{const w=S.ws;if(w&&w.eq&&WSK){const o=WSK.find(x=>x.id===w.eq),ow=w.own[w.eq];if(o&&ow)v+=FTR[o.t].b*(k==='md'?.8:.4)*(1+.2*(ow.st||0))}}catch(e){}return v};
 const vit=()=>S.st?S.st.vit||0:0,int_=()=>S.st?S.st.int||0:0;
-window.DEFV=()=>Math.floor(((6+5*vit()+5*(S.lv-1))*Math.pow(1.013,Math.min(vit(),400))+EQF('df'))*(1+eqSum(0)+WV('df')+PV('df')+FSV('df')));
-window.MDEFV=()=>Math.floor(((5+4*vit()+3*int_()+4*(S.lv-1))*Math.pow(1.013,Math.min(vit()+int_(),500))+EQF('md'))*(1+eqSum(1)+WV('md')+PV('md')+FSV('md')));
+window.DEFV=()=>Math.floor(((6+5*vit()+5*(S.lv-1))*Math.pow(1.013,Math.min(vit(),400))+EQF('df'))*(1+eqSum(0)+WV('df')+PV('df')+FSV('df'))*(1+LV_DEF*(S.lv-1)));
+window.MDEFV=()=>Math.floor(((5+4*vit()+3*int_()+4*(S.lv-1))*Math.pow(1.013,Math.min(vit()+int_(),500))+EQF('md'))*(1+eqSum(1)+WV('md')+PV('md')+FSV('md'))*(1+LV_DEF*(S.lv-1)));
 const KD=()=>(20+8*Math.pow(ES(),1.5))*(isBoss()?1.5:1);
 window.defR=()=>{const x=DEFV();return Math.min(.8,x/(x+KD()))};
 window.mdefR=()=>{const x=MDEFV();return Math.min(.8,x/(x+KD()))};
@@ -8190,25 +8192,24 @@ let bsv=null,bb=null,_sx=null,_sy=null,_rt=null,_rx=null,_ls=null;
 function artBox(sv){if(sv!==bsv){bsv=sv;bb=null;try{let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;const root=sv.querySelector(':scope > g.dbd')||sv.querySelector(':scope > g')||sv;const els=root===sv?[...sv.children]:[root];
  els.forEach(e=>{const tg=e.tagName.toLowerCase();if(tg==='defs'||/gradient|filter|pattern|mask|clippath|style/.test(tg))return;const b=e.getBBox();if(!b.width&&!b.height)return;x0=Math.min(x0,b.x);y0=Math.min(y0,b.y);x1=Math.max(x1,b.x+b.width);y1=Math.max(y1,b.y+b.height)});if(x0<1e9)bb={x:x0,y:y0,w:x1-x0,h:y1-y0}}catch(e){}}return bb}
 const SC=.55;
-/* ตำแหน่งหัวบอส: วัดจากกรอบตัวบอส (#mon) ซึ่งขยับตามตัวจริงเวลาเดิน/พุ่งโจมตี
-   ระยะ "หัวบอสสูงกว่ากรอบเท่าไร" วัดจาก SVG แค่ช่วงแรกแล้วจำไว้ ไม่วัดทุกเฟรม (กันหลอดเด้งตามท่าทางบอส) */
-let _hd=null,_hn=0;
+/* หลอดเลือดบอส: ขยับตามตัวแบบเดียวกับหลอดมอนสเตอร์ — วัดหัวบอสจากภาพทุกเฟรม (ตามการเดิน/พุ่ง/ยืดตัว) ไม่หน่วง */
+let _hd=null;
 function loop(){requestAnimationFrame(loop);if(document.hidden||document.body.classList.contains('away'))return;
- try{const B=$('bbar'),on=B&&!B.hasAttribute('hidden');if(!on){_sx=null;_ls=null;return}B.classList.add('bfw');
+ try{const B=$('bbar'),on=B&&!B.hasAttribute('hidden');if(!on){_ls=null;return}B.classList.add('bfw');
   const sv=MS.querySelector('svg'),mr=MW.getBoundingClientRect();if(!(mr.width>4&&mr.height>4))return;
-  if(sv!==_ls){_ls=sv;_hd=null;_hn=0}
-  if(_hn<24&&sv&&sv.getScreenCTM){_hn++;try{const bx=artBox(sv),m=sv.getScreenCTM();
-    if(bx&&m&&bx.w>2&&bx.h>2){const cx=bx.x+bx.w/2,P=new DOMPoint(cx,bx.y).matrixTransform(m),Q=new DOMPoint(cx,bx.y+bx.h).matrixTransform(m),d=Math.min(P.y,Q.y)-mr.top;
-     if(isFinite(d)&&d>-mr.height*1.1&&d<mr.height*.6)_hd=_hd==null?d:Math.min(_hd,d)}}catch(e){}}
-  const top=mr.top+(_hd==null?0:_hd),x=mr.left+mr.width/2;
+  if(sv!==_ls){_ls=sv;_hd=null}
+  let top=null,x=null;
+  if(sv&&sv.getScreenCTM){try{const bx=artBox(sv),m=sv.getScreenCTM();
+    if(bx&&m&&bx.w>2&&bx.h>2){const cx=bx.x+bx.w/2,P=new DOMPoint(cx,bx.y).matrixTransform(m),Q=new DOMPoint(cx,bx.y+bx.h).matrixTransform(m),tp=Math.min(P.y,Q.y),xx=(P.x+Q.x)/2;
+     if(isFinite(tp)&&isFinite(xx)&&tp>mr.top-mr.height*1.2&&tp<mr.bottom&&xx>mr.left-mr.width&&xx<mr.right+mr.width){top=tp;x=xx;_hd=tp-mr.top}}}catch(e){}}
+  /* วัดไม่ได้ (อีโมจิ ฯลฯ): ใช้กรอบตัวบอส + ระยะหัวที่จำไว้ */
+  if(top==null){top=mr.top+(_hd||0);x=mr.left+mr.width/2}
   const r=A.getBoundingClientRect(),W=A.clientWidth,w=(B.offsetWidth||370)*SC,h=(B.offsetHeight||110)*SC;
-  let l=x-r.left-A.clientLeft-w/2;l=Math.max(2,Math.min(W-w-2,l));let t=top-r.top-A.clientTop-h-10;t=Math.max(2,t);
-  /* ไม่ให้ทับหลอดเลือด/ชื่อของตัวละคร: ยกหลอดบอสขึ้นเหนือแทน (ไม่สลับซ้าย-ขวา จะได้ไม่กระโดด) */
+  let l=x-r.left-A.clientLeft-w/2;l=Math.max(2,Math.min(W-w-2,l));let t=top-r.top-A.clientTop-h-12;t=Math.max(2,t);
+  /* ไม่ให้ทับหลอดเลือด/ชื่อของตัวละคร: ยกขึ้นเหนือ */
   [$('hb'),$('hn')].forEach(H=>{if(!H||!H.offsetWidth||getComputedStyle(H).display==='none')return;const q=H.getBoundingClientRect(),qt=q.top-r.top,qb=q.bottom-r.top,ql=q.left-r.left,qr=q.right-r.left;
    if(t<qb+8&&t+h>qt-8&&l<qr+70&&l+w>ql-70)t=Math.max(2,Math.min(t,qt-h-6))});
-  /* ขยับนุ่มๆ แต่ตามทัน */
-  if(_sx==null||Math.abs(l-_sx)>220||Math.abs(t-_sy)>220){_sx=l;_sy=t}else{_sx+=(l-_sx)*.35;_sy+=(t-_sy)*.35}
-  B.style.transform=`translate(${_sx.toFixed(1)}px,${_sy.toFixed(1)}px) scale(${SC})`;B.style.opacity=getComputedStyle(MW).opacity}catch(e){}}
+  B.style.transform=`translate(${l.toFixed(1)}px,${t.toFixed(1)}px) scale(${SC})`;B.style.opacity=getComputedStyle(MW).opacity}catch(e){}}
 requestAnimationFrame(loop);
 })();
 </script>
@@ -8873,6 +8874,12 @@ window.pfAlign=function(){
  }catch(e){}};
  const og=gainExp;
  gainExp=function(x){const l0=S.lv;og.apply(this,arguments);if(S.lv>l0){for(let l=l0+1;l<=S.lv;l++)if(l%10===0&&l/10<RN.length){try{banner('🔓 ปลดล็อกอุปกรณ์ระดับ '+RN[l/10]+'!')}catch(e){}}try{renderGear()}catch(e){}}};
+/* เลเวลเด้ง: แจ้งค่าที่เพิ่มขึ้น (เลือด / ป้องกัน / โจมตี) */
+{const og2=gainExp;gainExp=function(x){const l0=S.lv,v=()=>{try{return [MHP(),window.DEFV?DEFV():0,ATK()]}catch(e){return null}},b=v();og2.apply(this,arguments);
+ if(S.lv>l0&&b){const a=v();if(!a)return;try{hp=MHP()}catch(e){}const f=n=>{try{return fmt(n)}catch(e){return n}};
+  setTimeout(()=>{try{const A=document.getElementById('arena');if(!A)return;const o=document.getElementById('lvGain');if(o)o.remove();const e=document.createElement('div');e.id='lvGain';
+   e.innerHTML='<span class="h">❤️ HP +'+f(a[0]-b[0])+'</span><span class="d">🛡️ ป้องกัน +'+f(a[1]-b[1])+'</span><span class="a">⚔️ โจมตี +'+f(a[2]-b[2])+'</span>';A.appendChild(e);setTimeout(()=>e.remove(),2600)}catch(e){}},900)}}}
+document.head.insertAdjacentHTML('beforeend','<style>#lvGain{position:absolute;left:50%;top:51%;z-index:30;display:flex;gap:5px;transform:translateX(-50%);pointer-events:none;white-space:nowrap;animation:lvG 2.6s ease-out forwards}#lvGain span{padding:3px 8px;border-radius:9px;font-size:11.5px;font-weight:900;background:#000b;border:1.5px solid;text-shadow:0 1px 2px #000}#lvGain .h{color:#ff9a9a;border-color:#ff5a6e}#lvGain .d{color:#a8e0ff;border-color:#5ab0ff}#lvGain .a{color:#ffe08a;border-color:#ffb02e;font-size:10.5px}@keyframes lvG{0%{opacity:0;transform:translate(-50%,10px)}12%{opacity:1;transform:translate(-50%,0)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-14px)}}</style>');
  renderGear();
 })();
 </script>
