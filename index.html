@@ -4122,15 +4122,21 @@ HW.querySelectorAll('.enaura,#hbau,#fsau,#wsau').forEach(e=>{const base=(e.id===
 const st=document.createElement('style');
 st.textContent='#hero>.enaura{bottom:auto!important;z-index:0}';
 document.head.appendChild(st);
-let lk='';
+let rx=null,ry=null;
 function align(){try{const a=HW.querySelector(':scope>.enaura');if(!a||!HS)return;
+const A=document.getElementById('arena');if(A&&A.style.visibility==='hidden')return;
 const w=a.offsetWidth;if(!w)return;
-const cx=HS.offsetLeft+HS.offsetWidth*.545,fy=HS.offsetTop+HS.offsetHeight*.935;
-const k=[cx.toFixed(1),fy.toFixed(1),w].join();if(k===lk&&a.style.top)return;lk=k;
+const hr=HS.getBoundingClientRect();if(!hr.width||!HS.offsetWidth)return;
+let nx=.545,ny=.935;
+const legs=[...HS.querySelectorAll('.leg')].map(e=>e.getBoundingClientRect()).filter(r=>r.width>2&&r.height>2);
+if(legs.length){const l=Math.min(...legs.map(r=>r.left)),r2=Math.max(...legs.map(r=>r.right)),bt=Math.max(...legs.map(r=>r.bottom));
+nx=((l+r2)/2-hr.left)/hr.width;ny=(bt-hr.top)/hr.height-.012}
+rx=rx===null?nx:rx+(nx-rx)*.25;ry=ry===null?ny:ry+(ny-ry)*.25;
+const cx=HS.offsetLeft+HS.offsetWidth*rx,fy=HS.offsetTop+HS.offsetHeight*ry;
 a.style.left=(cx-w/2).toFixed(1)+'px';a.style.top=(fy-w*.93).toFixed(1)+'px'}catch(e){}}
-new MutationObserver(()=>{lk='';align()}).observe(HW,{childList:true});
-addEventListener('resize',()=>{lk='';align()});
-setInterval(align,700);setTimeout(align,300);align();
+new MutationObserver(()=>{rx=ry=null;align()}).observe(HW,{childList:true});
+addEventListener('resize',()=>{rx=ry=null;align()});
+setInterval(align,250);setTimeout(align,300);align();
 })();
 /* ===== กันจอกระพริบ: หน้าโหลดหลังล็อกอิน / หลังสร้างตัวละคร ===== */
 (function(){
