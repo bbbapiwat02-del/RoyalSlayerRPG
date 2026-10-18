@@ -3966,6 +3966,48 @@ const tr=(x,h)=>`<rect x="${x-2.6}" y="${100-h*.36}" width="5.2" height="${h*.36
 const t1=`<svg viewBox="0 0 400 100" preserveAspectRatio="none">${tr(30,64)+tr(120,52)+tr(205,72)+tr(290,56)+tr(365,68)}</svg>`;
 $('trees').innerHTML=t1+t1;
 })();
+/* ===== พุ่มไม้/หญ้า/ต้นไม้ ขยับตามลมแบบสมจริง ===== */
+(function(){
+const css=`
+.sw,.tw{transform-box:fill-box;transform-origin:50% 100%;will-change:transform}
+.sw{animation:swy 3.4s ease-in-out infinite alternate}
+.sw.b{animation-name:swb;animation-duration:4.6s}
+.sw.t{animation-name:swt;animation-duration:2.6s}
+.tw{animation:twy 6s ease-in-out infinite alternate}
+@keyframes swy{0%{transform:rotate(-2.5deg) skewX(-5deg)}100%{transform:rotate(3deg) skewX(6deg)}}
+@keyframes swt{0%{transform:rotate(-4deg) skewX(-9deg) scaleY(.97)}100%{transform:rotate(5deg) skewX(10deg) scaleY(1.02)}}
+@keyframes swb{0%{transform:rotate(-1deg) skewX(-2.5deg) scale(1,.99)}100%{transform:rotate(1.4deg) skewX(3deg) scale(1,1.015)}}
+@keyframes twy{0%{transform:rotate(-1.1deg) skewX(-1.6deg)}100%{transform:rotate(1.3deg) skewX(2deg)}}
+.lay.b{bottom:23%;height:18%;animation-duration:16s;opacity:1;fill:none;pointer-events:none}
+#arena.walk .lay.b{animation-duration:4s}
+.lay.b svg{overflow:visible}
+.g-lowanim .sw,.g-lowanim .tw,.g-nobg .sw,.g-nobg .tw{animation:none!important}
+`;
+const st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
+const tr=(x,h,d)=>`<g class="tw" style="animation-delay:${d}s"><rect x="${x-2.6}" y="${100-h*.36}" width="5.2" height="${h*.36}" rx="2" fill="#6b4423"/><rect x="${x-2.6}" y="${100-h*.36}" width="2" height="${h*.36}" rx="1" fill="#8b5a2e"/><g fill="var(--m3,#2f6b4a)"><circle cx="${x-h*.2}" cy="${100-h*.46}" r="${h*.2}"/><circle cx="${x+h*.2}" cy="${100-h*.46}" r="${h*.2}"/><circle cx="${x}" cy="${100-h*.62}" r="${h*.28}"/><circle cx="${x}" cy="${100-h*.82}" r="${h*.17}"/></g><circle cx="${x-h*.1}" cy="${100-h*.7}" r="${h*.1}" fill="#fff" opacity=".2"/><circle cx="${x+h*.2}" cy="${100-h*.5}" r="${h*.07}" fill="#fff" opacity=".12"/><circle cx="${x+h*.08}" cy="${100-h*.5}" r="${h*.13}" fill="#000" opacity=".1"/></g>`;
+const tg=[[30,64,0],[120,52,-2],[205,72,-4],[290,56,-1.5],[365,68,-3]].map(a=>tr(...a)).join('');
+const t1=`<svg viewBox="0 0 400 100" preserveAspectRatio="none">${tg}</svg>`;
+$('trees').innerHTML=t1+t1;
+// กอหญ้า + พุ่มไม้ เลื่อนตามพื้นและโอนเอนตามลม
+const tuft=(x,h,n,d,c)=>{let s='';for(let i=0;i<n;i++){const o=(i-(n-1)/2)*3.4,bh=h*(.7+((i*37)%10)/25),lean=(i-(n-1)/2)*2.2;s+=`<path d="M${x+o-1.8} 100Q${x+o+lean*.3-1} ${100-bh*.55} ${x+o+lean} ${100-bh}Q${x+o+lean*.3+1.6} ${100-bh*.5} ${x+o+2.2} 100Z" fill="${c}"/>`}
+return `<g class="sw" style="animation-delay:${d}s">${s}</g>`};
+const bush=(x,r,d,fl)=>{let f='';fl.forEach(([dx,dy,c])=>{f+=`<circle cx="${x+dx*r}" cy="${100-r*(.9+dy)}" r="${r*.13}" fill="${c}"/><circle cx="${x+dx*r}" cy="${100-r*(.9+dy)}" r="${r*.05}" fill="#fff8c0"/>`});
+return `<g class="sw b" style="animation-delay:${d}s"><g fill="var(--m3,#2f6b4a)"><circle cx="${x-r*.8}" cy="${100-r*.5}" r="${r*.62}"/><circle cx="${x+r*.8}" cy="${100-r*.5}" r="${r*.62}"/><circle cx="${x}" cy="${100-r*.75}" r="${r*.85}"/></g><g fill="#fff" opacity=".16"><circle cx="${x-r*.2}" cy="${100-r*1.05}" r="${r*.4}"/><circle cx="${x-r*.95}" cy="${100-r*.68}" r="${r*.25}"/></g><path d="M${x-r*1.4} 100Q${x} ${100-r*.7} ${x+r*1.4} 100Z" fill="#000" opacity=".14"/>${f}</g>`};
+const L1='var(--gr1,#6fa65a)',L2='#8fd46a',L3='var(--gr2,#3f7a3a)';
+let g='';
+g+=bush(48,11,-.4,[[-.5,.2,'#ff7aa8'],[.6,.1,'#ffd23f']]);
+g+=tuft(80,15,5,-.2,L2)+tuft(84,11,4,-1.1,L1);
+g+=tuft(138,13,5,-1.8,L2);
+g+=bush(176,8,-2.1,[[.2,.3,'#fff'],[-.6,.05,'#ff7aa8']]);
+g+=tuft(212,16,6,-.7,L2)+tuft(217,11,4,-2.3,L3);
+g+=bush(262,12,-1.2,[[-.4,.25,'#ffd23f'],[.5,.1,'#c78bff']]);
+g+=tuft(304,14,5,-2.6,L2);
+g+=tuft(338,12,4,-.5,L1)+tuft(342,16,6,-1.5,L2);
+g+=bush(380,9,-3,[[.1,.3,'#ff7aa8']]);
+const sv=`<svg viewBox="0 0 400 100" preserveAspectRatio="none">${g}</svg>`;
+const lay=document.createElement('div');lay.className='lay b';lay.innerHTML=sv+sv;
+const tre=$('trees');tre.insertAdjacentElement('afterend',lay);
+})();
 /* ================= กรอบหน้าต่างนิ่ง ไม่เคลื่อนไหว ================= */
 (function(){
 document.head.insertAdjacentHTML('beforeend',`<style>
