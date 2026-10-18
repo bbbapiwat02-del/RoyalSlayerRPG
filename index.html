@@ -12184,8 +12184,11 @@ const cl=(v,a,b)=>Math.max(a,Math.min(b,v)),lg=L=>Math.log10(Math.max(1,L)),DIFF
 function dps(){try{const c=Math.min(100,CRIT())/100;return Math.max(1,ATK()*(1+c*(CRD()-1))*cl(SPD(),.3,6))}catch(e){return 10}}
 function mhpP(){try{return Math.max(1,MHP())}catch(e){return 100}}
 /* พลังมาตรฐานที่ควรมีตามด่าน → ใส่อุปกรณ์ดีกว่าเกณฑ์ผ่านเร็วขึ้น (สูงสุด 0.6 เท่าของเวลา) / อ่อนกว่าเกณฑ์ช้าลง (สูงสุด 1.5 เท่า) */
-const needD=L=>16*Math.pow(1.141,L-1),needH=L=>51*Math.pow(1.132,L-1);
-const gA=L=>cl(Math.pow(needD(L)/dps(),.2),.6,1.5),gH=L=>cl(Math.pow(needH(L)/mhpP(),.2),.6,1.5);
+const needD=L=>6*Math.pow(1.141,L-1),needH=L=>51*Math.pow(1.132,L-1);
+/* แก้บัค: เดิมยกกำลัง .2 และจำกัด 1.5 เท่า → มอนแทบไม่โหดขึ้นตามด่าน (ด่าน 99 เลือดพอๆ ด่าน 1)
+   ตอนนี้ความโหดอิงระดับด่านเป็นหลัก (ยกกำลัง .8) ผู้เล่นอัปเกรดแล้วยังช่วยให้ง่ายขึ้นได้ · ปรับ LV_SCALE ได้ */
+const LV_SCALE=.8;
+const gA=L=>cl(Math.pow(needD(L)/dps(),LV_SCALE),.6,40),gH=L=>cl(Math.pow(needH(L)/mhpP(),LV_SCALE),.6,15);
 /* เวลาที่ใช้ปราบ (tk) และเวลาที่ผู้เล่นทนได้ (ts) เป็นวินาที */
 function prof(){const b=isBoss();
  if(!D){const L=S.stage;return{L,tk:(b?12:2.4)*(1+.25*lg(L)),ts:b?26:45}}
