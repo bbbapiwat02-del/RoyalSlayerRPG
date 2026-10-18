@@ -2444,7 +2444,10 @@ function twEnd(win){
   banner('🏆 พิชิตชั้น '+d.f+'!');sfx('lvl');shake();deathAnim();coinRain(24);
  }else{D=null;banner(r.timeout?'⌛ หมดเวลา!':'💀 พ่ายแพ้ชั้น '+d.f)}
  b.last=r;twFresh=true;twScroll=true;mState='dying';
- setTimeout(()=>{hp=MHP();spawn();renderGear();openW('twr')},win?1600:600);
+ setTimeout(()=>{hp=MHP();spawn();renderGear();
+ /* ผ่านชั้นแล้วท้าชั้นถัดไปต่ออัตโนมัติ (ปิดได้ในหน้าต่างหอคอย) · แพ้/หมดเวลา/ถึงยอดหอ จะเปิดหน้าต่างตามปกติ */
+ if(win&&r.first&&b.auto!==false&&d.f<TW_MAX){twSel=Math.min(TW_MAX,d.f+1);twFresh=false;try{enterTower(d.f+1)}catch(e){}if(D||twQ){banner('🔁 ท้าต่อ ชั้น '+(d.f+1)+' อัตโนมัติ');return}}
+ openW('twr')},win?1600:600);
 }
 const _dgKill3=dgKill,_dgEnd3=dgEnd;
 dgKill=function(){if(D&&D.tw){twEnd(true);return}_dgKill3()};
@@ -9834,7 +9837,7 @@ renderTw=function(){
   <div class="tz-nm">${I.nm}</div>
   <div class="tz-g4"><div><i>⏱️</i>เวลา<b>${I.t} วิ</b></div><div><i>❤️</i>เลือด<b>x${I.hpm}</b></div><div><i>💢</i>ดาเมจ<b>x${I.dm.toFixed(2)}</b></div><div><i>⚔️</i>ระดับ<b>ด่าน ${I.abs}</b></div></div>
   <div class="tz-rw ${cleared?'done':''}">${cleared?'<small>✅ ผ่านชั้นนี้แล้ว · ลงซ้ำไม่ได้ ไปท้าชั้นถัดไปได้เลย</small>':`<small>🎁 รางวัลผ่านครั้งแรก</small><div class="it">${rw.map(([e,n])=>`<span>${e} ${n}</span>`).join('')}</div>`}</div></div>
-  <button class="skill bz-go tz-go" id="twgo" ${why?'disabled':''}>${cleared?'✅ ผ่านแล้ว':'⚔️ ท้าทาย'} ชั้น ${twSel}</button>${why?`<div class="bz-why">${why}</div>`:''}`;
+  <button class="skill bz-go tz-go" id="twgo" ${why?'disabled':''}>${cleared?'✅ ผ่านแล้ว':'⚔️ ท้าทาย'} ชั้น ${twSel}</button>${why?`<div class="bz-why">${why}</div>`:''}<button class="auto" id="twau" style="width:100%;margin-top:8px">${b.auto!==false?'🔁 ท้าต่ออัตโนมัติ: เปิด':'⏸ ท้าต่ออัตโนมัติ: ปิด'}</button>`;
  $('tzp').onclick=()=>{twSel=Math.max(1,twSel-1);twScroll=true;renderTw()};
  $('tzn').onclick=()=>{twSel=Math.min(TT,b.best+1,twSel+1);twScroll=true;renderTw()};
  /* รายชั้นแบบหอคอย */
@@ -9847,6 +9850,7 @@ renderTw=function(){
  $('twlist').innerHTML=`<div class="tz-ls" id="twl">${h}</div>`;
  $('twlist').querySelectorAll('.tz-r').forEach(x=>x.onclick=()=>{const f=+x.dataset.f;if(f>b.best+1){banner('🔒 ต้องผ่านชั้น '+(b.best+1)+' ก่อน');return}twSel=f;twScroll=false;renderTw()});
  $('twgo').onclick=()=>enterTower(twSel);
+ {const au=$('twau');if(au)au.onclick=()=>{b.auto=b.auto===false;renderTw()}}
  if(twScroll){const L=$('twl'),sel=L.querySelector('.sel');if(sel)L.scrollTop=Math.max(0,sel.offsetTop-L.clientHeight/2+sel.offsetHeight/2);twScroll=false}
 };
 /* แก้บัค: บอสตาย (หอคอย/ดัน/บอส) ไม่ให้หลอดเลือดปกติโผล่ซ้อนกับหลอดบอส */
@@ -12681,10 +12685,12 @@ const CAT=[
  {k:'fsc',ic:'👘',n:'แฟชั่น',g:p=>{const d=p.data||{};if(d.fsc)return d.fsc;let v=0;try{[[d.fsx,FS],[d.wsx,WSK]].forEach(([x,L])=>{if(!x)return;const f=L.find(y=>y.id===x.id);if(f)v+=Math.round(Math.pow(f.t+1,2)*(1+.2*(x.st||0)))})}catch(e){}return v},me:()=>rankScore('fs'),f:v=>'⭐ '+fm(v)},
  {k:'wgs',ic:'🪽',n:'ปีก',g:p=>{const d=p.data||{};return d.wgs||((d.wg||0)*1000+(d.wl||0))},me:()=>rankScore('wg'),f:v=>v?'ขั้น '+Math.floor(v/1000)+' · Lv.'+(v%1000):'ยังไม่มีปีก'}];
 let cat='bp',rows=null,lastF=0,busy=false,state='',ME=null,tmr=null;
+/* ฤดูกาลอันดับ: คะแนน = ความก้าวหน้าตั้งแต่ GM รีเซ็ต (หักค่าฐานที่บันทึกไว้ ไม่แตะเซฟผู้เล่น) */
+let BASE={};const gain=(u,C,v)=>Math.max(0,v-(((BASE[u]||{})[C.k])||0));
 async function fetchAll(){if(busy)return;busy=true;try{const G=window.GameAuth;if(!G||G.mode==='local'||!G.ready||!(await G.ready)){state='off';return}
  const u=await G.user();ME=u&&u.id;try{window.socPublish&&(await socPublish(true))}catch(e){}
  const {data,error}=await G.sb.from('public_profiles').select('user_id,name,lv,bp,data,updated_at').order('bp',{ascending:false}).limit(1000);
- if(error){state='err';return}rows=Array.isArray(data)?data:[];state='ok';lastF=Date.now()}catch(e){state='err'}finally{busy=false;lastF=Date.now();draw()}}
+ if(error){state='err';return}rows=Array.isArray(data)?data:[];try{const b=await G.sb.from('rank_base').select('user_id,vals');BASE={};if(!b.error)(b.data||[]).forEach(r=>{BASE[r.user_id]=r.vals||{}})}catch(e){}state='ok';lastF=Date.now()}catch(e){state='err'}finally{busy=false;lastF=Date.now();draw()}}
 document.head.insertAdjacentHTML('beforeend',`<style>
 #rkw{position:fixed;inset:0;z-index:985;display:flex;align-items:center;justify-content:center;padding:10px;background:radial-gradient(circle,#2a1206cc,#050100ee);animation:gofi .2s}
 #rkw .bx{position:relative;width:100%;max-width:410px;height:min(92vh,760px);display:flex;flex-direction:column;border-radius:18px;overflow:hidden;background:linear-gradient(#2a1206,#120602);border:3px solid #e8b040;box-shadow:0 0 0 2px #4a1a04,0 0 36px #ffb02e55}
@@ -12712,11 +12718,11 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #rkw .mine{flex:none;padding:7px 8px;background:linear-gradient(#0a2a3a,#061a26);border-top:2px solid #5ad8ff}#rkw .mine .r{margin:0;background:linear-gradient(90deg,#0e3a5a,#0a1a2a);border-color:#5ad8ff}
 #rkw .em{text-align:center;color:#c8a878;font-size:12px;padding:30px 10px;line-height:1.7}
 </style>`);
-function list(){const C=CAT.find(c=>c.k===cat);let L=(rows||[]).map(p=>({uid:p.user_id,n:p.name||'ผู้เล่น',lv:p.lv||(p.data&&p.data.lv)||1,v:Number(C.g(p))||0,at:p.updated_at}));
- L=L.filter(x=>x.uid!==ME);L.push({uid:ME||'me',n:S.name||'คุณ',lv:S.lv||1,v:Number(C.me())||0,me:1});
+function list(){const C=CAT.find(c=>c.k===cat);let L=(rows||[]).map(p=>({uid:p.user_id,n:p.name||'ผู้เล่น',lv:p.lv||(p.data&&p.data.lv)||1,v:gain(p.user_id,C,Number(C.g(p))||0),at:p.updated_at}));
+ L=L.filter(x=>x.uid!==ME);L.push({uid:ME||'me',n:S.name||'คุณ',lv:S.lv||1,v:gain(ME,C,Number(C.me())||0),me:1});
  L.sort((a,b)=>b.v-a.v||(b.me?1:0)-(a.me?1:0));return{C,L}}
 function draw(){const w=document.getElementById('rkw');if(!w)return;const left=Math.max(0,60-Math.floor((Date.now()-lastF)/1000));
- const lvEl=w.querySelector('.lv');if(lvEl)lvEl.innerHTML=state==='ok'?`<i></i>ออนไลน์ · ผู้เล่น ${fm((rows||[]).length+((rows||[]).some(r=>r.user_id===ME)?0:1))} คน · รีเซ็ตใน ${left} วิ`:state==='off'?'⚠️ ต้องเล่นแบบออนไลน์ถึงจะเห็นอันดับผู้เล่นทั้งหมด':state==='err'?'⚠️ โหลดอันดับไม่สำเร็จ จะลองใหม่อัตโนมัติ':'⏳ กำลังโหลด…';
+ const lvEl=w.querySelector('.lv');if(lvEl)lvEl.innerHTML=state==='ok'?`<i></i>${Object.keys(BASE).length?'🆕 ฤดูกาลใหม่':'ออนไลน์'} · ผู้เล่น ${fm((rows||[]).length+((rows||[]).some(r=>r.user_id===ME)?0:1))} คน · รีเซ็ตใน ${left} วิ`:state==='off'?'⚠️ ต้องเล่นแบบออนไลน์ถึงจะเห็นอันดับผู้เล่นทั้งหมด':state==='err'?'⚠️ โหลดอันดับไม่สำเร็จ จะลองใหม่อัตโนมัติ':'⏳ กำลังโหลด…';
  const ls=w.querySelector('.ls');if(!ls)return;if(ls._k===cat+'|'+lastF+'|'+state)return;ls._k=cat+'|'+lastF+'|'+state;
  const {C,L}=list(),mi=L.findIndex(x=>x.me),md=['🥇','🥈','🥉'];
  const top3=L.slice(0,3),rest=L.slice(3,100);
@@ -12730,6 +12736,10 @@ window.openRankOnline=function(){let w=document.getElementById('rkw');if(w)w.rem
  w.querySelectorAll('.tb button').forEach(b=>b.onclick=()=>{cat=b.dataset.k;w.querySelectorAll('.tb button').forEach(x=>x.classList.toggle('on',x===b));const ls=w.querySelector('.ls');ls._k='';ls.scrollTop=0;draw()});
  draw();if(Date.now()-lastF>55000)fetchAll();clearInterval(tmr);tmr=setInterval(()=>{if(!document.getElementById('rkw')){clearInterval(tmr);return}if(Date.now()-lastF>=60000)fetchAll();draw()},1000)};
 function close(){const w=document.getElementById('rkw');if(w)w.remove();clearInterval(tmr)}
+/* สำหรับ GM: ถ่ายค่าปัจจุบันของทุกคนเป็นค่าฐาน / โหลดอันดับใหม่ */
+window.rkSnapshot=async function(){let n=0;while(busy&&n++<60)await new Promise(r=>setTimeout(r,100));lastF=0;await fetchAll();if(state!=='ok')return null;
+ return (rows||[]).map(p=>({u:p.user_id,v:Object.fromEntries(CAT.map(c=>{let x=0;try{x=Number(c.g(p))||0}catch(e){}return [c.k,x]}))}))};
+window.rkReload=function(){const l=document.querySelector('#rkw .ls');if(l)l._k='';lastF=0;return fetchAll()};
 })();
 </script><script>/* ================= หน้าล็อกอิน: ภาพพื้นหลังอัศวินกับมังกรเพลิง + เอฟเฟกต์ ================= */
 (function(){
@@ -13299,8 +13309,8 @@ setInterval(heal,800);
 .win>.pnl{width:100%!important;min-width:0!important;max-width:min(440px,calc(100vw - 24px))!important;margin:0 auto!important}
 .win .fxw{width:100%!important;min-width:0!important;max-width:min(440px,calc(100vw - 24px))!important;margin-left:auto!important;margin-right:auto!important}
 .win .fxw>.pnl,.win .fxw>.daily-panel{width:100%!important;max-width:100%!important;margin:0!important}
-:is(.pnl,.daily-panel){overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-x:none;touch-action:pan-y;scrollbar-gutter:stable}
-:is(.pnl,.daily-panel) *{min-width:0}
+:is(.pnl,.daily-panel){overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-x:none;touch-action:pan-y;scrollbar-gutter:auto}
+:is(.pnl,.daily-panel)>*,:is(.pnl,.daily-panel) :is(.wgal,.skgrid,.eqg,.sklots,.stats,.icard,.tkr){min-width:0}
 :is(.pnl,.daily-panel) :is(img,svg,canvas,video,table,pre,input,select,textarea){max-width:100%}
 :is(.pnl,.daily-panel) :is(.wgal,.skgrid,.eqg,.sklots,[style*="overflow-x:auto"],[style*="overflow-x: auto"]){touch-action:pan-x pan-y}
 /* กล่องโชว์ตัวละคร/ปีก/สัตว์เลี้ยง: ตัดส่วนที่ยื่นเกินกรอบ แทนที่จะดันหน้าต่างให้เลื่อน */
@@ -13312,7 +13322,68 @@ setInterval(heal,800);
 .fxw .cst{max-width:calc(100% - 64px)!important;box-sizing:border-box;white-space:normal;overflow-wrap:anywhere}
 .fxw .cst::before{left:-36px!important}.fxw .cst::after{right:-36px!important}
 :is(.pnl,.daily-panel) :is(.icard,.strw,.dgc,.shoprow,.od,.stsum,.tkr,.stats){max-width:100%;overflow-wrap:anywhere}
+
+/* ซ่อนแถบเลื่อนด้านข้างของหน้าต่าง (ยังเลื่อนด้วยนิ้วได้ตามปกติ) */
+:is(.pnl,.daily-panel,.fxw>.pnl,.win .csh){scrollbar-width:none!important;-ms-overflow-style:none}
+:is(.pnl,.daily-panel,.fxw>.pnl)::-webkit-scrollbar,.fxw>.pnl::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
+/* แถวปุ่มสกินปีก: ปุ่มสองปุ่มพอดีกัน ไม่บีบข้อความเป็นแนวตั้ง */
+#wgi>div[style*="display:flex"]{display:flex!important;gap:8px!important;margin:10px 0 6px!important;align-items:stretch!important}
+#wgsk,#wgsk0{width:auto!important;margin:0!important;min-height:46px;padding:10px 14px!important;border-radius:14px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:6px;text-align:center!important;white-space:nowrap;font-size:14px;font-weight:800;line-height:1.2;box-shadow:0 3px 0 #2a0a02,inset 0 1px 0 #ffffff40!important}
+#wgsk{flex:1 1 0!important;min-width:0;border:2px solid #e9c8ff!important;background:linear-gradient(#b06aff,#5a2aaa)!important;color:#fff!important;text-shadow:0 1px 2px #2a0a4a}
+#wgsk:disabled{opacity:.75;filter:saturate(.8)}
+#wgsk0{flex:0 0 auto!important;border:2px solid #ffd23f!important;background:linear-gradient(#5a3a1a,#2a1608)!important;color:#ffe9a8!important}
+#wgi>div[style*="display:flex"]+.tkr{margin:2px 4px 10px;line-height:1.5;text-align:center}
+#wgi>div[style*="display:flex"]+.tkr small{display:block;font-size:11.5px;color:var(--mut)}
+
+/* ===== แก้ภาพบอสเบลอ =====
+   สาเหตุ: บอสเป็นตัวเดียวที่ใส่ filter:drop-shadow ที่ #mon ทำให้ภาพ SVG ใหญ่ถูกเรนเดอร์เป็นพื้นผิวแล้วเบลอ
+   แก้: ถอด filter ออก ใช้ออร่าแดงแบบไล่สีแทน + จัดตำแหน่ง SVG ให้ตรงพิกเซล (ไม่ใช้ translateX(-50%) ที่เป็นเศษพิกเซล) */
+#mon.boss,#mon.wbd{filter:none!important}
+#mon.boss #ms svg,#mon.wbd #ms svg{filter:none!important}
+#mon.boss::before{content:"";position:absolute;left:-45%;right:-45%;top:-35%;bottom:-8%;border-radius:50%;background:radial-gradient(closest-side,#ff3a3a66,#ff3a3a26 55%,transparent 75%);pointer-events:none;z-index:-1}
+#mon:not(.pvpm) #ms svg{left:-18%!important;transform:none!important}
+#mon:not(.pvpm) #ms.bossf svg{left:-38%!important}
+#mon.wbd #ms svg{left:auto!important;right:-46px!important}
 </style>
+<script>/* ================= 🛠 GM: รีเซ็ตอันดับทั้งหมดเริ่มใหม่ (/gm resetrank confirm) ================= */
+(function(){
+const $d=id=>document.getElementById(id);
+function say(msg,err){try{banner(msg)}catch(e){}const L=$d('chl');if(L){const d=document.createElement('div');d.className='sys';d.textContent='🛠 '+msg;L.appendChild(d);L.scrollTop=L.scrollHeight}(err?console.error:console.log)('[GM] '+msg)}
+async function GA(){const g=window.GameAuth;if(!g||g.mode!=='online'||!g.ready||!(await g.ready)||!g.sb)return null;return g}
+/* กันรางวัลอันดับผิดพลาด: ถ้าแถวคะแนนของผู้เล่นในวันนั้นถูกลบ (หลังรีเซ็ต) จะไม่ได้อันดับ/รางวัลย้อนหลัง */
+try{if(window.WBN&&!WBN._rkSafe){const o=WBN.rankFor;WBN._rkSafe=1;
+ WBN.rankFor=async function(day,sc){try{const c=await this.sb();if(c){const r=await c.sb.from('wb_scores').select('user_id',{count:'exact',head:true}).eq('day',day).eq('user_id',c.u.id);if(!r.error&&(r.count||0)===0)return 51}}catch(e){}return o.call(this,day,sc)}}}catch(e){}
+/* ล้างข้อมูลอันดับในเครื่องนี้ */
+function localReset(){
+ try{if(window.WBN){WBN.top=[];WBN.rank=null;WBN.total=0;WBN.t=0;WBN._sent=0}}catch(e){}
+ try{if(S.wb){S.wb.sc=0;S.wb.best=0;S.wb.att=0;S.wb.last=null;S.wb.claim=null;S.wb.R=null}}catch(e){}
+ try{localStorage.setItem('ml1',JSON.stringify(S))}catch(e){}
+ try{window.WBN&&WBN.refresh&&WBN.refresh(true)}catch(e){}
+ try{const w=$d('wbw');if(w&&!w.hidden&&typeof renderWb==='function')renderWb()}catch(e){}
+}
+const errMsg=m=>/not authorized/i.test(m)?'ไม่มีสิทธิ์ (บัญชีนี้ไม่ได้เป็นแอดมิน)':/function .* does not exist|Could not find the function/i.test(m)?'เซิร์ฟเวอร์ยังไม่ได้ติดตั้งคำสั่งนี้ (รันไฟล์ gm_reset_rank.sql ใน Supabase ก่อน)':'ผิดพลาด: '+m;
+async function resetrank(args){
+ const ok=/^(confirm|yes|y|ยืนยัน)$/i.test((args&&args[0])||'');
+ if(!ok){say('⚠️ รีเซ็ตอันดับ "ทั้งหมด" ของทุกคน (บอสโลก + หออันดับ) ให้เริ่มนับใหม่ · เซฟผู้เล่นไม่ถูกแตะ แต่ย้อนกลับไม่ได้ · ถ้าแน่ใจพิมพ์: /gm resetrank confirm');return}
+ const g=await GA();if(!g){say('❌ GM: ต้องเล่นแบบออนไลน์',true);return}
+ say('⏳ กำลังบันทึกค่าฐานอันดับของผู้เล่นทุกคน…');
+ const snap=window.rkSnapshot?await rkSnapshot():null;
+ if(!snap||!snap.length){say('❌ GM: โหลดข้อมูลผู้เล่นไม่สำเร็จ ลองใหม่อีกครั้ง',true);return}
+ const {data,error}=await g.sb.rpc('gm_reset_rank',{p_base:snap});
+ if(error){say('❌ GM: '+errMsg(error.message||''),true);return}
+ localReset();try{window.rkReload&&rkReload()}catch(e){}
+ say('✅ GM: รีเซ็ตอันดับแล้ว · บอสโลกลบ '+((data&&data.wb_removed)||0)+' รายการ · หออันดับเริ่มนับใหม่ '+((data&&data.base_set)||snap.length)+' คน');
+}
+const H={resetrank,rankreset,'รีเซ็ตอันดับ':resetrank,resetranking:resetrank};
+function rankreset(a){return resetrank(a)}
+document.addEventListener('submit',e=>{const form=e.target;if(!form||!form.closest||!form.closest('#chw'))return;const inp=form.querySelector('input');if(!inp)return;
+ const tab=document.querySelector('#chtabs button.on');if(tab&&tab.dataset.t==='d')return;
+ const t=inp.value.trim().split(/\s+/);if(t[0]!=='/gm')return;const c=(t[1]||'').toLowerCase();
+ if(c==='help'||!c){setTimeout(()=>say('🛠 รีเซ็ตอันดับ: resetrank confirm (รีเซ็ตอันดับทั้งหมดให้เริ่มนับใหม่)'),90);return}
+ const f=H[c];if(!f)return;e.preventDefault();e.stopImmediatePropagation();inp.value='';
+ Promise.resolve(f(t.slice(2))).catch(err=>say('❌ GM: '+(err&&err.message||err),true))},true);
+})();
+</script>
 </body></html>
 
 
