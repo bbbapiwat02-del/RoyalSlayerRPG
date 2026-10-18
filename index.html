@@ -1042,7 +1042,7 @@ document.querySelectorAll('.wc').forEach(b=>b.onclick=closeW);$('cl').onclick=cl
 renderGear();
 /* EXP ที่ต้องใช้: หลัง Lv.100 ช้าลง 2 เท่า · หลัง Lv.150 ช้าลง 3 เท่า */
 const expRaw=l=>Math.floor(20*Math.pow(1.3,l-1));window.expRaw=expRaw;
-const expMul=l=>l>=150?3:l>=100?2:1;
+const expMul=l=>(l>=150?3:l>=100?2:1)*2;  /* เก็บเลเวลยากขึ้น 2 เท่า */
 const expNeed=l=>expRaw(l)*expMul(l);
 function gainExp(x){S.exp+=x;let up=0;while(S.exp>=expNeed(S.lv)){S.exp-=expNeed(S.lv);S.lv++;up++}
  if(up){sfx('lvl');hp=MHP();burst(20,50,'#7dd3fc',30);burst(20,50,'#ffd23f',20);fx('ring');shake();window.lvFx&&lvFx(S.lv);anim($('hero'),'lvl');setTimeout(()=>$('hero').classList.remove('lvl'),950)}}
@@ -7094,8 +7094,8 @@ function draw(){const M=window.MST;if(!M)return;pn.classList.toggle('bs',M.boss|
  pn.innerHTML=`<div class="hd"><b>Lv.${M.lv}</b><span>${M.wb?'🌍 ':M.boss?'👑 ':''}${M.nm}</span></div><div class="gr">${K.map(k=>`<i><em style="color:${LBL[k][1]}">${LBL[k][0]}</em>${fmtS(M[k])}</i>`).join('')}</div>`}
 setInterval(()=>{const show=!!window.MST&&mState==='idle'&&A.style.visibility!=='hidden';pn.classList.toggle('on',show);if(!show)return;
  const skr=$('skr'),lim=skr?skr.offsetTop-pn.offsetHeight-3:A.clientHeight-pn.offsetHeight;
- let x=MW.offsetLeft+MW.offsetWidth/2-pn.offsetWidth/2,y=MW.offsetTop+MW.offsetHeight+4;
- x=Math.max(4,Math.min(A.clientWidth-pn.offsetWidth-4,x));y=Math.min(y,lim);pn.style.left=x+'px';pn.style.top=y+'px'},150);
+ let x=MW.offsetLeft+MW.offsetWidth/2-pn.offsetWidth/2,y=Math.max(4,MW.offsetTop-pn.offsetHeight-30);
+ x=Math.max(4,Math.min(A.clientWidth-pn.offsetWidth-4,x));pn.style.left=x+'px';pn.style.top=y+'px'},150);
 /* ---------- ผูกกับการต่อสู้ ---------- */
 const _sp=spawn;spawn=function(){const r=_sp.apply(this,arguments);const M=calc();window.MST=M;mmax=Math.max(1,Math.floor(mmax*M.hpM));mhp=mmax;draw();return r};
 const _ms=monSwing;monSwing=function(){const r=_ms.apply(this,arguments);if(window.MST)monCd=Math.round(1200/window.MST.spd);return r};
@@ -12003,22 +12003,25 @@ new MutationObserver(()=>{const m=$$('pmenu');if(!m||m.querySelector('[data-a=pa
 document.addEventListener('pointerdown',e=>{if(e.target.closest&&e.target.closest('#mn-dock .pmx'))e.stopPropagation()},true);
 /* ---------- ปาร์ตี้ที่หน้าจอหลัก: กรอบเล็ก ลากย้ายได้ ---------- */
 function mainHud(){const inMine=window.mnApi&&mnApi.isOpen();let h=$$('ptMain');
- if(inMine||document.getElementById('ss')||document.getElementById('banLock')){if(h)h.style.display='none';return}
- if(!h){h=document.createElement('div');h.id='ptMain';document.body.appendChild(h);let pos=null;try{pos=JSON.parse(localStorage.getItem('ptMainPos')||'null')}catch(e){}
-  const place=(x,y)=>{const W=innerWidth,H=innerHeight,r=h.getBoundingClientRect();x=Math.max(2,Math.min(W-r.width-2,x));y=Math.max(2,Math.min(H-r.height-2,y));h.style.left=x+'px';h.style.top=y+'px';return[x,y]};
-  h._place=place;setTimeout(()=>place(pos?pos[0]:6,pos?pos[1]:Math.round(innerHeight*.36)),0);
-  let drag=null;h.addEventListener('pointerdown',e=>{if(e.target.closest('button:not(.solo),.pmx'))return;const r=h.getBoundingClientRect();drag={dx:e.clientX-r.left,dy:e.clientY-r.top,id:e.pointerId,mv:0,x0:e.clientX,y0:e.clientY};h.setPointerCapture(e.pointerId);h.classList.add('drag')});
-  h.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;if(!drag.mv&&Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0)<6)return;drag.mv=1;place(e.clientX-drag.dx,e.clientY-drag.dy)});
-  const up=e=>{if(!drag)return;h._moved=drag.mv;setTimeout(()=>{h._moved=0},350);const r=h.getBoundingClientRect();try{localStorage.setItem('ptMainPos',JSON.stringify([Math.round(r.left),Math.round(r.top)]))}catch(_){}drag=null;h.classList.remove('drag')};
+ const blk=inMine||document.getElementById('ss')||document.getElementById('banLock')||document.body.classList.contains('away')||document.body.classList.contains('sub-mode')||!!document.querySelector('.win:not([hidden]),#rkw,#fow,#cityw,#farmw,#fx-dock,#ptPn,#pmenu,#ptInv,#bagpop,#cpn')||(document.getElementById('pfw')&&!document.getElementById('pfw').hidden)||(document.getElementById('chw')&&!document.getElementById('chw').hidden);
+ if(blk){if(h)h.style.visibility='hidden';return}
+ const AR=document.getElementById('arena');if(h&&AR&&h.parentElement!==AR)AR.appendChild(h);
+ if(!h){h=document.createElement('div');h.id='ptMain';(AR||document.body).appendChild(h);let pos=null;try{pos=JSON.parse(localStorage.getItem('ptMainPos2')||'null')}catch(e){}
+  const par=()=>h.parentElement||document.body,place=(x,y)=>{const P0=par(),W=P0.clientWidth||innerWidth,H=P0.clientHeight||innerHeight,r=h.getBoundingClientRect();x=Math.max(2,Math.min(W-r.width-2,x));y=Math.max(2,Math.min(H-r.height-2,y));h.style.left=x+'px';h.style.top=y+'px';return[x,y]};
+  const rel=()=>{const b=par().getBoundingClientRect();return b};
+  h._place=place;setTimeout(()=>{if(pos)return place(pos[0],pos[1]);const f=document.getElementById('socf');if(f)place(f.offsetLeft,f.offsetTop-54);else place(8,Math.round((par().clientHeight||innerHeight)*.5))},0);
+  let drag=null;h.addEventListener('pointerdown',e=>{if(e.target.closest('button:not(.solo),.pmx'))return;const r=h.getBoundingClientRect(),b=rel();drag={bx:b.left,by:b.top,dx:e.clientX-r.left,dy:e.clientY-r.top,id:e.pointerId,mv:0,x0:e.clientX,y0:e.clientY};h.setPointerCapture(e.pointerId);h.classList.add('drag')});
+  h.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;if(!drag.mv&&Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0)<6)return;drag.mv=1;place(e.clientX-drag.dx-drag.bx,e.clientY-drag.dy-drag.by)});
+  const up=e=>{if(!drag)return;h._moved=drag.mv;setTimeout(()=>{h._moved=0},350);try{localStorage.setItem('ptMainPos2',JSON.stringify([parseInt(h.style.left)||0,parseInt(h.style.top)||0]))}catch(_){}drag=null;h.classList.remove('drag')};
   h.addEventListener('pointerup',up);h.addEventListener('pointercancel',up);
   h.addEventListener('click',e=>{const b=e.target.closest('button[data-a]');if(!b)return;if(h._moved){e.stopPropagation();return}e.stopPropagation();const a=b.dataset.a;if(a==='pn')panel();if(a==='mine'){try{window.openMine()}catch(_){}}if(a==='min'){P_min=!P_min;try{localStorage.setItem('ptMainMin',P_min?'1':'')}catch(_){}mainHud()}})}
- h.style.display='';const k=P?JSON.stringify([P_min,Object.values(P.mem).map(m=>[m.uid,m.n,m.lv,m.hp,m.mhp]),state().hp,P.pend&&Object.keys(P.pend).length]):'none'+P_min;if(h._k===k)return;h._k=k;
- if(!P){h.className='solo';h.innerHTML=`<button data-a="pn" class="solo" title="ปาร์ตี้ (ลากเพื่อย้ายได้)"><i>👥</i><small>ปาร์ตี้</small></button>`;return}
+ h.style.display='';h.style.visibility='';const k=P?JSON.stringify([P_min,Object.values(P.mem).map(m=>[m.uid,m.n,m.lv,m.hp,m.mhp]),state().hp,P.pend&&Object.keys(P.pend).length]):'none'+P_min;if(h._k===k)return;h._k=k;
+ if(!P){h.className='solo';h.innerHTML=`<button data-a="pn" class="socb solo" title="ปาร์ตี้ (ลากเพื่อย้ายได้)"><i>⚔️</i><small>ปาร์ตี้</small></button>`;return}
  const mine=state(),mem=Object.values(P.mem);h.className=P_min?'mini':'';
  const rows=P_min?'':mem.map(m=>{const me=m.uid===ME,s=me?mine:m,pc=Math.max(0,Math.min(100,(s.hp||0)/(s.mhp||1)*100));return `<div class="pr ${me?'me':''}"><span class="cr">${m.uid===P.lead?'👑':'⚔️'}</span><span class="tx${me?'':' pmx'}" ${me?'':'data-uid="'+esc(m.uid)+'"'}><b>${esc(me?mine.n:(m.n||'...'))}</b><i>Lv.${me?mine.lv:(m.lv||'?')}</i></span><u><b style="width:${pc}%"></b></u></div>`}).join('');
  h.innerHTML=`<div class="ph"><span class="gr">⠿</span>👥 ${mem.length}/${MAXP}<button data-a="pn" title="จัดการ/เชิญ">＋</button><button data-a="mine" title="ไปเหมือง">⛏️</button><button data-a="min" title="ย่อ/ขยาย">${P_min?'▸':'▾'}</button></div>${rows}`}
 let P_min=false;try{P_min=localStorage.getItem('ptMainMin')==='1'}catch(e){}
-setInterval(mainHud,400);addEventListener('resize',()=>{const h=$$('ptMain');if(h&&h._place){const r=h.getBoundingClientRect();h._place(r.left,r.top)}});
+setInterval(mainHud,400);addEventListener('resize',()=>{const h=$$('ptMain');if(h&&h._place){h._place(parseInt(h.style.left)||0,parseInt(h.style.top)||0)}});
 /* ---------- วนรอบ: ส่งสถานะ / UI ---------- */
 setInterval(()=>{ui();if(!P)return;const s=state(),k=JSON.stringify(s);const now=Date.now();if(k!==lastSt||now-stT>3000){lastSt=k;stT=now;send('st',s)}drawOthers();hud()},250);
 window.partyApi={create,join,leave,invite,state:()=>P};
@@ -12028,13 +12031,12 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #mn-dock .mh #ptBtn,#mn-dock .mh #ptChB{position:relative;padding:7px 10px;font-size:16px}
 #ptChB em{position:absolute;right:-5px;top:-6px;min-width:16px;height:16px;border-radius:8px;background:#e5252d;border:1.5px solid #fff;font-style:normal;font-size:9px;line-height:13px;color:#fff;text-align:center}#ptChB em:empty{display:none}
 #ptHud{position:absolute;left:4px;top:4px;z-index:9;width:104px;padding:3px 4px;border-radius:8px;background:linear-gradient(#1a0c06dd,#0a0402dd);border:1.5px solid #c8902a;box-shadow:0 2px 6px #000a;pointer-events:none;opacity:.92}
-#pmenu .pb{flex-wrap:wrap;justify-content:center}#ptMain{position:fixed;z-index:99960;width:112px;padding:3px 4px 4px;border-radius:9px;background:linear-gradient(#1a0c06e6,#0a0402e6);border:1.5px solid #c8902a;box-shadow:0 2px 8px #000a;color:#fff;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+#pmenu .pb{flex-wrap:wrap;justify-content:center}#ptMain{position:absolute;z-index:8;width:112px;padding:3px 4px 4px;border-radius:9px;background:linear-gradient(#1a0c06e6,#0a0402e6);border:1.5px solid #c8902a;box-shadow:0 2px 8px #000a;color:#fff;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
 #ptMain.drag{cursor:grabbing;opacity:.85;box-shadow:0 0 12px #ffd23f}
 #ptMain.solo{width:auto;padding:0;border:0;background:none;box-shadow:none}
-#ptMain button.solo{position:relative;width:52px;height:52px;padding:0;border-radius:50%;border:3px solid #ffd23f;background:radial-gradient(circle at 50% 35%,#ff7a4a,#c8201a 55%,#5a0a04);box-shadow:0 0 0 2px #5a1a04,0 4px 0 #2a0602,0 0 12px #ff8a3a88,inset 0 -5px 8px #0006;color:#fff;font:inherit;cursor:grab;touch-action:none}
-#ptMain button.solo i{font-style:normal;font-size:22px;line-height:44px;filter:drop-shadow(0 2px 1px #0008)}
-#ptMain button.solo small{position:absolute;left:50%;bottom:-12px;transform:translateX(-50%);padding:0 6px;border-radius:7px;background:#2a0a04;border:1px solid #ffd23f;color:#ffe066;font-size:8.5px;font-weight:900;white-space:nowrap}
-#ptMain.drag button.solo{cursor:grabbing}
+#ptMain .socb.solo{position:relative!important;left:auto!important;top:auto!important;right:auto!important;bottom:auto!important;cursor:grab;touch-action:none}
+#ptMain.drag .socb.solo{cursor:grabbing}
+#ptMain.drag .socb.solo i{transform:scale(1.1)}
 #ptMain .ph{display:flex;align-items:center;gap:2px;font-size:8.5px;font-weight:900;color:#ffe066;margin-bottom:2px}
 #ptMain .ph .gr{color:#8a6a3a;font-size:10px;margin-right:1px}
 #ptMain .ph button{margin-left:auto;width:17px;height:16px;padding:0;border-radius:5px;border:1px solid #c8902a;background:#2a1406;color:#ffe9a0;font:inherit;font-size:9px;line-height:14px}
@@ -12679,6 +12681,134 @@ function step(t){if(!document.getElementById('ss')){run=false;return}requestAnim
   cx.fillStyle=g;cx.beginPath();cx.arc(p.x,p.y,p.r*4,0,6.283);cx.fill()});
  P=P.filter(p=>p.l<p.L&&p.y>-20)}
 if(!matchMedia('(prefers-reduced-motion: reduce)').matches)requestAnimationFrame(step);
+})();
+</script><style>#chw{width:min(280px,calc(100% - 12px))!important;height:210px!important;font-size:12px}#chw .ch-l{font-size:11.5px}</style><script>/* ================= ขนาดตัวละคร · เควสหลัก · ปลดล็อกระบบตามเลเวล · สอนการใช้งาน ================= */
+(function(){
+const $q=id=>document.getElementById(id);
+const sv=()=>{try{localStorage.setItem('ml1',JSON.stringify(S))}catch(e){}};
+const fmN=n=>{try{return fmt(n)}catch(e){return String(n)}};
+document.head.insertAdjacentHTML('beforeend',`<style>
+#hero{scale:.76!important}
+#mon:not(.boss):not(.wbd):not(.pvpm){scale:.82;transform-origin:50% 100%}
+#mstp{width:118px!important;padding:3px 5px 4px!important;border-radius:8px!important}
+#mstp .hd{font-size:8.5px!important;margin-bottom:1px!important}#mstp .hd b{font-size:8px!important;line-height:11px!important;padding:0 4px!important}
+#mstp .gr{gap:0 4px!important}#mstp .gr i{font-size:8px!important;line-height:10.5px!important}#mstp .gr i em{font-size:7.5px!important}
+/* ---- เควสหลัก ---- */
+#qTrk{position:absolute;right:6px;z-index:8;width:136px;padding:4px 6px 5px;border-radius:12px;background:linear-gradient(#3a1a08ee,#1a0a04ee);border:1.5px solid #e8b040;box-shadow:0 0 10px #ffb02e55,0 3px 8px #000a;color:#fff3d0;cursor:pointer;user-select:none}
+#qTrk .qh{display:flex;align-items:center;gap:4px;font-size:9px;font-weight:900;color:#ffd23f;letter-spacing:.3px}
+#qTrk .qh span{margin-left:auto;color:#d8b888;font-weight:700}
+#qTrk .qt{display:flex;align-items:center;gap:5px;margin-top:3px}
+#qTrk .qt i{font-style:normal;font-size:14px;flex:none}
+#qTrk .qt b{font-size:10px;line-height:1.2;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#qTrk .qp{position:relative;height:8px;margin-top:3px;border-radius:5px;background:#000a;overflow:hidden;border:1px solid #6a3a14}
+#qTrk .qp u{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#ffd23f,#ff8a1a);border-radius:5px}
+#qTrk .qp small{position:absolute;inset:0;text-align:center;font-size:7.5px;font-weight:900;line-height:8px;color:#fff;text-shadow:0 1px 1px #000}
+#qTrk .qr{display:none}
+#qTrk.done{border-color:#7dff6a;box-shadow:0 0 14px #7dff6a88;animation:qPulse 1.2s ease-in-out infinite}
+#qTrk.done .qb{display:block}#qTrk.done .qp{display:none}
+#qTrk .qb{display:none;margin-top:3px;padding:3px;border-radius:7px;text-align:center;font-size:10px;font-weight:900;color:#0a2a04;background:linear-gradient(#9aff7a,#2aa83a);border:1px solid #e8ffd8}
+@keyframes qPulse{50%{transform:translateY(-2px)}}
+/* ---- ปลดล็อก / สอน ---- */
+#tutW{position:fixed;inset:0;z-index:99975;display:flex;align-items:center;justify-content:center;padding:18px;background:radial-gradient(circle,#1a0a04cc,#000e);animation:gofi .25s}
+#tutW .bx{position:relative;width:100%;max-width:330px;padding:16px 16px 14px;border-radius:18px;text-align:center;background:linear-gradient(#3a1a08,#160803);border:2.5px solid #ffd23f;box-shadow:0 0 30px #ffb02e66;color:#fff3d0;animation:tutIn .35s cubic-bezier(.2,1.4,.4,1)}
+@keyframes tutIn{from{transform:scale(.8);opacity:0}}
+#tutW .tut-ic{width:70px;height:70px;margin:-48px auto 6px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;background:radial-gradient(circle at 40% 35%,#ffcf5a,#c8501a 60%,#5a1404);border:3px solid #fff3b0;box-shadow:0 0 18px #ffb02e}
+#tutW .tut-tg{display:inline-block;padding:2px 10px;border-radius:9px;font-size:10px;font-weight:900;color:#3a1404;background:linear-gradient(#ffe066,#e8901a)}
+#tutW h3{margin:6px 0 8px;font-size:18px;color:#ffd23f}
+#tutW ol{margin:0;padding:0;list-style:none;text-align:left;display:flex;flex-direction:column;gap:6px}
+#tutW li{display:flex;gap:8px;align-items:flex-start;padding:7px 9px;border-radius:10px;background:#0006;border:1px solid #6a3a14;font-size:12px;line-height:1.45}
+#tutW li b{flex:none;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#3a1404;background:#ffd23f}
+#tutW .tut-nw{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0 4px}
+#tutW .tut-nw span{padding:6px 10px;border-radius:10px;background:#0006;border:1.5px solid #ffd23f;font-size:12px;font-weight:900}
+#tutW .tut-ok{display:block;width:100%;margin-top:12px;padding:10px;border-radius:12px;border:2px solid #fff3b0;background:linear-gradient(#ffd23f,#ff8a1a 50%,#c8401a);color:#fff;font:inherit;font-weight:900;font-size:15px;text-shadow:0 1px 0 #7a2a00}
+#lkPop{position:fixed;left:50%;top:40%;transform:translateX(-50%);z-index:99976;padding:12px 18px;border-radius:14px;background:linear-gradient(#3a1a08,#160803);border:2px solid #ff8a3a;color:#ffe9c8;text-align:center;box-shadow:0 8px 20px #000c;pointer-events:none;animation:stIn 2.2s ease forwards;font-size:13px}
+#lkPop b{display:block;font-size:16px;color:#ffd23f;margin-bottom:2px}
+</style>`);
+/* ---------- ระบบที่ปลดล็อกตามเลเวล (ทุก ๆ 10 เลเวล) ---------- */
+const F={
+ ov:{lv:1,n:'หีบสุ่มอุปกรณ์',ic:'🎁',t:['ใช้เหรียญทองหรือกุญแจเปิดหีบ สุ่มได้อุปกรณ์ 5 ชิ้น (กระบี่ เสื้อ หมวก รองเท้า สร้อย)','ของที่ดีกว่าจะสวมให้อัตโนมัติ ของเหลือเข้ากระเป๋าหรือขายเป็นทอง','เปิด x10 / x50 ประหยัดกว่า และใช้กุญแจเปิดหลายครั้งได้']},
+ tr:{lv:1,n:'ฝึกวิชา',ic:'🥋',t:['ใช้เหรียญทองอัปพลังโจมตี HP ความเร็ว และคริติคอล','แต้มสเตตัสจากการเลเวลอัป เลือกเพิ่ม STR AGI VIT INT DEX LUK ได้','ยิ่งอัปสูงยิ่งใช้ทองมาก ควรอัปพลังโจมตีกับ HP ก่อน']},
+ skw:{lv:1,n:'สกิล',ic:'📜',t:['สุ่มสกิลที่หอคัมภีร์ด้วยทองหรือคัมภีร์ฟรี','ติดตั้งสกิลได้ 6 ช่อง ใช้อัตโนมัติเมื่อเปิดออโต้','ได้สกิลซ้ำจะอัปเลเวลสกิลให้แรงขึ้น']},
+ shopw:{lv:1,n:'ร้านค้าเซียน',ic:'🏪',t:['ใช้เพชรซื้อหินตีบวก กุญแจ ตั๋ว ไข่ และกล่องพิเศษ','รับเพชรฟรีได้วันละ 10 เม็ดในหมวดแนะนำ','หินนำโชคกับหินกันแตกช่วยให้ตีบวกง่ายขึ้น']},
+ dgw:{lv:10,n:'ดันเจี้ยน',ic:'🌀',t:['ใช้ตั๋วท้าทายเข้าดันเจี้ยน ปราบมอนให้ครบภายในเวลา','ได้ทอง EXP หินตีบวก หรือเพชรตามประเภทดันเจี้ยน','ตั๋วฟื้นเองตามเวลา และซื้อเพิ่มได้ที่ร้านค้า']},
+ enw:{lv:10,n:'โรงตีบวก',ic:'🔨',t:['ใช้หินตีบวกกับทองเพิ่มขั้นอุปกรณ์แต่ละช่อง ระดับผูกกับช่องไม่หายเมื่อเปลี่ยนของ','ตั้งแต่ +10 ถ้าล้มเหลวจะลดขั้น ใช้หินกันแตกป้องกันได้','ครบ +10 / +15 / +20 ได้โบนัสพิเศษ']},
+ fsw:{lv:10,n:'หอแฟชั่น',ic:'👘',t:['ใช้เพชรสุ่มชุดแฟชั่น เพิ่มพลังโจมตี HP และพลังป้องกัน','ชุดระดับสูงมีออร่าเฉพาะตัว ได้ชุดซ้ำจะขึ้นดาว','เปลี่ยนชุดสวมได้ตลอดเวลา']},
+ farm:{lv:10,n:'สวน',ic:'🌸',t:['ปลูกพืชในแปลง พืชโตเองแม้ปิดเกม เก็บแล้วได้ทองและเพชร','เก็บผักได้แต้มสวน ใช้สุ่มออฟชั่นสวน 5 ช่องเพิ่มพลังถาวร','เลเวลฟาร์มสูงขึ้นปลดพืชหายากและระดับออฟชั่นที่แรงขึ้น']},
+ ptw:{lv:20,n:'สัตว์เลี้ยง',ic:'🐾',t:['ฟักไข่ได้สัตว์เลี้ยงสุ่มระดับ ช่วยโจมตีและเพิ่มสเตตัส','อัปเลเวลและดาวสัตว์เลี้ยงให้แรงขึ้น','เลือกสัตว์เลี้ยงที่ใช้ได้ทีละ 1 ตัว']},
+ twr:{lv:20,n:'หอคอยสวรรค์',ic:'🗼',t:['ท้าบอสหอคอยทีละชั้น 300 ชั้น ยิ่งสูงยิ่งโหด','ผ่านชั้นครั้งแรกได้เพชร คัมภีร์ ไข่ และกุญแจ','ผ่านแล้วลงซ้ำไม่ได้ ต้องท้าชั้นถัดไป']},
+ fish:{lv:20,n:'ท่าตกปลา',ic:'🎣',t:['เหวี่ยงเบ็ดแล้วกดให้ตรงจังหวะเพื่อดึงปลา','ปลาหายากขายได้ราคาสูง มีโอกาสได้กล่องสุ่มเพชร','บอสปลาเก็บไว้โชว์หรือขายทีละตัวได้']},
+ bsw:{lv:30,n:'บอสเทพ',ic:'🐲',t:['ใช้ตั๋วท้าบอสเทพ ชนะมีโอกาสดรอปอุปกรณ์เทพ','ได้ชิ้นที่ยังไม่มีเท่านั้น สวมครบชุดได้โบนัสเซ็ต','แพ้หลายครั้งจะสะสมการันตีดรอป']},
+ wgw:{lv:30,n:'ปีกสวรรค์',ic:'🪽',t:['ปลดและวิวัฒนาการปีกเพื่อเพิ่มพลังทุกด้าน','อัปเลเวลปีกด้วยทอง ขั้นสูงต้องใช้กล่องปีกเทพ','เปลี่ยนสกินปีกได้ตลอดเวลา']},
+ wsw:{lv:30,n:'สกินปีก',ic:'🦋',t:['สุ่มสกินปีกเพิ่มพลังและความสวยงาม','ได้ซ้ำจะขึ้นดาว','เปลี่ยนสกินได้ตลอด']},
+ mine:{lv:40,n:'เหมืองลึก',ic:'⛏️',t:['เดินขุดบล็อกหาบันไดลงชั้นถัดไป ทุก 5 ชั้นมีบอสเหมือง','ขุดเจอหีบสมบัติเพชร 3 ระดับ เก็บไปเปิดที่กระเป๋า','ชวนเพื่อนเข้าปาร์ตี้ขุดด้วยกันได้ ชั้นรีเซ็ตทุกเที่ยงคืน']},
+ wbw:{lv:40,n:'บอสโลก',ic:'🌍',t:['ทุกคนในเซิร์ฟเวอร์ร่วมกันตีบอสโลก','จัดอันดับดาเมจ รับรางวัลตามอันดับ','ตีได้จำกัดครั้งต่อวัน ใช้ทีมแรงสุดของคุณ']}};
+window.FEAT=F;
+const lvOk=k=>!F[k]||(S.lv||1)>=F[k].lv;
+function lockPop(k){const f=F[k];const o=$q('lkPop');if(o)o.remove();const e=document.createElement('div');e.id='lkPop';e.innerHTML=`<b>🔒 ${f.ic} ${f.n}</b>ปลดล็อกเมื่อถึง Lv.${f.lv} (ตอนนี้ Lv.${S.lv||1})`;document.body.appendChild(e);setTimeout(()=>e.remove(),2300);try{sfx('die')}catch(_){}}
+function tut(k,force){const f=F[k];if(!f)return;S.tut=S.tut||{};if(S.tut[k]&&!force)return;S.tut[k]=1;sv();
+ setTimeout(()=>showTut(f.ic,f.n,f.t,'สอนการใช้งาน'),force?0:350)}
+function showTut(ic,n,tips,tag,extra){let w=$q('tutW');if(w)w.remove();w=document.createElement('div');w.id='tutW';
+ w.innerHTML=`<div class="bx"><div class="tut-ic">${ic}</div><span class="tut-tg">${tag}</span><h3>${n}</h3>${extra||''}${tips&&tips.length?`<ol>${tips.map((t,i)=>`<li><b>${i+1}</b><span>${t}</span></li>`).join('')}</ol>`:''}<button class="tut-ok">เข้าใจแล้ว</button></div>`;
+ document.body.appendChild(w);w.querySelector('.tut-ok').onclick=()=>w.remove();try{sfx('reveal',3)}catch(_){}}
+window.showTut=showTut;
+/* ดักการเปิดหน้าต่าง/ระบบ */
+const _ow=openW;openW=function(id){if(F[id]&&!lvOk(id)){lockPop(id);return}const r=_ow.apply(this,arguments);if(F[id])tut(id);return r};
+const wrapFn=(name,k)=>{const f0=window[name];if(typeof f0!=='function')return false;if(f0._lk)return true;const nf=function(){if(!lvOk(k)){lockPop(k);return}const r=f0.apply(this,arguments);tut(k);return r};nf._lk=1;window[name]=nf;return true};
+let wr=0;const wi=setInterval(()=>{const a=wrapFn('openFarm','farm'),b=wrapFn('openFish','fish'),c=wrapFn('openMine','mine');if((a&&b&&c)||++wr>40)clearInterval(wi)},300);
+/* ปลดล็อกระบบใหม่เมื่อเลเวลถึง */
+let lastLv=S.lv||1;
+setInterval(()=>{const lv=S.lv||1;if(lv<=lastLv){lastLv=lv;return}const nw=Object.keys(F).filter(k=>F[k].lv>lastLv&&F[k].lv<=lv);lastLv=lv;
+ if(nw.length&&!document.getElementById('ss'))showTut('🎉','ปลดล็อกระบบใหม่!',['แตะเข้าไปใช้งานได้เลย ครั้งแรกจะมีคำแนะนำวิธีเล่น'],'เลเวล '+lv,`<div class="tut-nw">${nw.map(k=>`<span>${F[k].ic} ${F[k].n}</span>`).join('')}</div>`)},1000);
+/* ---------- เควสหลัก (ทำต่อเนื่องเป็นลำดับ) ---------- */
+const eqN=()=>(S.eq||[]).filter(Boolean).length,enT=()=>(S.enh||[]).reduce((a,b)=>a+(b||0),0),upT=()=>{const u=S.up||{};return (u.atk||0)+(u.hp||0)+(u.spd||0)+(u.crit||0)};
+const G=()=>{try{return Math.max(50,gpk())}catch(e){return 100}};
+const Q=[];const add=(ic,n,go,cur,tg,rw)=>Q.push({ic,n,go,cur,tg,rw});
+add('⚔️','ผ่านด่าน 5',null,()=>S.stage,5,{g:20});
+add('🥋','อัปฝึกวิชา 5 ครั้ง','tr',upT,5,{g:30});
+add('🎁','สวมอุปกรณ์ครบ 3 ชิ้น','ov',eqN,3,{k:2});
+add('⚔️','ผ่านด่าน 10',null,()=>S.stage,10,{g:40,d:20});
+add('📜','มีสกิล 2 อย่าง','skw',()=>Object.keys(S.skills||{}).length,2,{skf:1});
+add('🎚️','เลเวล 10',null,()=>S.lv,10,{d:30});
+add('🌀','ผ่านด่าน 20',null,()=>S.stage,20,{g:60,tk:2});
+add('🔨','ตีบวกรวม +5','enw',enT,5,{st:20});
+add('🌸','ฟาร์มเลเวล 3','farm',()=>(S.farm&&S.farm.lv)||1,3,{d:30});
+add('🎁','สวมอุปกรณ์ครบ 5 ชิ้น','ov',eqN,5,{k:3});
+add('🎚️','เลเวล 20',null,()=>S.lv,20,{d:50});
+add('🐾','มีสัตว์เลี้ยง 1 ตัว','ptw',()=>Object.keys(S.pets||{}).length,1,{egg:1});
+add('🗼','ผ่านหอคอยชั้น 5','twr',()=>(S.tw&&S.tw.best)||0,5,{d:50});
+add('⚔️','ผ่านด่าน 40',null,()=>S.stage,40,{g:100,st:30});
+add('🔨','ตีบวกรวม +20','enw',enT,20,{st:40});
+add('🎚️','เลเวล 30',null,()=>S.lv,30,{d:80});
+add('🗼','ผ่านหอคอยชั้น 15','twr',()=>(S.tw&&S.tw.best)||0,15,{d:80,skf:1});
+add('⚔️','ผ่านด่าน 60',null,()=>S.stage,60,{g:150,k:3});
+add('🌸','ฟาร์มเลเวล 8','farm',()=>(S.farm&&S.farm.lv)||1,8,{d:80});
+add('🎚️','เลเวล 40',null,()=>S.lv,40,{d:120});
+add('⛏️','ลงเหมืองถึงชั้น 10','mine',()=>(S.mn&&Math.max(S.mn.all||0,S.mn.best||0))||0,10,{d:100});
+add('🗼','ผ่านหอคอยชั้น 30','twr',()=>(S.tw&&S.tw.best)||0,30,{d:120,egg:1});
+add('⚔️','ผ่านด่าน 100',null,()=>S.stage,100,{g:250,st:60});
+add('🎚️','เลเวล 50',null,()=>S.lv,50,{d:200});
+/* หลังจบเควสชุดแรก: วนเควสด่าน/เลเวลไปเรื่อย ๆ */
+function qAt(i){if(i<Q.length)return Q[i];const j=i-Q.length,st=100+(j+1)*25,lv=50+(j+1)*5;return j%2?{ic:'🎚️',n:'เลเวล '+lv,go:null,cur:()=>S.lv,tg:lv,rw:{d:150+j*10}}:{ic:'⚔️',n:'ผ่านด่าน '+st,go:null,cur:()=>S.stage,tg:st,rw:{g:200+j*20,st:40+j*2}}}
+const rwTx=r=>[r.g?'🪙 '+fmN(Math.floor(G()*r.g)):'',r.d?'💎 '+r.d:'',r.k?'🔑 '+r.k:'',r.st?'💠 '+r.st:'',r.tk?'🎫 '+r.tk:'',r.egg?'🥚 '+r.egg:'',r.skf?'📜 '+r.skf:''].filter(Boolean).join(' · ');
+function give(r){if(r.g)S.gold=(S.gold||0)+Math.floor(G()*r.g);if(r.d)S.diamonds=(S.diamonds||0)+r.d;if(r.k)S.keys=(S.keys||0)+r.k;if(r.st)S.stone=(S.stone||0)+r.st;if(r.tk)S.tk=Math.min(99,(S.tk||0)+r.tk);if(r.egg)S.egg=(S.egg||0)+r.egg;if(r.skf)S.skf=(S.skf||0)+r.skf}
+const goTo={tr:()=>openW('tr'),ov:()=>openW('ov'),skw:()=>openW('skw'),enw:()=>openW('enw'),ptw:()=>openW('ptw'),twr:()=>{const b=$q('twb');if(b)b.click();else openW('twr')},farm:()=>window.openFarm&&openFarm(),mine:()=>window.openMine&&openMine()};
+let trk=null;
+function qDraw(){const A=$q('arena');if(!A||document.getElementById('ss'))return;if(!trk){trk=document.createElement('div');trk.id='qTrk';A.appendChild(trk);
+  trk.addEventListener('click',e=>{e.stopPropagation();const i=S.qi||0,q=qAt(i),c=Math.min(q.tg,Math.floor(q.cur()||0));
+   if(c>=q.tg){give(q.rw);S.qi=i+1;sv();try{sfx('lvl')}catch(_){}try{banner('✅ ภารกิจสำเร็จ! '+rwTx(q.rw))}catch(_){}trk._k='';qDraw();try{window.render&&render()}catch(_){};return}
+   if(q.go&&goTo[q.go])goTo[q.go]();else try{banner('⚔️ ไปตีมอนสเตอร์เพื่อทำภารกิจนี้')}catch(_){}})}
+ const blk=document.body.classList.contains('away')||!!document.querySelector('.win:not([hidden]),#rkw,#fow,#tutW')||($q('chw')&&!$q('chw').hidden);
+ trk.style.visibility=blk?'hidden':'';
+ const skr=$q('skr');trk.style.bottom=(skr?Math.max(6,A.clientHeight-skr.offsetTop+6):70)+'px';
+ const i=S.qi||0,q=qAt(i),c=Math.min(q.tg,Math.floor(q.cur()||0)),dn=c>=q.tg,k=i+'|'+c+'|'+dn;if(trk._k===k)return;trk._k=k;
+ trk.classList.toggle('done',dn);
+ trk.innerHTML=`<div class="qh">📋 ภารกิจหลัก<span>#${i+1}</span></div><div class="qt"><i>${q.ic}</i><b>${q.n}</b></div><div class="qp"><u style="width:${Math.round(c/q.tg*100)}%"></u><small>${fmN(c)} / ${fmN(q.tg)}</small></div><div class="qr">🎁 ${rwTx(q.rw)}</div><div class="qb">✅ แตะรับรางวัล</div>`}
+setInterval(()=>{try{qDraw()}catch(e){}},500);
+/* ป้ายล็อกบนปุ่มระบบที่ยังไม่ปลด */
+document.head.insertAdjacentHTML('beforeend','<style>.lkb{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:6;padding:1px 5px;border-radius:7px;background:#000c;border:1px solid #ff8a3a;color:#ffd080;font-size:9px;font-weight:900;white-space:nowrap;pointer-events:none}.lkd{filter:grayscale(.85) brightness(.7)}</style>');
+const BTN={nv4:'dgw',nv5:'wgw',nv6:'ptw',nv9:'enw',twb:'twr',bsb:'bsw',wbb:'wbw'};
+setInterval(()=>{for(const id in BTN){const b=$q(id);if(!b)continue;const k=BTN[id],lk=!lvOk(k);let t=b.querySelector(':scope>.lkb');b.classList.toggle('lkd',lk);
+ if(lk){if(!t){t=document.createElement('span');t.className='lkb';if(getComputedStyle(b).position==='static')b.style.position='relative';b.appendChild(t)}t.textContent='🔒 Lv.'+F[k].lv}else if(t)t.remove()}},1000);
 })();
 </script></body></html>
 
