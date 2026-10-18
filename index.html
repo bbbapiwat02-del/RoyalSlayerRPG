@@ -13384,6 +13384,34 @@ document.addEventListener('submit',e=>{const form=e.target;if(!form||!form.close
  Promise.resolve(f(t.slice(2))).catch(err=>say('❌ GM: '+(err&&err.message||err),true))},true);
 })();
 </script>
+<style>
+#twx{position:absolute;top:56px;right:8px;z-index:8;display:none;padding:7px 12px;border-radius:12px;border:2px solid #ffd23f;background:linear-gradient(#c0392b,#7a1510);color:#fff;font:inherit;font-weight:800;font-size:12.5px;line-height:1.1;box-shadow:0 3px 0 #3a0602,0 0 10px #0008;text-shadow:0 1px 2px #000;touch-action:manipulation}
+#twx.on{display:block}
+#twx.arm{background:linear-gradient(#ffd23f,#e8851a);color:#3a1400;text-shadow:none;animation:twxP .6s ease-in-out infinite alternate}
+@keyframes twxP{to{transform:scale(1.06)}}
+</style>
+<script>/* ===== 🚪 ปุ่มออกจากหอคอย (มุมขวาบนของฉากต่อสู้ · แตะ 2 ครั้งเพื่อยืนยัน) ===== */
+(function(){
+const A=document.getElementById('arena');if(!A)return;
+const b=document.createElement('button');b.id='twx';b.type='button';b.textContent='🚪 ออกจากหอคอย';A.appendChild(b);
+let arm=0,tm=null;
+const reset=()=>{arm=0;b.classList.remove('arm');b.textContent='🚪 ออกจากหอคอย';clearTimeout(tm)};
+function leave(){
+ if(!(D&&D.tw)){reset();return}
+ const f=D.f;D=null;
+ try{hp=MHP()}catch(e){}
+ try{spawn()}catch(e){}
+ try{renderGear()}catch(e){}
+ try{banner('🚪 ออกจากหอคอย ชั้น '+f+' แล้ว')}catch(e){}
+ reset();b.classList.remove('on');
+}
+['pointerdown','touchstart','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation()));
+b.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();
+ if(!arm){arm=1;b.classList.add('arm');b.textContent='แตะอีกครั้งเพื่อออก';clearTimeout(tm);tm=setTimeout(reset,2500);return}
+ leave()});
+setInterval(()=>{let on=false;try{on=!!(D&&D.tw)}catch(e){}if(on!==b.classList.contains('on')){b.classList.toggle('on',on);if(!on)reset()}},250);
+})();
+</script>
 </body></html>
 
 
