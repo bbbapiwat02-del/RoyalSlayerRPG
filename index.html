@@ -8183,12 +8183,12 @@ function placeWb(){const ic=$('wbb')||$('bsb'),sc=$('wbsc'),lv=$('wblv');if(!ic)
  if(lv&&!lv.hidden)lv.style.setProperty('top',t+'px','important')}
 setInterval(placeWb,250);
 /* หลอดเลือดบอสตามตัว */
-let bsv=null,bb=null,_sx=null,_sy=null;
+let bsv=null,bb=null,_sx=null,_sy=null,_rt=null,_rx=null,_ls=null;
 function artBox(sv){if(sv!==bsv){bsv=sv;bb=null;try{let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;const root=sv.querySelector(':scope > g.dbd')||sv.querySelector(':scope > g')||sv;const els=root===sv?[...sv.children]:[root];
  els.forEach(e=>{const tg=e.tagName.toLowerCase();if(tg==='defs'||/gradient|filter|pattern|mask|clippath|style/.test(tg))return;const b=e.getBBox();if(!b.width&&!b.height)return;x0=Math.min(x0,b.x);y0=Math.min(y0,b.y);x1=Math.max(x1,b.x+b.width);y1=Math.max(y1,b.y+b.height)});if(x0<1e9)bb={x:x0,y:y0,w:x1-x0,h:y1-y0}}catch(e){}}return bb}
 const SC=.55;
 function loop(){requestAnimationFrame(loop);if(document.hidden||document.body.classList.contains('away'))return;
- try{const B=$('bbar'),on=B&&!B.hasAttribute('hidden');if(!on){_sx=null;return}B.classList.add('bfw');
+ try{const B=$('bbar'),on=B&&!B.hasAttribute('hidden');if(!on){_sx=null;_rt=null;return}B.classList.add('bfw');
   const sv=MS.querySelector('svg');let top=0,x=0,ok=false;
    const sr=MS.getBoundingClientRect(),mr=sr.width>4&&sr.height>4?sr:MW.getBoundingClientRect();
    if(sv&&sv.getScreenCTM){try{const bx=artBox(sv),m=sv.getScreenCTM();
@@ -8197,6 +8197,11 @@ function loop(){requestAnimationFrame(loop);if(document.hidden||document.body.cl
      ok=isFinite(top)&&isFinite(x)&&top>mr.top-mr.height*1.2&&top<mr.bottom&&x>mr.left-mr.width&&x<mr.right+mr.width}}catch(e){}}
    /* บอสที่เป็นอีโมจิ/วัดขนาดไม่ได้: ใช้กรอบของตัวบอสแทน (กันหลอดไปค้างมุมซ้ายบน) */
    if(!ok){if(!(mr.width>4))return;top=mr.top;x=mr.left+mr.width/2}
+   /* กันหลอดเด้งตอนบอสโจมตี (บอสบางตัวตัวยืด/หมุน ทำให้ค่าที่วัดกระโดด): จำตำแหน่งนิ่งไว้ แล้วจำกัดให้ขยับได้แค่ ±6px */
+   if(sv!==_ls){_ls=sv;_rt=null}
+   if(_rt==null||Math.abs(top-_rt)>150||Math.abs(x-_rx)>150){_rt=top;_rx=x}
+   top=Math.max(_rt-6,Math.min(_rt+6,top));x=Math.max(_rx-8,Math.min(_rx+8,x));
+   _rt+=(top-_rt)*.08;_rx+=(x-_rx)*.08;
   const r=A.getBoundingClientRect(),W=A.clientWidth,w=(B.offsetWidth||370)*SC,h=(B.offsetHeight||110)*SC;
   let l=x-r.left-A.clientLeft-w/2;l=Math.max(2,Math.min(W-w-2,l));let t=top-r.top-A.clientTop-h-24;t=Math.max(2,t);
   /* ไม่ให้ทับหลอดเลือด/ชื่อของตัวละคร */
