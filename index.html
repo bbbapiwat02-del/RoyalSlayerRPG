@@ -7336,7 +7336,7 @@ function loop(){requestAnimationFrame(loop);if(document.hidden||document.body.cl
     const top=Math.min(P.y,Q.y),x=(P.x+Q.x)/2;
     place(mb,x,top-(mb.offsetHeight||10)-22,mb.offsetWidth||84,1);mb.style.opacity=getComputedStyle(MW).opacity;
     /* กล่องสเตตัสมอน: อยู่เหนือหลอดเลือดเสมอ ขยับตามตัว */
-    const sp=document.getElementById('mstp');if(sp){const bbE=document.getElementById('bbar'),bbOn=bbE&&!bbE.hidden&&bbE.offsetWidth>0,yb=bbOn?Math.min(top-14,bbE.getBoundingClientRect().top-2):(mb.style.display==='none'||!mb.offsetWidth)?top-14:top-(mb.offsetHeight||10)-22;place(sp,x,yb-sp.offsetHeight-6,sp.offsetWidth||118)}}}
+    const sp=document.getElementById('mstp'),bbE0=document.getElementById('bbar');if(sp&&!(window._bbFollow&&bbE0&&!bbE0.hidden)){const bbE=bbE0,bbOn=bbE&&!bbE.hidden&&bbE.offsetWidth>0,yb=bbOn?Math.min(top-14,bbE.getBoundingClientRect().top-2):(mb.style.display==='none'||!mb.offsetWidth)?top-14:top-(mb.offsetHeight||10)-22;place(sp,x,yb-sp.offsetHeight-6,sp.offsetWidth||118)}}}
   /* ตัวละคร */
   const h=HS.querySelector('svg.nh')||HS.querySelector('svg');
   if(h&&hb){const r=h.getBoundingClientRect(),cx=r.left+r.width*.48,tp=r.top+Math.max(0,(r.height-HW.offsetHeight))*.5;
@@ -8192,24 +8192,31 @@ let bsv=null,bb=null,_sx=null,_sy=null,_rt=null,_rx=null,_ls=null;
 function artBox(sv){if(sv!==bsv){bsv=sv;bb=null;try{let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;const root=sv.querySelector(':scope > g.dbd')||sv.querySelector(':scope > g')||sv;const els=root===sv?[...sv.children]:[root];
  els.forEach(e=>{const tg=e.tagName.toLowerCase();if(tg==='defs'||/gradient|filter|pattern|mask|clippath|style/.test(tg))return;const b=e.getBBox();if(!b.width&&!b.height)return;x0=Math.min(x0,b.x);y0=Math.min(y0,b.y);x1=Math.max(x1,b.x+b.width);y1=Math.max(y1,b.y+b.height)});if(x0<1e9)bb={x:x0,y:y0,w:x1-x0,h:y1-y0}}catch(e){}}return bb}
 const SC=.55;
-/* หลอดเลือดบอส: ขยับตามตัวแบบเดียวกับหลอดมอนสเตอร์ — วัดหัวบอสจากภาพทุกเฟรม (ตามการเดิน/พุ่ง/ยืดตัว) ไม่หน่วง */
-let _hd=null;
+/* หลอดเลือดบอส + กล่องสเตตัส: ติดกันเป็นชุดเดียว ขยับตามตัวบอส (เดิน/พุ่งโจมตี) ทุกเฟรม
+   ยึดกับกรอบตัวบอส (#mon) ไม่ใช่ท่าหายใจ/ยืดตัวของภาพ จึงไม่สั่นขึ้นลง · ความสูงหัววัดตอนบอสยืนนิ่งแล้วจำไว้ */
+let _hf=null,_hs=[],_hq=[];
+window._bbFollow=true;
 function loop(){requestAnimationFrame(loop);if(document.hidden||document.body.classList.contains('away'))return;
  try{const B=$('bbar'),on=B&&!B.hasAttribute('hidden');if(!on){_ls=null;return}B.classList.add('bfw');
   const sv=MS.querySelector('svg'),mr=MW.getBoundingClientRect();if(!(mr.width>4&&mr.height>4))return;
-  if(sv!==_ls){_ls=sv;_hd=null}
-  let top=null,x=null;
-  if(sv&&sv.getScreenCTM){try{const bx=artBox(sv),m=sv.getScreenCTM();
-    if(bx&&m&&bx.w>2&&bx.h>2){const cx=bx.x+bx.w/2,P=new DOMPoint(cx,bx.y).matrixTransform(m),Q=new DOMPoint(cx,bx.y+bx.h).matrixTransform(m),tp=Math.min(P.y,Q.y),xx=(P.x+Q.x)/2;
-     if(isFinite(tp)&&isFinite(xx)&&tp>mr.top-mr.height*1.2&&tp<mr.bottom&&xx>mr.left-mr.width&&xx<mr.right+mr.width){top=tp;x=xx;_hd=tp-mr.top}}}catch(e){}}
-  /* วัดไม่ได้ (อีโมจิ ฯลฯ): ใช้กรอบตัวบอส + ระยะหัวที่จำไว้ */
-  if(top==null){top=mr.top+(_hd||0);x=mr.left+mr.width/2}
+  if(sv!==_ls){_ls=sv;_hf=null;_hs=[]}
+  /* วัดหัวบอส (สัดส่วนจากความสูงกรอบ) ตอนยืนนิ่ง 30 ครั้ง แล้วใช้ค่าสูงสุด */
+  if(_hs.length<30&&sv&&sv.getScreenCTM&&(typeof mState==='undefined'||mState==='idle')){try{const bx=artBox(sv),m=sv.getScreenCTM();
+    if(bx&&m&&bx.w>2&&bx.h>2){const cx=bx.x+bx.w/2,P=new DOMPoint(cx,bx.y).matrixTransform(m),Q=new DOMPoint(cx,bx.y+bx.h).matrixTransform(m),f=(Math.min(P.y,Q.y)-mr.top)/mr.height;
+     if(isFinite(f)&&f>-1.1&&f<.6){_hs.push(f);_hf=Math.min(..._hs)}}}catch(e){}}
+  const top=mr.top+(_hf==null?0:_hf)*mr.height,x=mr.left+mr.width/2;
   const r=A.getBoundingClientRect(),W=A.clientWidth,w=(B.offsetWidth||370)*SC,h=(B.offsetHeight||110)*SC;
-  let l=x-r.left-A.clientLeft-w/2;l=Math.max(2,Math.min(W-w-2,l));let t=top-r.top-A.clientTop-h-12;t=Math.max(2,t);
-  /* ไม่ให้ทับหลอดเลือด/ชื่อของตัวละคร: ยกขึ้นเหนือ */
-  [$('hb'),$('hn')].forEach(H=>{if(!H||!H.offsetWidth||getComputedStyle(H).display==='none')return;const q=H.getBoundingClientRect(),qt=q.top-r.top,qb=q.bottom-r.top,ql=q.left-r.left,qr=q.right-r.left;
-   if(t<qb+8&&t+h>qt-8&&l<qr+70&&l+w>ql-70)t=Math.max(2,Math.min(t,qt-h-6))});
-  B.style.transform=`translate(${l.toFixed(1)}px,${t.toFixed(1)}px) scale(${SC})`;B.style.opacity=getComputedStyle(MW).opacity}catch(e){}}
+  let l=x-r.left-A.clientLeft-w/2;l=Math.max(2,Math.min(W-w-2,l));let t=top-r.top-A.clientTop-h-12;
+  /* ไม่ให้ทับหลอดเลือด/ชื่อตัวละคร: ยกขึ้นเหนือ (ใช้ขอบล่างสุดของหลอด/ชื่อ ไม่สลับไปมา) */
+  /* หลอดตัวละครเด้งขึ้นลงตามท่าทาง → จำตำแหน่งสูงสุดช่วง ~2 วิ ล่าสุด เพื่อให้หลอดบอสนิ่ง */
+  let qt=1e9,qb=-1e9,ql=1e9,qr=-1e9;[$('hb'),$('hn')].forEach(H=>{if(!H||!H.offsetWidth||getComputedStyle(H).display==='none')return;const q=H.getBoundingClientRect();qt=Math.min(qt,q.top-r.top);qb=Math.max(qb,q.bottom-r.top);ql=Math.min(ql,q.left-r.left);qr=Math.max(qr,q.right-r.left)});
+  if(qt<1e9){_hq.push(qt);if(_hq.length>120)_hq.shift();const qs=Math.min(..._hq);if(t<qb+8&&t+h>qs-8&&l<qr+70&&l+w>ql-70)t=Math.min(t,qs-h-6)}
+  /* กล่องสเตตัสอยู่เหนือหลอดพอดี กึ่งกลางเดียวกัน */
+  const sp=document.getElementById('mstp'),spOn=sp&&sp.offsetWidth>0&&getComputedStyle(sp).display!=='none',sh=spOn?sp.offsetHeight+4:0;
+  t=Math.max(2+sh,t);
+  B.style.transform=`translate(${l.toFixed(1)}px,${t.toFixed(1)}px) scale(${SC})`;B.style.opacity=getComputedStyle(MW).opacity;
+  if(spOn){const sw=sp.offsetWidth;let sl=l+w/2-sw/2;sl=Math.max(2,Math.min(W-sw-2,sl));sp.style.left=sl.toFixed(1)+'px';sp.style.top=(t-sh).toFixed(1)+'px'}
+ }catch(e){}}
 requestAnimationFrame(loop);
 })();
 </script>
