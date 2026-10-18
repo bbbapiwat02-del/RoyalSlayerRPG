@@ -4008,6 +4008,53 @@ const sv=`<svg viewBox="0 0 400 100" preserveAspectRatio="none">${g}</svg>`;
 const lay=document.createElement('div');lay.className='lay b';lay.innerHTML=sv+sv;
 const tre=$('trees');tre.insertAdjacentElement('afterend',lay);
 })();
+/* ===== พุ่มไม้ + ก้อนหินสมจริง วางพอดีพื้น ทุกฉาก ===== */
+(function(){
+const P=[['#2f7d3c','#7fd05a','#7d8a92','#c4ced4'],['#5a7a30','#c2cf55','#7a6a7c','#c0b2c4'],['#1f5a5c','#4ac0a8','#3e3e60','#7c7ca8'],['#7e8a32','#cfc668','#a97a4c','#e4bf8c'],['#3f7a5c','#b4e0c8','#7d8d9e','#d6e2ee'],['#4e2024','#b04a2c','#352529','#7c5c5e'],['#40202a','#8a3a3a','#2c1c22','#6a4a52']];
+try{for(let i=0;i<ZV.length;i++){const c=P[Math.min(i,P.length-1)];ZV[i].bu1=c[0];ZV[i].bu2=c[1];ZV[i].ro1=c[2];ZV[i].ro2=c[3]}}catch(e){}
+const st=document.createElement('style');st.textContent='.lay.b{bottom:19.5%!important;height:15%!important}';document.head.appendChild(st);
+const B1='var(--bu1,#2f7d3c)',B2='var(--bu2,#7fd05a)',R1='var(--ro1,#7d8a92)',R2='var(--ro2,#c4ced4)';
+const sh=(x,r)=>`<ellipse cx="${x}" cy="99.5" rx="${r*1.55}" ry="${Math.max(1.4,r*.2)}" fill="#000" opacity=".28"/>`;
+const bush=(x,r,d)=>{const c=(dx,dy,k,f,o)=>`<circle cx="${x+dx*r}" cy="${100-dy*r}" r="${k*r}" fill="${f}"${o?` opacity="${o}"`:''}/>`;
+return sh(x,r)+`<g class="sw b" style="animation-delay:${d}s">`+c(-.85,.45,.6,B1)+c(.85,.45,.6,B1)+c(0,.72,.82,B1)+c(-.4,.3,.55,B1)+c(.4,.3,.55,B1)
++c(-.28,.88,.5,B2,.55)+c(-.95,.55,.32,B2,.5)+c(.55,.78,.36,B2,.45)+c(-.38,1.02,.22,'#fff',.2)
++c(.2,.3,.1,'#000',.22)+c(-.55,.5,.08,'#000',.2)+c(.7,.55,.09,'#000',.2)+c(.05,.6,.07,B2,.7)+c(.62,.3,.07,B2,.7)+`</g>`};
+const rock=(x,r,m)=>{const X=(v)=>(x+v*r).toFixed(1),Y=(v)=>(100-v*r).toFixed(1);
+return sh(x,r)+`<path d="M${X(-1.1)} 100L${X(-.95)} ${Y(.45)}L${X(-.45)} ${Y(.85)}L${X(.15)} ${Y(1)}L${X(.75)} ${Y(.7)}L${X(1.1)} ${Y(.25)}L${X(1.15)} 100Z" fill="${R1}"/>`
++`<path d="M${X(-.95)} ${Y(.45)}L${X(-.45)} ${Y(.85)}L${X(.15)} ${Y(1)}L${X(-.05)} ${Y(.5)}L${X(-.6)} ${Y(.3)}Z" fill="${R2}" opacity=".75"/>`
++`<path d="M${X(.15)} ${Y(1)}L${X(.75)} ${Y(.7)}L${X(1.1)} ${Y(.25)}L${X(.55)} ${Y(.35)}L${X(-.05)} ${Y(.5)}Z" fill="${R2}" opacity=".32"/>`
++`<path d="M${X(-.05)} ${Y(.5)}L${X(.55)} ${Y(.35)}L${X(1.1)} ${Y(.25)}L${X(1.15)} 100L${X(-.3)} 100Z" fill="#000" opacity=".26"/>`
++`<path d="M${X(-1.1)} 100L${X(-.95)} ${Y(.45)}L${X(-.6)} ${Y(.3)}L${X(-.7)} 100Z" fill="#000" opacity=".12"/>`
++(m?`<path d="M${X(-.45)} ${Y(.85)}Q${X(-.1)} ${Y(1.08)} ${X(.3)} ${Y(.96)}Q${X(0)} ${Y(.78)} ${X(-.45)} ${Y(.85)}Z" fill="${B2}" opacity=".8"/>`:'')};
+const tuft=(x,h,n,d,c)=>{let s='';for(let i=0;i<n;i++){const o=(i-(n-1)/2)*3.2,bh=h*(.7+((i*37)%10)/25),l=(i-(n-1)/2)*2.2;s+=`<path d="M${x+o-1.7} 100Q${x+o+l*.3-1} ${100-bh*.55} ${x+o+l} ${100-bh}Q${x+o+l*.3+1.5} ${100-bh*.5} ${x+o+2.1} 100Z" fill="${c}"/>`}
+return `<g class="sw" style="animation-delay:${d}s">${s}</g>`};
+const L1='var(--gr1,#6fa65a)';
+let g='';
+g+=rock(60,8,1)+tuft(82,11,5,-.2,B2)+tuft(86,8,4,-1.1,L1);
+g+=bush(150,9,-2.1)+tuft(176,10,5,-1.8,B2);
+g+=rock(236,6.5,0)+tuft(250,9,4,-.7,L1)+bush(272,10,-1.2);
+g+=tuft(318,11,5,-2.6,B2)+tuft(322,8,4,-.5,L1)+rock(346,7,1)+bush(386,7,-3);
+const sv=`<svg viewBox="0 0 400 100" preserveAspectRatio="none">${g}</svg>`;
+const lay=document.querySelector('.lay.b');if(lay)lay.innerHTML=sv+sv;
+try{curZ=-1;setZone()}catch(e){}
+})();
+/* ===== แก้หน้าจอกระพริบตอนเปิดหน้าต่าง: ตัด filter หนักบนเลเยอร์ที่ขยับ + หยุดแอนิเมชันฉากตอนเปิดหน้าต่าง ===== */
+(function(){
+const st=document.createElement('style');
+st.textContent=`
+.lay.f,.lay.m,.lay.n,.mist,.isl svg{filter:none!important}
+.mist{background:linear-gradient(transparent,rgba(255,255,255,.3),transparent)!important}
+.gnd::before{filter:none!important;opacity:.9}
+.sw,.tw{will-change:auto!important}
+#bg,#bg .lay{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+#bg .lay,#bg .mote,#bg .isl,#bg .fxr{transform:translateZ(0)}
+body.wopen #bg *,body.wopen .cloud,body.wopen .petal{animation-play-state:paused!important}
+`;
+document.head.appendChild(st);
+const A=$('arena');if(!A)return;
+const sync=()=>document.body.classList.toggle('wopen',A.style.visibility==='hidden');
+new MutationObserver(sync).observe(A,{attributes:true,attributeFilter:['style']});sync();
+})();
 /* ================= กรอบหน้าต่างนิ่ง ไม่เคลื่อนไหว ================= */
 (function(){
 document.head.insertAdjacentHTML('beforeend',`<style>
