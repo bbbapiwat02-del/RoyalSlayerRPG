@@ -13292,6 +13292,27 @@ setInterval(heal,800);
 <style>/* หลอดเลือดบอสไม่สั่น/เด้งเวลาโดนตี */
 .bbar.hit .bb-main,.bbar.dz.hit .dzw,.bbar.dz.hit .dzjw,#bfb.hit .f{animation:none!important;transform:none!important}
 </style>
+<style>/* ===== ล็อกหน้าต่างทุกระบบให้อยู่ในขอบเขต ไม่ล้นจอ ไม่เลื่อนซ้ายขวา ===== */
+:is(#ov,#cs,.win,.daily-mask,#gzpop,#skpop,#avm,#ccw,#godw,#cpn,#pfw,#nmm,#offm,#wbrv,.pvx,#bagpop,#ptInv,#fow,#rkw,#tutW,#dgBuy,#dgSum,#pvpsoon){overflow:hidden!important;overscroll-behavior:contain;max-width:100vw}
+.win{align-items:center!important;justify-content:center!important}
+:is(.win,#ov,#cs,.daily-mask,#fow,#rkw,#ptInv,#bagpop,#dgSum,#dgBuy,#tutW)>:is(.pnl,.fxw,.daily-panel,.fxw>.pnl){box-sizing:border-box}
+.win>.pnl{width:100%!important;min-width:0!important;max-width:min(440px,calc(100vw - 24px))!important;margin:0 auto!important}
+.win .fxw{width:100%!important;min-width:0!important;max-width:min(440px,calc(100vw - 24px))!important;margin-left:auto!important;margin-right:auto!important}
+.win .fxw>.pnl,.win .fxw>.daily-panel{width:100%!important;max-width:100%!important;margin:0!important}
+:is(.pnl,.daily-panel){overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-x:none;touch-action:pan-y;scrollbar-gutter:stable}
+:is(.pnl,.daily-panel) *{min-width:0}
+:is(.pnl,.daily-panel) :is(img,svg,canvas,video,table,pre,input,select,textarea){max-width:100%}
+:is(.pnl,.daily-panel) :is(.wgal,.skgrid,.eqg,.sklots,[style*="overflow-x:auto"],[style*="overflow-x: auto"]){touch-action:pan-x pan-y}
+/* กล่องโชว์ตัวละคร/ปีก/สัตว์เลี้ยง: ตัดส่วนที่ยื่นเกินกรอบ แทนที่จะดันหน้าต่างให้เลื่อน */
+.win .csh{overflow:hidden!important;max-width:100%}
+.win .csh svg{max-width:100%;height:auto}
+.win .wgal{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+.win .wgc{flex:0 0 68px;min-width:68px}
+/* ปีกข้างป้ายชื่อ: เก็บให้อยู่ในกรอบ ไม่ยื่นออกนอกหน้าต่าง */
+.fxw .cst{max-width:calc(100% - 64px)!important;box-sizing:border-box;white-space:normal;overflow-wrap:anywhere}
+.fxw .cst::before{left:-36px!important}.fxw .cst::after{right:-36px!important}
+:is(.pnl,.daily-panel) :is(.icard,.strw,.dgc,.shoprow,.od,.stsum,.tkr,.stats){max-width:100%;overflow-wrap:anywhere}
+</style>
 </body></html>
 
 
