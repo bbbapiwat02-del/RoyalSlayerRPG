@@ -1280,7 +1280,7 @@ function coinRain(n){
  }
 }
 function dgKill(){
- const g=Math.max(1,Math.floor(gpk()*D.mul*GOLDK));S.gold+=g;D.gold+=g;coinRain(isBoss()?22:8);sfx('coin');
+ const g=D.tw?0:Math.max(1,Math.floor(gpk()*D.mul*GOLDK));S.gold+=g;D.gold+=g;if(g>0){coinRain(isBoss()?22:8);sfx('coin')}
  gainExp(Math.floor(2*Math.pow(1.12,ES()-1))+1);fl('+'+fmt(g),'g','m');
  hp=Math.min(MHP(),hp+MHP()*0.15);
  if(D.w>=D.n){dgEnd(true);return}
@@ -2434,7 +2434,7 @@ function enterTower(f){f=Math.floor(+f)||ensureTw().best+1;
 function twEnd(win){
  const d=D;if(!d)return;const I=twInfo(d.f),b=ensureTw(),r={f:d.f,win:!!win,timeout:d.t<=0,t:Date.now()};
  if(win){
-  const first=d.f>b.best,g=Math.floor(gpk()*(10+d.f)*(first?1:.4)*GOLDK);S.gold+=g;r.gold=g;gainExp(Math.floor(5*Math.pow(1.12,ES()-1))+1);D=null;
+  const first=d.f>b.best,g=0;S.gold+=g;r.gold=g;gainExp(Math.floor(5*Math.pow(1.12,ES()-1))+1);D=null;
   if(first){b.best=d.f;S.diamonds=(S.diamonds||0)+I.gem;S.skf=(S.skf||0)+I.skf;S.egg=(S.egg||0)+I.egg;S.keys=(S.keys||0)+I.key;r.first=true;twSel=Math.min(TW_MAX,d.f+1)}
   banner('🏆 พิชิตชั้น '+d.f+'!');sfx('lvl');shake();deathAnim();coinRain(24);
  }else{D=null;banner(r.timeout?'⌛ หมดเวลา!':'💀 พ่ายแพ้ชั้น '+d.f)}
