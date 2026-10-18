@@ -7113,7 +7113,8 @@ function calc(){const pf=profile(),w0=PROF[pf]||PROF.biped,sum=w0.reduce((a,b)=>
  const lv=Math.max(1,Math.round(ES())),boss=isBoss(),wb=!!(D&&D.wb),M={lv,boss,wb,pf};
  if(wb){const base=(2+lv*.9)*.6;K.forEach((k,i)=>{M[k]=Math.max(1,Math.round(base*w[i]));M['w'+k]=w[i]})}
  else{/* พ้อยรวมของมอนสเตอร์ = พ้อยสเตตัสรวมของผู้เล่น x ตัวคูณตามประเภท แล้วแจกตามสายพันธุ์ */
-  const pts=typeof stTot==='function'?stTot():5+2*S.lv;
+  /* แก้บัค: เดิมใช้พ้อยของผู้เล่น → สเตตัสมอนไม่ขึ้นตามด่าน · ตอนนี้คิดจากระดับด่าน/ชั้นเป็นหลัก */
+  const pts=6+2.4*lv*(1+lv/200);
   const r=D&&D.tw?Math.min(1.6,.95+(D.f||1)*.004)*((D.f||1)%10===0?1.12:(D.f||1)%5===0?1.05:1):D&&D.bs?1.1+(D.si||0)*.015:D?(boss?1.15:1):(boss?1.1:.9);
   M.tot=pts*r;K.forEach((k,i)=>{M[k]=Math.max(1,Math.round(M.tot*w[i]/6));M['w'+k]=w[i]})}
  M.hpM=M.wb?1:.7+.3*M.wvit;M.dmgM=M.wb?.7+.3*M.wstr:1;M.spd=.8+.2*M.wagi;
