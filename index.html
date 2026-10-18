@@ -4145,6 +4145,62 @@ const r=_cc.call(this,function(){try{done&&done()}finally{const w=window.__ccw;i
 const w=document.getElementById('ccw');if(w&&!w.__k){w.__k=1;window.__ccw=w;w.remove=function(){this.classList.add('keep')}}
 return r}}catch(e){}
 })();
+/* ===== ตั้งค่าเพิ่ม: เปิด/ปิดออร่าร่างกาย ออร่าอาวุธ ออร่าบัพ เอฟเฟคสกิล ฉากแฟนตาซี พุ่มหญ้าขยับ ===== */
+(function(){
+const DEF={ea:1,wa:1,ba:1,sv:1,sc:1,sw:1};
+Object.keys(DEF).forEach(k=>{if(G[k]===undefined)G[k]=DEF[k]});
+const st=document.createElement('style');
+st.textContent=`
+.g-noea .enaura{display:none!important}
+.g-nowa .wfx{display:none!important}
+.g-nowa #hs g[style*="drop-shadow"]{filter:none!important}
+.g-noba #hbau,.g-noba #fsau,.g-noba #wsau{display:none!important}
+.g-sv0 .svfx,.g-sv0 #arena .flash,.g-sv0 #arena .ring{display:none!important}
+body.g-sv2 #arena .svfx{opacity:1!important}
+body.g-sv2 #arena .flash,body.g-sv2 #arena .ring{opacity:1!important}
+.g-nosc .fxr,.g-nosc .isl,.g-nosc .mote,.g-nosc .cas{display:none!important}
+.g-nosw .sw,.g-nosw .tw{animation:none!important}
+`;
+document.head.appendChild(st);
+function ap2(){const b=document.body.classList;
+b.toggle('g-noea',!G.ea);b.toggle('g-nowa',!G.wa);b.toggle('g-noba',!G.ba);
+b.toggle('g-sv0',G.sv===0);b.toggle('g-sv2',G.sv===2);b.toggle('g-nosc',!G.sc);b.toggle('g-nosw',!G.sw)}
+const _g=gApply;gApply=function(){const r=_g.apply(this,arguments);ap2();return r};ap2();
+const oo=[[0,'ปิด'],[1,'เปิด']];
+const _r=renderGf;renderGf=function(){const r=_r.apply(this,arguments);try{
+const gb=$('gfb');if(!gb||gb.querySelector('[data-k="ea"]'))return r;
+const an=gb.querySelector('.tkr[style]');if(!an)return r;
+const h='<div class="tkr" style="margin-top:8px"><small>ออร่าและเอฟเฟคเพิ่มเติม</small></div>'
++gfRow('🔥 ออร่าตีบวกที่ตัว','เปลวไฟ/วงเวทรอบตัวละคร','ea',oo)
++gfRow('🗡️ ออร่าอาวุธตีบวก','แสงเรืองและเปลวที่อาวุธ','wa',oo)
++gfRow('🛡️ ออร่าบัพที่ตัว','ออร่าตอนใช้สกิลบัพ/ฟื้นฟู','ba',oo)
++gfRow('💥 เอฟเฟคสกิล','ปิด · เบา · เต็ม (ภาพสกิลตอนใช้)','sv',[[0,'ปิด'],[1,'เบา'],[2,'เต็ม']])
++gfRow('🌄 ฉากแฟนตาซี','รัศมีดวงอาทิตย์ เกาะลอย ปราสาท ผงแสง','sc',oo)
++gfRow('🌿 พุ่มหญ้า/ต้นไม้ขยับตามลม','ปิดเพื่อให้ฉากนิ่งและลื่นขึ้น','sw',oo);
+an.insertAdjacentHTML('beforebegin',h);
+gb.querySelectorAll('.seg button').forEach(b=>{if(DEF[b.dataset.k]!==undefined)b.onclick=()=>{G[b.dataset.k]=+b.dataset.v;gApply();renderGf()}});
+}catch(e){console.error(e)}return r};
+})();
+/* ===== แก้รัศมีดวงอาทิตย์หมุนช้าๆ + เกาะลอยขึ้นลงเบาๆ (เดิม keyframes หมุน 360° ถูกคำนวณเป็น 0° เลยไม่หมุน) ===== */
+(function(){
+const st=document.createElement('style');
+st.textContent=`
+@keyframes fxrot{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes islf2{from{transform:translate3d(0,-4px,0)}to{transform:translate3d(0,5px,0)}}
+body .fxr,body.g-lowanim .fxr{animation:fxrot 55s linear infinite!important;opacity:.6!important}
+body .isl,body.g-lowanim .isl{animation:islf2 6s ease-in-out infinite alternate!important}
+body .isl+.isl,body .isl~.isl{animation-duration:7.5s!important;animation-delay:-2.5s!important}
+.cel .fxr i{left:-4px!important;width:8px!important;height:190px!important;top:-190px!important;border-radius:8px!important;transform-origin:50% 100%!important;background:linear-gradient(to top,var(--cel,#fff1b8),transparent)!important}
+.cel .fxr i:nth-child(1){transform:rotate(0deg)!important}
+.cel .fxr i:nth-child(2){transform:rotate(58deg)!important;height:150px!important;top:-150px!important}
+.cel .fxr i:nth-child(3){transform:rotate(121deg)!important;height:210px!important;top:-210px!important}
+.cel .fxr i:nth-child(4){transform:rotate(180deg)!important;height:160px!important;top:-160px!important}
+.cel .fxr i:nth-child(5){transform:rotate(236deg)!important;height:200px!important;top:-200px!important}
+.cel .fxr i:nth-child(6){transform:rotate(298deg)!important;height:140px!important;top:-140px!important}
+.g-nosc .fxr,.g-nosc .isl{display:none!important}
+`;
+document.head.appendChild(st);
+})();
 /* ================= กรอบหน้าต่างนิ่ง ไม่เคลื่อนไหว ================= */
 (function(){
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -13478,7 +13534,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 @keyframes ldSh{to{background-position:-250% 0}}@keyframes ldGl{to{background-position:60px 0}}
 @media (prefers-reduced-motion:reduce){#gLd *{animation:none!important;transition:none!important}}
 </style>`);
-window.gameLoad=function(done){try{done&&done()}catch(e){console.error(e)}return;
+window.gameLoad=function(done){
  if(document.getElementById('gLd')){try{done&&done()}catch(e){}return}
  const img=window.SS_IMG||'',w=document.createElement('div');w.id='gLd';if(img)w.style.setProperty('--img',`url(${img})`);
  const order=TIPS.map((t,i)=>i).sort(()=>Math.random()-.5);
@@ -13493,12 +13549,13 @@ window.gameLoad=function(done){try{done&&done()}catch(e){console.error(e)}return
  let ti=0;const show=()=>{const t=TIPS[order[ti%order.length]];sw.innerHTML=`<span class="ld-ic">${t[0]}</span><span class="ld-tx"><b>${t[1]}</b><small>${t[2]}</small></span>`;dots.forEach((d,k)=>d.classList.toggle('on',k===ti%dots.length))};
  show();const tt=setInterval(()=>{sw.classList.add('hide');setTimeout(()=>{ti++;show();sw.classList.remove('hide')},300)},1500);
  /* ความคืบหน้า 3.4–4.6 วิ แบบกระตุกเป็นช่วงๆ ให้ดูเหมือนโหลดจริง */
- const DUR=3400+Math.random()*1200,t0=performance.now(),stops=[0,.18+Math.random()*.1,.42+Math.random()*.1,.66+Math.random()*.1,.86+Math.random()*.06,1];
+ let rdy=false;{const f=document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve(),l=new Promise(r=>document.readyState==='complete'?r():addEventListener('load',r,{once:true})),ok=()=>{rdy=true};Promise.all([f,l]).then(ok,ok);setTimeout(ok,7000)}
+  const DUR=3400+Math.random()*1200,t0=performance.now(),stops=[0,.18+Math.random()*.1,.42+Math.random()*.1,.66+Math.random()*.1,.86+Math.random()*.06,1];
  const prog=x=>{const n=stops.length-1,seg=Math.min(n-1,Math.floor(x*n)),f=x*n-seg,e=f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2;return stops[seg]+(stops[seg+1]-stops[seg])*e};
  let fin=false;
  const tick=()=>{if(fin)return;const x=Math.min(1,(performance.now()-t0)/DUR),p=prog(x),P=Math.floor(p*100);
   fl.style.width=(p*100)+'%';hd.style.left=(3+bar.clientWidth*p)+'px';pc.innerHTML=P+'<small>%</small>';stx.textContent=ST[Math.min(ST.length-1,P>=100?4:Math.floor(p*4))];
-  if(x<1){setTimeout(tick,40);return}
+  if(x<1||!rdy){setTimeout(tick,40);return}
   fin=true;clearInterval(tt);try{sfx&&sfx('reveal',3)}catch(e){}
   setTimeout(()=>{try{done&&done()}catch(e){console.error(e)}w.classList.add('out');setTimeout(()=>w.remove(),650)},380)};
  tick()};
