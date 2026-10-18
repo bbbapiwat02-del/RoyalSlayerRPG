@@ -928,7 +928,8 @@ const MHP=()=>Math.floor(((50+S.up.hp*18)*Math.pow(1.016,S.up.hp)+EQF('h'))*(1+e
 const SPD=()=>1+spdB()+ev(3)+WV('s')+PV('s')+BF.s, CRIT=()=>5+S.up.crit+ev(2)+WV('c')+PV('c')+BF.c;
 const isBoss=()=>D?D.w>=D.n:S.stage%10===0;
 const MON=['🥷','🐍','🐺','🐅','🦅','🐒','🦂','👺','🕷️','🦇'],BOSS=['👺','🐅','🐉','👹'],Z=['ป่าไผ่เงียบงัน','เขาเสาซาน','ถ้ำพิศวง','ทะเลทรายตะวันตก','ยอดเขาหิมะ','วิหารมารเลือด'];
-const gpk=()=>Math.floor(4*Math.pow(1.17,ES()-1)*(isBoss()?8:1)*(1+ev(4)+WV('g')+PV('g')));
+const GOLDK=.3; /* ตัวคูณทองที่ดรอปจากด่าน (ลดเงินเฟ้อ) */
+const gpk=()=>Math.floor(4*Math.pow(1.14,ES()-1)*(isBoss()?8:1)*(1+ev(4)+WV('g')+PV('g')));
 let hp,mhp,mmax,heroCd=0,monCd=0,skCd=0;
 function spawn(){
  const b=isBoss();mmax=Math.floor(15*Math.pow(1.21,ES()-1)*(b?4:1));mhp=mmax;
@@ -952,7 +953,7 @@ function dmgMon(d,crit,kind){
  if(mhp<=0)kill();
 }
 function kill(){if(D){dgKill();return}
- const g=Math.max(1,Math.floor(gpk()*.5));S.gold+=g;burst(74,55,'#ffd23f',12);sfx('coin');coinRain(isBoss()?10:3);gainExp(Math.floor(3*Math.pow(1.12,S.stage-1)*(isBoss()?6:1))+1);fl('+'+fmt(g),'g','m');S.kills++;dailyProgress('kill',1);hp=Math.min(MHP(),hp+MHP()*0.1);
+ const g=Math.max(1,Math.floor(gpk()*.5*GOLDK));S.gold+=g;burst(74,55,'#ffd23f',12);sfx('coin');coinRain(isBoss()?10:3);gainExp(Math.floor(3*Math.pow(1.12,S.stage-1)*(isBoss()?6:1))+1);fl('+'+fmt(g),'g','m');S.kills++;dailyProgress('kill',1);hp=Math.min(MHP(),hp+MHP()*0.1);
  const need=isBoss()?1:5;
  if(S.kills>=need){S.kills=0;S.stage++;sfx('stage');banner(need===1?'🏆 ปราบผู้นำสำนักมาร! +🔑':'ด่าน '+S.stage+' ✨');if(need===1){S.keys++;S.tk=Math.min(9,(S.tk||0)+1);burst(50,50,'#ffd23f',30);shake();renderGear()}}
  mState='dying';deathAnim();setTimeout(spawn,720);
@@ -1075,7 +1076,7 @@ renderGear();
 /* EXP ที่ต้องใช้: หลัง Lv.100 ช้าลง 2 เท่า · หลัง Lv.150 ช้าลง 3 เท่า */
 const expRaw=l=>Math.floor(20*Math.pow(1.3,l-1));window.expRaw=expRaw;
 const expMul=l=>(l>=150?3:l>=100?2:1)*2;  /* เก็บเลเวลยากขึ้น 2 เท่า */
-const expNeed=l=>expRaw(l)*expMul(l);
+const expNeed=l=>expRaw(l)*expMul(l)*2;
 function gainExp(x){S.exp+=x;let up=0;while(S.exp>=expNeed(S.lv)){S.exp-=expNeed(S.lv);S.lv++;up++}
  if(up){sfx('lvl');hp=MHP();burst(20,50,'#7dd3fc',30);burst(20,50,'#ffd23f',20);fx('ring');shake();window.lvFx&&lvFx(S.lv);anim($('hero'),'lvl');setTimeout(()=>$('hero').classList.remove('lvl'),950)}}
 function heroSwing(){
@@ -1279,7 +1280,7 @@ function coinRain(n){
  }
 }
 function dgKill(){
- const g=gpk()*D.mul;S.gold+=g;D.gold+=g;coinRain(isBoss()?22:8);sfx('coin');
+ const g=Math.max(1,Math.floor(gpk()*D.mul*GOLDK));S.gold+=g;D.gold+=g;coinRain(isBoss()?22:8);sfx('coin');
  gainExp(Math.floor(2*Math.pow(1.12,ES()-1))+1);fl('+'+fmt(g),'g','m');
  hp=Math.min(MHP(),hp+MHP()*0.15);
  if(D.w>=D.n){dgEnd(true);return}
@@ -2056,7 +2057,7 @@ function enterBoss(si){
 function bsEnd(win){
  const d=D;if(!d)return;const st=SETS[d.si],b=ensureBs(),r={si:d.si,win:!!win,t:Date.now(),timeout:d.t<=0};
  if(win){
-  const g=gpk()*(15+d.si*10);gainExp(Math.floor(6*Math.pow(1.12,ES()-1))+1);S.gold+=g;r.gold=g;D=null;
+  const g=Math.floor(gpk()*(15+d.si*10)*GOLDK);gainExp(Math.floor(6*Math.pow(1.12,ES()-1))+1);S.gold+=g;r.gold=g;D=null;
   const own=bsOwn(d.si),pity=b.fail[d.si]||0,miss=[0,1,2,3,4].filter(i=>!own[i]);let slot=-1;
   /* ได้ชิ้นไหนแล้วไม่ดรอปซ้ำ: สุ่มเฉพาะชิ้นที่ยังไม่มี · ครบชุดแล้วได้ทอง+หินแทน */
   if(miss.length){if(pity>=st.pity){slot=miss[Math.floor(Math.random()*miss.length)];r.pity=1}else if(Math.random()<st.p*5)slot=miss[Math.floor(Math.random()*miss.length)]}
@@ -2433,7 +2434,7 @@ function enterTower(f){f=Math.floor(+f)||ensureTw().best+1;
 function twEnd(win){
  const d=D;if(!d)return;const I=twInfo(d.f),b=ensureTw(),r={f:d.f,win:!!win,timeout:d.t<=0,t:Date.now()};
  if(win){
-  const first=d.f>b.best,g=Math.floor(gpk()*(10+d.f)*(first?1:.4));S.gold+=g;r.gold=g;gainExp(Math.floor(5*Math.pow(1.12,ES()-1))+1);D=null;
+  const first=d.f>b.best,g=Math.floor(gpk()*(10+d.f)*(first?1:.4)*GOLDK);S.gold+=g;r.gold=g;gainExp(Math.floor(5*Math.pow(1.12,ES()-1))+1);D=null;
   if(first){b.best=d.f;S.diamonds=(S.diamonds||0)+I.gem;S.skf=(S.skf||0)+I.skf;S.egg=(S.egg||0)+I.egg;S.keys=(S.keys||0)+I.key;r.first=true;twSel=Math.min(TW_MAX,d.f+1)}
   banner('🏆 พิชิตชั้น '+d.f+'!');sfx('lvl');shake();deathAnim();coinRain(24);
  }else{D=null;banner(r.timeout?'⌛ หมดเวลา!':'💀 พ่ายแพ้ชั้น '+d.f)}
@@ -8195,7 +8196,7 @@ function loop(){requestAnimationFrame(loop);if(document.hidden||document.body.cl
   /* ไม่ให้ทับหลอดเลือด/ชื่อของตัวละคร */
   [$('hb'),$('hn')].forEach(H=>{if(!H||!H.offsetWidth||getComputedStyle(H).display==='none')return;const q=H.getBoundingClientRect(),qt=q.top-r.top,qb=q.bottom-r.top,ql=q.left-r.left,qr=q.right-r.left;
    if(t<qb+2&&t+h>qt-2&&l<qr+4&&l+w>ql-4){const nl=qr+6;if(nl<=W-w-2)l=nl;else t=Math.max(4,qt-h-4)}});
-  if(_sx==null||Math.abs(l-_sx)>120||Math.abs(t-_sy)>120){_sx=l;_sy=t}else{_sx+=(l-_sx)*.045;_sy+=(t-_sy)*.045}
+  _sx=l;_sy=t;
    B.style.transform=`translate(${_sx.toFixed(1)}px,${_sy.toFixed(1)}px) scale(${SC})`;B.style.opacity=getComputedStyle(MW).opacity}catch(e){}}
 requestAnimationFrame(loop);
 })();
@@ -8251,7 +8252,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 const hm=s=>{s=Math.floor(s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return (h?h+' ชม. ':'')+m+' นาที'};
 function perKill(){
  const boss=typeof isBoss==='function'&&isBoss()&&!D;
- let g=1;try{g=gpk()*.5/(boss?8:1)}catch(e){}
+ let g=1;try{g=gpk()*.5*GOLDK/(boss?8:1)}catch(e){}
  const e=Math.floor(3*Math.pow(1.12,Math.max(1,S.stage)-1))+1;
  return{g:Math.max(1,Math.floor(g)),e}}
 let busy=false;
@@ -8944,7 +8945,7 @@ enterDg=function(i){const c=DG[i];if(!c||!c.k)return _enter(i);
  const t=selT(c);if(D||t<1||S.tk<1||mState==='dying')return;
  S.tk--;const r=rw(c,t);D={i,n:c.w,w:1,t:c.tm,gold:0,mul:.5,off:Math.floor(t/2)-1,k:c.k,tier:t,rk:r.kill,rc:r.clr};lastDg=null;
  hp=MHP();banner(c.i+' '+c.n+' ขั้น '+t);sfx('boss');spawn();renderDg();closeW()};
-function spKill(){const d=D;const g=Math.floor(gpk()*.5);S.gold+=g;coinRain(isBoss()?12:4);sfx('coin');
+function spKill(){const d=D;const g=Math.max(1,Math.floor(gpk()*.5*GOLDK));S.gold+=g;coinRain(isBoss()?12:4);sfx('coin');
  give(d.k,d.rk);d.gold+=d.rk;hp=Math.min(MHP(),hp+MHP()*0.15);
  if(d.w>=d.n){spEnd(true);return}
  d.w++;mState='dying';deathAnim();setTimeout(spawn,720)}
@@ -11664,12 +11665,12 @@ function boxPop(t,who){const L=$$('mnSc');if(!L)return;const o=L.querySelector('
  e.innerHTML=who?`<span class="ic">${BXE[t]}</span><span><small>👥 <u>${esc2(who)}</u> ได้รับกล่องสมบัติ!</small><b>${BXN[t]}</b><em>ของเพื่อนร่วมปาร์ตี้</em></span>`:`<span class="ic">${BXE[t]}</span><span><small>ได้รับกล่องสมบัติ!</small><b>${BXN[t]}</b><em>เข้ากระเป๋าแล้ว · เปิดสุ่มเพชรได้ที่กระเป๋า</em></span>`;
  if(who){snd('gem');float(BXE[t]+' '+who,me.x,me.y-1.4,BXC[t])}L.appendChild(e);setTimeout(()=>e.remove(),2400)}
 function give(kind,x,y){const f=curF();
- if(kind==='g'){const g=Math.floor(gpk0()*(2+f*.35)*(.8+R()*.5));S.gold+=g;loot.g+=g;float('+🪙'+fm(g),x,y,'#ffd23f');snd('ore')}
+ if(kind==='g'){const g=Math.max(1,Math.floor(gpk0()*(2+f*.35)*(.8+R()*.5)*GOLDK));S.gold+=g;loot.g+=g;float('+🪙'+fm(g),x,y,'#ffd23f');snd('ore')}
  if(kind==='m'){dropBox(boxT(f),x,y)}
  if(kind==='c'){const st=2+Math.floor(f/6);S.stone=(S.stone||0)+st;loot.s+=st;float('💠'+st,x,y,'#ffb0ff');dropBox(boxT(f,2),x,y);
   if(f>=15&&R()<.12+f*.001&&window.bagAddBox){window.bagAddBox(f>=40&&R()<.5?'fdm':R()<.5?'wbw':'wbp',1);loot.b++;float('🎁 กล่องเข้ากระเป๋า!',x,y-1,'#ffd23f')}}
- if(kind==='mob'){const g=Math.floor(gpk0()*(3+f*.4));S.gold+=g;loot.g+=g;float('+🪙'+fm(g),x,y,'#ffd23f');try{gainExp(Math.floor(3*Math.pow(1.1,Math.min(f,120))))}catch(e){}if(R()<.12)dropBox(boxT(f),x,y)}
- if(kind==='boss'){const st=6+Math.floor(f/2),g=Math.floor(gpk0()*(40+f*3));S.gold+=g;S.stone=(S.stone||0)+st;loot.g+=g;loot.s+=st;
+ if(kind==='mob'){const g=Math.max(1,Math.floor(gpk0()*(3+f*.4)*GOLDK));S.gold+=g;loot.g+=g;float('+🪙'+fm(g),x,y,'#ffd23f');try{gainExp(Math.floor(3*Math.pow(1.1,Math.min(f,120))))}catch(e){}if(R()<.12)dropBox(boxT(f),x,y)}
+ if(kind==='boss'){const st=6+Math.floor(f/2),g=Math.floor(gpk0()*(40+f*3)*GOLDK);S.gold+=g;S.stone=(S.stone||0)+st;loot.g+=g;loot.s+=st;
   let box='';{const bt=boxT(f,2);dropBox(bt,boss.x,boss.y-1);box=' · '+BXE[bt]+' '+BXN[bt]}if(window.bagAddBox){const n=f>=50?2:1;const k=(f/5)%2?'wbw':'wbp';if(f>=10||R()<.4){window.bagAddBox(k,n);loot.b+=n;box=' · 🎁x'+n}}
   try{gainExp(Math.floor(40*Math.pow(1.1,Math.min(f,120))))}catch(e){}
   banner2(`🏆 พิชิตบอสเหมืองชั้น ${f}!`,`🪙 ${fm(g)} · 💠 ${st}${box}`);snd('lvl')}
@@ -12153,7 +12154,7 @@ body>#ptPn{position:fixed;z-index:99965}
 </script>
 <script>/* ================= ⚖️ สมดุลความโหด: มอนสเตอร์/บอสทุกชนิดอิงสเตตัสจริงของผู้เล่น (ยกเว้นบอสโลก/ดวล) ================= */
 (function(){
-const cl=(v,a,b)=>Math.max(a,Math.min(b,v)),lg=L=>Math.log10(Math.max(1,L));
+const cl=(v,a,b)=>Math.max(a,Math.min(b,v)),lg=L=>Math.log10(Math.max(1,L)),DIFF=1;
 /* พลังจริงของผู้เล่น */
 function dps(){try{const c=Math.min(100,CRIT())/100;return Math.max(1,ATK()*(1+c*(CRD()-1))*cl(SPD(),.3,6))}catch(e){return 10}}
 function mhpP(){try{return Math.max(1,MHP())}catch(e){return 100}}
@@ -12170,8 +12171,8 @@ let cur=null;window.balInfo=()=>cur;
 const bA=s=>(5+3*s)*Math.pow(1.016,s),bH=s=>(50+18*s)*Math.pow(1.016,s);
 function mf(){const M=window.MST;if(!M||!M.tot)return{a:1,h:1};const av=M.tot/6;return{a:cl(Math.sqrt(bA(M.str)/bA(av)),.6,1.6),h:cl(Math.sqrt(bH(M.vit)/bH(av)),.6,1.6)}}
 function apply(keep){cur=null;if(D&&(D.wb||D.duel))return;
- try{const p=prof(),f=mf(),hp=Math.max(1,Math.floor(dps()*p.tk*gA(p.L)*f.h)),fr=keep&&mmax>0?Math.max(0,Math.min(1,mhp/mmax)):1;mmax=hp;mhp=Math.max(1,Math.ceil(hp*fr));
-  cur={hit:mhpP()*1.2/p.ts*gH(p.L)*f.a,tk:p.tk,ts:p.ts,L:p.L,fa:f.a,fh:f.h}}catch(e){}}
+ try{const p=prof(),f=mf(),hp=Math.max(1,Math.floor(dps()*p.tk*gA(p.L)*f.h*DIFF)),fr=keep&&mmax>0?Math.max(0,Math.min(1,mhp/mmax)):1;mmax=hp;mhp=Math.max(1,Math.ceil(hp*fr));
+  cur={hit:mhpP()*1.2/p.ts*gH(p.L)*f.a*DIFF,tk:p.tk,ts:p.ts,L:p.L,fa:f.a,fh:f.h}}catch(e){}}
 const _sp=spawn;spawn=function(){const r=_sp.apply(this,arguments);apply(false);return r};
 apply(true);
 /* ดาเมจที่มอนสเตอร์ทำ: คิดจากเลือดผู้เล่น แล้วยังผ่านการหลบ/เกราะ/ต้านเวทตามปกติ */
