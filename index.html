@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th"><head><meta charset="utf-8"><script>/* ===== ล้างไอดีและเซฟทั้งหมด (ครั้งเดียว) เตรียมระบบล็อกอินออนไลน์ ===== */
+<html lang="th"><head><meta charset="utf-8"><style>html{background:#06020a}</style><script>/* ===== ล้างไอดีและเซฟทั้งหมด (ครั้งเดียว) เตรียมระบบล็อกอินออนไลน์ ===== */
 (function(){try{const V='online-ready-1',LS=localStorage;if(LS.getItem('ml_ver')===V)return;
  Object.keys(LS).forEach(k=>{if(/^ml(_|1$)/.test(k))LS.removeItem(k)});
  LS.setItem('ml_ver',V);try{sessionStorage.clear()}catch(e){}}catch(e){}})();
@@ -4088,6 +4088,62 @@ st.textContent=`.fxr{right:calc(16% + var(--cs,44px)/2)!important;top:calc(12% +
 .isl{animation-name:islf!important;animation-duration:10s!important;animation-timing-function:ease-in-out!important}
 @keyframes islf{from{transform:translateY(-2px)}to{transform:translateY(3px)}}`;
 document.head.appendChild(st);
+})();
+/* ===== แก้เกาะลอย/รัศมีดวงอาทิตย์ให้ขยับ + ลดเอฟเฟกต์สกิล/บัพ + ออร่าตามตัวละครทันเฟรม ===== */
+(function(){
+const st=document.createElement('style');
+st.textContent=`
+.g-lowanim .fxr{animation:fxspin 70s linear infinite!important}
+.g-lowanim .isl{animation:islf 10s ease-in-out infinite alternate!important}
+.cel .fxr{left:50%!important;top:50%!important;right:auto!important}
+.cel{overflow:visible!important}
+#arena .svfx{opacity:.5!important}
+#arena .flash{opacity:.3!important}
+#arena .ring{opacity:.55!important;transform-origin:50% 50%}
+#hbau{width:150%!important;height:115%!important;bottom:-6px!important}
+#hbau.on{opacity:.42!important}
+#fsau{opacity:.5!important}
+#hbau u,#fsau u{opacity:.55}
+.enaura,#hbau,#fsau,#wsau{will-change:transform}
+`;
+document.head.appendChild(st);
+// รัศมีอยู่ในดวงอาทิตย์ จึงตรงกึ่งกลางเสมอ
+try{const f=document.querySelector('#bg .fxr'),c=document.querySelector('#bg .cel');if(f&&c)c.appendChild(f)}catch(e){}
+// ลดอนุภาคเอฟเฟกต์สกิลอีก
+try{const _b=burst;burst=function(x,y,col,n){return _b(x,y,col,Math.ceil((n||0)*.5))}}catch(e){}
+// ออร่าตามตัวละครทุกเฟรม (เดิมอัปเดต 30 ครั้ง/วิ เลยตามไม่ทัน)
+try{let lx='';const loop=()=>{requestAnimationFrame(loop);const A=$('arena');if(document.hidden||!A||A.style.visibility==='hidden')return;
+const tf=getComputedStyle(HS).transform;let dx=0,dy=0;if(tf&&tf!=='none'){const m=new DOMMatrixReadOnly(tf);dx=m.e;dy=m.f}
+if(Math.abs(dx)<.3)dx=0;if(Math.abs(dy)<.3)dy=0;const v=dx+','+dy;if(v===lx)return;lx=v;
+HW.querySelectorAll('.enaura,#hbau,#fsau,#wsau').forEach(e=>{const base=(e.id==='hbau'||e.id==='fsau'||e.id==='wsau')?'translateX(-50%) ':'';e.style.transform=(dx||dy)?base+`translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px)`:(base||'')})};requestAnimationFrame(loop)}catch(e){}
+})();
+/* ===== ออร่าตีบวกหน้าหลัก: วางให้ตรงเท้า/กึ่งกลางตัวละครจริง ===== */
+(function(){
+const st=document.createElement('style');
+st.textContent='#hero>.enaura{bottom:auto!important;z-index:0}';
+document.head.appendChild(st);
+let lk='';
+function align(){try{const a=HW.querySelector(':scope>.enaura');if(!a||!HS)return;
+const w=a.offsetWidth;if(!w)return;
+const cx=HS.offsetLeft+HS.offsetWidth/2,fy=HS.offsetTop+HS.offsetHeight*.9;
+const k=[cx.toFixed(1),fy.toFixed(1),w].join();if(k===lk&&a.style.top)return;lk=k;
+a.style.left=(cx-w/2).toFixed(1)+'px';a.style.top=(fy-w*.93).toFixed(1)+'px'}catch(e){}}
+new MutationObserver(()=>{lk='';align()}).observe(HW,{childList:true});
+addEventListener('resize',()=>{lk='';align()});
+setInterval(align,700);setTimeout(align,300);align();
+})();
+/* ===== กันจอกระพริบ: หน้าโหลดหลังล็อกอิน / หลังสร้างตัวละคร ===== */
+(function(){
+const st=document.createElement('style');
+st.textContent=`#gLd:not(.out){opacity:1!important;transition:none!important}
+#ss.go{display:none!important}
+#ccw.keep{pointer-events:none}`;
+document.head.appendChild(st);
+// หลังกด "เริ่มการเดินทาง" ให้หน้าสร้างตัวละครค้างอยู่จนกว่าหน้าโหลดจะขึ้นเต็มจอ แล้วค่อยเอาออก
+try{const _cc=window.charCreate;window.charCreate=function(done){
+const r=_cc.call(this,function(){try{done&&done()}finally{const w=window.__ccw;if(w){window.__ccw=null;requestAnimationFrame(()=>requestAnimationFrame(()=>Element.prototype.remove.call(w)))}}});
+const w=document.getElementById('ccw');if(w&&!w.__k){w.__k=1;window.__ccw=w;w.remove=function(){this.classList.add('keep')}}
+return r}}catch(e){}
 })();
 /* ================= กรอบหน้าต่างนิ่ง ไม่เคลื่อนไหว ================= */
 (function(){
@@ -13422,7 +13478,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 @keyframes ldSh{to{background-position:-250% 0}}@keyframes ldGl{to{background-position:60px 0}}
 @media (prefers-reduced-motion:reduce){#gLd *{animation:none!important;transition:none!important}}
 </style>`);
-window.gameLoad=function(done){
+window.gameLoad=function(done){try{done&&done()}catch(e){console.error(e)}return;
  if(document.getElementById('gLd')){try{done&&done()}catch(e){}return}
  const img=window.SS_IMG||'',w=document.createElement('div');w.id='gLd';if(img)w.style.setProperty('--img',`url(${img})`);
  const order=TIPS.map((t,i)=>i).sort(()=>Math.random()-.5);
