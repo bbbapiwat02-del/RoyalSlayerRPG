@@ -2178,7 +2178,7 @@ castSk=function(i){
  if(k.k==='h'){const hl=MHP()*k.p*L;hp=Math.min(MHP(),hp+hl);fl('+'+fmt(hl),'hl','h');burst(20,52,'#6dff8a',16);fx('ring');sfx('lvl')}
  else if(k.k==='b'){BU[k.id]={t:k.t*1000,a:(k.a||0)*L,s:k.s||0,c:k.c2||0,ls:skLsv(k,o),df:skDfv(k,o),i:k.i,col:k.c||RC[k.r],n:k.n};buTick(0);fx('ring');buffFx(k);sfx('lvl')}
  else{
-  const n=k.h||1,tot=ATK()*k.m*L*SKDMG*(k.k==='c'?CRD():1),gap=Math.min(110,420/n);castFx(k);
+  const n=k.h||1,tot=(D&&D.duel)?ATK():ATK()*k.m*L*SKDMG*(k.k==='c'?CRD():1),gap=Math.min(110,420/n);castFx(k);
   const w=[];if(k.k==='x'&&n>1){let sm=0;for(let j=0;j<n;j++){const x=1+(k.g||.6)*j;w.push(x);sm+=x}for(let j=0;j<n;j++)w[j]=w[j]/sm}
   else for(let j=0;j<n;j++)w.push(n===1?1:(j===n-1?.5:.5/(n-1)));
   for(let j=0;j<n;j++){const last=j===n-1,dmg=tot*w[j];
