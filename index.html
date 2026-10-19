@@ -10005,21 +10005,25 @@ window.pvpMenu=pmOpen;
 <script>/* ================= ตั้งค่าการใช้สกิลอัตโนมัติ: ใช้เรียงจากช่อง 1 → ช่องสุดท้ายเสมอ + กำหนดเวลารอของแต่ละช่อง ================= */
 (function(){
 function cfg(){if(!S.skq||typeof S.skq!=='object')S.skq={on:true,d:[0,0,0,0,0,0]};if(!Array.isArray(S.skq.d))S.skq.d=[0,0,0,0,0,0];while(S.skq.d.length<6)S.skq.d.push(0);return S.skq}
-let ptr=0,nextAt=0,fails=0;
+let ptr=0,nextAt=0,fails=0;const rdy=[0,0,0,0,0,0];
 const filled=()=>{const r=[];for(let i=0;i<6;i++)if(S.sk&&S.sk[i]&&SK.find(x=>x.id===S.sk[i])&&S.skills[S.sk[i]])r.push(i);return r};
 function nextSlot(from){const f=filled();if(!f.length)return -1;for(const i of f)if(i>=from)return i;return f[0]}
 function arm(i){const c=cfg();nextAt=Date.now()+Math.max(0,+c.d[i]||0)*1000}
 /* เริ่มรอบใหม่ (เข้าประลอง/เปลี่ยนการตั้งค่า): เริ่มที่ช่องแรกเสมอ */
-function reset(full){ptr=nextSlot(0);fails=0;if(ptr>=0)arm(ptr);else nextAt=0;
+function reset(full){for(let k=0;k<6;k++)rdy[k]=0;ptr=nextSlot(0);fails=0;if(ptr>=0)arm(ptr);else nextAt=0;
  if(full){for(let i=0;i<6;i++)skCds[i]=0;skG=0}}
 window.skqReset=reset;
 const _auto=autoSk;
 autoSk=function(){const c=cfg();if(!c.on)return _auto.apply(this,arguments);
- let i=nextSlot(ptr<0?0:ptr);if(i<0)return;if(i!==ptr){ptr=i;arm(i);return}
- if(Date.now()<nextAt)return;
- if(skCds[i]>0)return; /* รอสกิลช่องนี้พร้อมก่อน ไม่ข้ามลำดับ */
- const b=skCds[i];castSk(i);
- if(skCds[i]!==b||fails>=3){fails=0;skG=700;const n=nextSlot(i+1);ptr=n;if(n>=0)arm(n)}else{fails++;skG=500}};
+  /* ช่องไหนคูลดาวน์เสร็จก่อนใช้ทันที — ถ้าพร้อมพร้อมกันหลายช่อง ไล่จากช่อง 1 ไปก่อน */
+  const f=filled(),now=Date.now();
+  for(let k=0;k<6;k++)if(!f.includes(k)||skCds[k]>0)rdy[k]=0;
+  for(const i of f){if(skCds[i]>0)continue;
+   if(!rdy[i])rdy[i]=now;
+   if(now-rdy[i]<(+c.d[i]||0)*1000)continue; /* เวลารอที่ตั้งไว้ของช่องนี้ */
+   const b=skCds[i];castSk(i);
+   if(skCds[i]!==b){rdy[i]=0;skG=700;const n=nextSlot(i+1);ptr=n<0?i:n;return}
+   skG=500;return}};
 /* ---------- หน้าตั้งค่าในหน้าสกิล ---------- */
 document.head.insertAdjacentHTML('beforeend',`<style>
 #skq{margin-top:10px;padding:10px;border-radius:14px;background:linear-gradient(#2a1a0c,#160c06);border:1.5px solid #8a6a3a;color:#ffe9c8}
