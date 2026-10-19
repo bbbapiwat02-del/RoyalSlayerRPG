@@ -8028,7 +8028,7 @@ const toast=t=>{try{banner(t)}catch(e){}};
 function snap(){const s={};try{
  s.name=S.name||'จอมยุทธ์';s.sex=S.sex||'m';s.lv=S.lv||1;s.stage=S.stage||1;s.bp=Math.floor(BP());
  s.atk=Math.floor(ATK());s.hp=Math.floor(MHP());s.crit=+CRIT().toFixed(1);s.spd=+SPD().toFixed(2);
- s.def=Math.round(defR()*100);s.mdef=Math.round(mdefR()*100);
+ s.def=Math.round(defR()*100);s.mdef=Math.round(mdefR()*100);try{s.dfv=Math.round(DEFV());s.mdv=Math.round(MDEFV())}catch(e){}
  s.st=Object.assign({},S.st||{});
  s.eq=(S.eq||[]).map((e,i)=>e?{s:e.s,t:e.t,set:e.set,en:(S.enh&&S.enh[i])||0}:null);
  s.wg=S.wg||0;s.wl=S.wl||0;s.wgn=S.wg&&typeof WG!=='undefined'&&WG[S.wg-1]?WG[S.wg-1].n:'';
@@ -8192,7 +8192,7 @@ const fashBox=(x,list,ic,lab)=>{const o=x&&list?list.find(q=>q.id===x.id):null;r
  B.innerHTML=`<div class="pfx"><div class="pft"><b>${esc(d.name||data.name)}</b><small>ไอดี ${esc(data.username||'-')} · Lv.${d.lv||data.lv} · ด่าน ${d.stage||1} · <span style="color:${online(data.updated_at)?'#8aff9a':'#998'}">● ${online(data.updated_at)?'ออนไลน์':ago(data.updated_at)}</span></small><span class="bp">⚡ BP ${fmtN(d.bp||data.bp||0)}</span></div>
   <div class="grid"><div class="col">${[2,1,3].map(slot).join('')}</div><div class="hero">${av}</div><div class="col">${[0,4].map(slot).join('')}${wingSl}</div></div>${window.pfPetBlock?window.pfPetBlock(d.pet):''}
   
-  <div class="pfh">👘 แฟชั่นที่สวมใส่</div><div class="stats" style="grid-template-columns:1fr 1fr">${fashBox(d.fsx,typeof FS!=='undefined'?FS:null,'👘','ชุดแฟชั่น')}${fashBox(d.wsx,typeof WSK!=='undefined'?WSK:null,'🗡️','อาวุธแฟชั่น')}</div><div class="pfh">📊 ค่าพลัง</div><div class="stats"><div><i>⚔️</i>โจมตี<b>${fmtN(d.atk||0)}</b></div><div><i>❤️</i>HP<b>${fmtN(d.hp||0)}</b></div><div><i>🎯</i>คริ<b>${d.crit||0}%</b></div><div><i>💨</i>ความเร็ว<b>x${d.spd||1}</b></div><div><i>🛡️</i>กันกาย<b>${d.def||0}%</b></div><div><i>✨</i>กันเวท<b>${d.mdef||0}%</b></div></div>
+  <div class="pfh">👘 แฟชั่นที่สวมใส่</div><div class="stats" style="grid-template-columns:1fr 1fr">${fashBox(d.fsx,typeof FS!=='undefined'?FS:null,'👘','ชุดแฟชั่น')}${fashBox(d.wsx,typeof WSK!=='undefined'?WSK:null,'🗡️','อาวุธแฟชั่น')}</div><div class="pfh">📊 ค่าพลัง</div><div class="stats"><div><i>⚔️</i>โจมตี<b>${fmtN(d.atk||0)}</b></div><div><i>❤️</i>HP<b>${fmtN(d.hp||0)}</b></div><div><i>🎯</i>คริ<b>${d.crit||0}%</b></div><div><i>💨</i>ความเร็ว<b>x${d.spd||1}</b></div><div><i>🛡️</i>กันกาย<b>${d.dfv!=null?fmtN(d.dfv)+' <small style="font-weight:600;opacity:.8">('+(d.def||0)+'%)</small>':(d.def||0)+'%'}</b></div><div><i>✨</i>กันเวท<b>${d.mdv!=null?fmtN(d.mdv)+' <small style="font-weight:600;opacity:.8">('+(d.mdef||0)+'%)</small>':(d.mdef||0)+'%'}</b></div></div>
   <div class="pfh">💠 สเตตัส</div><div class="stats st6">${S6.map(([i,l,k])=>`<div><i>${i}</i>${l}<b>${fmtN(st[k]||0)}</b></div>`).join('')}</div>
   ${me?'':`<div class="pfbt">${isF?`<button class="sobtn b" id="pfdm">💬 คุยส่วนตัว</button><button class="sobtn" id="pfml">✉️ จดหมาย</button><button class="sobtn g" id="pfdel">ลบ</button>`:isIn?`<button class="sobtn" id="pfacc">🤝 ยอมรับคำขอ</button>`:isOut?`<button class="sobtn g" disabled>⏳ ส่งคำขอแล้ว</button>`:`<button class="sobtn" id="pfadd">➕ แอดเพื่อน</button>`}</div><div class="somsg" id="pfmsg"></div>`}</div>`;
  requestAnimationFrame(()=>requestAnimationFrame(()=>{try{window.pfAlign&&pfAlign()}catch(e){}}));
@@ -13755,6 +13755,14 @@ try{if(d&&!w&&!manual&&!d.bs&&!d.tw&&!d.wb&&!d.duel&&DG[d.i]){
  try{renderDg()}catch(e){}
  setTimeout(()=>{try{banner('↩️ ลงไม่ผ่าน · ไม่เสียรอบ คืนตั๋วให้แล้ว')}catch(e){}},500)}}catch(e){console.error(e)}
 return r};
+})();
+</script><script>/* ===== ดาบแฟชั่นในท่าลากดาบเข้าฉาก: ทำสำเนาใหม่ทุกครั้งที่ตัวละครถูกวาดใหม่ / ก่อนเดินเข้าฉาก ===== */
+(function(){
+const fix=()=>{try{const sv=document.querySelector('#hs svg.nh');if(!sv||!window.nhWs)return;const has=!!sv.querySelector('.nwsd'),want=!!(S.ws&&S.ws.eq);if(has!==want||(want&&sv.dataset.nwi!==S.ws.eq))window.nhWs(sv)}catch(e){}};
+const _uh=updateHero;updateHero=function(){const r=_uh.apply(this,arguments);fix();setTimeout(fix,120);return r};
+if(typeof enterAnim==='function'){const _ea=enterAnim;enterAnim=function(){fix();const r=_ea.apply(this,arguments);setTimeout(fix,60);return r}}
+const A=document.getElementById('arena');if(A)new MutationObserver(()=>{if(A.classList.contains('walk'))fix()}).observe(A,{attributes:true,attributeFilter:['class']});
+setInterval(fix,1500);
 })();
 </script></body></html>
 
