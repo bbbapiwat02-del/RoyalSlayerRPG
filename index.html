@@ -891,7 +891,7 @@ window.gDefault=function(){Object.assign(G,GMID);try{gApply()}catch(e){try{local
 try{const sv=JSON.parse(localStorage.getItem('ml_gfx')||'null');if(sv){if(!sv.v4){const up=k=>{if(sv[k])sv[k]=k==='bg'?3:2};['bg','glow','anim','ifx','shake'].forEach(up);if(sv.dn===2)sv.dn=3;sv.v4=1}if(!sv.v5){Object.assign(sv,GMID);sv.v5=1}Object.assign(G,sv)}}catch(e){}
 var BF={a:0,s:0,c:0,t:0},skCds=[0,0,0,0,0,0],skMax=[1,1,1,1,1,1],skG=0;
 function WGD(){return (S.wgSk>0&&S.wgSk<=S.wg)?S.wgSk:S.wg}
-function WV(k){const w=S.wg;if(!w)return 0;const t=WG[w-1],v=k==='c'?t.c2:t[k]||0;return (k==='c'?BCC(v):k==='s'?BCS(v):BCP(v))*(1+0.1*S.wl)}const ES=()=>D?(D.abs?D.abs:Math.max(1,S.stage+D.off)):S.stage;
+function WV(k){const w=S.wg;if(!w)return 0;const t=WG[w-1],v=k==='c'?t.c2:t[k]||0;return (k==='c'?BCC(v):k==='s'?BCS(v):BCP(v))*(1+0.1*S.wl)}const ES=()=>D?(D.abs?D.abs:(D.k&&!D.bs&&!D.tw&&!D.wb&&!D.duel?Math.max(1,Math.floor(Math.min(S.stage+D.off,S.lv*1.15)*.8)):Math.max(1,S.stage+D.off))):S.stage;
 const clr=e=>e.getAnimations().filter(a=>!a.animationName).forEach(a=>a.cancel());
 const fmtS=n=>{if(n<1000)return Math.floor(n)+'';const u=['','K','M','B','T','Qa','Qi'];let i=0;while(n>=1000&&i<6){n/=1000;i++}return n.toFixed(n<10?2:1)+u[i]};const fmt=n=>(n=+n||0,Math.abs(n)>=1e21?fmtS(n):Math.floor(n).toLocaleString('en-US'));
 let S={gold:0,diamonds:0,stage:1,kills:0,up:{atk:0,hp:0,spd:0,crit:0},t:Date.now(),auto:false,chest:1,keys:0,eq:[null,null,null,null,null],pend:null,lv:1,exp:0,tk:3,tkT:Date.now(),wg:0,wl:0,pets:{},pet:'',egg:1,hc:0,sk:[null,null,null,null,null,null],skills:{},skf:3,skh:0,skp:0};
@@ -4151,40 +4151,52 @@ const r=_cc.call(this,function(){try{done&&done()}finally{const w=window.__ccw;i
 const w=document.getElementById('ccw');if(w&&!w.__k){w.__k=1;window.__ccw=w;w.remove=function(){this.classList.add('keep')}}
 return r}}catch(e){}
 })();
-/* ===== ตั้งค่าเพิ่ม: เปิด/ปิดออร่าร่างกาย ออร่าอาวุธ ออร่าบัพ เอฟเฟคสกิล ฉากแฟนตาซี พุ่มหญ้าขยับ ===== */
+/* ===== ตั้งค่าเพิ่ม (ปิด/ต่ำ/กลาง/สูงสุด): ออร่าร่างกาย ออร่าอาวุธ ออร่าบัพ เอฟเฟคสกิล ฉากแฟนตาซี พุ่มหญ้าขยับ ===== */
 (function(){
-const DEF={ea:1,wa:1,ba:1,sv:1,sc:1,sw:1};
+if(!G.v6){const o=G;['ea','wa','ba','sc'].forEach(k=>{if(o[k]!==undefined)o[k]=o[k]?3:0});if(o.sw!==undefined)o.sw=o.sw?2:0;if(o.sv!==undefined)o.sv=[0,2,3][o.sv]||0;G.v6=1}
+const DEF={ea:3,wa:3,ba:3,sv:2,sc:3,sw:2};
 Object.keys(DEF).forEach(k=>{if(G[k]===undefined)G[k]=DEF[k]});
 const st=document.createElement('style');
 st.textContent=`
+body .enaura{filter:opacity(var(--ea,1))}
+body .wfx{opacity:var(--wa,1)}
+body #hs g[style*="drop-shadow"]{filter:drop-shadow(0 0 calc(3px*var(--wa,1)) currentColor)}
 .g-noea .enaura{display:none!important}
 .g-nowa .wfx{display:none!important}
 .g-nowa #hs g[style*="drop-shadow"]{filter:none!important}
 .g-noba #hbau,.g-noba #fsau,.g-noba #wsau{display:none!important}
+body #hbau.on{opacity:calc(.42*var(--bam,1))!important}
+body #fsau{opacity:calc(.5*var(--bam,1))!important}
 .g-sv0 .svfx,.g-sv0 #arena .flash,.g-sv0 #arena .ring{display:none!important}
-body.g-sv2 #arena .svfx{opacity:1!important}
-body.g-sv2 #arena .flash,body.g-sv2 #arena .ring{opacity:1!important}
+body #arena .svfx,body #arena .flash,body #arena .ring{opacity:var(--svm,.6)!important}
 .g-nosc .fxr,.g-nosc .isl,.g-nosc .mote,.g-nosc .cas{display:none!important}
+.g-sc1 .fxr,.g-sc1 .mote,.g-sc2 .mote{display:none!important}
+.g-sc1 .isl{animation:none!important}
 .g-nosw .sw,.g-nosw .tw{animation:none!important}
+.g-sw1 .sw{animation-duration:8s!important}.g-sw1 .sw.b{animation-duration:10s!important}.g-sw1 .tw{animation-duration:12s!important}
+.g-sw3 .sw{animation-duration:2.2s!important}.g-sw3 .sw.b{animation-duration:3.2s!important}.g-sw3 .tw{animation-duration:4s!important}
 `;
 document.head.appendChild(st);
-function ap2(){const b=document.body.classList;
-b.toggle('g-noea',!G.ea);b.toggle('g-nowa',!G.wa);b.toggle('g-noba',!G.ba);
-b.toggle('g-sv0',G.sv===0);b.toggle('g-sv2',G.sv===2);b.toggle('g-nosc',!G.sc);b.toggle('g-nosw',!G.sw)}
+function ap2(){const b=document.body,c=b.classList,s=b.style;
+c.toggle('g-noea',!G.ea);c.toggle('g-nowa',!G.wa);c.toggle('g-noba',!G.ba);c.toggle('g-sv0',!G.sv);c.toggle('g-nosc',!G.sc);c.toggle('g-nosw',!G.sw);
+c.toggle('g-sc1',G.sc===1);c.toggle('g-sc2',G.sc===2);c.toggle('g-sw1',G.sw===1);c.toggle('g-sw3',G.sw===3);
+s.setProperty('--ea',[0,.35,.65,1][G.ea]);s.setProperty('--wa',[0,.35,.65,1][G.wa]);s.setProperty('--bam',[0,.5,.8,1.25][G.ba]);s.setProperty('--svm',[0,.3,.6,1][G.sv])}
 const _g=gApply;gApply=function(){const r=_g.apply(this,arguments);ap2();return r};ap2();
-const oo=[[0,'ปิด'],[1,'เปิด']];
+const L4=[[0,'ปิด'],[1,'ต่ำ'],[2,'กลาง'],[3,'สูงสุด']],MAP={'เบา':'ต่ำ','น้อย':'ต่ำ','เรียบ':'ต่ำ','สูง':'สูงสุด','มาก':'สูงสุด','เต็ม':'สูงสุด','ดัง':'สูงสุด'};
 const _r=renderGf;renderGf=function(){const r=_r.apply(this,arguments);try{
-const gb=$('gfb');if(!gb||gb.querySelector('[data-k="ea"]'))return r;
-const an=gb.querySelector('.tkr[style]');if(!an)return r;
-const h='<div class="tkr" style="margin-top:8px"><small>ออร่าและเอฟเฟคเพิ่มเติม</small></div>'
-+gfRow('🔥 ออร่าตีบวกที่ตัว','เปลวไฟ/วงเวทรอบตัวละคร','ea',oo)
-+gfRow('🗡️ ออร่าอาวุธตีบวก','แสงเรืองและเปลวที่อาวุธ','wa',oo)
-+gfRow('🛡️ ออร่าบัพที่ตัว','ออร่าตอนใช้สกิลบัพ/ฟื้นฟู','ba',oo)
-+gfRow('💥 เอฟเฟคสกิล','ปิด · เบา · เต็ม (ภาพสกิลตอนใช้)','sv',[[0,'ปิด'],[1,'เบา'],[2,'เต็ม']])
-+gfRow('🌄 ฉากแฟนตาซี','รัศมีดวงอาทิตย์ เกาะลอย ปราสาท ผงแสง','sc',oo)
-+gfRow('🌿 พุ่มหญ้า/ต้นไม้ขยับตามลม','ปิดเพื่อให้ฉากนิ่งและลื่นขึ้น','sw',oo);
+const gb=$('gfb');if(!gb)return r;
+if(!gb.querySelector('[data-k="ea"]')){
+const tks=[...gb.querySelectorAll('.tkr')],an=tks.find(x=>/ผลของไอเทม/.test(x.textContent))||tks[tks.length-1];
+if(an){const h='<div class="tkr" style="margin-top:8px"><small>ออร่าและเอฟเฟคเพิ่มเติม</small></div>'
++gfRow('🔥 ออร่าตีบวกที่ตัว','เปลวไฟ/วงเวทรอบตัวละคร','ea',L4)
++gfRow('🗡️ ออร่าอาวุธตีบวก','แสงเรืองและเปลวที่อาวุธ','wa',L4)
++gfRow('🛡️ ออร่าบัพที่ตัว','ออร่าตอนใช้สกิลบัพ/ฟื้นฟู','ba',L4)
++gfRow('💥 เอฟเฟคสกิล','ภาพสกิลตอนใช้ แฟลช วงแหวน','sv',L4)
++gfRow('🌄 ฉากแฟนตาซี','ต่ำ=เกาะ/ปราสาทนิ่ง · กลาง=ขยับ · สูงสุด=รัศมี+ผงแสง','sc',L4)
++gfRow('🌿 พุ่มหญ้า/ต้นไม้ขยับตามลม','ปิด=นิ่ง · ต่ำ=ช้า · สูงสุด=เร็ว','sw',L4);
 an.insertAdjacentHTML('beforebegin',h);
-gb.querySelectorAll('.seg button').forEach(b=>{if(DEF[b.dataset.k]!==undefined)b.onclick=()=>{G[b.dataset.k]=+b.dataset.v;gApply();renderGf()}});
+gb.querySelectorAll('.seg button').forEach(b=>{if(DEF[b.dataset.k]!==undefined)b.onclick=()=>{G[b.dataset.k]=+b.dataset.v;gApply();renderGf()}})}}
+gb.querySelectorAll('.seg button').forEach(b=>{const m=MAP[b.textContent.trim()];if(m)b.textContent=m});
 }catch(e){console.error(e)}return r};
 })();
 /* ===== แก้รัศมีดวงอาทิตย์หมุนช้าๆ + เกาะลอยขึ้นลงเบาๆ (เดิม keyframes หมุน 360° ถูกคำนวณเป็น 0° เลยไม่หมุน) ===== */
@@ -4217,6 +4229,8 @@ document.head.appendChild(st);
 })();
 /* ===== ขยับตัวละคร/มอน/สัตว์เลี้ยงลงอีกนิด ===== */
 (function(){const st=document.createElement('style');st.textContent='#hero,#mon{bottom:calc(22% - 8px)!important}#pet{bottom:calc(18% - 8px)!important}';document.head.appendChild(st)})();
+/* ===== บอสไม่มีเงาดำ/วงรี ===== */
+(function(){const st=document.createElement('style');st.textContent='#mon.boss .sh{display:none!important}';document.head.appendChild(st)})();
 /* ================= กรอบหน้าต่างนิ่ง ไม่เคลื่อนไหว ================= */
 (function(){
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -7334,8 +7348,8 @@ const PL={quad,biped,spider,insect,serpent,flyer,floater,hopper,waddler};
 let uid=0;
 function make(idx,boss){const n=SP.length,si=((idx%n)+n)%n,s=SP[si],e=(si+Math.floor(idx/n)*5)%10,P=Object.assign({},EL[e],s.c||{}),id='rg'+(uid++%9999);
  const r=PL[s.p](s,P,id),fly=r.fly;let o=`<svg viewBox="-8 -18 136 136" class="rig rg-${s.p}">${defs(P,id)}`;
- if(boss)o+=`<ellipse cx="60" cy="66" rx="64" ry="58" fill="url(#${id}u)"/><ellipse cx="60" cy="111" rx="48" ry="6" fill="none" stroke="${P.e}" stroke-width="1.6" opacity=".7"/>`;
- const sc={quad:1.28,insect:1.25,spider:1.22,serpent:1.18,waddler:1.12,hopper:1.18,flyer:1.15,floater:1.1,biped:1}[s.p]||1;o+=`<ellipse cx="60" cy="111" rx="${(fly?18:34)*sc}" ry="${fly?3:4.5}" fill="#000" opacity="${fly?.18:.32}"/><g transform="translate(60 111) scale(${sc}) translate(-60 -111)">`+r.s+'</g>';
+ if(boss)o+=`<ellipse cx="60" cy="66" rx="64" ry="58" fill="url(#${id}u)"/>`;
+ const sc={quad:1.28,insect:1.25,spider:1.22,serpent:1.18,waddler:1.12,hopper:1.18,flyer:1.15,floater:1.1,biped:1}[s.p]||1;o+=`${boss?'':'<ellipse cx="60" cy="111" rx="'+((fly?18:34)*sc)+'" ry="'+(fly?3:4.5)+'" fill="#000" opacity="'+(fly?.18:.32)+'"/>'}<g transform="translate(60 111) scale(${sc}) translate(-60 -111)">`+r.s+'</g>';
  if(boss)o+=crown(Math.round(60+(r.hx-60)*sc),Math.round(111+(r.hy-111)*sc));
  return {s:o+'</svg>',nm:s.n+EL[e].n,boss,plan:s.p,heavy:!!s.heavy,v:s.v}}
 window.MonRig={make,SP,count:SP.length};
@@ -9275,7 +9289,7 @@ const tMax=c=>Math.max(0,Math.min(MAXT,Math.floor((S.lv-c.lv)/10)+1));     /* �
 const tLv=(c,t)=>c.lv+10*(t-1);                                            /* เลเวลที่ต้องใช้ของขั้น t */
 function selT(c){S.dgt=S.dgt||{};const m=tMax(c);let t=S.dgt[c.k]||m;if(t>m)t=m;if(t<1)t=1;return t}
 function expBase(c,t){return (window.expRaw||expNeed)(Math.min(S.lv,tLv(c,t)+9))}
-function rw(c,t){const R=rw0(c,t),m=c.k==='exp'?2.5:2;return{kill:Math.floor(R.kill*m),clr:Math.floor(R.clr*m)}}/* ดันได้มากกว่าด่านมาก */
+function rw(c,t){const R=rw0(c,t),m=c.k==='exp'?4:2.4;return{kill:Math.floor(R.kill*m),clr:Math.floor(R.clr*m)}}/* ดันได้มากกว่าด่านมาก */
 function rw0(c,t){ /* รางวัลรวมต่อการเคลียร์ 1 ครั้ง */
  if(c.k==='exp'){const e=expBase(c,t);return{kill:Math.floor(e*.035),clr:Math.floor(e*.14)}}
  if(c.k==='gold'){const g=Math.max(10,gpk());return{kill:Math.floor(g*(4+2*t)),clr:Math.floor(g*(40+20*t))}}
@@ -13365,7 +13379,7 @@ window.dgLeft=dgLeft;
 const _en=enterDg;enterDg=function(i){const before=D;
  if(!before&&dgLeft(i)<=0){buyRun(i);return}
  const r=_en.apply(this,arguments);
- if(!before&&D&&D.i===i&&!D.bs&&!D.tw&&!D.wb&&!D.duel){const o=dgd();o.n[i]=(o.n[i]||0)+1;
+ if(!before&&D&&D.i===i&&!D.bs&&!D.tw&&!D.wb&&!D.duel){const o=dgd();o.n[i]=(o.n[i]||0)+1;D.cnt=1;
   /* รางวัลดันมากกว่าด่านปกติมาก */
   if(!D.k)D.mul=(D.mul||1)*3;
   D.t0=D.t;try{renderDg()}catch(e){}}
@@ -13725,6 +13739,19 @@ b.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();
 setInterval(()=>{let on=false;try{on=!!(D&&D.tw)}catch(e){}if(on!==b.classList.contains('on')){b.classList.toggle('on',on);if(!on)reset()}},250);
 })();
 </script>
-</body></html>
+<script>/* ===== ดันเจี้ยน: ลงไม่ผ่าน (ตาย/หมดเวลา) ไม่เสียรอบ คืนตั๋วและโควต้ารายวัน ===== */
+(function(){
+if(typeof dgEnd!=='function')return;
+let man=0;document.addEventListener('click',e=>{const x=e.target&&e.target.closest&&e.target.closest('.dgx-go,.dgb');if(x)man=Date.now()},true);
+const _de=dgEnd;
+dgEnd=function(w){const d=D,manual=Date.now()-man<800;const r=_de.apply(this,arguments);
+try{if(d&&!w&&!manual&&!d.bs&&!d.tw&&!d.wb&&!d.duel&&DG[d.i]){
+ if(S.tk<5)S.tk++;
+ if(d.cnt){const o=S.dgd;if(o&&o.n&&o.n[d.i]>0)o.n[d.i]--}
+ try{renderDg()}catch(e){}
+ setTimeout(()=>{try{banner('↩️ ลงไม่ผ่าน · ไม่เสียรอบ คืนตั๋วให้แล้ว')}catch(e){}},500)}}catch(e){console.error(e)}
+return r};
+})();
+</script></body></html>
 
 
