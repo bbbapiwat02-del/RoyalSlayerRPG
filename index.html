@@ -2138,6 +2138,7 @@ SK.push(
 const BUFF_NERF=.6;
 SK.forEach(k=>{if(k.k!=='b'||k._nf)return;k._nf=1;['a','s','ls','df'].forEach(f=>{if(k[f])k[f]=+(k[f]*BUFF_NERF).toFixed(3)});if(k.c2)k.c2=Math.max(1,Math.round(k.c2*BUFF_NERF))});
 const SKDMG=.5;
+const SKHITCAP=2; /* สกิลโจมตีตีสูงสุด 2 ครั้ง (ดาเมจรวมเท่าเดิม) */
 const skDfv=(k,o)=>Math.min(.6,(k.df||0)*(1+.04*((o?o.lv:1)-1))),skLsv=(k,o)=>Math.min(.35,(k.ls||0)*skMul(o));
 function buTick(dt){let a=0,s=0,c=0,ls=0,df=0,any=0;for(const id in BU){const b=BU[id];b.t-=dt;if(b.t<=0){delete BU[id];continue}a+=b.a;s+=b.s;c+=b.c;ls+=b.ls;df+=b.df;any=1}
  BF.a=a;BF.s=s;BF.c=c;BF.ls=Math.min(.4,ls);BF.df=Math.min(.6,df);BF.t=any?1:0}
@@ -2151,10 +2152,10 @@ renderSlots=function(){
 
 /* คำอธิบาย / BP */
 skDesc=function(k,o){const L=skMul(o),A=ATK()*SKDMG;
- if(k.k==='d')return `ดาเมจรวม ${fmt(A*k.m*L)} (x${(k.m*L).toFixed(1)} พลังโจมตี${k.h>1?' · '+k.h+' ครั้ง':''})`;
- if(k.k==='c')return `ตีติดคริติคอลทุกครั้ง ดาเมจรวม ${fmt(A*k.m*L*CRD())} (x${(k.m*L*CRD()).toFixed(1)}${k.h>1?' · '+k.h+' ครั้ง':''})`;
- if(k.k==='t')return `ดาเมจ ${fmt(A*k.m*L)} (x${(k.m*L).toFixed(1)}${k.h>1?' · '+k.h+' ครั้ง':''}) + 💫 สตั้นมอนสเตอร์ ${k.sd} วิ (บอสครึ่งหนึ่ง)`;
- if(k.k==='x')return `คอมโบ ${k.h} ท่า ยิ่งท้ายยิ่งแรง ดาเมจรวม ${fmt(A*k.m*L)} (x${(k.m*L).toFixed(1)})`;
+ if(k.k==='d')return `ดาเมจรวม ${fmt(A*k.m*L)} (x${(k.m*L).toFixed(1)} พลังโจมตี${Math.min(k.h||1,SKHITCAP)>1?' · '+Math.min(k.h,SKHITCAP)+' ครั้ง':''})`;
+ if(k.k==='c')return `ตีติดคริติคอลทุกครั้ง ดาเมจรวม ${fmt(A*k.m*L*CRD())} (x${(k.m*L*CRD()).toFixed(1)}${Math.min(k.h||1,SKHITCAP)>1?' · '+Math.min(k.h,SKHITCAP)+' ครั้ง':''})`;
+ if(k.k==='t')return `ดาเมจ ${fmt(A*k.m*L)} (x${(k.m*L).toFixed(1)}${Math.min(k.h||1,SKHITCAP)>1?' · '+Math.min(k.h,SKHITCAP)+' ครั้ง':''}) + 💫 สตั้นมอนสเตอร์ ${k.sd} วิ (บอสครึ่งหนึ่ง)`;
+ if(k.k==='x')return `คอมโบ ${Math.min(k.h||1,SKHITCAP)} ท่า ยิ่งท้ายยิ่งแรง ดาเมจรวม ${fmt(A*k.m*L)} (x${(k.m*L).toFixed(1)})`;
  if(k.k==='h')return `ฟื้นลมปราณ ${Math.round(k.p*L*100)}% (${fmt(MHP()*k.p*L)})`;
  const p=[];if(k.a)p.push('⚔️ โจมตี +'+Math.round(k.a*L*100)+'%');if(k.s)p.push('💨 ความเร็วโจมตี +'+k.s.toFixed(2)+'x');if(k.c2)p.push('🎯 คริ +'+k.c2+'%');if(k.ls)p.push('🩸 ดูดเลือด '+Math.round(skLsv(k,o)*100)+'% ของดาเมจ');if(k.df)p.push('🛡️ ลดดาเมจรับ '+Math.round(skDfv(k,o)*100)+'%');
  return p.join(' · ')+' นาน '+k.t+' วิ'};
@@ -2178,7 +2179,7 @@ castSk=function(i){
  if(k.k==='h'){const hl=MHP()*k.p*L;hp=Math.min(MHP(),hp+hl);fl('+'+fmt(hl),'hl','h');burst(20,52,'#6dff8a',16);fx('ring');sfx('lvl')}
  else if(k.k==='b'){BU[k.id]={t:k.t*1000,a:(k.a||0)*L,s:k.s||0,c:k.c2||0,ls:skLsv(k,o),df:skDfv(k,o),i:k.i,col:k.c||RC[k.r],n:k.n};buTick(0);fx('ring');buffFx(k);sfx('lvl')}
  else{
-  const n=k.h||1,tot=(D&&D.duel)?ATK():ATK()*k.m*L*SKDMG*(k.k==='c'?CRD():1),gap=Math.min(110,420/n);castFx(k);
+  const n=Math.min(k.h||1,SKHITCAP),tot=(D&&D.duel)?ATK():ATK()*k.m*L*SKDMG*(k.k==='c'?CRD():1),gap=Math.min(110,420/n);castFx(k);
   const w=[];if(k.k==='x'&&n>1){let sm=0;for(let j=0;j<n;j++){const x=1+(k.g||.6)*j;w.push(x);sm+=x}for(let j=0;j<n;j++)w[j]=w[j]/sm}
   else for(let j=0;j<n;j++)w.push(n===1?1:(j===n-1?.5:.5/(n-1)));
   for(let j=0;j<n;j++){const last=j===n-1,dmg=tot*w[j];
@@ -3446,14 +3447,14 @@ ice(c,s){const T=vtg(),u=VU();let h=`<defs><linearGradient id="${u}i" x1="0" y1=
  for(let i=0;i<14;i++)h+=`<text x="${F1(T.mx+RR(-60,60)*s)}" y="${F1(T.my-RR(40,90))}" font-size="${F1(RR(8,14))}" fill="#fff" opacity="0">❄<animate attributeName="opacity" values="0;1;0" dur="1.1s" begin="${F1(RR(0,.4))}s" fill="freeze"/><animateTransform attributeName="transform" type="translate" values="0 0;0 40" dur="1.1s" begin="0s" fill="freeze"/></text>`;
  svfx(h,1500)},
 bolt(c,s){const T=vtg(),u=VU();let h=`<rect x="0" y="0" width="${T.W}" height="${T.H}" fill="#fff" opacity="0"><animate attributeName="opacity" values="0;.5;0;.3;0" dur=".5s" fill="freeze"/></rect>`;
- const n=s>1.5?5:3;for(let b=0;b<n;b++){const x0=T.mx+RR(-80,80)*s,x1=T.mx+RR(-6,6);let p=[];for(let k=0;k<=8;k++){const t=k/8;p.push(F1(x0+(x1-x0)*t+(k&&k<8?RR(-16,16):0))+','+F1(-10+(T.my+10)*t))}const pts=p.join(' ');
+ const n=SKHITCAP;for(let b=0;b<n;b++){const x0=T.mx+RR(-80,80)*s,x1=T.mx+RR(-6,6);let p=[];for(let k=0;k<=8;k++){const t=k/8;p.push(F1(x0+(x1-x0)*t+(k&&k<8?RR(-16,16):0))+','+F1(-10+(T.my+10)*t))}const pts=p.join(' ');
   h+=`<g opacity="0"><animate attributeName="opacity" values="0;1;.2;1;.7;0" keyTimes="0;.1;.25;.4;.7;1" dur=".65s" begin="${(b*.08).toFixed(2)}s" fill="freeze"/><polyline points="${pts}" fill="none" stroke="${c}" stroke-width="${F1(10*s)}" stroke-linejoin="round" stroke-linecap="round" opacity=".55"/><polyline points="${pts}" fill="none" stroke="#fff" stroke-width="${F1(2.8*s)}" stroke-linejoin="round"/></g>`}
  h+=`<circle cx="${T.mx}" cy="${T.my}" r="${F1(30*s)}" fill="${c}" opacity="0"><animate attributeName="opacity" values="0;.7;0" dur=".5s" begin=".05s" fill="freeze"/></circle>`+ring(T.mx,T.my,8,90*s,'#fff',3,.45,.05)+`<ellipse cx="${T.mx}" cy="${T.gy-3}" rx="${F1(40*s)}" ry="${F1(8*s)}" fill="#000" opacity="0"><animate attributeName="opacity" values="0;.35;0" dur="1s" fill="freeze"/></ellipse>`;
  svfx(h,1100)},
 wind(c,s){const T=vtg(),u=VU();let e='';for(let i=0;i<8;i++){const rx=(10+i*7.5)*s,ry=(3.5+i*1.4)*s;e+=`<ellipse cx="0" cy="${F1(-i*15*s)}" rx="${F1(rx)}" ry="${F1(ry)}" fill="none" stroke="${i%2?'#fff':c}" stroke-width="${F1(2+i*.25)}" stroke-opacity=".85" stroke-dasharray="${F1(rx*1.5)} ${F1(rx*.7)}"><animate attributeName="stroke-dashoffset" values="0;${F1(-rx*4)}" dur=".45s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="translate" values="-5 0;5 0;-5 0" dur="${(.3+i*.03).toFixed(2)}s" repeatCount="indefinite"/></ellipse>`}
  for(let i=0;i<10;i++){const y=-RR(10,110)*s,r=RR(18,45)*s;e+=`<circle r="2.6" fill="${c}"><animateMotion dur="${F1(RR(.4,.6))}s" repeatCount="indefinite" path="M${F1(-r)} ${F1(y)} A ${F1(r)} 8 0 1 0 ${F1(r)} ${F1(y)} A ${F1(r)} 8 0 1 0 ${F1(-r)} ${F1(y)}"/></circle>`}
  svfx(`<g transform="translate(${T.mx} ${T.gy})"><g opacity="0"><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.15;.75;1" dur="1.15s" fill="freeze"/><animateTransform attributeName="transform" type="scale" values="0.3 1;1 1;1.1 1.1;0.5 1.4" dur="1.15s" fill="freeze"/>${e}</g></g>`,1300)},
-swords(c,s,k){const T=vtg(),u=VU(),n=Math.min(16,5+Math.round((k?k.r:2)*2.2));let h=`<defs><linearGradient id="${u}s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="${c}"/></linearGradient></defs>`;
+swords(c,s,k){const T=vtg(),u=VU(),n=Math.min(SKHITCAP,(k&&k.h)||SKHITCAP);let h=`<defs><linearGradient id="${u}s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="${c}"/></linearGradient></defs>`;
  for(let i=0;i<n;i++){const x=T.mx+RR(-48,48)*s,sc=RR(.8,1.25)*s,ty=T.my+RR(-18,18)-34*sc,b=(i*.055).toFixed(2);
   h+=`<g transform="translate(${F1(x)} 0)"><g transform="translate(0 -90)" opacity="0"><animateTransform attributeName="transform" type="translate" values="0 -90;0 ${F1(ty)}" dur=".24s" begin="${b}s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines=".6 0 1 1"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.05;.8;1" dur=".8s" begin="${b}s" fill="freeze"/><g transform="scale(${F1(sc)})" style="filter:drop-shadow(0 0 4px ${c})"><path d="M0 34L-2.8 6H2.8Z" fill="url(#${u}s)" stroke="#fff" stroke-width=".6"/><rect x="-7" y="3" width="14" height="3.2" rx="1.4" fill="#f5c542"/><rect x="-1.6" y="-6" width="3.2" height="9" rx="1" fill="#5a3a22"/><circle cy="-7" r="2" fill="#f5c542"/></g></g></g>`+ring(x,ty+34*sc,2,16,'#fff',2,.25,+b+.24)}
  svfx(h,1700)},
