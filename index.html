@@ -13951,6 +13951,67 @@ if(typeof wsAura==='function'){const _wa=wsAura;wsAura=function(o,tgt){
  }}
 try{wsLive()}catch(e){}
 })();
+
+/* ===== GM: เสกของให้ผู้เล่นคนอื่นตามชื่อไอเทม  /gm give <ผู้เล่น> <ชื่อไอเทม> [จำนวน] ===== */
+(function(){
+const GIVEF={'เพชร':'diamonds','เหรียญทอง':'gold','กุญแจหีบสมบัติ':'keys','ตั๋วท้าทาย':'tk','ไข่สัตว์เลี้ยง':'egg','คัมภีร์สุ่มสกิลฟรี':'skf'};
+const OLD={gold:1,dia:1,keys:1,tk:1,egg:1,skf:1};
+const $d=id=>document.getElementById(id);
+function say(msg,err){try{banner(msg)}catch(e){}const L=$d('chl');if(L){const d=document.createElement('div');d.className='sys';d.textContent='🛠 '+msg;L.appendChild(d);L.scrollTop=L.scrollHeight}(err?console.error:console.log)('[GM] '+msg)}
+async function GA(){const g=window.GameAuth;if(!g||g.mode!=='online'||!g.ready||!(await g.ready)||!g.sb)return null;return g}
+const errMsg=m=>/not authorized/i.test(m)?'ไม่มีสิทธิ์ (บัญชีนี้ไม่อยู่ในรายชื่อแอดมินระบบเสกของ)':/player not found/i.test(m)?'ไม่พบผู้เล่นนี้':/ambiguous/i.test(m)?'ชื่อตัวละครซ้ำกัน ใช้ไอดีแทน':/invalid amount/i.test(m)?'จำนวนไม่ถูกต้อง':/does not exist|Could not find the function/i.test(m)?'เซิร์ฟเวอร์ยังไม่ได้ติดตั้งระบบนี้ (รันไฟล์ gm_give_item.sql และ gm_take_item.sql ใน Supabase ก่อน)':'ผิดพลาด: '+m;
+const sv=()=>{try{localStorage.setItem('ml1',JSON.stringify(S))}catch(e){}};
+const refresh=()=>{try{render()}catch(e){}try{renderGear()}catch(e){}try{renderShop()}catch(e){}};
+const find=n=>window.gmItemFind?window.gmItemFind(n):null;
+function cands(raw){const m=raw.match(/^"([^"]+)"\s+(.+)$/);if(m)return[[m[1],m[2]]];const w=raw.trim().split(/\s+/),o=[];for(let k=1;k<w.length;k++)o.push([w.slice(0,k).join(' '),w.slice(k).join(' ')]);return o}
+function resolve(rest){let q=1,name=rest;const m=rest.match(/^(.*\S)\s+(\d+)$/);if(m){name=m[1];q=Math.max(1,Math.min(1e9,Number(m[2])))}
+ const r=find(name);return r&&r.hit?{hit:r.hit,q}:{r,name}}
+async function send(tgt,hit,q,kind){const g=await GA();if(!g){say('❌ GM: ต้องเล่นแบบออนไลน์',true);return}
+ const take=kind==='take';
+ if(take&&!canTake(hit)){say('❌ ดึงกลับ "'+hit.n+'" ไม่ได้ (ดึงได้เฉพาะสกุลเงิน กล่อง แฟชั่น อาวุธ สัตว์เลี้ยง ชุดเทพ)',true);return}
+ const f=take?null:GIVEF[hit.n];let res;
+ try{res=f?await g.sb.rpc('gm_give',{p_target:tgt,p_field:f,p_amount:q}):await g.sb.rpc(take?'gm_take_item':'gm_give_item',{p_target:tgt,p_item:hit.n,p_qty:q})}catch(e){say('❌ GM: เชื่อมต่อไม่ได้',true);return}
+ if(res&&res.error){say('❌ GM: '+errMsg(res.error.message||''),true);return}
+ say(take?'🧲 ดึง '+hit.n+(q>1?' x'+q.toLocaleString():'')+' จาก '+tgt+' แล้ว (จะถูกหักเมื่อเขาออนไลน์ ภายในราว 15 วินาที)':'🎁 เสก '+hit.n+(q>1?' x'+q.toLocaleString():'')+' ให้ '+tgt+' แล้ว (ผู้รับจะได้เมื่อออนไลน์ ภายในราว 15 วินาที)')}
+/* ดึงของกลับ: ชนิดที่รองรับ + ฟังก์ชันหักของ */
+const TK={'เพชร':'diamonds','เหรียญทอง':'gold','หินตีบวก':'stone','กุญแจหีบสมบัติ':'keys','ตั๋วท้าทาย':'tk','ไข่สัตว์เลี้ยง':'egg','คัมภีร์สุ่มสกิลฟรี':'skf','EXP':'exp'};
+const BOXK={'หีบสมบัติเพชร Lv.1':'mb1','หีบสมบัติเพชร Lv.2':'mb2','หีบสมบัติเพชร Lv.3':'mb3','กล่องสุ่มเพชร':'fdm','กล่องปีกเทพ':'wbw','กล่องสัตว์เทพ':'wbp'};
+const canTake=h=>h&&(h.k==='cur'&&(TK[h.n]||h.n==='แต้มสวน')||h.k==='box'&&BOXK[h.n]||['แฟชั่น','สกินปีก','สัตว์เลี้ยง','ชุดเทพ'].includes(h.k));
+function remove(h,q){const n=h.n,id=(h.al&&h.al[0])||'';
+ if(h.k==='cur'){if(n==='แต้มสวน'){S.fo=S.fo||{};const had=S.fo.pt||0;S.fo.pt=Math.max(0,had-q);return had-S.fo.pt}
+  const k=TK[n];if(!k)throw new Error('ไม่รองรับ');const had=S[k]||0;S[k]=Math.max(0,had-q);return had-S[k]}
+ if(h.k==='box'){const k=BOXK[n],b=S.bag&&S.bag.box;if(!k||!b)return 0;const had=b[k]||0,d=Math.min(had,q);b[k]=had-d;return d}
+ if(h.k==='แฟชั่น'||h.k==='สกินปีก'){const st=h.k==='แฟชั่น'?S.fs:S.ws;if(!st||!st.own||!st.own[id])return 0;const w=st.own[id],cnt=(w.st||0)+1;
+  if(q>=cnt){delete st.own[id];if(st.eq===id){st.eq=null;try{h.k==='แฟชั่น'?fsLive():wsLive()}catch(e){}}return cnt}w.st=(w.st||0)-q;return q}
+ if(h.k==='สัตว์เลี้ยง'){const P=S.pets;if(!P||!P[id])return 0;const w=P[id],cnt=(w.st||0)+1;
+  if(q>=cnt){delete P[id];if(S.pet===id){S.pet=Object.keys(P)[0]||null;try{updatePet()}catch(e){}}return cnt}w.st=(w.st||0)-q;return q}
+ if(h.k==='ชุดเทพ'){const si=Number(String(id).replace('set','')),o=ensureBs().own;if(!o[si])return 0;delete o[si];return 1}
+ throw new Error('ไม่รองรับ')}
+/* ฝั่งผู้รับ: รับของที่ GM เสกให้ */
+const done=new Set(),bad=new Set();
+async function claim(){if($d('ss')||window._hold)return;const g=await GA();if(!g)return;let res;try{res=await g.sb.rpc('claim_gm_item_grants')}catch(e){return}
+ const L=res&&res.data;if(!Array.isArray(L)||!L.length)return;const ok=[],nm=[],tk=[];
+ L.forEach(x=>{if(bad.has(x.id))return;if(done.has(x.id)){ok.push(x.id);return}
+  const r=find(x.item),h=r&&r.hit;if(!h){bad.add(x.id);say('⚠️ มีของจาก GM แต่เกมนี้ไม่รู้จัก "'+x.item+'" (อัปเดตเกมแล้วจะได้รับเอง)',true);return}
+  try{const k=x.kind||'give',qq=Number(x.qty)||1;if(k==='take'){const d=remove(h,qq);tk.push(h.n+(d!==qq?' x'+d+'/'+qq:qq>1?' x'+qq:''))}else{h.fn(qq);nm.push(h.n+(qq>1?' x'+qq:''))}done.add(x.id);ok.push(x.id)}catch(e){bad.add(x.id)}});
+ if(!ok.length)return;if(nm.length){sv();refresh();try{sfx('reveal',3)}catch(e){}say('🎁 ได้รับของจาก GM: '+nm.join(', '))}
+ try{await g.sb.rpc('ack_gm_item_grants',{p_ids:ok})}catch(e){}}
+setTimeout(claim,9000);setInterval(claim,15000);
+document.addEventListener('submit',e=>{const form=e.target;if(!form||!form.closest||!form.closest('#chw'))return;const inp=form.querySelector('input');if(!inp)return;
+ const tab=document.querySelector('#chtabs button.on');if(tab&&tab.dataset.t==='d')return;
+ const raw=inp.value.trim(),t=raw.split(/\s+/);if(t[0]!=='/gm')return;const c=(t[1]||'').toLowerCase();
+ if(c==='help'||!c){setTimeout(()=>say('🛠 เสกของให้ผู้เล่น: give <ไอดี|ชื่อตัวละคร|me> <ชื่อไอเทม> [จำนวน] · ดึงกลับ: take <ผู้เล่น> <ชื่อไอเทม> [จำนวน] · ถ้าชื่อผู้เล่นมีเว้นวรรคให้ใส่ "..." ครอบ · ค้นชื่อไอเทมด้วย items <คำค้น>'),90);return}
+ const GV=['give','add','เสกให้','ให้','ส่ง'],TKC=['take','ดึง','ดึงกลับ','ดึงคืน','ริบ'];if(!GV.includes(c)&&!TKC.includes(c))return;const kind=TKC.includes(c)?'take':'give';
+ const a=t.slice(2);if(kind==='give'&&(c==='give'||c==='add')&&a.length>=3&&OLD[String(a[a.length-2]).toLowerCase()]&&/^\d+$/.test(a[a.length-1]))return;
+ e.preventDefault();e.stopImmediatePropagation();inp.value='';
+ const rest=raw.replace(/^\/gm\s+\S+\s*/,'');
+ if(!rest){say('ใช้: /gm '+(kind==='take'?'take':'give')+' <ไอดี|ชื่อตัวละคร|me> <ชื่อไอเทม> [จำนวน]',true);return}
+ const C=cands(rest);let first=null;
+ for(const [tgt,it] of C){const r=resolve(it);if(r.hit){send(tgt,r.hit,r.q,kind).catch(er=>say('❌ GM: '+(er&&er.message||er),true));return}if(!first)first=r}
+ if(!first){say('ใช้: /gm give <ไอดี|ชื่อตัวละคร|me> <ชื่อไอเทม> [จำนวน]',true);return}
+ const r=first.r;if(r&&r.list&&r.list.length)say('🔎 พบหลายรายการ ('+(r.total||r.list.length)+') พิมพ์ชื่อให้ตรงขึ้น: '+r.list.map(x=>x.n).join(' · '));else say('❌ ไม่พบไอเทม "'+first.name+'" · ลอง /gm items <คำค้น>',true)
+},true);
+})();
 </script></body></html>
 
 
