@@ -3489,7 +3489,7 @@ buff(c,s){const T=vtg(),u=VU();let h=`<defs><linearGradient id="${u}a" x1="0" y1
 const SKV={s1:'wind',s2:'swords',s4:'wind',s5:'swords',s7:'bolt',s8:'ice',s10:'dragon',s11:'fire',s13:'meteor',s14:'swords',s15:'meteor',s18:'shock',s20:'slashX',s21:'swords',s23:'void',s26:'swords',s29:'beam',s30:'slashX',s31:'swords',s34:'void',s35:'dragon',s37:'slashX',s38:'meteor',s39:'fire',s40:'ice',s41:'bolt',s42:'wind',s43:'beam',s44:'void',s45:'dragon',s46:'swords',s48:'meteor',s49:'slashX'};
 castFx=function(k){const col=k.c||RC[k.r],s=1+k.r*.12,t=SKV[k.id]||({d:'swords',x:'swords',c:'slashX',t:'shock'}[k.k]||'swords');
  if(G.fx===0){const P=mPos();burst(P.x,P.y,col,8);return}
- (VFX[t]||VFX.swords)(col,s,k);if(k.r>=3)shake();if(k.r>=5&&t!=='meteor')fx('flash');fx('cmb',k.i+' '+k.n,at(hPos(),60,95))};
+ (VFX[t]||VFX.swords)(col,s,k);fx('cmb',k.i+' '+k.n,at(hPos(),60,95))};
 buffFx=function(k){const col=k.c||RC[k.r];if(G.fx)VFX.buff(col,1+k.r*.12,k);fx('cmb',k.i+' '+k.n,at(hPos(),60,95))};
 const _csE=castSk;castSk=function(i){const id=S.sk[i],k=id&&SK.find(x=>x.id===id),b=skCds[i];_csE(i);if(k&&k.k==='h'&&skCds[i]>b&&G.fx){VFX.heal(k.c||'#6dff8a',1+k.r*.12,k);fx('cmb',k.i+' '+k.n,at(hPos(),60,95))}};
 
@@ -14017,18 +14017,16 @@ document.addEventListener('submit',e=>{const form=e.target;if(!form||!form.close
 (function(){
 if(typeof slashFx!=='function'||typeof sfx!=='function')return;
 const st=document.createElement('style');
-st.textContent=`.scyfx{position:absolute;width:220px;height:220px;pointer-events:none;z-index:31;overflow:visible}
-.scyfx svg{overflow:visible}.scyfx .o{transform-origin:110px 110px}
+st.textContent=`.scyfx{position:absolute;width:140px;height:140px;pointer-events:none;z-index:31;overflow:visible}
+.scyfx svg{overflow:visible}.scyfx .o{transform-origin:110px 110px}.scyfx svg{width:140px;height:140px}
 .scyfx .rg{animation:scyR .55s ease-out forwards}.scyfx .rg2{animation:scyR .75s .08s ease-out forwards}
 .scyfx .cr{animation:scyC .34s ease-out forwards}
 .scyfx .bt{stroke-dasharray:260;stroke-dashoffset:260;animation:scyB .42s ease-out forwards}
 .scyfx .sp{animation:scyS .6s ease-out forwards}
-.scyfl{position:absolute;inset:0;pointer-events:none;z-index:30;animation:scyF .45s ease-out forwards}
 @keyframes scyR{0%{transform:scale(.15);opacity:1}100%{transform:scale(1.55);opacity:0}}
 @keyframes scyC{0%{transform:rotate(-80deg) scale(.45);opacity:0}25%{opacity:1}100%{transform:rotate(45deg) scale(1.3);opacity:0}}
-@keyframes scyB{0%{stroke-dashoffset:260;opacity:1}35%{stroke-dashoffset:0;opacity:1}55%{opacity:.4}70%{opacity:1}100%{stroke-dashoffset:0;opacity:0}}
-@keyframes scyS{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}
-@keyframes scyF{0%{opacity:.9}100%{opacity:0}}`;
+@keyframes scyB{0%{stroke-dashoffset:260;opacity:.9}40%{stroke-dashoffset:0;opacity:.9}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes scyS{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}`;
 document.head.appendChild(st);
 const eq=()=>{try{const o=S.ws&&S.ws.eq&&WSK.find(x=>x.id===S.ws.eq);return o&&o.sp?o:null}catch(e){return null}};
 const R=(a,b)=>a+Math.random()*(b-a);
@@ -14036,19 +14034,34 @@ function bolt(len,col,w){let a=R(0,6.283),x=110,y=110,d='M110 110';const n=5;
  for(let i=1;i<=n;i++){const L=len/n;a+=R(-.55,.55);x+=Math.cos(a)*L;y+=Math.sin(a)*L;d+=`L${x.toFixed(1)} ${y.toFixed(1)}`}
  return `<path class="bt" d="${d}" fill="none" stroke="${col}" stroke-width="${w*2.6}" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/><path class="bt" d="${d}" fill="none" stroke="#fff" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`}
 function scyBurst(P,col,lvl){try{if(typeof G!=='undefined'&&G.fx===0)return;const ar=document.getElementById('arena');if(!ar||!P)return;
- const e=document.createElement('div');e.className='scyfx';e.style.cssText=at(P,110,110);
+ const e=document.createElement('div');e.className='scyfx';e.style.cssText=at(P,70,70);
  let h=`<circle class="o rg" cx="110" cy="110" r="46" fill="none" stroke="${col}" stroke-width="5"/>`;
  h+=`<g class="o cr" style="transform:rotate(${R(-30,30)}deg)"><path d="M20 120Q110 20 200 120Q110 70 20 120Z" fill="${col}" opacity=".85"/><path d="M30 116Q110 38 190 116" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/></g>`;
- const nb=lvl>=2?12:lvl>=1?7:3;for(let i=0;i<nb;i++)h+=bolt(R(60,lvl>=2?112:92),i%3?col:'#fff',lvl>=2?2.4:1.8);
- if(lvl>=1)h+=`<circle class="o rg2" cx="110" cy="110" r="60" fill="none" stroke="#fff" stroke-width="2.5"/>`;
- if(lvl>=1)for(let i=0;i<(lvl>=2?14:7);i++){const a=R(0,6.283),d=R(40,100);h+=`<circle class="sp" cx="110" cy="110" r="${R(1.6,3.4).toFixed(1)}" fill="${i%2?'#fff':col}" style="--dx:${(Math.cos(a)*d).toFixed(0)}px;--dy:${(Math.sin(a)*d).toFixed(0)}px"/>`}
- e.innerHTML=`<svg viewBox="0 0 220 220" width="220" height="220" style="filter:drop-shadow(0 0 6px ${col}) drop-shadow(0 0 14px ${col})">${h}</svg>`;
+ const nb=lvl>=2?5:lvl>=1?3:2;for(let i=0;i<nb;i++)h+=bolt(R(50,lvl>=2?92:76),i%3?col:'#fff',lvl>=2?2.2:1.7);
+  if(lvl>=1)for(let i=0;i<(lvl>=2?6:3);i++){const a=R(0,6.283),d=R(40,100);h+=`<circle class="sp" cx="110" cy="110" r="${R(1.6,3.4).toFixed(1)}" fill="${i%2?'#fff':col}" style="--dx:${(Math.cos(a)*d).toFixed(0)}px;--dy:${(Math.sin(a)*d).toFixed(0)}px"/>`}
+ e.innerHTML=`<svg viewBox="0 0 220 220" width="140" height="140" style="filter:drop-shadow(0 0 4px ${col})">${h}</svg>`;
  ar.appendChild(e);setTimeout(()=>e.remove(),900);
- if(lvl>=2){const f=document.createElement('div');f.className='scyfl';f.style.background=`radial-gradient(circle at ${P.x}% ${P.y}%,${col}88,${col}22 45%,transparent 70%)`;ar.appendChild(f);setTimeout(()=>f.remove(),520)}
 }catch(er){console.error('[scyfx]',er)}}
 window.scyBurst=scyBurst;
 const _sl=slashFx;slashFx=function(v,P,col){const r=_sl.apply(this,arguments);const o=eq();if(o)scyBurst(P,o.col,v>=3?1:0);return r};
 const _sf=sfx;sfx=function(n){const r=_sf.apply(this,arguments);try{const o=eq();if(o&&(n==='crit'||n==='shit')){const P=mPos();setTimeout(()=>scyBurst(P,o.col,n==='shit'?2:1),30)}}catch(e){}return r};
+})();
+
+/* ===== ลดเอฟเฟกต์สกิลทั้งหมด: ไม่มีแสงวาบเต็มจอ ไม่กระพริบ ตัวเอฟเฟกต์เล็กลง ===== */
+(function(){
+const cs=document.createElement('style');
+cs.textContent='#arena .flash,#arena .cfl{display:none!important}#arena .svfx{opacity:.75}';
+document.head.appendChild(cs);
+/* 1) ตัดแสงวาบเต็มจอที่สกิลวาดผ่าน svfx + ลดการกะพริบของสายฟ้า */
+if(typeof svfx==='function'){const _sv=svfx;svfx=function(h,ms){
+ h=String(h).replace(/values="0;1;\.2;1;\.7;0"/g,'values="0;.8;.5;.8;.5;0"');
+ _sv.call(this,h,ms);
+ try{const A=document.getElementById('arena'),e=A&&A.lastElementChild;if(!e||!e.classList.contains('svfx'))return;const W=A.clientWidth;
+  e.querySelectorAll('rect,ellipse').forEach(r=>{const w=r.tagName==='rect'?+r.getAttribute('width'):(+r.getAttribute('rx'))*2;if(w>=W*.7)r.remove()})}catch(er){}}}
+/* 2) ย่อตัวเอฟเฟกต์สกิลลง และลดจำนวนชิ้น */
+if(typeof VFX==='object'&&VFX&&!VFX.__calm){VFX.__calm=1;
+ Object.keys(VFX).forEach(n=>{const f=VFX[n];if(typeof f!=='function')return;
+  VFX[n]=function(c,s,k){const k2=k&&k.h?Object.assign({},k,{h:Math.max(1,Math.round(k.h*.6))}):k;return f.call(this,c,(s||1)*.72,k2)}})}
 })();
 </script></body></html>
 
