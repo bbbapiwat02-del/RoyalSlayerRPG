@@ -5629,8 +5629,8 @@ w.innerHTML='<div class="pnl"><button class="wc">✕</button><div class="cst">�
 $('twr').parentElement.appendChild(w);WID.push('wsw');w.querySelector('.wc').onclick=closeW;w.addEventListener('pointerdown',e=>{if(e.target===w)closeW()});
 if(typeof fdWrap==='function')fdWrap(w.querySelector('.pnl'));
 let sel=null,tab=-1,msg='';const thumbs={};
-const big=(o,sz)=>o.sp?`<svg viewBox="-70 -140 140 190" width="${sz*1.2}" height="${sz*1.6}" style="overflow:visible">${wsBlade(o,'p'+(++_wsu))}</svg>`:`<svg viewBox="-40 ${-(56+Math.min(o.t,9)*5)*1.6-10} 80 ${(56+Math.min(o.t,9)*5)*1.6+60}" width="${sz}" height="${sz*1.6}" style="overflow:visible"><g transform="rotate(0)">${o.t>=3&&window.wsShapeFx?wsShapeFx(o,'b'+(_wsu+1)):''}${wsBlade(o,'p'+(++_wsu))}</g></svg>`;
-function thumb(o){if(thumbs[o.id])return thumbs[o.id];const L=56+Math.min(o.t,9)*5;const s=o.sp?`<svg xmlns="http://www.w3.org/2000/svg" viewBox="-60 -130 120 170" width="84" height="120"><g>${wsBlade(o,'t'+(++_wsu))}</g></svg>`:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="-30 ${-L*1.55} 60 ${L*1.55+44}" width="60" height="96"><g transform="rotate(30 0 ${-L*.4})">${wsBlade(o,'t'+(++_wsu))}</g></svg>`;return thumbs[o.id]='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s)}
+const big=(o,sz)=>o.sp?`<svg viewBox="-70 -118 140 190" width="${sz*1.2}" height="${sz*1.6}" style="overflow:visible">${wsBlade(o,'p'+(++_wsu))}</svg>`:`<svg viewBox="-40 ${-(56+Math.min(o.t,9)*5)*1.6-10} 80 ${(56+Math.min(o.t,9)*5)*1.6+60}" width="${sz}" height="${sz*1.6}" style="overflow:visible"><g transform="rotate(0)">${o.t>=3&&window.wsShapeFx?wsShapeFx(o,'b'+(_wsu+1)):''}${wsBlade(o,'p'+(++_wsu))}</g></svg>`;
+function thumb(o){if(thumbs[o.id])return thumbs[o.id];const L=56+Math.min(o.t,9)*5;const s=o.sp?`<svg xmlns="http://www.w3.org/2000/svg" viewBox="-62 -115 124 190" width="78" height="120"><g>${wsBlade(o,'t'+(++_wsu))}</g></svg>`:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="-30 ${-L*1.55} 60 ${L*1.55+44}" width="60" height="96"><g transform="rotate(30 0 ${-L*.4})">${wsBlade(o,'t'+(++_wsu))}</g></svg>`;return thumbs[o.id]='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s)}
 function pull(n){const c=n===1?150:1350;if((S.diamonds||0)<c){msg='💎 เพชรไม่พอ';render();return}S.diamonds-=c;const tot=FTR.reduce((a,b)=>a+b.w,0),got=[];
  for(let i=0;i<n;i++){let r=Math.random()*tot,t=0;for(;t<FTR.length-1;t++){r-=FTR[t].w;if(r<0)break}if(n===10&&i===9&&!got.some(g=>g.t>=2))t=Math.max(t,2);
   const pool=WSK.filter(x=>x.t===t),o=pool[Math.floor(Math.random()*pool.length)],ow=S.ws.own[o.id];if(ow)ow.st=Math.min(5,(ow.st||0)+1);else S.ws.own[o.id]={st:0};got.push(o);(got.nw=got.nw||[]).push(!ow)}
@@ -13939,7 +13939,7 @@ WSK.push(
  {id:'w'+T+'_scyP',t:T,h:4,n:'เคียวสายฟ้าม่วงอสนี',nm:'ม่วงอสนี',sp:1,hue:0,col:'#b04dff'},
  {id:'w'+T+'_scyR',t:T,h:6,n:'เคียวสายฟ้าแดงโลหิต',nm:'แดงโลหิต',sp:1,hue:80,col:'#ff3a4a'},
  {id:'w'+T+'_scyG',t:T,h:7,n:'เคียวสายฟ้าทองเทพ',nm:'ทองเทพ',sp:1,hue:130,col:'#ffc83a'});
-const SCYB=(o,uid)=>`<g transform="translate(0 26) rotate(28.1) scale(.68) translate(-71 -62)"><g style="filter:hue-rotate(${o.hue}deg)">${window.__SCY(4,uid)}</g></g>`;
+const SCYB=(o,uid)=>`<g transform="translate(0 62) rotate(28.1) scale(.68) translate(-71 -62)"><g style="filter:hue-rotate(${o.hue}deg)">${window.__SCY(4,uid)}</g></g>`;
 const _wb=wsBlade;wsBlade=function(o,uid){if(o&&o.sp){try{return SCYB(o,uid)}catch(e){console.error('[scythe]',e)}}return _wb.apply(this,arguments)};
 if(typeof wsAura==='function'){const _wa=wsAura;wsAura=function(o,tgt){
  if(!o||!o.sp)return _wa.apply(this,arguments);
