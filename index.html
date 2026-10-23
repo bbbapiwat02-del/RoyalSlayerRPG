@@ -4143,15 +4143,15 @@ const A=document.getElementById('arena');if(A&&A.style.visibility==='hidden')ret
 const w=a.offsetWidth;if(!w)return;
 const hr=HS.getBoundingClientRect();if(!hr.width||!HS.offsetWidth)return;
 let nx=.545,ny=.935;
-const legs=[...HS.querySelectorAll('.leg')].map(e=>e.getBoundingClientRect()).filter(r=>r.width>2&&r.height>2);
+const legs=[...HS.querySelectorAll('.leg,svg.nh .n-lff,svg.nh .n-lbf')].map(e=>e.getBoundingClientRect()).filter(r=>r.width>2&&r.height>2);
 if(legs.length){const l=Math.min(...legs.map(r=>r.left)),r2=Math.max(...legs.map(r=>r.right)),bt=Math.max(...legs.map(r=>r.bottom));
-nx=((l+r2)/2-hr.left)/hr.width;ny=(bt-hr.top)/hr.height+.036}
+nx=((l+r2)/2-hr.left)/hr.width;ny=(bt-hr.top)/hr.height+(HS.querySelector('svg.nh')?.005:.036)}
 rx=rx===null?nx:rx+(nx-rx)*.25;ry=ry===null?ny:ry+(ny-ry)*.25;
 const cx=HS.offsetLeft+HS.offsetWidth*rx,fy=HS.offsetTop+HS.offsetHeight*ry;
 a.style.left=(cx-w/2).toFixed(1)+'px';a.style.top=(fy-w*.93).toFixed(1)+'px'}catch(e){}}
 new MutationObserver(()=>{rx=ry=null;align()}).observe(HW,{childList:true});
 addEventListener('resize',()=>{rx=ry=null;align()});
-setInterval(align,250);setTimeout(align,300);align();
+setInterval(align,120);setTimeout(align,300);align();
 })();
 /* ===== กันจอกระพริบ: หน้าโหลดหลังล็อกอิน / หลังสร้างตัวละคร ===== */
 (function(){
@@ -14258,7 +14258,7 @@ try{fsLive()}catch(e){}
 /* ไม่มีแสงขาวเต็มจอจากสกิล + ลดเอฟเฟคสกิล */
 .pflash,#arena .flash,body #arena .flash{display:none!important}
 body #arena .svfx{opacity:calc(var(--svm,.6)*.55)!important}
-body #arena .ring{opacity:calc(var(--svm,.6)*.5)!important}
+body #arena .ring,#arena .ring,.ring{display:none!important;opacity:0!important;animation:none!important}
 #arena .slash{opacity:.75}
 /* หน้าต่างถามก่อนเข้าเหมือง */
 #mnAsk{position:fixed;inset:0;z-index:99999;background:#000b;display:flex;align-items:center;justify-content:center;padding:16px;animation:pvIn .2s ease-out}
@@ -14288,6 +14288,14 @@ body #arena .ring{opacity:calc(var(--svm,.6)*.5)!important}
  const bm=H.querySelector('.beam');if(bm){bm.style.display='none'}}
  const _r=window.renderCs;if(typeof renderCs==='function'){const o=renderCs;renderCs=function(){const r=o.apply(this,arguments);requestAnimationFrame(fix);setTimeout(fix,250);return r}}
  setInterval(fix,700)})();
+
+/* ---- ออร่าตีบวก: จูนให้ตรงกลางเท้าจริงทุกเฟรม ---- */
+(function(){let cx=0,cy=0;function fix(){const a=document.querySelector('#hero>.enaura');if(!a)return;const e=a.querySelector('svg ellipse');if(!e)return;
+ const f=[...document.querySelectorAll('#hs svg.nh .n-lff,#hs svg.nh .n-lbf')].map(x=>x.getBoundingClientRect()).filter(r=>r.width>2);if(!f.length)return;
+ const fx=f.reduce((s,r)=>s+r.left+r.width/2,0)/f.length,fy=Math.max(...f.map(r=>r.bottom))-2;const r=e.getBoundingClientRect();
+ const ex=r.left+r.width/2,ey=r.top+r.height/2;cx+=(fx-ex)*.5;cy+=(fy-ey)*.5;cx=Math.max(-60,Math.min(60,cx));cy=Math.max(-40,Math.min(40,cy));
+ a.style.marginLeft=cx.toFixed(1)+'px';a.style.marginTop=cy.toFixed(1)+'px'}
+ (function lp(){requestAnimationFrame(lp);if(!document.hidden)fix()})()})();
 /* ---- ข้อความบนหัวตัวละครเวลาพิมพ์ในเหมือง ---- */
 (function(){const B=[];function show(t){t=String(t||'').trim().slice(0,80);if(!t||!document.body.classList.contains('mn-mode'))return;const p=document.getElementById('mnP');if(!p)return;
  B.forEach(x=>x.el.remove());B.length=0;const el=document.createElement('div');el.className='mnSay';el.textContent=t;let root=p;while(root.parentElement&&root.parentElement!==document.body)root=root.parentElement;root.appendChild(el);const o={el,p,end:Date.now()+4500};B.push(o);
@@ -14297,68 +14305,6 @@ body #arena .ring{opacity:calc(var(--svm,.6)*.5)!important}
  document.addEventListener('submit',e=>{try{if(!document.body.classList.contains('mn-mode'))return;const i=e.target&&e.target.querySelector&&e.target.querySelector('input,textarea');if(i&&i.value)show(i.value)}catch(x){}},true);
  document.addEventListener('keydown',e=>{try{if(e.key!=='Enter'||!document.body.classList.contains('mn-mode'))return;const i=e.target;if(i&&(i.tagName==='INPUT'||i.tagName==='TEXTAREA')&&!i.form&&i.value)show(i.value)}catch(x){}},true);
 })();
-</script><style>#hs.ndie svg.nh .n-lb{transform-origin:92px 130px!important}#hs.ndie svg.nh .n-lbs{transform-origin:86px 160px!important}#hs.ndie svg.nh .n-lbf{transform-origin:84px 184px!important}
-#hs.ndie svg.nh .n-lf{transform-origin:104px 130px!important}#hs.ndie svg.nh .n-lfs{transform-origin:110px 160px!important}#hs.ndie svg.nh .n-lff{transform-origin:116px 184px!important}
-#hs.ndie svg.nh .n-arm2{transform-origin:92px 100px!important}#hs.ndie svg.nh .n-a2f{transform-origin:88px 118px!important}
-#hs.ndie svg.nh .n-uarm{transform-origin:96px 100px!important}#hs.ndie svg.nh .n-farm{transform-origin:114px 112px!important}
-#hs.ndie svg.nh .n-head{transform-origin:98px 94px!important}#hs.ndie svg.nh .n-flap{transform-origin:88px 98px!important}
-#hs.ndie svg.nh *{animation-timing-function:cubic-bezier(.45,.05,.35,1)}
-#hs.ndie svg.nh .n-body,#hs.ndie svg.nh .n-legs,#hs.ndie svg.nh .n-wpn,#hs.ndie svg.nh .n-hb,#hs.ndie svg.nh .nhfx,#hs.ndie svg.nh .n-flap2{animation:none!important}
-#hs.ndie svg.nh .ndhide{opacity:0!important}
-#hs svg.nh .ndsw{transform-box:fill-box;transform-origin:50% 50%;animation:ndSw 1.8s cubic-bezier(.3,.5,.4,1) 0s both}
-@keyframes ndSw{0%{opacity:0;transform:translate(6px,-8px) rotate(-60deg)}3%{opacity:1}40%{transform:translate(40px,-60px) rotate(420deg)}70%{transform:translate(74px,34px) rotate(820deg)}78%{transform:translate(78px,27px) rotate(800deg)}86%{transform:translate(80px,34px) rotate(812deg)}100%{opacity:1;transform:translate(80px,34px) rotate(810deg)}}
-#hs.ndie svg.nh~*{}
-.ndKO{position:absolute;left:50%;top:-6%;transform:translateX(-50%);font:900 26px system-ui;color:#ffd23f;-webkit-text-stroke:1.5px #6a1a04;letter-spacing:2px;pointer-events:none;z-index:30;animation:ndKO .5s ease-out both}
-@keyframes ndKO{0%{opacity:0;transform:translateX(-50%) scale(2)}100%{opacity:1;transform:translateX(-50%) scale(1)}}
-.ndShk{animation:ndShk .3s linear 1}@keyframes ndShk{25%{transform:translate(3px,2px)}50%{transform:translate(-3px,-1px)}75%{transform:translate(2px,-2px)}}
-/* ================= ท่าตาย 1 (ใหม่): โดนฟันล้มหงาย ================= */
-#hs.ndie svg.nh .n-all{transform-origin:86px 192px!important;animation:ndkAll 2.6s both!important}
-@keyframes ndkAll{0%{transform:none}6%{transform:rotate(-16deg) translateX(-2px)}14%{transform:rotate(-9deg)}22%{transform:rotate(-12deg) translateY(3px)}
- 32%{transform:rotate(-6deg) translateY(12px) scaleY(.93)}40%{transform:translate(6px,12px) rotate(-26deg)}
- 56%{transform:translate(40px,-6px) rotate(-84deg)}62%{transform:translate(50px,-11px) rotate(-92deg)}68%{transform:translate(54px,-18px) rotate(-86deg)}74%{transform:translate(57px,-10px) rotate(-91deg)}
- 80%{transform:translate(59px,-13px) rotate(-89deg)}100%{transform:translate(60px,-11px) rotate(-90deg)}}
-#hs.ndie svg.nh .n-head{animation:ndkHd 2.6s both!important}
-@keyframes ndkHd{0%{transform:none}6%{transform:rotate(-24deg)}14%{transform:rotate(10deg)}24%{transform:rotate(-4deg)}34%{transform:rotate(18deg)}56%{transform:rotate(-20deg)}63%{transform:rotate(14deg)}70%{transform:rotate(-8deg)}78%{transform:rotate(6deg)}100%{transform:rotate(4deg)}}
-#hs.ndie svg.nh .n-uarm{animation:ndkUA 2.6s both!important}
-@keyframes ndkUA{0%{transform:none}6%{transform:rotate(-96deg)}16%{transform:rotate(-60deg)}32%{transform:rotate(30deg)}48%{transform:rotate(-20deg)}58%{transform:rotate(-140deg)}66%{transform:rotate(-112deg)}74%{transform:rotate(-128deg)}100%{transform:rotate(-122deg)}}
-#hs.ndie svg.nh .n-farm{animation:ndkFA 2.6s both!important}
-@keyframes ndkFA{0%{transform:none}6%{transform:rotate(-50deg)}16%{transform:rotate(-20deg)}32%{transform:rotate(30deg)}58%{transform:rotate(-30deg)}66%{transform:rotate(-6deg)}100%{transform:rotate(-14deg)}}
-#hs.ndie svg.nh .n-arm2{animation:ndkA2 2.6s both!important}
-@keyframes ndkA2{0%{transform:none}6%{transform:rotate(80deg)}16%{transform:rotate(40deg)}32%{transform:rotate(-30deg)}48%{transform:rotate(30deg)}58%{transform:rotate(-120deg)}66%{transform:rotate(-96deg)}100%{transform:rotate(-104deg)}}
-#hs.ndie svg.nh .n-a2f{animation:ndkA2f 2.6s both!important}
-@keyframes ndkA2f{0%{transform:none}6%{transform:rotate(-40deg)}32%{transform:rotate(-90deg)}58%{transform:rotate(-20deg)}66%{transform:rotate(-40deg)}100%{transform:rotate(-30deg)}}
-#hs.ndie svg.nh .n-lf{animation:ndkLF 2.6s both!important}
-@keyframes ndkLF{0%{transform:none}8%{transform:rotate(-20deg)}22%{transform:rotate(-8deg)}34%{transform:rotate(-52deg)}50%{transform:rotate(-30deg)}60%{transform:rotate(-64deg)}68%{transform:rotate(-40deg)}76%{transform:rotate(-30deg)}100%{transform:rotate(-26deg)}}
-#hs.ndie svg.nh .n-lfs{animation:ndkLFs 2.6s both!important}
-@keyframes ndkLFs{0%{transform:none}8%{transform:rotate(10deg)}34%{transform:rotate(80deg)}50%{transform:rotate(40deg)}60%{transform:rotate(20deg)}68%{transform:rotate(44deg)}100%{transform:rotate(34deg)}}
-#hs.ndie svg.nh .n-lff{animation:ndkLFf 2.6s both!important}@keyframes ndkLFf{0%{transform:none}34%{transform:rotate(-20deg)}60%{transform:rotate(20deg)}100%{transform:rotate(10deg)}}
-#hs.ndie svg.nh .n-lb{animation:ndkLB 2.6s both!important}
-@keyframes ndkLB{0%{transform:none}8%{transform:rotate(18deg)}22%{transform:rotate(10deg)}34%{transform:rotate(-30deg)}50%{transform:rotate(-12deg)}60%{transform:rotate(-40deg)}70%{transform:rotate(-14deg)}100%{transform:rotate(-8deg)}}
-#hs.ndie svg.nh .n-lbs{animation:ndkLBs 2.6s both!important}
-@keyframes ndkLBs{0%{transform:none}8%{transform:rotate(-20deg)}34%{transform:rotate(70deg)}50%{transform:rotate(20deg)}60%{transform:rotate(4deg)}70%{transform:rotate(18deg)}100%{transform:rotate(12deg)}}
-#hs.ndie svg.nh .n-flap{animation:ndkFl 2.6s both!important}
-@keyframes ndkFl{0%{transform:none}8%{transform:rotate(12deg) skewX(6deg)}30%{transform:rotate(-6deg) skewX(-4deg)}56%{transform:rotate(-16deg) scaleY(.9)}64%{transform:rotate(-4deg) scaleY(.85)}72%{transform:rotate(-12deg) scaleY(.88)}100%{transform:rotate(-8deg) scaleY(.86)}}
- 70%{transform:translate(64px,40px) rotate(820deg)}78%{transform:translate(68px,32px) rotate(800deg)}86%{transform:translate(70px,40px) rotate(812deg)}100%{opacity:1;transform:translate(70px,40px) rotate(810deg)}}
-</style><script>/* ================= ท่าตาย: โดนฟันล้มหงาย + อาวุธที่สวมอยู่หลุดมือ ================= */
-(function(){if(typeof die!=='function')return;const NS='http://www.w3.org/2000/svg';let dying=false;
-function grab(sv){const vb=sv.viewBox.baseVal;const ws=[...sv.querySelectorAll('.n-farm g, .n-wpn g')].filter(e=>/(^|\s)(sw-|nws|wsx)/.test(e.getAttribute('class')||'')&&!e.parentElement.closest('[class*=sw-],[class*=nws]')&&getComputedStyle(e).display!=='none'&&e.getBBox().width>4);
- if(!ws.length)return null;const outer=document.createElementNS(NS,'g');outer.setAttribute('class','ndsw nfx-d');
- ws.forEach(w=>{const rel=sv.getScreenCTM().inverse().multiply(w.parentNode.getScreenCTM());const g=document.createElementNS(NS,'g');g.setAttribute('transform',`matrix(${rel.a} ${rel.b} ${rel.c} ${rel.d} ${rel.e+(vb?vb.x:0)} ${rel.f+(vb?vb.y:0)})`);const cw=w.cloneNode(true);cw.style.setProperty('display','inline','important');cw.style.setProperty('opacity','1','important');g.appendChild(cw);outer.appendChild(g)});return outer}
-function play(done){const hs=document.getElementById('hs'),sv0=hs&&hs.querySelector('svg.nh');if(!sv0){done();return}
- let clone=null;try{clone=grab(sv0)}catch(e){console.warn('[die]',e)}
- hs.classList.remove('ndie');void hs.offsetWidth;hs.classList.add('ndie');const t0=performance.now();
- const keep=setInterval(()=>{const sv=hs.querySelector('svg.nh');if(!sv)return;const el=(performance.now()-t0)/1000;hs.style.setProperty('--ndt',(-el).toFixed(3)+'s');
-  try{sv.getAnimations({subtree:true}).forEach(a=>{if(!(a instanceof CSSAnimation)&&!(a instanceof CSSTransition))a.cancel();else if(a.animationName&&a.animationName.indexOf('ndk')===0){const want=el*1000;if(Math.abs((a.currentTime||0)-want)>150)a.currentTime=want}})}catch(e){}
-  sv.querySelectorAll('.n-farm g, .n-wpn g').forEach(e=>{if(/(^|\s)(sw-|nws|wsx)/.test(e.getAttribute('class')||'')&&!e.closest('.ndsw'))e.classList.add('ndhide')});
-  if(clone&&performance.now()-t0>380&&!sv.querySelector('.ndsw')){const c=clone.cloneNode(true);c.style.animationDelay=(-(performance.now()-t0-400)/1000)+'s';sv.appendChild(c)}},30);
- const ar=document.getElementById('arena');setTimeout(()=>{if(ar){ar.classList.remove('ndShk');void ar.offsetWidth;ar.classList.add('ndShk')}},1420);
- const H=document.getElementById('hero');let ko=null;setTimeout(()=>{if(H){ko=document.createElement('div');ko.className='ndKO';ko.textContent='K.O.';H.appendChild(ko)}},2350);
- setTimeout(()=>{clearInterval(keep);hs.style.removeProperty('--ndt');hs.classList.remove('ndie');hs.querySelectorAll('.ndhide').forEach(e=>e.classList.remove('ndhide'));hs.querySelectorAll('.nfx-d').forEach(e=>e.remove());if(ko)ko.remove();done()},2950)}
-const _d=die;die=function(){if(dying)return;const self=this,args=arguments;
- if(document.hidden||!document.querySelector('#hs svg.nh')){return _d.apply(self,args)}
- dying=true;const hold=!!window._hold;window._hold=true;
- play(()=>{dying=false;window._hold=hold;try{_d.apply(self,args)}catch(e){console.error(e)}})};
-window.heroDeathAnim=()=>play(()=>{});
-})();</script></body></html>
+</script></body></html>
 
 
