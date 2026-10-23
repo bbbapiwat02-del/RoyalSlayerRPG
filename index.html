@@ -3660,17 +3660,31 @@ const ENC=['#7dd3fc','#a78bfa','#fbbf24','#f43f5e','#ff4fd8'],ENN=['ประก
 const WEN=[3,7,10,15,20],WENN=['ดาบเรืองแสง','ปราณไหลเวียน','เพลิงพันธนาการ','ดาวโคจรรอบคม','คมดาบรุ้งสวรรค์'];
 const enTot=()=>(S.enh||[]).reduce((a,b)=>a+(b||0),0),enBand=T=>T>=80?4:T>=60?3:T>=40?2:T>=20?1:T>=8?0:-1;
 let eaU=0;
-function auraSVG(T){const b=enBand(T);if(b<0)return '';const c=ENC[b],u='ea'+(eaU++),F=x=>(+x).toFixed(1);
- let h=`<defs><radialGradient id="${u}g"><stop offset="0" stop-color="${c}" stop-opacity=".75"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient><linearGradient id="${u}f" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="${c}" stop-opacity=".95"/><stop offset=".55" stop-color="${c}" stop-opacity=".4"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><linearGradient id="${u}p" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${c}" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></linearGradient></defs>`;
- if(b>=4)h+=`<rect x="68" y="-40" width="64" height="232" fill="url(#${u}p)"><animate attributeName="opacity" values=".35;.8;.35" dur="2.4s" repeatCount="indefinite"/></rect>`;
- h+=`<ellipse cx="100" cy="186" rx="60" ry="15" fill="url(#${u}g)"><animate attributeName="rx" values="52;68;52" dur="2s" repeatCount="indefinite"/></ellipse>`;
- if(b>=1)for(let i=0;i<9;i++){const x=62+i*9.5,hg=(70+60*Math.sin(Math.PI*(i+.5)/9))*(.85+Math.random()*.3),w=11;h+=`<path class="eaf" style="animation-delay:-${(Math.random()*.5).toFixed(2)}s;animation-duration:${(.4+Math.random()*.3).toFixed(2)}s" d="M${F(x)} 186Q${F(x-w)} ${F(186-hg*.4)} ${F(x-w*.2)} ${F(186-hg*.7)}Q${F(x+w*.1)} ${F(186-hg*.85)} ${F(x)} ${F(186-hg)}Q${F(x+w*.6)} ${F(186-hg*.6)} ${F(x+w)} ${F(186-hg*.35)}Q${F(x+w*.8)} 184 ${F(x)} 186Z" fill="url(#${u}f)"/>`}
- if(b>=2){h+=`<g transform="translate(100 187)"><ellipse rx="62" ry="15" fill="none" stroke="${c}" stroke-width="2" stroke-dasharray="10 4 2 4"><animate attributeName="stroke-dashoffset" values="0;-80" dur="3s" repeatCount="indefinite"/></ellipse><ellipse rx="44" ry="10.5" fill="none" stroke="#fff" stroke-width="1.2" stroke-dasharray="3 5" opacity=".8"><animate attributeName="stroke-dashoffset" values="0;48" dur="2s" repeatCount="indefinite"/></ellipse>${'☰☱☲☳☴☵☶☷'.split('').map((g,i)=>{const a=i/8*6.283;return `<text x="${F(Math.cos(a)*53)}" y="${F(Math.sin(a)*12.6+3)}" font-size="8" text-anchor="middle" fill="${c}">${g}</text>`}).join('')}</g>`;
-  for(const[y,rx,du] of [[150,46,2.2],[110,40,1.8],[70,34,2.6]])for(let k=0;k<2;k++)h+=`<circle r="2.6" fill="#fff"><animateMotion dur="${du}s" begin="-${(k*du/2).toFixed(2)}s" repeatCount="indefinite" path="M${100-rx} ${y}A${rx} ${rx*.26} 0 1 0 ${100+rx} ${y}A${rx} ${rx*.26} 0 1 0 ${100-rx} ${y}"/></circle>`}
- if(b>=3)for(let k=0;k<3;k++){let x=70+k*30,y=60,pts=[];for(let j=0;j<6;j++){pts.push(F(x)+','+F(y));x+=(Math.random()-.5)*22;y+=20}h+=`<polyline class="zap" style="animation-delay:${k*.2}s" points="${pts.join(' ')}" fill="none" stroke="#fff" stroke-width="1.6"/>`}
- for(let i=0;i<10;i++){const x=60+Math.random()*80,du=(1.2+Math.random()*1.2).toFixed(1),bg=(Math.random()*2).toFixed(1);h+=`<circle cx="${F(x)}" cy="186" r="${F(1.4+Math.random()*1.8)}" fill="${i%2?'#fff':c}"><animate attributeName="cy" values="186;${F(40+Math.random()*50)}" dur="${du}s" begin="-${bg}s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0" dur="${du}s" begin="-${bg}s" repeatCount="indefinite"/></circle>`}
- if(b>=4)h+=`<ellipse cx="100" cy="84" rx="24" ry="6.5" fill="none" stroke="#ffd23f" stroke-width="2.4" style="filter:drop-shadow(0 0 5px #fff)"/>`;
- return `<svg viewBox="0 0 200 200" >${h}</svg>`}
+function auraSVG(T){const b=enBand(T);if(b<0)return '';const c=ENC[b],u='ea'+(eaU++),F=x=>(+x).toFixed(1),CX=100,CY=186;
+ /* ออร่าตีบวกแบบใหม่: แนบพื้นและรอบตัว ไม่มีลำแสงพุ่งขึ้นฟ้า */
+ const W=b>=4?'#ffffff':'#fff';let h=`<defs><radialGradient id="${u}g"><stop offset="0" stop-color="${c}" stop-opacity=".85"/><stop offset=".55" stop-color="${c}" stop-opacity=".35"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient><radialGradient id="${u}w"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient><linearGradient id="${u}f" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset=".35" stop-color="${c}" stop-opacity=".9"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></linearGradient>${b>=4?`<linearGradient id="${u}r" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff5a7a"/><stop offset=".25" stop-color="#ffd23f"/><stop offset=".5" stop-color="#5affb0"/><stop offset=".75" stop-color="#5ab8ff"/><stop offset="1" stop-color="#d87aff"/></linearGradient>`:''}</defs>`;
+ const ring=b>=4?`url(#${u}r)`:c;
+ /* แสงนุ่มบนพื้น */
+ h+=`<ellipse cx="${CX}" cy="${CY}" rx="66" ry="17" fill="url(#${u}g)"><animate attributeName="opacity" values=".7;1;.7" dur="2.4s" repeatCount="indefinite"/></ellipse><ellipse cx="${CX}" cy="${CY}" rx="26" ry="6" fill="url(#${u}w)" opacity=".7"/>`;
+ /* วงแหวนพื้นหลัก */
+ h+=`<g transform="translate(${CX} ${CY})"><ellipse rx="54" ry="13.5" fill="none" stroke="${ring}" stroke-width="2.2" opacity=".95"/><ellipse rx="54" ry="13.5" fill="none" stroke="#fff" stroke-width="1" stroke-dasharray="2 9" opacity=".9"><animate attributeName="stroke-dashoffset" values="0;-66" dur="3s" repeatCount="indefinite"/></ellipse>`;
+ if(b>=2){h+=`<ellipse rx="70" ry="17.5" fill="none" stroke="${ring}" stroke-width="1.4" stroke-dasharray="14 5 3 5" opacity=".85"><animate attributeName="stroke-dashoffset" values="0;108" dur="6s" repeatCount="indefinite"/></ellipse><ellipse rx="38" ry="9.5" fill="none" stroke="${ring}" stroke-width="1.6" stroke-dasharray="6 4" opacity=".8"><animate attributeName="stroke-dashoffset" values="0;-60" dur="4s" repeatCount="indefinite"/></ellipse>`;
+  const R='☰☱☲☳☴☵☶☷';for(let i=0;i<8;i++){const a=i/8*6.283;h+=`<text font-size="7" text-anchor="middle" fill="${i%2?'#fff':c}" opacity=".95"><animateMotion dur="10s" begin="-${F(i*1.25)}s" repeatCount="indefinite" path="M-62 0A62 15.5 0 1 0 62 0A62 15.5 0 1 0 -62 0"/>${R[i]}</text>`}}
+ h+=`</g>`;
+ /* เปลวไฟต่ำแนบเท้า (สูงไม่เกินเข่า) */
+ if(b>=1)for(let i=0;i<12;i++){const a=i/12*6.283,x=CX+Math.cos(a)*44,y=CY+Math.sin(a)*11,hg=11+((i*7)%5)*2,w=6,bk=Math.sin(a)<0;h+=`<path class="eaf" style="animation-delay:-${F((i*.137)%0.6)}s;animation-duration:${F(.45+(i%4)*.09)}s" opacity="${bk?.45:.8}" d="M${F(x-w)} ${F(y)}C${F(x-w)} ${F(y-hg*.45)} ${F(x-w*.25)} ${F(y-hg*.75)} ${F(x)} ${F(y-hg)}C${F(x+w*.25)} ${F(y-hg*.75)} ${F(x+w)} ${F(y-hg*.45)} ${F(x+w)} ${F(y)}C${F(x+w)} ${F(y+3)} ${F(x-w)} ${F(y+3)} ${F(x-w)} ${F(y)}Z" fill="url(#${u}f)"/>`}
+ /* ประกายวิ่งรอบตัวแนวนอน (ไม่ลอยขึ้นฟ้า) */
+ const orb=(y,rx,ry,du,n,r,col)=>{let o='';for(let k=0;k<n;k++)o+=`<circle r="${r}" fill="${col}" style="filter:drop-shadow(0 0 2px ${c})"><animateMotion dur="${du}s" begin="-${F(k*du/n)}s" repeatCount="indefinite" path="M${CX-rx} ${y}A${rx} ${ry} 0 1 0 ${CX+rx} ${y}A${rx} ${ry} 0 1 0 ${CX-rx} ${y}"/><animate attributeName="opacity" values="1;.35;1" dur="${du}s" begin="-${F(k*du/n)}s" repeatCount="indefinite"/></circle>`;return o};
+ h+=orb(CY-4,50,12,3.2,3,1.8,'#fff');
+ if(b>=3){h+=orb(150,40,9,2.4,2,2.2,c)+orb(128,34,8,2.8,2,1.8,'#fff');
+  /* ริบบิ้นพลังพันรอบลำตัว */
+  for(const[y,rx,du] of [[156,42,3.6],[132,36,4.4]])h+=`<ellipse cx="${CX}" cy="${y}" rx="${rx}" ry="${F(rx*.22)}" fill="none" stroke="${ring}" stroke-width="2.2" stroke-dasharray="${F(rx*1.4)} ${F(rx*3.2)}" stroke-linecap="round" opacity=".85"><animate attributeName="stroke-dashoffset" values="0;${F(-rx*4.6)}" dur="${du}s" repeatCount="indefinite"/></ellipse>`;
+  /* สายฟ้าเล็ก ๆ วิ่งบนวงพื้น */
+  for(let k=0;k<3;k++){const a=k*2.09,x=CX+Math.cos(a)*52,y=CY+Math.sin(a)*13;h+=`<polyline class="zap" style="animation-delay:${F(k*.3)}s" points="${F(x-8)},${F(y)} ${F(x-3)},${F(y-6)} ${F(x+1)},${F(y-1)} ${F(x+6)},${F(y-7)}" fill="none" stroke="#fff" stroke-width="1.4"/>`}}
+ if(b>=4){/* ดอกบัวสวรรค์ใต้เท้า + กลีบลอยวนรอบตัว */
+  for(let i=0;i<8;i++){const a=i/8*6.283;h+=`<path transform="translate(${CX} ${CY}) scale(1 .25) rotate(${F(a*57.3)})" d="M0 0Q-9 -26 0 -46Q9 -26 0 0Z" fill="${['#ff5a7a','#ffd23f','#5affb0','#5ab8ff'][i%4]}" opacity=".55"/>`}
+  for(let k=0;k<4;k++)h+=`<path d="M0 -3Q2.4 0 0 3Q-2.4 0 0 -3Z" fill="${['#ff9ac0','#ffe066','#9affd0','#9ad8ff'][k]}"><animateMotion dur="5s" begin="-${F(k*1.25)}s" repeatCount="indefinite" rotate="auto" path="M${CX-46} 140A46 11 0 1 0 ${CX+46} 140A46 11 0 1 0 ${CX-46} 140"/></path>`}
+ return `<svg viewBox="0 0 200 200">${h}</svg>`}
 function wfxSVG(){const e=S.eq[0],w=EL(0);if(!e||w<WEN[0])return {g:'',f:''};const T=th2(e),Lb=44+Math.min(10,T.L)*1.7,bi=w>=20?4:w>=15?3:w>=10?2:w>=7?1:0,c=ENC[bi];let g='';
  if(w>=7)g+=`<path d="M0 -9V-${(Lb-4).toFixed(1)}" stroke="${c}" stroke-width="5" opacity=".45" stroke-linecap="round"/><path d="M0 -9V-${(Lb-4).toFixed(1)}" stroke="#fff" stroke-width="1.3" stroke-dasharray="4 6" stroke-linecap="round"><animate attributeName="stroke-dashoffset" values="0;-20" dur=".45s" repeatCount="indefinite"/></path>`;
  if(w>=10)for(const f of[.3,.5,.7,.88])for(const sd of[-1,1])g+=`<path class="gz-fl" style="animation-delay:-${(f*sd+1).toFixed(2)}s" d="M${3.2*sd} ${(-Lb*f).toFixed(1)}q${3*sd} -4 ${1.2*sd} -9q${-.6*sd} 4 ${-2.8*sd} 9Z" fill="${c}" opacity=".9"/>`;
@@ -11555,7 +11569,7 @@ function autoCast(){if(!autoOn||st!=='idle')return;cast(rnd(40,90))}
 const AUTO_PRICE=10000;
 function autoLabel(){
  const b=$('fxAuto');if(!b)return;
- if(!S.fishAuto){b.textContent='🔒 ออโต้ 💎'+AUTO_PRICE.toLocaleString();b.classList.remove('on')}
+ if(!S.fishAuto){const L=fFree();if(L>0){b.textContent='🤖 ออโต้ฟรี '+fMMSS(L)+(autoOn?' ✓':'');b.classList.toggle('on',autoOn)}else{b.textContent='🔒 ออโต้ 💎'+AUTO_PRICE.toLocaleString();b.classList.remove('on')}}
  else{b.textContent='🤖 ออโต้: '+(autoOn?'เปิด':'ปิด');b.classList.toggle('on',autoOn)}
 }
 function closeModal(id){const e=$(id);if(e)e.remove();const d=$('fx-dock');if(d&&!$('fx-sell')&&!$('fx-buy'))d.classList.remove('fx-modal')}
@@ -11574,8 +11588,15 @@ function buyAuto(){
   closeModal('fx-buy');autoLabel();
  };
 }
+const FFREE=30*60*1000,fTD=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
+function fFreeO(){let o=S.fishFree;if(!o||o.d!==fTD())o=S.fishFree={d:fTD(),ms:0};return o}
+function fFree(){return Math.max(0,FFREE-fFreeO().ms)}
+const fMMSS=ms=>{const t=Math.ceil(ms/1000);return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
+let fLast=0;setInterval(()=>{const now=Date.now();if(autoOn&&!S.fishAuto&&$('fxAuto')){const o=fFreeO();o.ms+=Math.min(5000,now-(fLast||now));
+  if(fFree()<=0){autoOn=false;if(st==='idle')btns('cast');else if(st==='fighting'){reeling=false;btns('reel')}else if(st==='biting')btns('hook');try{toast('⏰ หมดเวลาออโต้ฟรีวันนี้ (30 นาที)')}catch(e){}try{saveSave()}catch(e){}}
+  autoLabel()}fLast=now},1000);
 function toggleAuto(){
- if(!S.fishAuto)return buyAuto();
+ if(!S.fishAuto&&fFree()<=0)return buyAuto();
  autoOn=!autoOn;autoLabel();
  if(autoOn&&st==='idle'){btns('auto');later(autoCast,300)}
  else if(!autoOn&&st==='idle')btns('cast');
@@ -12096,6 +12117,12 @@ function bfsNear(pred){const Q=[[me.x,me.y]],prev={};prev[me.x+','+me.y]=null;
  while(Q.length){const [x,y]=Q.shift();for(const [a,b] of D4){const nx=x+a,ny=y+b,k=nx+','+ny;if(nx<0||ny<0||nx>=COLS||ny>=ROWS||k in prev)continue;if(mobAt(nx,ny)>=0||bossAt(nx,ny))continue;prev[k]=[x,y];
   if(pred(nx,ny)){const out=[];let c=[nx,ny];while(c&&!(c[0]===me.x&&c[1]===me.y)){out.unshift(c);c=prev[c[0]+','+c[1]]}return out}Q.push([nx,ny])}}return null}
 function foeAdj(x,y){return D4.some(([a,b])=>mobAt(x+a,y+b)>=0||bossAt(x+a,y+b))}
+const MFREE=30*60*1000,mTD=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
+function mFreeO(){let o=S.mnFree;if(!o||o.d!==mTD())o=S.mnFree={d:mTD(),ms:0};return o}
+function mFree(){return Math.max(0,MFREE-mFreeO().ms)}
+const mMMSS=ms=>{const t=Math.ceil(ms/1000);return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
+let mLast=0;setInterval(()=>{const now=Date.now();if(autoOn&&W&&!S.mnAuto){mFreeO().ms+=Math.min(5000,now-(mLast||now));
+  if(mFree()<=0){autoOn=false;S.mnAutoOn=0;path=null;mark(-1,-1);autoSave();banner2('⏰ หมดเวลาออโต้ฟรีวันนี้','ใช้ฟรีได้วันละ 30 นาที · ปลดล็อกถาวรด้วย 💎'+fm(MNAUTOCOST))}autoUI()}mLast=now},1000);
 function autoTick(now){if(!autoOn||!W||falling||me.hp<=0||me.busy>now)return;
  for(const [a,b] of D4){const nx=me.x+a,ny=me.y+b;if(mobAt(nx,ny)>=0||bossAt(nx,ny)){path=null;mark(-1,-1);me.dir=[a,b];if(a)me.face=a>0?1:-1;const p=$$('mnP');if(p)p.classList.toggle('lf',me.face<0);target();dig();return}}
  if(path&&path.length)return;
@@ -12109,9 +12136,10 @@ function autoTick(now){if(!autoOn||!W||falling||me.hp<=0||me.busy>now)return;
  if(!p)p=bfsNear((x,y)=>solid(x,y));
  if(!p)p=bfsNear((x,y)=>foeAdj(x,y));
  if(p&&p.length)path=p}
-function autoUI(){const b=$$('mnA');if(!b)return;const un=!!S.mnAuto;b.textContent=!un?'🔒 ออโต้':autoOn?'🤖 ออโต้ ON':'🤖 ออโต้ OFF';b.style.background=autoOn?'linear-gradient(#3aff8a,#1a8a4a)':'';b.style.color=autoOn?'#042':'';b.style.borderColor=autoOn?'#b8ffd8':''}
+function autoUI(){const b=$$('mnA');if(!b)return;const un=!!S.mnAuto,fl=un?0:mFree();b.textContent=un?(autoOn?'🤖 ออโต้ ON':'🤖 ออโต้ OFF'):fl>0?('🤖 ฟรี '+mMMSS(fl)+(autoOn?' ON':'')):'🔒 ออโต้';b.style.background=autoOn?'linear-gradient(#3aff8a,#1a8a4a)':'';b.style.color=autoOn?'#042':'';b.style.borderColor=autoOn?'#b8ffd8':''}
 function autoSave(){try{const j=JSON.stringify(S);localStorage.setItem('ml1',j);const cur=localStorage.getItem('ml_cur');if(cur)localStorage.setItem('ml_sv_'+cur,j)}catch(e){}}
 function autoClick(){
+ if(!S.mnAuto&&mFree()>0){autoOn=!autoOn;if(!autoOn){path=null;mark(-1,-1)}autoSave();banner2(autoOn?'🤖 ออโต้ขุดฟรี: เปิด':'🤖 ออโต้ขุดฟรี: ปิด','เหลือเวลาฟรีวันนี้ '+mMMSS(mFree())+' · ใช้ฟรีได้วันละ 30 นาที');autoUI();return}
  if(!S.mnAuto){const dm=S.diamonds||0;if(dm<MNAUTOCOST){banner2('💎 เพชรไม่พอ','ปลดล็อกออโต้ขุดเหมืองต้องใช้ '+fm(MNAUTOCOST)+' เพชร (มี '+fm(dm)+')');return}
   if(Date.now()>autoArm){autoArm=Date.now()+3500;banner2('🤖 ออโต้ขุดเหมือง','แตะปุ่มอีกครั้งภายใน 3 วินาทีเพื่อซื้อถาวร 💎'+fm(MNAUTOCOST));return}
   autoArm=0;S.diamonds=dm-MNAUTOCOST;S.mnAuto=1;S.mnAutoOn=1;autoOn=true;autoSave();try{updateHero()}catch(e){}try{banner('🤖 ปลดล็อกออโต้ขุดเหมืองแล้ว!')}catch(e){}banner2('🤖 เปิดออโต้ขุดเหมือง','ตัวละครจะขุด สู้มอนสเตอร์ และลงชั้นเองอัตโนมัติ');autoUI();return}
@@ -13510,7 +13538,10 @@ try{if(typeof IT!=='undefined'){const t=IT.find(x=>x.id==='tk');if(t){t.n='ต�
 /* ---------- เหมือง: 2 รอบ/วัน ---------- */
 function wrapMine(){const om=window.openMine;if(!om||om._lim)return;const f=function(){if(document.body.classList.contains('mn-mode'))return om.apply(this,arguments);
  const o=mnE();if(o.n>=MNLIM){say('⛏️ วันนี้เข้าเหมืองครบ '+MNLIM+' รอบแล้ว · รีเซ็ตเที่ยงคืน');return}
- return om.apply(this,arguments)};f._lim=1;window.openMine=f}
+ if(window._mnGo){return om.apply(this,arguments)}if(document.getElementById('mnAsk'))return;const self=this,args=arguments,left=MNLIM-o.n;
+ const d=document.createElement('div');d.id='mnAsk';d.innerHTML=`<div class="bx"><div class="ic">⛏️</div><b>เข้าเหมืองลึก</b><p>วันนี้เข้าได้อีก <em>${left}</em> / ${MNLIM} รอบ</p><div class="dots">${Array.from({length:MNLIM},(_,i)=>`<i class="${i<o.n?'u':''}"></i>`).join('')}</div><small>รอบจะถูกนับเมื่อเข้าเหมือง · รีเซ็ตทุกเที่ยงคืน</small><div class="r"><button class="n">ยกเลิก</button><button class="y">เข้าเหมือง (เหลือ ${left-1})</button></div></div>`;
+ document.body.appendChild(d);d.querySelector('.n').onclick=()=>d.remove();d.onclick=e=>{if(e.target===d)d.remove()};
+ d.querySelector('.y').onclick=()=>{d.remove();window._mnGo=1;try{om.apply(self,args)}finally{setTimeout(()=>{window._mnGo=0},50)}};return};f._lim=1;window.openMine=f}
 wrapMine();setInterval(wrapMine,1500);
 /* นับรอบตอนเข้าเหมืองจริง (ครั้งเดียวต่อการเข้า) */
 let mnOn=false;new MutationObserver(()=>{const on=document.body.classList.contains('mn-mode');if(on&&!mnOn){const o=mnE();o.n++;setTimeout(()=>say('⛏️ เข้าเหมืองรอบ '+o.n+'/'+MNLIM+' ของวันนี้'),1600)}mnOn=on}).observe(document.body,{attributes:true,attributeFilter:['class']});
@@ -14167,6 +14198,7 @@ function injectCC(){const w=document.getElementById('ccw');if(!w||w.querySelecto
 const _cc=window.charCreate;window.charCreate=function(){const r=_cc.apply(this,arguments);try{injectCC()}catch(e){console.error('[hair]',e)}return r};
 new MutationObserver(()=>{try{injectCC()}catch(e){}}).observe(document.body,{childList:true});
 /* ---------- เปลี่ยนทรงผมภายหลัง (หน้าตัวละคร) ---------- */
+const HCHG=300,tdk=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()},freeToday=()=>S.hairFreeD!==tdk();
 function openSalon(){if(document.getElementById('hairm'))return;
  if(S.sex==='f'){try{banner('💇 ทรงผมใช้ได้กับตัวละครชายเท่านั้น')}catch(e){}return}
  const old=get(),st={s:old.s,c:old.c};
@@ -14175,15 +14207,27 @@ function openSalon(){if(document.getElementById('hairm'))return;
  const base=document.querySelector('#hs svg.nh');if(base){const c=base.cloneNode(true);c.querySelectorAll('.n-wg').forEach(g=>g.innerHTML='');c.removeAttribute('width');c.removeAttribute('height');c.style.cssText='display:block;position:relative;width:120px;height:130px;margin:auto;overflow:visible;transform:none';pv.appendChild(c)}
  const buy=document.createElement('div');buy.className='hbuy';
  const pnl=panel(st,v=>{S.hair={s:v.s,c:v.c};sync()},{});bx.appendChild(pnl);bx.appendChild(buy);
- function sync(){const o=isOwn(st.s);buy.innerHTML=o?'<span>✅ ทรงนี้เป็นของคุณแล้ว</span>':`<span>🔒 ${NAME[st.s]}</span><button type="button" class="hb">💎 ซื้อ ${PRICE[st.s].toLocaleString()}</button><small>มี 💎 ${(S.diamonds||0).toLocaleString()}</small>`;const hy=row.querySelector('.hy');if(hy){hy.disabled=!o;hy.style.opacity=o?'':'.45'}const b=buy.querySelector('.hb');if(b){b.disabled=(S.diamonds||0)<PRICE[st.s];b.onclick=()=>{if((S.diamonds||0)<PRICE[st.s])return;S.diamonds-=PRICE[st.s];owned().push(st.s);saveS();pnl.refresh();try{banner('👑 ได้ทรงผมแฟชั่น '+NAME[st.s]+' แล้ว')}catch(e){}sync()}}}
+ function sync(){const o=isOwn(st.s),ch=st.s!==old.s,fee=ch?(freeToday()?'<small style="color:#7dffb0">🆓 เปลี่ยนทรงฟรีวันละ 1 ครั้ง (วันนี้ยังว่าง)</small>':'<small style="color:#ffc070">วันนี้ใช้สิทธิ์ฟรีแล้ว · เปลี่ยนทรงครั้งนี้ใช้ 💎'+HCHG+'</small>'):(freeToday()?'<small>🆓 วันนี้เปลี่ยนทรงได้ฟรี 1 ครั้ง · เปลี่ยนสีฟรีเสมอ</small>':'<small>วันนี้ใช้สิทธิ์เปลี่ยนทรงฟรีแล้ว · เปลี่ยนสีฟรีเสมอ</small>');buy.innerHTML=o?'<span>✅ ทรงนี้เป็นของคุณแล้ว</span>'+fee:`<span>🔒 ${NAME[st.s]}</span><button type="button" class="hb">💎 ซื้อ ${PRICE[st.s].toLocaleString()}</button><small>มี 💎 ${(S.diamonds||0).toLocaleString()}</small>`;const hy=row.querySelector('.hy');if(hy){hy.disabled=!o;hy.style.opacity=o?'':'.45'}const b=buy.querySelector('.hb');if(b){b.disabled=(S.diamonds||0)<PRICE[st.s];b.onclick=()=>{if((S.diamonds||0)<PRICE[st.s])return;S.diamonds-=PRICE[st.s];owned().push(st.s);saveS();pnl.refresh();try{banner('👑 ได้ทรงผมแฟชั่น '+NAME[st.s]+' แล้ว')}catch(e){}sync()}}}
  const row=document.createElement('div');row.className='hrow';row.innerHTML='<button type="button" class="hn">ยกเลิก</button><button type="button" class="hy">✓ ตกลง</button>';bx.appendChild(row);
  document.body.appendChild(m);sync();
  row.querySelector('.hn').onclick=()=>{S.hair={s:old.s,c:old.c};m.remove()};
- row.querySelector('.hy').onclick=()=>{S.hair={s:st.s,c:st.c};saveS();m.remove();try{banner('💇 เปลี่ยนทรงผมแล้ว')}catch(e){}}}
+ row.querySelector('.hy').onclick=()=>{const ch=st.s!==old.s;if(ch){if(freeToday()){S.hairFreeD=tdk()}else{if((S.diamonds||0)<HCHG){try{banner('💎 เพชรไม่พอ · เปลี่ยนทรงครั้งถัดไปวันนี้ใช้ 💎'+HCHG)}catch(e){}return}S.diamonds-=HCHG}}
+  S.hair={s:st.s,c:st.c};saveS();m.remove();try{banner(ch?'💇 เปลี่ยนทรงผมแล้ว':'💇 บันทึกแล้ว')}catch(e){}}}
 window.openSalon=openSalon;
-/* ปุ่มร้านทำผมแฟชั่นในหอแฟชั่น */
-new MutationObserver(()=>{const c=document.querySelector('#fsw .cst');if(c&&!c.querySelector('.fsHair')&&S.sex!=='f'){const b=document.createElement('button');b.type='button';b.className='fsHair';b.textContent='💇 ทรงผม';b.onclick=e=>{e.stopPropagation();openSalon()};c.appendChild(b)}}).observe(document.body,{childList:true,subtree:true});
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#csHair');if(b){e.preventDefault();openSalon()}});
+
+/* ---------- ทรงผมรวมในเมนูไอคอนแฟชั่น (ชุด / อาวุธ / ทรงผม) ---------- */
+(function(){
+ const inner='<circle r="34" fill="#c86aff" opacity=".22"/><path d="M-30 18Q-36 -20 -6 -34Q26 -42 34 -8Q36 10 28 22Q26 0 14 -10Q20 6 10 14Q8 -4 -4 -12Q0 6 -12 14Q-12 -2 -20 -6Q-22 8 -30 18Z" fill="#e8e2f6" stroke="#3a1a40" stroke-width="2.2" stroke-linejoin="round"/><path d="M-14 -24Q4 -32 22 -20" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/><path d="M-2 -34Q4 -48 18 -46Q8 -42 6 -32" fill="#e8e2f6" stroke="#3a1a40" stroke-width="2"/><g transform="translate(18 22) rotate(-30)"><rect x="-4" y="-2" width="8" height="26" rx="2" fill="#ffd23f" stroke="#5a2a04" stroke-width="1.6"/><path d="M-4 0V-10M0 0V-12M4 0V-10" stroke="#ffd23f" stroke-width="2.4" stroke-linecap="round"/></g>';
+ let ic='';try{ic=NIF('nbp',inner,'#c86aff').replace('<svg ','<svg width="30" height="31" ')}catch(e){ic='<span style="font-size:22px">💇</span>'}
+ function add(){const d=document.getElementById('gfs');if(!d||document.getElementById('gfsh'))return;const w=document.getElementById('gfsw');if(!w)return;
+  const b=w.cloneNode(true);b.id='gfsh';const fy=parseFloat(w.style.getPropertyValue('--fy'))||0,hh=w.getBoundingClientRect().height||60;
+  b.style.setProperty('--fy',(fy+hh+6)+'px');b.style.animationDelay='.14s';
+  b.querySelector('i').innerHTML=ic;b.querySelector('span').textContent='ทรงผม';
+  b.onclick=e=>{e.stopPropagation();d.remove();if(S.sex==='f'){try{banner('💇 ทรงผมใช้ได้กับตัวละครชายเท่านั้น')}catch(x){}return}openSalon()};
+  d.insertBefore(b,d.firstChild)}
+ new MutationObserver(()=>{try{add()}catch(e){}}).observe(document.body,{childList:true});
+})();
 /* ---------- หมวกแฟชั่น: เปิด/ปิดแสดง + จัดให้เข้ากับหัวตัวละคร ---------- */
 (function(){const NS='http://www.w3.org/2000/svg';
 let MAP='translate(119.3 72) rotate(-9) scale(1.06) translate(-121.25 -63.75)';
@@ -14210,6 +14254,111 @@ try{fsLive()}catch(e){}
 })();
 })();
 </script>
-</body></html>
+<style>
+/* ไม่มีแสงขาวเต็มจอจากสกิล + ลดเอฟเฟคสกิล */
+.pflash,#arena .flash,body #arena .flash{display:none!important}
+body #arena .svfx{opacity:calc(var(--svm,.6)*.55)!important}
+body #arena .ring{opacity:calc(var(--svm,.6)*.5)!important}
+#arena .slash{opacity:.75}
+/* หน้าต่างถามก่อนเข้าเหมือง */
+#mnAsk{position:fixed;inset:0;z-index:99999;background:#000b;display:flex;align-items:center;justify-content:center;padding:16px;animation:pvIn .2s ease-out}
+#mnAsk .bx{width:min(320px,100%);background:linear-gradient(#3a1a0e,#1a0a06);border:3px solid #f5c542;border-radius:20px;padding:18px 16px 14px;text-align:center;color:#ffe9b0;box-shadow:0 0 30px #ff8a1a88}
+#mnAsk .ic{font-size:42px;line-height:1}#mnAsk b{display:block;font-size:20px;margin:6px 0 4px;color:#ffd23f}
+#mnAsk p{margin:4px 0;font-size:16px;font-weight:800}#mnAsk em{font-style:normal;color:#7dffb0;font-size:22px}
+#mnAsk .dots{display:flex;gap:8px;justify-content:center;margin:8px 0}#mnAsk .dots i{width:18px;height:18px;border-radius:50%;background:#7dffb0;box-shadow:0 0 8px #7dffb0;border:2px solid #fff8}#mnAsk .dots i.u{background:#3a2a24;box-shadow:none;border-color:#6a4a3a}
+#mnAsk small{color:#c8a880;font-size:11.5px}
+#mnAsk .r{display:flex;gap:8px;margin-top:12px}#mnAsk .r button{flex:1;padding:11px 6px;border-radius:12px;font:inherit;font-weight:900;font-size:14px;border:2px solid #8a560a;background:#2a1410;color:#ffe9b0}#mnAsk .r .y{background:linear-gradient(#ffb02e,#e5252d);border-color:#fff3b0;color:#fff}
+/* ข้อความบนหัวตัวละครในเหมือง */
+.mnSay{position:fixed;z-index:2147483000;transform:translate(-50%,-100%);max-width:200px;padding:5px 10px;border-radius:12px;background:#fffdf3;color:#2a1408;font-size:13px;font-weight:800;line-height:1.3;border:2px solid #3a1a10;box-shadow:0 3px 8px #0008;pointer-events:none;word-break:break-word;text-align:center;animation:mnSayIn .18s ease-out}
+.mnSay::after{content:"";position:absolute;left:50%;bottom:-8px;margin-left:-6px;border:6px solid transparent;border-top-color:#3a1a10;border-bottom:0}
+.mnSay.out{transition:opacity .4s;opacity:0}
+@keyframes mnSayIn{from{opacity:0;transform:translate(-50%,-80%) scale(.7)}to{opacity:1;transform:translate(-50%,-100%) scale(1)}}
+/* ท่าทางลื่นไหล: ชิ้นส่วนเปลี่ยนท่าแบบนุ่มนวล */
+.nh .n-head,.nh .n-uarm,.nh .n-farm,.nh .n-arm2,.nh .n-a2f,.nh .n-lb,.nh .n-lf,.nh .n-lbs,.nh .n-lfs,.nh .n-body,.nh .n-wpn{transition:transform .14s cubic-bezier(.3,.7,.4,1)}
+.nh .nhfx{transform-box:view-box;transform-origin:104px 108px;animation:nhNod 3.2s ease-in-out infinite}
+@keyframes nhNod{0%,100%{transform:rotate(0) translateY(0)}50%{transform:rotate(-1.4deg) translateY(.5px)}}
+.g-noanim .nh .nhfx,.g-lowanim .nh .nhfx{animation:none}
+</style><script>
+/* ---- ออร่าวงเวทหน้าตัวละคร: วางให้ตรงเท้าพอดี ---- */
+(function(){function fix(){const H=document.getElementById('csH');if(!H||!H.offsetParent)return;const sv=H.querySelector('svg');if(!sv)return;
+ const feet=[...sv.querySelectorAll('.n-lff,.n-lbf')].map(e=>e.getBoundingClientRect()).filter(r=>r.width);const hr=H.getBoundingClientRect();if(!hr.width)return;
+ let fx,fy;if(feet.length){fx=(Math.min(...feet.map(r=>r.left))+Math.max(...feet.map(r=>r.right)))/2;fy=Math.max(...feet.map(r=>r.bottom))-3}else{const r=sv.getBoundingClientRect();fx=r.left+r.width/2;fy=r.bottom}
+ const x=fx-hr.left,y=fy-hr.top;
+ [['.plat',156],['.plat2',114]].forEach(([q,w])=>{const p=H.querySelector(q);if(!p)return;p.style.left=(x-w/2)+'px';p.style.marginLeft='0';p.style.top=(y-w/2)+'px';p.style.bottom='auto'});
+ const bm=H.querySelector('.beam');if(bm){bm.style.display='none'}}
+ const _r=window.renderCs;if(typeof renderCs==='function'){const o=renderCs;renderCs=function(){const r=o.apply(this,arguments);requestAnimationFrame(fix);setTimeout(fix,250);return r}}
+ setInterval(fix,700)})();
+/* ---- ข้อความบนหัวตัวละครเวลาพิมพ์ในเหมือง ---- */
+(function(){const B=[];function show(t){t=String(t||'').trim().slice(0,80);if(!t||!document.body.classList.contains('mn-mode'))return;const p=document.getElementById('mnP');if(!p)return;
+ B.forEach(x=>x.el.remove());B.length=0;const el=document.createElement('div');el.className='mnSay';el.textContent=t;let root=p;while(root.parentElement&&root.parentElement!==document.body)root=root.parentElement;root.appendChild(el);const o={el,p,end:Date.now()+4500};B.push(o);
+ (function fr(){if(!el.isConnected)return;const r=p.getBoundingClientRect();el.style.left=(r.left+r.width/2)+'px';el.style.top=(r.top-4)+'px';
+  if(Date.now()>o.end){el.classList.add('out');setTimeout(()=>el.remove(),420);return}requestAnimationFrame(fr)})()}
+ window.mnSay=show;
+ document.addEventListener('submit',e=>{try{if(!document.body.classList.contains('mn-mode'))return;const i=e.target&&e.target.querySelector&&e.target.querySelector('input,textarea');if(i&&i.value)show(i.value)}catch(x){}},true);
+ document.addEventListener('keydown',e=>{try{if(e.key!=='Enter'||!document.body.classList.contains('mn-mode'))return;const i=e.target;if(i&&(i.tagName==='INPUT'||i.tagName==='TEXTAREA')&&!i.form&&i.value)show(i.value)}catch(x){}},true);
+})();
+</script><style>#hs.ndie svg.nh .n-lb{transform-origin:92px 130px!important}#hs.ndie svg.nh .n-lbs{transform-origin:86px 160px!important}#hs.ndie svg.nh .n-lbf{transform-origin:84px 184px!important}
+#hs.ndie svg.nh .n-lf{transform-origin:104px 130px!important}#hs.ndie svg.nh .n-lfs{transform-origin:110px 160px!important}#hs.ndie svg.nh .n-lff{transform-origin:116px 184px!important}
+#hs.ndie svg.nh .n-arm2{transform-origin:92px 100px!important}#hs.ndie svg.nh .n-a2f{transform-origin:88px 118px!important}
+#hs.ndie svg.nh .n-uarm{transform-origin:96px 100px!important}#hs.ndie svg.nh .n-farm{transform-origin:114px 112px!important}
+#hs.ndie svg.nh .n-head{transform-origin:98px 94px!important}#hs.ndie svg.nh .n-flap{transform-origin:88px 98px!important}
+#hs.ndie svg.nh *{animation-timing-function:cubic-bezier(.45,.05,.35,1)}
+#hs.ndie svg.nh .n-body,#hs.ndie svg.nh .n-legs,#hs.ndie svg.nh .n-wpn,#hs.ndie svg.nh .n-hb,#hs.ndie svg.nh .nhfx,#hs.ndie svg.nh .n-flap2{animation:none!important}
+#hs.ndie svg.nh .ndhide{opacity:0!important}
+#hs svg.nh .ndsw{transform-box:fill-box;transform-origin:50% 50%;animation:ndSw 1.8s cubic-bezier(.3,.5,.4,1) 0s both}
+@keyframes ndSw{0%{opacity:0;transform:translate(6px,-8px) rotate(-60deg)}3%{opacity:1}40%{transform:translate(40px,-60px) rotate(420deg)}70%{transform:translate(74px,34px) rotate(820deg)}78%{transform:translate(78px,27px) rotate(800deg)}86%{transform:translate(80px,34px) rotate(812deg)}100%{opacity:1;transform:translate(80px,34px) rotate(810deg)}}
+#hs.ndie svg.nh~*{}
+.ndKO{position:absolute;left:50%;top:-6%;transform:translateX(-50%);font:900 26px system-ui;color:#ffd23f;-webkit-text-stroke:1.5px #6a1a04;letter-spacing:2px;pointer-events:none;z-index:30;animation:ndKO .5s ease-out both}
+@keyframes ndKO{0%{opacity:0;transform:translateX(-50%) scale(2)}100%{opacity:1;transform:translateX(-50%) scale(1)}}
+.ndShk{animation:ndShk .3s linear 1}@keyframes ndShk{25%{transform:translate(3px,2px)}50%{transform:translate(-3px,-1px)}75%{transform:translate(2px,-2px)}}
+/* ================= ท่าตาย 1 (ใหม่): โดนฟันล้มหงาย ================= */
+#hs.ndie svg.nh .n-all{transform-origin:86px 192px!important;animation:ndkAll 2.6s both!important}
+@keyframes ndkAll{0%{transform:none}6%{transform:rotate(-16deg) translateX(-2px)}14%{transform:rotate(-9deg)}22%{transform:rotate(-12deg) translateY(3px)}
+ 32%{transform:rotate(-6deg) translateY(12px) scaleY(.93)}40%{transform:translate(6px,12px) rotate(-26deg)}
+ 56%{transform:translate(40px,-6px) rotate(-84deg)}62%{transform:translate(50px,-11px) rotate(-92deg)}68%{transform:translate(54px,-18px) rotate(-86deg)}74%{transform:translate(57px,-10px) rotate(-91deg)}
+ 80%{transform:translate(59px,-13px) rotate(-89deg)}100%{transform:translate(60px,-11px) rotate(-90deg)}}
+#hs.ndie svg.nh .n-head{animation:ndkHd 2.6s both!important}
+@keyframes ndkHd{0%{transform:none}6%{transform:rotate(-24deg)}14%{transform:rotate(10deg)}24%{transform:rotate(-4deg)}34%{transform:rotate(18deg)}56%{transform:rotate(-20deg)}63%{transform:rotate(14deg)}70%{transform:rotate(-8deg)}78%{transform:rotate(6deg)}100%{transform:rotate(4deg)}}
+#hs.ndie svg.nh .n-uarm{animation:ndkUA 2.6s both!important}
+@keyframes ndkUA{0%{transform:none}6%{transform:rotate(-96deg)}16%{transform:rotate(-60deg)}32%{transform:rotate(30deg)}48%{transform:rotate(-20deg)}58%{transform:rotate(-140deg)}66%{transform:rotate(-112deg)}74%{transform:rotate(-128deg)}100%{transform:rotate(-122deg)}}
+#hs.ndie svg.nh .n-farm{animation:ndkFA 2.6s both!important}
+@keyframes ndkFA{0%{transform:none}6%{transform:rotate(-50deg)}16%{transform:rotate(-20deg)}32%{transform:rotate(30deg)}58%{transform:rotate(-30deg)}66%{transform:rotate(-6deg)}100%{transform:rotate(-14deg)}}
+#hs.ndie svg.nh .n-arm2{animation:ndkA2 2.6s both!important}
+@keyframes ndkA2{0%{transform:none}6%{transform:rotate(80deg)}16%{transform:rotate(40deg)}32%{transform:rotate(-30deg)}48%{transform:rotate(30deg)}58%{transform:rotate(-120deg)}66%{transform:rotate(-96deg)}100%{transform:rotate(-104deg)}}
+#hs.ndie svg.nh .n-a2f{animation:ndkA2f 2.6s both!important}
+@keyframes ndkA2f{0%{transform:none}6%{transform:rotate(-40deg)}32%{transform:rotate(-90deg)}58%{transform:rotate(-20deg)}66%{transform:rotate(-40deg)}100%{transform:rotate(-30deg)}}
+#hs.ndie svg.nh .n-lf{animation:ndkLF 2.6s both!important}
+@keyframes ndkLF{0%{transform:none}8%{transform:rotate(-20deg)}22%{transform:rotate(-8deg)}34%{transform:rotate(-52deg)}50%{transform:rotate(-30deg)}60%{transform:rotate(-64deg)}68%{transform:rotate(-40deg)}76%{transform:rotate(-30deg)}100%{transform:rotate(-26deg)}}
+#hs.ndie svg.nh .n-lfs{animation:ndkLFs 2.6s both!important}
+@keyframes ndkLFs{0%{transform:none}8%{transform:rotate(10deg)}34%{transform:rotate(80deg)}50%{transform:rotate(40deg)}60%{transform:rotate(20deg)}68%{transform:rotate(44deg)}100%{transform:rotate(34deg)}}
+#hs.ndie svg.nh .n-lff{animation:ndkLFf 2.6s both!important}@keyframes ndkLFf{0%{transform:none}34%{transform:rotate(-20deg)}60%{transform:rotate(20deg)}100%{transform:rotate(10deg)}}
+#hs.ndie svg.nh .n-lb{animation:ndkLB 2.6s both!important}
+@keyframes ndkLB{0%{transform:none}8%{transform:rotate(18deg)}22%{transform:rotate(10deg)}34%{transform:rotate(-30deg)}50%{transform:rotate(-12deg)}60%{transform:rotate(-40deg)}70%{transform:rotate(-14deg)}100%{transform:rotate(-8deg)}}
+#hs.ndie svg.nh .n-lbs{animation:ndkLBs 2.6s both!important}
+@keyframes ndkLBs{0%{transform:none}8%{transform:rotate(-20deg)}34%{transform:rotate(70deg)}50%{transform:rotate(20deg)}60%{transform:rotate(4deg)}70%{transform:rotate(18deg)}100%{transform:rotate(12deg)}}
+#hs.ndie svg.nh .n-flap{animation:ndkFl 2.6s both!important}
+@keyframes ndkFl{0%{transform:none}8%{transform:rotate(12deg) skewX(6deg)}30%{transform:rotate(-6deg) skewX(-4deg)}56%{transform:rotate(-16deg) scaleY(.9)}64%{transform:rotate(-4deg) scaleY(.85)}72%{transform:rotate(-12deg) scaleY(.88)}100%{transform:rotate(-8deg) scaleY(.86)}}
+ 70%{transform:translate(64px,40px) rotate(820deg)}78%{transform:translate(68px,32px) rotate(800deg)}86%{transform:translate(70px,40px) rotate(812deg)}100%{opacity:1;transform:translate(70px,40px) rotate(810deg)}}
+</style><script>/* ================= ท่าตาย: โดนฟันล้มหงาย + อาวุธที่สวมอยู่หลุดมือ ================= */
+(function(){if(typeof die!=='function')return;const NS='http://www.w3.org/2000/svg';let dying=false;
+function grab(sv){const vb=sv.viewBox.baseVal;const ws=[...sv.querySelectorAll('.n-farm g, .n-wpn g')].filter(e=>/(^|\s)(sw-|nws|wsx)/.test(e.getAttribute('class')||'')&&!e.parentElement.closest('[class*=sw-],[class*=nws]')&&getComputedStyle(e).display!=='none'&&e.getBBox().width>4);
+ if(!ws.length)return null;const outer=document.createElementNS(NS,'g');outer.setAttribute('class','ndsw nfx-d');
+ ws.forEach(w=>{const rel=sv.getScreenCTM().inverse().multiply(w.parentNode.getScreenCTM());const g=document.createElementNS(NS,'g');g.setAttribute('transform',`matrix(${rel.a} ${rel.b} ${rel.c} ${rel.d} ${rel.e+(vb?vb.x:0)} ${rel.f+(vb?vb.y:0)})`);const cw=w.cloneNode(true);cw.style.setProperty('display','inline','important');cw.style.setProperty('opacity','1','important');g.appendChild(cw);outer.appendChild(g)});return outer}
+function play(done){const hs=document.getElementById('hs'),sv0=hs&&hs.querySelector('svg.nh');if(!sv0){done();return}
+ let clone=null;try{clone=grab(sv0)}catch(e){console.warn('[die]',e)}
+ hs.classList.remove('ndie');void hs.offsetWidth;hs.classList.add('ndie');const t0=performance.now();
+ const keep=setInterval(()=>{const sv=hs.querySelector('svg.nh');if(!sv)return;const el=(performance.now()-t0)/1000;hs.style.setProperty('--ndt',(-el).toFixed(3)+'s');
+  try{sv.getAnimations({subtree:true}).forEach(a=>{if(!(a instanceof CSSAnimation)&&!(a instanceof CSSTransition))a.cancel();else if(a.animationName&&a.animationName.indexOf('ndk')===0){const want=el*1000;if(Math.abs((a.currentTime||0)-want)>150)a.currentTime=want}})}catch(e){}
+  sv.querySelectorAll('.n-farm g, .n-wpn g').forEach(e=>{if(/(^|\s)(sw-|nws|wsx)/.test(e.getAttribute('class')||'')&&!e.closest('.ndsw'))e.classList.add('ndhide')});
+  if(clone&&performance.now()-t0>380&&!sv.querySelector('.ndsw')){const c=clone.cloneNode(true);c.style.animationDelay=(-(performance.now()-t0-400)/1000)+'s';sv.appendChild(c)}},30);
+ const ar=document.getElementById('arena');setTimeout(()=>{if(ar){ar.classList.remove('ndShk');void ar.offsetWidth;ar.classList.add('ndShk')}},1420);
+ const H=document.getElementById('hero');let ko=null;setTimeout(()=>{if(H){ko=document.createElement('div');ko.className='ndKO';ko.textContent='K.O.';H.appendChild(ko)}},2350);
+ setTimeout(()=>{clearInterval(keep);hs.style.removeProperty('--ndt');hs.classList.remove('ndie');hs.querySelectorAll('.ndhide').forEach(e=>e.classList.remove('ndhide'));hs.querySelectorAll('.nfx-d').forEach(e=>e.remove());if(ko)ko.remove();done()},2950)}
+const _d=die;die=function(){if(dying)return;const self=this,args=arguments;
+ if(document.hidden||!document.querySelector('#hs svg.nh')){return _d.apply(self,args)}
+ dying=true;const hold=!!window._hold;window._hold=true;
+ play(()=>{dying=false;window._hold=hold;try{_d.apply(self,args)}catch(e){console.error(e)}})};
+window.heroDeathAnim=()=>play(()=>{});
+})();</script></body></html>
 
 
