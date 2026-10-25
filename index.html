@@ -15422,6 +15422,18 @@ setInterval(()=>{try{scan()}catch(e){}},700);
  }catch(e){}};N._ctr=1;window.pfAlign=N;
  setInterval(()=>{if(document.querySelector('#pfbd .pfx .hero .pfhero .enaura'))try{window.pfAlign()}catch(e){}},1500)})();
 
+/* ---- หน้าที่ก๊อปโมเดลตัวละคร (เช่นหน้าปีก): clipPath ของผมไอดีซ้ำ ทำให้หัวหาย → เปลี่ยนเป็นไอดีเฉพาะ ---- */
+(function(){let n=0,q=0;
+ function fix(){q=0;document.querySelectorAll('svg.nh g.dgclip').forEach(g=>{const m=(g.getAttribute('clip-path')||'').match(/url\(#([^)]+)\)/);if(!m)return;
+  const sv=g.ownerSVGElement;if(!sv)return;const own=sv.querySelector('clipPath[id="'+m[1]+'"]');if(own&&document.getElementById(m[1])===own)return;
+  if(!own){g.removeAttribute('clip-path');return}
+  sv.querySelectorAll('clipPath[id^="dgcx"]').forEach(c=>{if(!sv.querySelector('[clip-path="url(#'+c.id+')"]'))c.remove()});
+  const id='dgcx'+(++n);own.id=id;g.setAttribute('clip-path','url(#'+id+')')})}
+ new MutationObserver(()=>{if(!q)q=requestAnimationFrame(fix)}).observe(document.body,{childList:true,subtree:true});
+ setInterval(fix,1000);fix()})();
+/* ออร่าแฟชั่นในหน้าอื่น: ไม่ต้องมีแสงฟุ้งเหนือหัว เหลือแค่วงแหวน */
+document.head.insertAdjacentHTML('beforeend','<style>.fsau .gl,.fsau.dgauX::before,#fsau.dgauX::before,.fsau .dgrg .r3{display:none!important}</style>');
+
 </script></body></html>
 
 
